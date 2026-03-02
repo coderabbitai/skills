@@ -10,7 +10,7 @@ AI-powered code review for 35+ coding agents, powered by [CodeRabbit](https://co
 
 ```bash
 # Install the CodeRabbit CLI
-curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+# Follow official instructions: https://www.coderabbit.ai/cli
 
 # Authenticate
 coderabbit auth login
