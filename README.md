@@ -131,6 +131,27 @@ AI-powered code review that finds bugs, security issues, and suggests improvemen
 - Supports autonomous fix-review cycles
 - Works with staged, committed, or all changes
 
+### [autofix](skills/autofix/SKILL.md)
+
+Auto-fix workflow for unresolved CodeRabbit GitHub PR review comments, with interactive per-issue review or batch fixing.
+
+**Use when:**
+
+- You already have an open GitHub PR reviewed by CodeRabbit
+- You want to apply suggested fixes from unresolved CodeRabbit threads
+- You want either manual approval per issue or one-pass batch autofix
+
+**Categories covered:** Review-thread extraction, issue prioritization, guided fixes, consolidated commit and PR summary
+
+**Triggers:** "coderabbit autofix", "fix coderabbit", "cr fix"
+
+**Capabilities:**
+
+- Fetches unresolved CodeRabbit review threads for the current PR
+- Parses and prioritizes issues by severity
+- Applies fixes interactively or in batch mode
+- Produces a single consolidated commit and posts a PR summary comment
+
 ## Resources
 
 - [CodeRabbit Documentation](https://coderabbit.ai/docs)
