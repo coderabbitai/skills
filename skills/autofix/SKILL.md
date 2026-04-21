@@ -3,20 +3,20 @@ name: autofix
 description: Auto-fix CodeRabbit review comments - get CodeRabbit review comments from GitHub and fix them interactively or in batch
 metadata:
   version: "0.1.0"
-triggers:
-  - coderabbit.?autofix
-  - coderabbit.?auto.?fix
-  - autofix.?coderabbit
-  - coderabbit.?fix
-  - fix.?coderabbit
-  - coderabbit.?review
-  - review.?coderabbit
-  - coderabbit.?issues?
-  - show.?coderabbit
-  - get.?coderabbit
-  - cr.?autofix
-  - cr.?fix
-  - cr.?review
+  triggers:
+    - coderabbit.?autofix
+    - coderabbit.?auto.?fix
+    - autofix.?coderabbit
+    - coderabbit.?fix
+    - fix.?coderabbit
+    - coderabbit.?review
+    - review.?coderabbit
+    - coderabbit.?issues?
+    - show.?coderabbit
+    - get.?coderabbit
+    - cr.?autofix
+    - cr.?fix
+    - cr.?review
 ---
 
 # CodeRabbit Autofix
