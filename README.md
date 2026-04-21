@@ -76,9 +76,45 @@ The agent will automatically:
 
 ## Supported Agents
 
-CodeRabbit supports 35+ coding agents. For current setup instructions, start with
-the [CLI docs](https://docs.coderabbit.ai/cli) and the agent-specific
-integration guides.
+CodeRabbit supports 35+ coding agents.
+
+| Agent              | Project Path           | Global Path                            |
+| ------------------ | ---------------------- | -------------------------------------- |
+| Amp, Kimi Code CLI | `.agents/skills/`      | `~/.config/agents/skills/`             |
+| Antigravity        | `.agent/skills/`       | `~/.gemini/antigravity/global_skills/` |
+| Claude Code        | `.claude/skills/`      | `~/.claude/skills/`                    |
+| Cline              | `.cline/skills/`       | `~/.cline/skills/`                     |
+| CodeBuddy          | `.codebuddy/skills/`   | `~/.codebuddy/skills/`                 |
+| Codex              | `.codex/skills/`       | `~/.codex/skills/`                     |
+| Command Code       | `.commandcode/skills/` | `~/.commandcode/skills/`               |
+| Continue           | `.continue/skills/`    | `~/.continue/skills/`                  |
+| Crush              | `.crush/skills/`       | `~/.config/crush/skills/`              |
+| Cursor             | `.cursor/skills/`      | `~/.cursor/skills/`                    |
+| Droid              | `.factory/skills/`     | `~/.factory/skills/`                   |
+| Gemini CLI         | `.gemini/skills/`      | `~/.gemini/skills/`                    |
+| GitHub Copilot     | `.github/skills/`      | `~/.copilot/skills/`                   |
+| Goose              | `.goose/skills/`       | `~/.config/goose/skills/`              |
+| Junie              | `.junie/skills/`       | `~/.junie/skills/`                     |
+| Kilo Code          | `.kilocode/skills/`    | `~/.kilocode/skills/`                  |
+| Kiro CLI           | `.kiro/skills/`        | `~/.kiro/skills/`                      |
+| Kode               | `.kode/skills/`        | `~/.kode/skills/`                      |
+| MCPJam             | `.mcpjam/skills/`      | `~/.mcpjam/skills/`                    |
+| Moltbot            | `skills/`              | `~/.moltbot/skills/`                   |
+| Mux                | `.mux/skills/`         | `~/.mux/skills/`                       |
+| Neovate            | `.neovate/skills/`     | `~/.neovate/skills/`                   |
+| OpenClaude IDE     | `.openclaude/skills/`  | `~/.openclaude/skills/`                |
+| OpenCode           | `.opencode/skills/`    | `~/.config/opencode/skills/`           |
+| OpenHands          | `.openhands/skills/`   | `~/.openhands/skills/`                 |
+| Pi                 | `.pi/skills/`          | `~/.pi/agent/skills/`                  |
+| Pochi              | `.pochi/skills/`       | `~/.pochi/skills/`                     |
+| Qoder              | `.qoder/skills/`       | `~/.qoder/skills/`                     |
+| Qwen Code          | `.qwen/skills/`        | `~/.qwen/skills/`                      |
+| Replit             | `.agent/skills/`       | N/A (project-only)                     |
+| Roo Code           | `.roo/skills/`         | `~/.roo/skills/`                       |
+| Trae               | `.trae/skills/`        | `~/.trae/skills/`                      |
+| Trae CN            | `.trae/skills/`        | `~/.trae-cn/skills/`                   |
+| Windsurf           | `.windsurf/skills/`    | `~/.codeium/windsurf/skills/`          |
+| Zencoder           | `.zencoder/skills/`    | `~/.zencoder/skills/`                  |
 
 ## Available Skills
 
