@@ -51,7 +51,7 @@ Once prerequisites are met:
 
 ```bash
 # type defaults to "all"; add --base only when specified
-coderabbit review --plain -t "${type:-all}" ${base:+--base "$base"}
+coderabbit review --agent -t "${type:-all}" ${base:+--base "$base"}
 ```
 
 Where `type` and `base` come from `$ARGUMENTS`:
@@ -66,8 +66,8 @@ Add `--base <branch>` only when a base branch is specified.
 
 Group findings by severity:
 
-1. **Critical** - Security, bugs
-2. **Suggestions** - Improvements
-3. **Positive** - What's good
+1. **Critical** - Security vulnerabilities, data loss risks, crashes
+2. **Warning** - Bugs, performance issues, anti-patterns
+3. **Info** - Style issues, suggestions, minor improvements
 
-Offer to apply fixes if `codegenInstructions` are present.
+Offer to apply fixes from the `--agent` findings when the output includes actionable remediation details.
