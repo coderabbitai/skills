@@ -10,22 +10,20 @@ AI-powered code review for 35+ coding agents, powered by [CodeRabbit](https://co
 
 ```bash
 # Install the CodeRabbit CLI
-# Follow official instructions: https://www.coderabbit.ai/cli
+# Use Homebrew or the install script:
+# https://docs.coderabbit.ai/cli
+curl -fsSL https://cli.coderabbit.ai/install.sh | sh
 
 # Authenticate
 coderabbit auth login
-
-# Install the skill
-npx skills add coderabbitai/skills
 ```
 
 Then tell your agent: **“Review my code.”**
 
 ## Installation
 
-```bash
-npx skills add coderabbitai/skills
-```
+Install the CodeRabbit CLI using Homebrew or the install script by following the
+[CLI docs](https://docs.coderabbit.ai/cli).
 
 ### Claude Code Plugin
 
@@ -49,35 +47,13 @@ After publication, Cursor marketplace installs use:
 /add-plugin coderabbit
 ```
 
-Until then, you can keep using the direct skills install path:
-
-```bash
-npx skills add coderabbitai/skills -a cursor
-```
+For the current recommended setup, see the
+[Cursor integration guide](https://docs.coderabbit.ai/cli/cursor-integration).
 
 ### Codex App
 
 Codex users can install the official CodeRabbit plugin by following the
 [Codex app integration guide](https://docs.coderabbit.ai/cli/codex-integration#codex-app).
-
-### Installation Options
-
-| Flag           | Purpose                                          |
-| -------------- | ------------------------------------------------ |
-| `-g, --global` | Install to user directory instead of project     |
-| `-a, --agent`  | Target specific agents (e.g., `-a claude-code`)  |
-| `-s, --skill`  | Install particular skills by name                |
-| `--all`        | Install all skills to all agents without prompts |
-
-Examples:
-
-```bash
-npx skills add coderabbitai/skills
-npx skills add coderabbitai/skills -g
-npx skills add coderabbitai/skills -a claude-code
-npx skills add coderabbitai/skills -a codex
-npx skills add coderabbitai/skills -a cursor
-```
 
 ## Usage
 
@@ -100,45 +76,9 @@ The agent will automatically:
 
 ## Supported Agents
 
-Skills can be installed to any of these agents:
-
-| Agent              | `--agent`         | Project Path           | Global Path                            |
-| ------------------ | ----------------- | ---------------------- | -------------------------------------- |
-| Amp, Kimi Code CLI | `amp`, `kimi-cli` | `.agents/skills/`      | `~/.config/agents/skills/`             |
-| Antigravity        | `antigravity`     | `.agent/skills/`       | `~/.gemini/antigravity/global_skills/` |
-| Claude Code        | `claude-code`     | `.claude/skills/`      | `~/.claude/skills/`                    |
-| Cline              | `cline`           | `.cline/skills/`       | `~/.cline/skills/`                     |
-| CodeBuddy          | `codebuddy`       | `.codebuddy/skills/`   | `~/.codebuddy/skills/`                 |
-| Codex              | `codex`           | `.codex/skills/`       | `~/.codex/skills/`                     |
-| Command Code       | `command-code`    | `.commandcode/skills/` | `~/.commandcode/skills/`               |
-| Continue           | `continue`        | `.continue/skills/`    | `~/.continue/skills/`                  |
-| Crush              | `crush`           | `.crush/skills/`       | `~/.config/crush/skills/`              |
-| Cursor             | `cursor`          | `.cursor/skills/`      | `~/.cursor/skills/`                    |
-| Droid              | `droid`           | `.factory/skills/`     | `~/.factory/skills/`                   |
-| Gemini CLI         | `gemini-cli`      | `.gemini/skills/`      | `~/.gemini/skills/`                    |
-| GitHub Copilot     | `github-copilot`  | `.github/skills/`      | `~/.copilot/skills/`                   |
-| Goose              | `goose`           | `.goose/skills/`       | `~/.config/goose/skills/`              |
-| Junie              | `junie`           | `.junie/skills/`       | `~/.junie/skills/`                     |
-| Kilo Code          | `kilo`            | `.kilocode/skills/`    | `~/.kilocode/skills/`                  |
-| Kiro CLI           | `kiro-cli`        | `.kiro/skills/`        | `~/.kiro/skills/`                      |
-| Kode               | `kode`            | `.kode/skills/`        | `~/.kode/skills/`                      |
-| MCPJam             | `mcpjam`          | `.mcpjam/skills/`      | `~/.mcpjam/skills/`                    |
-| Moltbot            | `moltbot`         | `skills/`              | `~/.moltbot/skills/`                   |
-| Mux                | `mux`             | `.mux/skills/`         | `~/.mux/skills/`                       |
-| Neovate            | `neovate`         | `.neovate/skills/`     | `~/.neovate/skills/`                   |
-| OpenClaude IDE     | `openclaude`      | `.openclaude/skills/`  | `~/.openclaude/skills/`                |
-| OpenCode           | `opencode`        | `.opencode/skills/`    | `~/.config/opencode/skills/`           |
-| OpenHands          | `openhands`       | `.openhands/skills/`   | `~/.openhands/skills/`                 |
-| Pi                 | `pi`              | `.pi/skills/`          | `~/.pi/agent/skills/`                  |
-| Pochi              | `pochi`           | `.pochi/skills/`       | `~/.pochi/skills/`                     |
-| Qoder              | `qoder`           | `.qoder/skills/`       | `~/.qoder/skills/`                     |
-| Qwen Code          | `qwen-code`       | `.qwen/skills/`        | `~/.qwen/skills/`                      |
-| Replit             | `replit`          | `.agent/skills/`       | N/A (project-only)                     |
-| Roo Code           | `roo`             | `.roo/skills/`         | `~/.roo/skills/`                       |
-| Trae               | `trae`            | `.trae/skills/`        | `~/.trae/skills/`                      |
-| Trae CN            | `trae-cn`         | `.trae/skills/`        | `~/.trae-cn/skills/`                   |
-| Windsurf           | `windsurf`        | `.windsurf/skills/`    | `~/.codeium/windsurf/skills/`          |
-| Zencoder           | `zencoder`        | `.zencoder/skills/`    | `~/.zencoder/skills/`                  |
+CodeRabbit supports 35+ coding agents. For current setup instructions, start with
+the [CLI docs](https://docs.coderabbit.ai/cli) and the agent-specific
+integration guides.
 
 ## Available Skills
 
