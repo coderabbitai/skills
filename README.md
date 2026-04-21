@@ -158,23 +158,23 @@ AI-powered code review that finds bugs, security issues, and suggests improvemen
 
 ### [autofix](skills/autofix/SKILL.md)
 
-Auto-fix workflow for unresolved CodeRabbit GitHub PR review comments, with interactive per-issue review or batch fixing.
+Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-issue review and approval.
 
 **Use when:**
 
 - You already have an open GitHub PR reviewed by CodeRabbit
-- You want to apply suggested fixes from unresolved CodeRabbit threads
-- You want either manual approval per issue or one-pass batch autofix
+- You want to apply suggested fixes from unresolved current CodeRabbit review threads
+- You want guided fixes with explicit approval for each change
 
-**Categories covered:** Review-thread extraction, issue prioritization, guided fixes, consolidated commit and PR summary
+**Categories covered:** Review-thread extraction, issue prioritization, guarded fixes, consolidated commit and PR summary
 
 **Triggers:** "coderabbit autofix", "fix coderabbit", "cr fix"
 
 **Capabilities:**
 
-- Fetches unresolved CodeRabbit review threads for the current PR
+- Fetches unresolved current CodeRabbit review threads for the current PR
 - Parses and prioritizes issues by severity
-- Applies fixes interactively or in batch mode
+- Applies fixes only after validating the issue and getting approval
 - Produces a single consolidated commit and posts a PR summary comment
 
 ## Alternative installers
@@ -190,6 +190,21 @@ Claude Code users can also install this as a plugin from the official marketplac
 ```bash
 /plugin marketplace update
 /plugin install coderabbit
+```
+
+This repository also includes Cursor marketplace metadata in
+[`/.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json).
+
+After publication, Cursor marketplace installs can use:
+
+```text
+/add-plugin coderabbit
+```
+
+Until then, you can install directly to Cursor with:
+
+```bash
+npx skills add coderabbitai/skills -a cursor
 ```
 
 Note: skills installed via these alternative paths are not tracked in `~/.coderabbit/skills.json` and won't be kept up to date by future `coderabbit` CLI upgrades.
