@@ -38,6 +38,23 @@ In Claude Code:
 /plugin install coderabbit
 ```
 
+### Cursor Plugin
+
+This repository now includes Cursor marketplace metadata in
+[`/.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json).
+
+After publication, Cursor marketplace installs use:
+
+```text
+/add-plugin coderabbit
+```
+
+Until then, you can keep using the direct skills install path:
+
+```bash
+npx skills add coderabbitai/skills -a cursor
+```
+
 ### Installation Options
 
 | Flag           | Purpose                                          |
