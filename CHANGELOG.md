@@ -18,6 +18,7 @@ All notable changes to this repository are documented in this file.
 - Restored the Claude plugin manifest version to `1.1.0` after repo consolidation.
 - Updated Claude plugin command and agent docs after moving them into this repository.
 - Updated `skills/code-review` to use the CodeRabbit CLI `--agent` flag instead of the deprecated `--prompt-only` flag, and documented the CLI version requirement.
+- Simplified `README.md` install guidance so the CLI docs are the primary path, while keeping short links for skills installer, Claude Code, Cursor, and Codex installation flows.
 
 ## [1.0.0] - 2026-01-30
 

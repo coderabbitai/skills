@@ -8,13 +8,10 @@ AI-powered code review for 35+ coding agents, powered by [CodeRabbit](https://co
 
 ## Quickstart
 
-```bash
-# Install the CodeRabbit CLI
-# Use Homebrew or the install script:
-# https://docs.coderabbit.ai/cli
-curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+Install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
+then authenticate:
 
-# Authenticate
+```bash
 coderabbit auth login
 ```
 
@@ -22,8 +19,30 @@ Then tell your agent: **“Review my code.”**
 
 ## Installation
 
-Install the CodeRabbit CLI using Homebrew or the install script by following the
-[CLI docs](https://docs.coderabbit.ai/cli).
+### CodeRabbit CLI
+
+Use the [CLI docs](https://docs.coderabbit.ai/cli) for the primary install path.
+They cover Homebrew, the install script, authentication, and CLI usage.
+
+### Other install paths from this repo
+
+#### Skills installer
+
+For manual skills installation, use the
+[skills docs](https://docs.coderabbit.ai/cli/skills):
+
+```bash
+npx skills add coderabbitai/skills
+```
+
+Installation options for the skills installer:
+
+| Flag           | Purpose                                          |
+| -------------- | ------------------------------------------------ |
+| `-g, --global` | Install to user directory instead of project     |
+| `-a, --agent`  | Target specific agents (for example `claude-code`) |
+| `-s, --skill`  | Install particular skills by name                |
+| `--all`        | Install all skills to all agents without prompts |
 
 ### Claude Code Plugin
 
@@ -36,7 +55,10 @@ In Claude Code:
 /plugin install coderabbit
 ```
 
-### Cursor Plugin
+For the full setup flow, see the
+[Claude Code integration guide](https://docs.coderabbit.ai/cli/claude-code-integration).
+
+#### Cursor Plugin
 
 This repository now includes Cursor marketplace metadata in
 [`/.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json).
@@ -50,7 +72,7 @@ After publication, Cursor marketplace installs use:
 For the current recommended setup, see the
 [Cursor integration guide](https://docs.coderabbit.ai/cli/cursor-integration).
 
-### Codex App
+#### Codex App
 
 Codex users can install the official CodeRabbit plugin by following the
 [Codex app integration guide](https://docs.coderabbit.ai/cli/codex-integration#codex-app).
