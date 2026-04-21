@@ -1,43 +1,75 @@
-# Git Platform Commands
+# GitHub Workflow Primitives
 
-GitHub CLI commands for the CodeRabbit Autofix skill.
+GitHub-specific commands and data-handling rules for CodeRabbit review-thread based skills.
+
+Use this helper when a skill needs thread-aware CodeRabbit PR feedback, not flat PR summaries. The `autofix` skill mirrors the required execution flow in `SKILL.md`; this file exists as a reusable companion for other skills.
 
 ## Prerequisites
 
-**GitHub CLI (`gh`):**
-- Install: `brew install gh` or [cli.github.com](https://cli.github.com/)
-- Authenticate: `gh auth login`
-- Verify: `gh auth status`
+- `gh` authenticated (`gh auth status`)
+- current branch associated with a GitHub repository
 
-## Core Operations
+## 1. Resolve Current PR
 
-### 1. Find Pull Request
+Get the PR number for the current branch:
 
 ```bash
-gh pr list --head $(git branch --show-current) --state open --json number,title
+pr_number=$(gh pr list --head "$(git branch --show-current)" --state open --json number --jq '.[0].number')
+
+if [ -z "$pr_number" ] || [ "$pr_number" = "null" ]; then
+  # no open PR for this branch
+fi
 ```
 
-Gets the PR number for the current branch.
-
-### 2. Fetch Unresolved Threads
-
-Use GitHub GraphQL `reviewThreads` (there is no REST `pulls/<pr-number>/threads` endpoint):
+If no PR exists and the user wants one created, derive title/body from the latest commit:
 
 ```bash
-gh api graphql \
-  -F owner='{owner}' \
-  -F repo='{repo}' \
-  -F pr=<pr-number> \
-  -f query='query($owner:String!, $repo:String!, $pr:Int!) {
+title=$(git log -1 --pretty=format:'%s')
+body=$(git log -1 --pretty=format:'%b')
+gh pr create --title "$title" --body "${body:-Auto-created by CodeRabbit autofix}"
+```
+
+## 2. Resolve Repository Coordinates
+
+```bash
+owner=$(gh repo view --json owner --jq '.owner.login')
+repo=$(gh repo view --json name --jq '.name')
+```
+
+## 3. Fetch Thread-Aware CodeRabbit Feedback
+
+Fetch review threads with GitHub GraphQL using cursor pagination:
+
+```bash
+all_threads='[]'
+cursor=""
+
+while :; do
+  args=(-F owner="$owner" -F repo="$repo" -F pr="$pr_number")
+  if [ -n "$cursor" ]; then
+    args+=(-F cursor="$cursor")
+  fi
+
+  response=$(gh api graphql "${args[@]}" -f query='query($owner:String!, $repo:String!, $pr:Int!, $cursor:String) {
     repository(owner:$owner, name:$repo) {
       pullRequest(number:$pr) {
-        reviewThreads(first:100) {
+        title
+        reviewThreads(first:100, after:$cursor) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
           nodes {
             isResolved
+            isOutdated
             comments(first:1) {
               nodes {
                 databaseId
                 body
+                path
+                line
+                startLine
+                originalLine
                 author { login }
               }
             }
@@ -45,23 +77,52 @@ gh api graphql \
         }
       }
     }
-  }'
+  }')
+
+  all_threads=$(jq -c --argjson response "$response" '
+    . + $response.data.repository.pullRequest.reviewThreads.nodes
+  ' <<<"$all_threads")
+
+  has_next=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage' <<<"$response")
+  cursor=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.endCursor // empty' <<<"$response")
+  [ "$has_next" = "true" ] || break
+done
 ```
 
-Filter criteria:
+Treat only these threads as actionable:
+
+- root comment author is `coderabbitai`, `coderabbit[bot]`, or `coderabbitai[bot]`
 - `isResolved == false`
-- root comment author is one of: `coderabbitai`, `coderabbit[bot]`, `coderabbitai[bot]`
+- `isOutdated == false`
 
-Use the root comment body for the issue prompt.
+Keep each selected thread as one issue unit. Do not collapse top-level PR comments or review summaries into issue records.
 
-### 3. Post Summary Comment
-
+To detect CodeRabbit's "Come back again in a few minutes" status message, use top-level PR comments/reviews separately:
 
 ```bash
-gh pr comment <pr-number> --body "$(cat <<'EOF'
+gh pr view "$pr_number" --json comments,reviews --jq '
+  [
+    (.comments[]?
+      | select(.author.login == "coderabbitai" or .author.login == "coderabbit[bot]" or .author.login == "coderabbitai[bot]")
+      | .body // empty),
+    (.reviews[]?
+      | select(.author.login == "coderabbitai" or .author.login == "coderabbit[bot]" or .author.login == "coderabbitai[bot]")
+      | .body // empty)
+  ]
+  | map(select(test("Come back again in a few minutes")))
+  | length
+'
+```
+
+## 4. Post Summary Comment
+
+Use the same `pr_number` from Section 1:
+
+```bash
+gh pr comment "$pr_number" --body "$(cat <<'EOF'
 ## Fixes Applied Successfully
 
-Fixed <file-count> file(s) based on <issue-count> unresolved review comment(s).
+Fixed <file-count> file(s) based on <issue-count> CodeRabbit feedback item(s).
 
 **Files modified:**
 - `path/to/file-a.ts`
@@ -75,36 +136,10 @@ EOF
 )"
 ```
 
-Post after the push step (if pushing) so branch state is final.
+Write this comment from local state only. Do not include raw reviewer prompts or secret-bearing output.
 
-### 4. Acknowledge Review
+If no fixes were applied, skip the success template or use a neutral review-complete comment instead of inventing file counts or a commit SHA.
 
-```bash
-# React with thumbs up to the CodeRabbit comment
-gh api repos/{owner}/{repo}/issues/comments/<comment-id>/reactions \
-  -X POST \
-  -f content='+1'
-```
+## 5. Optional Reaction
 
-Find the comment ID from step 2.
-
-### 5. Create PR (if needed)
-
-```bash
-gh pr create --title '<title>' --body '<body>'
-```
-
-## Error Handling
-
-**Missing `gh` CLI:**
-- Inform user and provide install instructions
-- Exit skill
-
-**API failures:**
-- Log error and continue
-- Don't abort for comment posting failures
-
-**Getting repo info:**
-```bash
-gh repo view --json owner,name,nameWithOwner
-```
+If useful, react to the main CodeRabbit comment with 👍 after the summary is posted.
