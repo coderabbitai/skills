@@ -8,24 +8,41 @@ AI-powered code review for 35+ coding agents, powered by [CodeRabbit](https://co
 
 ## Quickstart
 
+Install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
+then authenticate:
+
 ```bash
-# Install the CodeRabbit CLI
-# Follow official instructions: https://www.coderabbit.ai/cli
-
-# Authenticate
 coderabbit auth login
-
-# Install the skill
-npx skills add coderabbitai/skills
 ```
 
 Then tell your agent: **“Review my code.”**
 
 ## Installation
 
+### CodeRabbit CLI
+
+Use the [CLI docs](https://docs.coderabbit.ai/cli) for the primary install path.
+They cover Homebrew, the install script, authentication, and CLI usage.
+
+### Other install paths from this repo
+
+#### Skills installer
+
+For manual skills installation, use the
+[skills docs](https://docs.coderabbit.ai/cli/skills):
+
 ```bash
 npx skills add coderabbitai/skills
 ```
+
+Installation options for the skills installer:
+
+| Flag           | Purpose                                          |
+| -------------- | ------------------------------------------------ |
+| `-g, --global` | Install to user directory instead of project     |
+| `-a, --agent`  | Target specific agents (for example `claude-code`) |
+| `-s, --skill`  | Install particular skills by name                |
+| `--all`        | Install all skills to all agents without prompts |
 
 ### Claude Code Plugin
 
@@ -38,7 +55,10 @@ In Claude Code:
 /plugin install coderabbit
 ```
 
-### Cursor Plugin
+For the full setup flow, see the
+[Claude Code integration guide](https://docs.coderabbit.ai/cli/claude-code-integration).
+
+#### Cursor Plugin
 
 This repository now includes Cursor marketplace metadata in
 [`/.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json).
@@ -49,30 +69,13 @@ After publication, Cursor marketplace installs use:
 /add-plugin coderabbit
 ```
 
-Until then, you can keep using the direct skills install path:
+For the current recommended setup, see the
+[Cursor integration guide](https://docs.coderabbit.ai/cli/cursor-integration).
 
-```bash
-npx skills add coderabbitai/skills -a cursor
-```
+#### Codex App
 
-### Installation Options
-
-| Flag           | Purpose                                          |
-| -------------- | ------------------------------------------------ |
-| `-g, --global` | Install to user directory instead of project     |
-| `-a, --agent`  | Target specific agents (e.g., `-a claude-code`)  |
-| `-s, --skill`  | Install particular skills by name                |
-| `--all`        | Install all skills to all agents without prompts |
-
-Examples:
-
-```bash
-npx skills add coderabbitai/skills
-npx skills add coderabbitai/skills -g
-npx skills add coderabbitai/skills -a claude-code
-npx skills add coderabbitai/skills -a codex
-npx skills add coderabbitai/skills -a cursor
-```
+Codex users can install the official CodeRabbit plugin by following the
+[Codex app integration guide](https://docs.coderabbit.ai/cli/codex-integration#codex-app).
 
 ## Usage
 
@@ -95,45 +98,45 @@ The agent will automatically:
 
 ## Supported Agents
 
-Skills can be installed to any of these agents:
+CodeRabbit supports 35+ coding agents.
 
-| Agent              | `--agent`         | Project Path           | Global Path                            |
-| ------------------ | ----------------- | ---------------------- | -------------------------------------- |
-| Amp, Kimi Code CLI | `amp`, `kimi-cli` | `.agents/skills/`      | `~/.config/agents/skills/`             |
-| Antigravity        | `antigravity`     | `.agent/skills/`       | `~/.gemini/antigravity/global_skills/` |
-| Claude Code        | `claude-code`     | `.claude/skills/`      | `~/.claude/skills/`                    |
-| Cline              | `cline`           | `.cline/skills/`       | `~/.cline/skills/`                     |
-| CodeBuddy          | `codebuddy`       | `.codebuddy/skills/`   | `~/.codebuddy/skills/`                 |
-| Codex              | `codex`           | `.codex/skills/`       | `~/.codex/skills/`                     |
-| Command Code       | `command-code`    | `.commandcode/skills/` | `~/.commandcode/skills/`               |
-| Continue           | `continue`        | `.continue/skills/`    | `~/.continue/skills/`                  |
-| Crush              | `crush`           | `.crush/skills/`       | `~/.config/crush/skills/`              |
-| Cursor             | `cursor`          | `.cursor/skills/`      | `~/.cursor/skills/`                    |
-| Droid              | `droid`           | `.factory/skills/`     | `~/.factory/skills/`                   |
-| Gemini CLI         | `gemini-cli`      | `.gemini/skills/`      | `~/.gemini/skills/`                    |
-| GitHub Copilot     | `github-copilot`  | `.github/skills/`      | `~/.copilot/skills/`                   |
-| Goose              | `goose`           | `.goose/skills/`       | `~/.config/goose/skills/`              |
-| Junie              | `junie`           | `.junie/skills/`       | `~/.junie/skills/`                     |
-| Kilo Code          | `kilo`            | `.kilocode/skills/`    | `~/.kilocode/skills/`                  |
-| Kiro CLI           | `kiro-cli`        | `.kiro/skills/`        | `~/.kiro/skills/`                      |
-| Kode               | `kode`            | `.kode/skills/`        | `~/.kode/skills/`                      |
-| MCPJam             | `mcpjam`          | `.mcpjam/skills/`      | `~/.mcpjam/skills/`                    |
-| Moltbot            | `moltbot`         | `skills/`              | `~/.moltbot/skills/`                   |
-| Mux                | `mux`             | `.mux/skills/`         | `~/.mux/skills/`                       |
-| Neovate            | `neovate`         | `.neovate/skills/`     | `~/.neovate/skills/`                   |
-| OpenClaude IDE     | `openclaude`      | `.openclaude/skills/`  | `~/.openclaude/skills/`                |
-| OpenCode           | `opencode`        | `.opencode/skills/`    | `~/.config/opencode/skills/`           |
-| OpenHands          | `openhands`       | `.openhands/skills/`   | `~/.openhands/skills/`                 |
-| Pi                 | `pi`              | `.pi/skills/`          | `~/.pi/agent/skills/`                  |
-| Pochi              | `pochi`           | `.pochi/skills/`       | `~/.pochi/skills/`                     |
-| Qoder              | `qoder`           | `.qoder/skills/`       | `~/.qoder/skills/`                     |
-| Qwen Code          | `qwen-code`       | `.qwen/skills/`        | `~/.qwen/skills/`                      |
-| Replit             | `replit`          | `.agent/skills/`       | N/A (project-only)                     |
-| Roo Code           | `roo`             | `.roo/skills/`         | `~/.roo/skills/`                       |
-| Trae               | `trae`            | `.trae/skills/`        | `~/.trae/skills/`                      |
-| Trae CN            | `trae-cn`         | `.trae/skills/`        | `~/.trae-cn/skills/`                   |
-| Windsurf           | `windsurf`        | `.windsurf/skills/`    | `~/.codeium/windsurf/skills/`          |
-| Zencoder           | `zencoder`        | `.zencoder/skills/`    | `~/.zencoder/skills/`                  |
+| Agent              | Project Path           | Global Path                            |
+| ------------------ | ---------------------- | -------------------------------------- |
+| Amp, Kimi Code CLI | `.agents/skills/`      | `~/.config/agents/skills/`             |
+| Antigravity        | `.agent/skills/`       | `~/.gemini/antigravity/global_skills/` |
+| Claude Code        | `.claude/skills/`      | `~/.claude/skills/`                    |
+| Cline              | `.cline/skills/`       | `~/.cline/skills/`                     |
+| CodeBuddy          | `.codebuddy/skills/`   | `~/.codebuddy/skills/`                 |
+| Codex              | `.codex/skills/`       | `~/.codex/skills/`                     |
+| Command Code       | `.commandcode/skills/` | `~/.commandcode/skills/`               |
+| Continue           | `.continue/skills/`    | `~/.continue/skills/`                  |
+| Crush              | `.crush/skills/`       | `~/.config/crush/skills/`              |
+| Cursor             | `.cursor/skills/`      | `~/.cursor/skills/`                    |
+| Droid              | `.factory/skills/`     | `~/.factory/skills/`                   |
+| Gemini CLI         | `.gemini/skills/`      | `~/.gemini/skills/`                    |
+| GitHub Copilot     | `.github/skills/`      | `~/.copilot/skills/`                   |
+| Goose              | `.goose/skills/`       | `~/.config/goose/skills/`              |
+| Junie              | `.junie/skills/`       | `~/.junie/skills/`                     |
+| Kilo Code          | `.kilocode/skills/`    | `~/.kilocode/skills/`                  |
+| Kiro CLI           | `.kiro/skills/`        | `~/.kiro/skills/`                      |
+| Kode               | `.kode/skills/`        | `~/.kode/skills/`                      |
+| MCPJam             | `.mcpjam/skills/`      | `~/.mcpjam/skills/`                    |
+| Moltbot            | `skills/`              | `~/.moltbot/skills/`                   |
+| Mux                | `.mux/skills/`         | `~/.mux/skills/`                       |
+| Neovate            | `.neovate/skills/`     | `~/.neovate/skills/`                   |
+| OpenClaude IDE     | `.openclaude/skills/`  | `~/.openclaude/skills/`                |
+| OpenCode           | `.opencode/skills/`    | `~/.config/opencode/skills/`           |
+| OpenHands          | `.openhands/skills/`   | `~/.openhands/skills/`                 |
+| Pi                 | `.pi/skills/`          | `~/.pi/agent/skills/`                  |
+| Pochi              | `.pochi/skills/`       | `~/.pochi/skills/`                     |
+| Qoder              | `.qoder/skills/`       | `~/.qoder/skills/`                     |
+| Qwen Code          | `.qwen/skills/`        | `~/.qwen/skills/`                      |
+| Replit             | `.agent/skills/`       | N/A (project-only)                     |
+| Roo Code           | `.roo/skills/`         | `~/.roo/skills/`                       |
+| Trae               | `.trae/skills/`        | `~/.trae/skills/`                      |
+| Trae CN            | `.trae/skills/`        | `~/.trae-cn/skills/`                   |
+| Windsurf           | `.windsurf/skills/`    | `~/.codeium/windsurf/skills/`          |
+| Zencoder           | `.zencoder/skills/`    | `~/.zencoder/skills/`                  |
 
 ## Available Skills
 
