@@ -8,7 +8,7 @@ All notable changes to this repository are documented in this file.
 
 - Claude Code plugin packaging in this repository via `.claude-plugin/plugin.json`.
 - In-repo `agents/code-reviewer.md` component for Claude Code.
-- In-repo `commands/review.md` component for Claude Code.
+- In-repo `commands/coderabbit-review.md` component for Claude Code.
 - Cursor marketplace packaging via `.cursor-plugin/plugin.json`.
 - Official CodeRabbit brand asset at `assets/coderabbit-logomark.svg` for marketplace display.
 - Claude Code and Cursor plugin installation notes in `README.md`.
