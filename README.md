@@ -27,6 +27,17 @@ Then tell your agent: **“Review my code.”**
 npx skills add coderabbitai/skills
 ```
 
+### Claude Code Plugin
+
+Claude Code users can also install this as a plugin directly from the official marketplace:
+
+In Claude Code:
+
+```text
+/plugin marketplace update
+/plugin install coderabbit
+```
+
 ### Installation Options
 
 | Flag           | Purpose                                          |
