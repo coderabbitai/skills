@@ -11,6 +11,7 @@
   "homepage": "https://github.com/coderabbitai/skills",
   "repository": "https://github.com/coderabbitai/skills",
   "license": "MIT",
+  "logo": "assets/coderabbit-logomark.svg",
   "keywords": [
     "coderabbit",
     "code-review",
