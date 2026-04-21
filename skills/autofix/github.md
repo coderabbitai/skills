@@ -38,14 +38,19 @@ repo=$(gh repo view --json name --jq '.name')
 
 ## 3. Fetch Thread-Aware CodeRabbit Feedback
 
-Fetch review threads with GitHub GraphQL. Omit `-F cursor=...` on the first request; if there are more than 100 review threads, rerun with `-F cursor="$end_cursor"` until `hasNextPage` is `false`:
+Fetch review threads with GitHub GraphQL using cursor pagination:
 
 ```bash
-gh api graphql \
-  -F owner="$owner" \
-  -F repo="$repo" \
-  -F pr="$pr_number" \
-  -f query='query($owner:String!, $repo:String!, $pr:Int!, $cursor:String) {
+all_threads='[]'
+cursor=""
+
+while :; do
+  args=(-F owner="$owner" -F repo="$repo" -F pr="$pr_number")
+  if [ -n "$cursor" ]; then
+    args+=(-F cursor="$cursor")
+  fi
+
+  response=$(gh api graphql "${args[@]}" -f query='query($owner:String!, $repo:String!, $pr:Int!, $cursor:String) {
     repository(owner:$owner, name:$repo) {
       pullRequest(number:$pr) {
         title
@@ -72,7 +77,16 @@ gh api graphql \
         }
       }
     }
-  }'
+  }')
+
+  all_threads=$(jq -c --argjson response "$response" '
+    . + $response.data.repository.pullRequest.reviewThreads.nodes
+  ' <<<"$all_threads")
+
+  has_next=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage' <<<"$response")
+  cursor=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.endCursor // empty' <<<"$response")
+  [ "$has_next" = "true" ] || break
+done
 ```
 
 Treat only these threads as actionable:
