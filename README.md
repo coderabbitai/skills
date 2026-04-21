@@ -31,7 +31,9 @@ npx skills add coderabbitai/skills
 
 Claude Code users can also install this as a plugin directly from the official marketplace:
 
-```bash
+In Claude Code:
+
+```text
 /plugin marketplace update
 /plugin install coderabbit
 ```

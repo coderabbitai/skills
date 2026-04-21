@@ -30,13 +30,11 @@ coderabbit --version 2>/dev/null && coderabbit auth status 2>&1 | head -3
 ```
 
 **If CLI not found**, tell user:
-> CodeRabbit CLI is not installed. Run in your terminal:
+> CodeRabbit CLI is not installed. Install it from the official docs:
 >
-> ```bash
-> curl -fsSL https://cli.coderabbit.ai/install.sh | sh
-> ```
+> <https://www.coderabbit.ai/cli>
 >
-> Then restart your shell and try again.
+> Prefer a package manager or a verified binary, then restart your shell and try again.
 
 **If "Not logged in"**, tell user:
 > You need to authenticate. Run in your terminal:
@@ -52,16 +50,17 @@ coderabbit --version 2>/dev/null && coderabbit auth status 2>&1 | head -3
 Once prerequisites are met:
 
 ```bash
-coderabbit review --plain -t <type>
+# type defaults to "all"; add --base only when specified
+coderabbit review --plain -t "${type:-all}" ${base:+--base "$base"}
 ```
 
-Where `<type>` from `$ARGUMENTS`:
+Where `type` and `base` come from `$ARGUMENTS`:
 
 - `all` (default) - All changes
 - `committed` - Committed changes only
 - `uncommitted` - Uncommitted only
 
-Add `--base <branch>` if specified.
+Add `--base <branch>` only when a base branch is specified.
 
 ### Present Results
 

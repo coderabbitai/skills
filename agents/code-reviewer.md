@@ -34,11 +34,11 @@ Use this agent when you need:
 
 ## Prerequisites
 
-CodeRabbit CLI must be installed:
+CodeRabbit CLI must be installed from the official docs:
 
-```bash
-curl -fsSL https://cli.coderabbit.ai/install.sh | sh
-```
+<https://www.coderabbit.ai/cli>
+
+Prefer a package manager or a verified binary over piping a remote script to a shell.
 
 ## Workflow
 
