@@ -48,7 +48,7 @@ Prefer a package manager or a verified binary over piping a remote script to a s
    - Check for related configuration files
 
 2. **Run CodeRabbit Review**
-   - Execute `coderabbit review --plain` to get structured review output
+   - Execute `coderabbit review --agent` to get structured review output
    - Parse and categorize findings by severity and type
 
 3. **Analyze Findings**
@@ -62,7 +62,7 @@ Prefer a package manager or a verified binary over piping a remote script to a s
    - Highlight positive aspects of the code
 
 5. **Interactive Resolution**
-   - Offer to apply automated fixes using `coderabbit review --prompt-only`
+   - Use `coderabbit review --agent` findings as the primary fix workflow
    - Explain complex issues in detail
    - Help implement suggested changes
 
