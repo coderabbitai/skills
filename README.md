@@ -9,68 +9,75 @@ AI-powered code review for 35+ coding agents, powered by [CodeRabbit](https://co
 ## Quickstart
 
 ```bash
-# Install (or upgrade) the CodeRabbit CLI — this also prompts to install
-# CodeRabbit skills into every coding agent it detects on your machine.
-curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+# Install the CodeRabbit CLI
+# Follow official instructions: https://www.coderabbit.ai/cli
 
 # Authenticate
 coderabbit auth login
+
+# Install the skill
+npx skills add coderabbitai/skills
 ```
 
 Then tell your agent: **“Review my code.”**
 
-The CLI auto-detects agents like Claude Code, Codex, Cursor, Gemini CLI, and 30+ others, and drops the skills into each agent's global skills directory.
-
 ## Installation
 
-Skills are distributed by the CodeRabbit CLI directly from the [`main`](https://github.com/coderabbitai/skills) branch of this repo. There are three entry points, in priority order:
-
-### 1. Automatic on CLI install (recommended)
-
 ```bash
-curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+npx skills add coderabbitai/skills
 ```
 
-On a fresh install or upgrade, the install script prompts once — *only when running in an interactive terminal* — to install skills into every detected agent. Answer yes, and the CLI syncs skills to each agent's global skills path. Your answer is remembered so future CLI upgrades don't re-prompt.
+### Claude Code Plugin
 
-### 2. Manual sync
+Claude Code users can also install this as a plugin directly from the official marketplace:
 
-```bash
-coderabbit integrations setup
+In Claude Code:
+
+```text
+/plugin marketplace update
+/plugin install coderabbit
 ```
 
-Runs the sync on demand. Always syncs, regardless of prior preference — no prompt. A successful run flips your preference to opted-in, so future CLI upgrades will keep skills up to date automatically.
+### Cursor Plugin
 
-### 3. Opt out
+This repository now includes Cursor marketplace metadata in
+[`/.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json).
 
-```bash
-coderabbit integrations disable
+After publication, Cursor marketplace installs use:
+
+```text
+/add-plugin coderabbit
 ```
 
-Flips your preference to opted-out. Sticky: subsequent CLI installs, upgrades, and any automatic triggers will skip the skills sync entirely. Only a later `integrations setup` clears it.
+Until then, you can keep using the direct skills install path:
 
-### Behavior summary
+```bash
+npx skills add coderabbitai/skills -a cursor
+```
 
-The table below shows how the CLI decides whether to sync skills. "Preference" is the value stored in `~/.coderabbit/skills.json`.
+### Codex App
 
-| Trigger                  | Preference state | TTY | Action                                        |
-| ------------------------ | ---------------- | --- | --------------------------------------------- |
-| `install.sh`             | unset            | yes | Prompt once; sync if accepted, record choice  |
-| `install.sh`             | unset            | no  | Skip (no prompt, no sync)                     |
-| `install.sh`             | opted-in         | any | Sync silently                                 |
-| `install.sh`             | opted-out        | any | Skip                                          |
-| `integrations setup`     | any              | any | Sync; set preference to opted-in              |
-| `integrations disable`   | any              | any | Set preference to opted-out (no files removed) |
+Codex users can install the official CodeRabbit plugin by following the
+[Codex app integration guide](https://docs.coderabbit.ai/cli/codex-integration#codex-app).
 
-The CLI fetches the `main` branch tarball of this repo and copies each skill directory atomically into every detected agent's global skills path. A sha256 of the archive is cached; identical archive content short-circuits to a no-op on subsequent runs.
+### Installation Options
 
-### Where skills land
+| Flag           | Purpose                                          |
+| -------------- | ------------------------------------------------ |
+| `-g, --global` | Install to user directory instead of project     |
+| `-a, --agent`  | Target specific agents (e.g., `-a claude-code`)  |
+| `-s, --skill`  | Install particular skills by name                |
+| `--all`        | Install all skills to all agents without prompts |
 
-Skills are copied to each detected agent's global skills directory — for example, `~/.claude/skills/` for Claude Code or `~/.codex/skills/` for Codex. See [Supported Agents](#supported-agents) for the full map. Skills authored by others that already live in the same folder are left untouched; the CLI only manages directories it installed.
+Examples:
 
-### Privacy and consent
-
-Your install preference is captured in `~/.coderabbit/skills.json`, along with the installed `version` of each skill. Running `coderabbit integrations disable` flips the preference to opted-out but does **not** delete previously installed skill directories from your agent folders — remove those manually if you want them gone.
+```bash
+npx skills add coderabbitai/skills
+npx skills add coderabbitai/skills -g
+npx skills add coderabbitai/skills -a claude-code
+npx skills add coderabbitai/skills -a codex
+npx skills add coderabbitai/skills -a cursor
+```
 
 ## Usage
 
@@ -93,44 +100,45 @@ The agent will automatically:
 
 ## Supported Agents
 
-The CodeRabbit CLI auto-detects which of these agents are installed on your machine and syncs skills to each one's global skills path. There is no `--agent` flag to pass — detection is automatic.
+Skills can be installed to any of these agents:
 
-| Agent              | Global Path                            |
-| ------------------ | -------------------------------------- |
-| Amp, Kimi Code CLI | `~/.config/agents/skills/`             |
-| Antigravity        | `~/.gemini/antigravity/global_skills/` |
-| Claude Code        | `~/.claude/skills/`                    |
-| Cline              | `~/.cline/skills/`                     |
-| CodeBuddy          | `~/.codebuddy/skills/`                 |
-| Codex              | `~/.codex/skills/`                     |
-| Command Code       | `~/.commandcode/skills/`               |
-| Continue           | `~/.continue/skills/`                  |
-| Crush              | `~/.config/crush/skills/`              |
-| Cursor             | `~/.cursor/skills/`                    |
-| Droid              | `~/.factory/skills/`                   |
-| Gemini CLI         | `~/.gemini/skills/`                    |
-| GitHub Copilot     | `~/.copilot/skills/`                   |
-| Goose              | `~/.config/goose/skills/`              |
-| Junie              | `~/.junie/skills/`                     |
-| Kilo Code          | `~/.kilocode/skills/`                  |
-| Kiro CLI           | `~/.kiro/skills/`                      |
-| Kode               | `~/.kode/skills/`                      |
-| MCPJam             | `~/.mcpjam/skills/`                    |
-| Moltbot            | `~/.moltbot/skills/`                   |
-| Mux                | `~/.mux/skills/`                       |
-| Neovate            | `~/.neovate/skills/`                   |
-| OpenClaude IDE     | `~/.openclaude/skills/`                |
-| OpenCode           | `~/.config/opencode/skills/`           |
-| OpenHands          | `~/.openhands/skills/`                 |
-| Pi                 | `~/.pi/agent/skills/`                  |
-| Pochi              | `~/.pochi/skills/`                     |
-| Qoder              | `~/.qoder/skills/`                     |
-| Qwen Code          | `~/.qwen/skills/`                      |
-| Roo Code           | `~/.roo/skills/`                       |
-| Trae               | `~/.trae/skills/`                      |
-| Trae CN            | `~/.trae-cn/skills/`                   |
-| Windsurf           | `~/.codeium/windsurf/skills/`          |
-| Zencoder           | `~/.zencoder/skills/`                  |
+| Agent              | `--agent`         | Project Path           | Global Path                            |
+| ------------------ | ----------------- | ---------------------- | -------------------------------------- |
+| Amp, Kimi Code CLI | `amp`, `kimi-cli` | `.agents/skills/`      | `~/.config/agents/skills/`             |
+| Antigravity        | `antigravity`     | `.agent/skills/`       | `~/.gemini/antigravity/global_skills/` |
+| Claude Code        | `claude-code`     | `.claude/skills/`      | `~/.claude/skills/`                    |
+| Cline              | `cline`           | `.cline/skills/`       | `~/.cline/skills/`                     |
+| CodeBuddy          | `codebuddy`       | `.codebuddy/skills/`   | `~/.codebuddy/skills/`                 |
+| Codex              | `codex`           | `.codex/skills/`       | `~/.codex/skills/`                     |
+| Command Code       | `command-code`    | `.commandcode/skills/` | `~/.commandcode/skills/`               |
+| Continue           | `continue`        | `.continue/skills/`    | `~/.continue/skills/`                  |
+| Crush              | `crush`           | `.crush/skills/`       | `~/.config/crush/skills/`              |
+| Cursor             | `cursor`          | `.cursor/skills/`      | `~/.cursor/skills/`                    |
+| Droid              | `droid`           | `.factory/skills/`     | `~/.factory/skills/`                   |
+| Gemini CLI         | `gemini-cli`      | `.gemini/skills/`      | `~/.gemini/skills/`                    |
+| GitHub Copilot     | `github-copilot`  | `.github/skills/`      | `~/.copilot/skills/`                   |
+| Goose              | `goose`           | `.goose/skills/`       | `~/.config/goose/skills/`              |
+| Junie              | `junie`           | `.junie/skills/`       | `~/.junie/skills/`                     |
+| Kilo Code          | `kilo`            | `.kilocode/skills/`    | `~/.kilocode/skills/`                  |
+| Kiro CLI           | `kiro-cli`        | `.kiro/skills/`        | `~/.kiro/skills/`                      |
+| Kode               | `kode`            | `.kode/skills/`        | `~/.kode/skills/`                      |
+| MCPJam             | `mcpjam`          | `.mcpjam/skills/`      | `~/.mcpjam/skills/`                    |
+| Moltbot            | `moltbot`         | `skills/`              | `~/.moltbot/skills/`                   |
+| Mux                | `mux`             | `.mux/skills/`         | `~/.mux/skills/`                       |
+| Neovate            | `neovate`         | `.neovate/skills/`     | `~/.neovate/skills/`                   |
+| OpenClaude IDE     | `openclaude`      | `.openclaude/skills/`  | `~/.openclaude/skills/`                |
+| OpenCode           | `opencode`        | `.opencode/skills/`    | `~/.config/opencode/skills/`           |
+| OpenHands          | `openhands`       | `.openhands/skills/`   | `~/.openhands/skills/`                 |
+| Pi                 | `pi`              | `.pi/skills/`          | `~/.pi/agent/skills/`                  |
+| Pochi              | `pochi`           | `.pochi/skills/`       | `~/.pochi/skills/`                     |
+| Qoder              | `qoder`           | `.qoder/skills/`       | `~/.qoder/skills/`                     |
+| Qwen Code          | `qwen-code`       | `.qwen/skills/`        | `~/.qwen/skills/`                      |
+| Replit             | `replit`          | `.agent/skills/`       | N/A (project-only)                     |
+| Roo Code           | `roo`             | `.roo/skills/`         | `~/.roo/skills/`                       |
+| Trae               | `trae`            | `.trae/skills/`        | `~/.trae/skills/`                      |
+| Trae CN            | `trae-cn`         | `.trae/skills/`        | `~/.trae-cn/skills/`                   |
+| Windsurf           | `windsurf`        | `.windsurf/skills/`    | `~/.codeium/windsurf/skills/`          |
+| Zencoder           | `zencoder`        | `.zencoder/skills/`    | `~/.zencoder/skills/`                  |
 
 ## Available Skills
 
@@ -176,38 +184,6 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - Parses and prioritizes issues by severity
 - Applies fixes only after validating the issue and getting approval
 - Produces a single consolidated commit and posts a PR summary comment
-
-## Alternative installers
-
-If you'd rather not use the CodeRabbit CLI, you can install the skills directly via the Vercel Skills CLI:
-
-```bash
-npx skills add coderabbitai/skills
-```
-
-Claude Code users can also install this as a plugin from the official marketplace:
-
-```bash
-/plugin marketplace update
-/plugin install coderabbit
-```
-
-This repository also includes Cursor marketplace metadata in
-[`/.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json).
-
-After publication, Cursor marketplace installs can use:
-
-```text
-/add-plugin coderabbit
-```
-
-Until then, you can install directly to Cursor with:
-
-```bash
-npx skills add coderabbitai/skills -a cursor
-```
-
-Note: skills installed via these alternative paths are not tracked in `~/.coderabbit/skills.json` and won't be kept up to date by future `coderabbit` CLI upgrades.
 
 ## Resources
 
