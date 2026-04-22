@@ -1,6 +1,6 @@
 # CodeRabbit Skills
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.1-blue)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Agents](https://img.shields.io/badge/works_with-35%2B_agents-brightgreen)](#supported-agents)
 
@@ -44,6 +44,26 @@ Installation options for the skills installer:
 | `-s, --skill`  | Install particular skills by name                |
 | `--all`        | Install all skills to all agents without prompts |
 
+#### Tagged release archives for binary installers
+
+Consumers embedding these skills in a binary or installer should pin an
+immutable release tag and verify the downloaded archive before unpacking it.
+Do not consume branch archives such as `refs/heads/main`.
+
+Every `v*` release tag publishes these GitHub release assets:
+
+- `coderabbit-skills-vX.Y.Z.tar.gz`
+- `coderabbit-skills-vX.Y.Z.sha256`
+- `release-manifest.json`
+
+Preferred install flow for non-interactive consumers:
+
+1. Pin a release tag such as `v1.1.1`.
+2. Download `release-manifest.json` and `coderabbit-skills-vX.Y.Z.tar.gz` from
+   that release.
+3. Verify the archive SHA-256 against the manifest or `.sha256` asset.
+4. Reject the install if the checksum does not match.
+
 ### Claude Code Plugin
 
 Claude Code users can also install this as a plugin directly from the official marketplace:
@@ -76,6 +96,9 @@ For the current recommended setup, see the
 
 Codex users can install the official CodeRabbit plugin by following the
 [Codex app integration guide](https://docs.coderabbit.ai/cli/codex-integration#codex-app).
+
+For an at-a-glance inventory of active and repo-packaged distribution paths, see
+[DISTRIBUTION_CHANNELS.md](DISTRIBUTION_CHANNELS.md).
 
 ## Usage
 

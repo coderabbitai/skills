@@ -2,6 +2,19 @@
 
 All notable changes to this repository are documented in this file.
 
+## [1.1.1] - 2026-04-22
+
+### Added
+
+- GitHub release workflow that builds a tagged source archive, SHA-256 checksum,
+  and `release-manifest.json` for binary consumers.
+
+### Changed
+
+- Documented the tag-pinned, checksum-verified install contract for binary
+  installers in `README.md`.
+- Added the tagged release archive channel to `DISTRIBUTION_CHANNELS.md`.
+
 ## [1.1.0] - 2026-04-21
 
 ### Added

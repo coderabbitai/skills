@@ -1,6 +1,6 @@
 {
   "name": "coderabbit",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "AI-powered code review in Claude Code, powered by CodeRabbit",
   "homepage": "https://docs.coderabbit.ai/cli/claude-code-integration",
   "author": {

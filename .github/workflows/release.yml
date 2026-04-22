@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build archive, checksum, and manifest
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          VERSION="${TAG_NAME#v}"
+          ARCHIVE_NAME="coderabbit-skills-${TAG_NAME}.tar.gz"
+          CHECKSUM_NAME="coderabbit-skills-${TAG_NAME}.sha256"
+          RELEASE_BASE_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG_NAME}"
+          SOURCE_TARBALL_URL="https://codeload.github.com/${GITHUB_REPOSITORY}/tar.gz/refs/tags/${TAG_NAME}"
+
+          git archive \
+            --format=tar.gz \
+            --prefix="coderabbit-skills-${VERSION}/" \
+            "${TAG_NAME}" > "${ARCHIVE_NAME}"
+
+          sha256sum "${ARCHIVE_NAME}" > "${CHECKSUM_NAME}"
+          ARCHIVE_SHA256="$(cut -d ' ' -f1 "${CHECKSUM_NAME}")"
+          PUBLISHED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+          printf '%s\n' \
+            '{' \
+            "  \"version\": \"${VERSION}\"," \
+            "  \"tag\": \"${TAG_NAME}\"," \
+            "  \"publishedAt\": \"${PUBLISHED_AT}\"," \
+            '  "archive": {' \
+            "    \"name\": \"${ARCHIVE_NAME}\"," \
+            "    \"url\": \"${RELEASE_BASE_URL}/${ARCHIVE_NAME}\"," \
+            "    \"sha256\": \"${ARCHIVE_SHA256}\"" \
+            '  },' \
+            '  "checksum": {' \
+            "    \"name\": \"${CHECKSUM_NAME}\"," \
+            "    \"url\": \"${RELEASE_BASE_URL}/${CHECKSUM_NAME}\"" \
+            '  },' \
+            "  \"sourceTarballUrl\": \"${SOURCE_TARBALL_URL}\"" \
+            '}' > release-manifest.json
+
+      - name: Publish GitHub release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            coderabbit-skills-*.tar.gz
+            coderabbit-skills-*.sha256
+            release-manifest.json
+          generate_release_notes: true
