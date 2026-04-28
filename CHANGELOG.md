@@ -2,6 +2,25 @@
 
 All notable changes to this repository are documented in this file.
 
+## Unreleased
+
+### Added
+
+- Added `name` frontmatter to the Claude Code `code-reviewer` subagent.
+- Added a repository `.gitignore` for local Claude settings, virtualenvs, and
+  dependency directories.
+
+### Changed
+
+- Reframed the README as the canonical home for CodeRabbit skills and plugin
+  packaging across supported agents.
+- Removed public README guidance for tagged release archives while that channel
+  remains in development.
+- Marked the tagged release archive channel as in development in
+  `DISTRIBUTION_CHANNELS.md`.
+- Quoted Claude Code command frontmatter values so standard YAML parsers can
+  validate them.
+
 ## [1.1.1] - 2026-04-22
 
 ### Added

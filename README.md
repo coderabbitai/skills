@@ -1,10 +1,14 @@
-# CodeRabbit Skills
+# CodeRabbit Skills and Plugins
 
 ![Version](https://img.shields.io/badge/version-1.1.1-blue)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Agents](https://img.shields.io/badge/works_with-35%2B_agents-brightgreen)](#supported-agents)
 
-AI-powered code review for 35+ coding agents, powered by [CodeRabbit](https://coderabbit.ai). Detect bugs, security issues, and quality risks before you merge.
+The canonical home for CodeRabbit's agent-native skills and plugin packaging.
+Use it to install AI-powered code review into 35+ coding agents, Claude Code,
+Cursor, and other supported agent environments.
+
+CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
@@ -19,17 +23,19 @@ Then tell your agent: **“Review my code.”**
 
 ## Installation
 
-### CodeRabbit CLI
+### 1. Install the CodeRabbit CLI
 
 Use the [CLI docs](https://docs.coderabbit.ai/cli) for the primary install path.
 They cover Homebrew, the install script, authentication, and CLI usage.
 
-### Other install paths from this repo
+### 2. Install the agent integration
+
+Choose the path that matches your coding agent.
 
 #### Skills installer
 
-For manual skills installation, use the
-[skills docs](https://docs.coderabbit.ai/cli/skills):
+For agents that support portable `SKILL.md` files, use the
+[skills docs](https://docs.coderabbit.ai/cli/skills).
 
 ```bash
 npx skills add coderabbitai/skills
@@ -44,31 +50,9 @@ Installation options for the skills installer:
 | `-s, --skill`  | Install particular skills by name                |
 | `--all`        | Install all skills to all agents without prompts |
 
-#### Tagged release archives for binary installers
-
-Consumers embedding these skills in a binary or installer should pin an
-immutable release tag and verify the downloaded archive before unpacking it.
-Do not consume branch archives such as `refs/heads/main`.
-
-Every `v*` release tag publishes these GitHub release assets:
-
-- `coderabbit-skills-vX.Y.Z.tar.gz`
-- `coderabbit-skills-vX.Y.Z.sha256`
-- `release-manifest.json`
-
-Preferred install flow for non-interactive consumers:
-
-1. Pin a release tag such as `v1.1.1`.
-2. Download `release-manifest.json` and `coderabbit-skills-vX.Y.Z.tar.gz` from
-   that release.
-3. Verify the archive SHA-256 against the manifest or `.sha256` asset.
-4. Reject the install if the checksum does not match.
-
-### Claude Code Plugin
+#### Claude Code Plugin
 
 Claude Code users can also install this as a plugin directly from the official marketplace:
-
-In Claude Code:
 
 ```text
 /plugin marketplace update
@@ -99,6 +83,18 @@ Codex users can install the official CodeRabbit plugin by following the
 
 For an at-a-glance inventory of active and repo-packaged distribution paths, see
 [DISTRIBUTION_CHANNELS.md](DISTRIBUTION_CHANNELS.md).
+
+## What Lives Here
+
+| Path | Purpose |
+| --- | --- |
+| `skills/` | Portable CodeRabbit skills for agents that support `SKILL.md`. |
+| `.claude-plugin/` | Claude Code plugin marketplace metadata. |
+| `commands/` | Claude Code slash commands shipped by the plugin. |
+| `agents/` | Claude Code subagents shipped by the plugin. |
+| `.cursor-plugin/` | Cursor marketplace metadata. |
+| `assets/` | Shared marketplace and brand assets. |
+| `DISTRIBUTION_CHANNELS.md` | Maintainer inventory of live, packaged, and in-development channels. |
 
 ## Usage
 
@@ -205,6 +201,22 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - Parses and prioritizes issues by severity
 - Applies fixes only after validating the issue and getting approval
 - Produces a single consolidated commit and posts a PR summary comment
+
+## Plugin Components
+
+### Claude Code
+
+- Slash command: `/coderabbit:review`
+- Subagent: `code-reviewer`
+- Marketplace manifest: `.claude-plugin/plugin.json`
+
+The `code-review` skill also remains available for natural-language triggering
+inside compatible agents.
+
+### Cursor
+
+- Marketplace manifest: `.cursor-plugin/plugin.json`
+- Skills source: `skills/`
 
 ## Resources
 
