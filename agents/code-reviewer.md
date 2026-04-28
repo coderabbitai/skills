@@ -1,4 +1,5 @@
 ---
+name: code-reviewer
 description: Specialized CodeRabbit code review agent that performs thorough analysis of code changes
 capabilities:
   - Run comprehensive code reviews using CodeRabbit AI

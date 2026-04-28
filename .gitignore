@@ -1,0 +1,5 @@
+.DS_Store
+.claude/settings.local.json
+.venv/
+.venv-*/
+node_modules/
