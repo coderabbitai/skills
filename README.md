@@ -106,6 +106,7 @@ Check for security issues
 What's wrong with my changes?
 Run a code review
 Review my PR
+Review the directory at ../my-service
 ```
 
 The agent will automatically:
@@ -114,6 +115,9 @@ The agent will automatically:
 2. Run the review on your changes
 3. Present findings grouped by severity
 4. Optionally fix issues and re-review
+
+When you ask for a specific review directory, the agent can pass CodeRabbit CLI
+`--dir <path>` after confirming that path is an initialized Git repository.
 
 ## Supported Agents
 
@@ -180,6 +184,7 @@ AI-powered code review that finds bugs, security issues, and suggests improvemen
 - Groups findings by severity (critical, warning, info)
 - Supports autonomous fix-review cycles
 - Works with staged, committed, or all changes
+- Supports directory-scoped reviews through CodeRabbit CLI `--dir <path>`
 
 ### [autofix](skills/autofix/SKILL.md)
 
