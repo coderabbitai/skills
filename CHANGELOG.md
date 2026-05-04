@@ -6,12 +6,16 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Documented CodeRabbit CLI `--dir <path>` support for directory-scoped
+  reviews in the review skill and Claude Code review helpers.
 - Added `name` frontmatter to the Claude Code `code-reviewer` subagent.
 - Added a repository `.gitignore` for local Claude settings, virtualenvs, and
   dependency directories.
 
 ### Changed
 
+- Removed alternate detailed-output guidance so review agents use `--agent`
+  exclusively.
 - Reframed the README as the canonical home for CodeRabbit skills and plugin
   packaging across supported agents.
 - Removed public README guidance for tagged release archives while that channel

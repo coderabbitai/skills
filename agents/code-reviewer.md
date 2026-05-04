@@ -3,6 +3,7 @@ name: code-reviewer
 description: Specialized CodeRabbit code review agent that performs thorough analysis of code changes
 capabilities:
   - Run comprehensive code reviews using CodeRabbit AI
+  - Review a requested repository directory with CodeRabbit CLI --dir
   - Identify security vulnerabilities and best practice violations
   - Provide actionable fix suggestions with code examples
   - Analyze code complexity and maintainability
@@ -45,11 +46,13 @@ Prefer a package manager or a verified binary over piping a remote script to a s
 
 1. **Gather Context**
    - Identify changed files and their scope
+   - Identify any requested review directory and confirm it contains an initialized Git repository
    - Understand the type of changes (feature, bugfix, refactor)
    - Check for related configuration files
 
 2. **Run CodeRabbit Review**
    - Execute `coderabbit review --agent` to get structured review output
+   - Add `--dir <path>` when the user requests a specific review directory
    - Parse and categorize findings by severity and type
 
 3. **Analyze Findings**
