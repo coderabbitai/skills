@@ -9,6 +9,10 @@ All notable changes to this repository are documented in this file.
 - Added `name` frontmatter to the Claude Code `code-reviewer` subagent.
 - Added a repository `.gitignore` for local Claude settings, virtualenvs, and
   dependency directories.
+- Added the `babysit` skill for driving CodeRabbit-reviewed PRs toward merge
+  readiness with existing PR review feedback, CLI agent review, GitHub PR
+  state, CI checks, and focused fix loops.
+- Added the Claude Code `/coderabbit:babysit` slash command.
 
 ### Changed
 
