@@ -21,6 +21,9 @@ coderabbit auth login
 
 Then tell your agent: **“Review my code.”**
 
+To have an agent drive an existing PR toward merge readiness, say:
+**“/babysit my PR.”**
+
 ## Installation
 
 ### 1. Install the CodeRabbit CLI
@@ -186,6 +189,34 @@ AI-powered code review that finds bugs, security issues, and suggests improvemen
 - Works with staged, committed, or all changes
 - Supports directory-scoped reviews through CodeRabbit CLI `--dir <path>`
 
+### [babysit](skills/babysit/SKILL.md)
+
+PR merge-readiness workflow that starts from the pull request itself: existing
+GitHub review comments/threads, CodeRabbit CLI agent review, GitHub PR state,
+CI checks, and focused local validation to move a pull request toward green or
+report the exact blocker.
+
+**Use when:**
+
+- You want an agent to get a PR ready to merge
+- Existing PR review comments need to be handled before re-reviewing
+- A PR needs CodeRabbit findings fixed and rechecked
+- CI, mergeability, or review state needs a single merge-readiness pass
+- You want `/babysit my PR` behavior in a skills-compatible agent
+
+**Categories covered:** PR state triage, CodeRabbit agent review, CI failure
+inspection, minimal fix loops, validation and push monitoring
+
+**Triggers:** "/babysit", "babysit my PR", "get this PR ready", "get this PR mergeable", "get this PR green"
+
+**Capabilities:**
+
+- Resolves the current branch's PR or an explicitly supplied PR as the target
+- Reads existing PR review threads, reviews, and actionable top-level comments
+- Runs fresh `coderabbit review --agent` checks against the PR base
+- Fixes actionable high-priority findings with scoped commits
+- Monitors required GitHub checks and reports precise blockers
+
 ### [autofix](skills/autofix/SKILL.md)
 
 Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-issue review and approval.
@@ -212,6 +243,7 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 ### Claude Code
 
 - Slash command: `/coderabbit:review`
+- Slash command: `/coderabbit:babysit`
 - Subagent: `code-reviewer`
 - Marketplace manifest: `.claude-plugin/plugin.json`
 
