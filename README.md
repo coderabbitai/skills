@@ -163,7 +163,7 @@ CodeRabbit supports 35+ coding agents.
 
 ## Available Skills
 
-### [code-review](skills/code-review/SKILL.md)
+### [coderabbit-review](skills/coderabbit-review/SKILL.md)
 
 AI-powered code review that finds bugs, security issues, and suggests improvements using CodeRabbit.
 
@@ -215,7 +215,7 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - Subagent: `code-reviewer`
 - Marketplace manifest: `.claude-plugin/plugin.json`
 
-The `code-review` skill also remains available for natural-language triggering
+The `coderabbit-review` skill is also available for natural-language triggering
 inside compatible agents.
 
 ### Cursor
