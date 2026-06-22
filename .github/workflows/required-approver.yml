@@ -1,0 +1,92 @@
+name: Required approver
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+      - converted_to_draft
+  pull_request_review:
+    types:
+      - submitted
+      - dismissed
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    env:
+      REQUIRED_APPROVERS: nehal-a2z,juanpflores
+      GH_TOKEN: ${{ github.token }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      REPOSITORY: ${{ github.repository }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Require approval from a repository owner
+        run: |
+          set -euo pipefail
+
+          owner="${REPOSITORY%%/*}"
+          repo="${REPOSITORY#*/}"
+
+          response="$(
+            gh api graphql \
+              -f owner="$owner" \
+              -f repo="$repo" \
+              -F number="$PR_NUMBER" \
+              -f query='
+                query($owner: String!, $repo: String!, $number: Int!) {
+                  repository(owner: $owner, name: $repo) {
+                    pullRequest(number: $number) {
+                      isDraft
+                      reviews(last: 100) {
+                        nodes {
+                          author {
+                            login
+                          }
+                          commit {
+                            oid
+                          }
+                          state
+                          submittedAt
+                        }
+                      }
+                    }
+                  }
+                }
+              '
+          )"
+
+          is_draft="$(jq -r '.data.repository.pullRequest.isDraft' <<<"$response")"
+          if [[ "$is_draft" == "true" ]]; then
+            echo "Draft PRs cannot merge; approver gate will run when ready for review."
+            exit 0
+          fi
+
+          approved_by="$(
+            jq -r \
+              --arg head "$HEAD_SHA" \
+              --argjson approvers "$(jq -Rc 'split(",")' <<<"$REQUIRED_APPROVERS")" \
+              '
+                .data.repository.pullRequest.reviews.nodes
+                | map(select((.author.login // "") as $login | $approvers | index($login)))
+                | sort_by(.author.login)
+                | group_by(.author.login)
+                | map(max_by(.submittedAt))
+                | map(select(.state == "APPROVED" and .commit.oid == $head))
+                | first.author.login // empty
+              ' <<<"$response"
+          )"
+
+          if [[ -z "$approved_by" ]]; then
+            echo "::error::This PR needs an approval from nehal-a2z or juanpflores on the latest head commit."
+            exit 1
+          fi
+
+          echo "Latest head commit approved by ${approved_by}."
