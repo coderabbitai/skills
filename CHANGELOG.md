@@ -4,6 +4,14 @@ All notable changes to this repository are documented in this file.
 
 ## Unreleased
 
+### Fixed
+
+- Renamed the `code-review` skill to `coderabbit-review` so it no longer shadows
+  Claude Code's built-in `/code-review` slash command. The skill's `name`
+  frontmatter registered a bare, unnamespaced `/code-review` (upstream
+  anthropics/claude-code#22063), making the built-in unreachable while the skill
+  was installed. (#18)
+
 ### Added
 
 - Documented CodeRabbit CLI `--dir <path>` support for directory-scoped
