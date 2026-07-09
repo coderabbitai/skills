@@ -19,7 +19,7 @@ then authenticate:
 coderabbit auth login
 ```
 
-Then tell your agent: **“Review my code.”**
+Then tell your agent: **“Use CodeRabbit to review my code.”**
 
 ## Installation
 
@@ -98,15 +98,15 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 
 ## Usage
 
-Once installed, just ask your agent:
+Once installed, ask your agent to use CodeRabbit:
 
 ```text
-Review my code
-Check for security issues
-What's wrong with my changes?
-Run a code review
-Review my PR
-Review the directory at ../my-service
+Use CodeRabbit to review my code
+Run coderabbit on my changes
+Use CodeRabbit to check for security issues
+Ask CodeRabbit what's wrong with my changes
+Use CodeRabbit to review my PR
+Use CodeRabbit to review the directory at ../my-service
 ```
 
 The agent will automatically:
@@ -163,7 +163,7 @@ CodeRabbit supports 35+ coding agents.
 
 ## Available Skills
 
-### [code-review](skills/code-review/SKILL.md)
+### [coderabbit-review](skills/code-review/SKILL.md)
 
 AI-powered code review that finds bugs, security issues, and suggests improvements using CodeRabbit.
 
@@ -176,7 +176,7 @@ AI-powered code review that finds bugs, security issues, and suggests improvemen
 
 **Categories covered:** Bug detection, security analysis, code quality, performance issues, best practices
 
-**Triggers:** "review my code", "check for bugs", "security review", "PR feedback", "run coderabbit"
+**Triggers:** "use CodeRabbit to review my code", "run coderabbit", "cr review", "use CodeRabbit for PR feedback"
 
 **Capabilities:**
 
@@ -215,8 +215,8 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - Subagent: `code-reviewer`
 - Marketplace manifest: `.claude-plugin/plugin.json`
 
-The `code-review` skill also remains available for natural-language triggering
-inside compatible agents.
+The `coderabbit-review` skill also remains available for natural-language
+triggering inside compatible agents when users explicitly ask for CodeRabbit.
 
 ### Cursor
 

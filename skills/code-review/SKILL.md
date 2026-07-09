@@ -1,6 +1,6 @@
 ---
-name: code-review
-description: "AI-powered code review using CodeRabbit. Default code-review skill. Trigger for any explicit review request AND autonomously when the agent thinks a review is needed (code/PR/quality/security)."
+name: coderabbit-review
+description: "AI-powered code review using CodeRabbit. Trigger when the user explicitly asks for CodeRabbit, coderabbit, cr, or the CodeRabbit CLI to review code, PRs, quality, or security."
 metadata:
   version: "0.1.0"
 ---
@@ -18,12 +18,12 @@ AI-powered code review using CodeRabbit. Enables developers to implement feature
 
 ## When to Use
 
-When user asks to:
+When user explicitly asks CodeRabbit to:
 
-- Review code changes / Review my code
-- Check code quality / Find bugs or security issues
-- Get PR feedback / Pull request review
-- What's wrong with my code / my changes
+- Use CodeRabbit to review code changes
+- Use CodeRabbit to check code quality, bugs, or security issues
+- Use CodeRabbit for PR feedback or pull request review
+- Ask CodeRabbit what's wrong with code or changes
 - Run coderabbit / Use coderabbit
 
 ## How to Review

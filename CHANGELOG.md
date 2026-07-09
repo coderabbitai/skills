@@ -14,6 +14,9 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Renamed the review skill metadata to `coderabbit-review` and narrowed its
+  trigger wording to explicit CodeRabbit review requests, avoiding collisions
+  with host-agent built-in `code-review` commands.
 - Removed alternate detailed-output guidance so review agents use `--agent`
   exclusively.
 - Reframed the README as the canonical home for CodeRabbit skills and plugin
