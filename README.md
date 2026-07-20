@@ -5,8 +5,8 @@
 [![Agents](https://img.shields.io/badge/works_with-35%2B_agents-brightgreen)](#supported-agents)
 
 The canonical home for CodeRabbit's agent-native skills and plugin packaging.
-Use it to install AI-powered code review into 35+ coding agents, Claude Code,
-Cursor, and other supported agent environments.
+Use it to install AI-powered code review into 35+ coding agents, Antigravity
+CLI, Claude Code, Cursor, and other supported agent environments.
 
 CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
@@ -76,6 +76,19 @@ After publication, Cursor marketplace installs use:
 For the current recommended setup, see the
 [Cursor integration guide](https://docs.coderabbit.ai/cli/cursor-integration).
 
+#### Antigravity CLI Plugin
+
+Antigravity CLI users can install the native plugin directly from this
+repository:
+
+```bash
+agy plugin install https://github.com/coderabbitai/skills
+agy plugin list
+```
+
+The repository-root [`plugin.json`](plugin.json) manifest packages the skills,
+review command, and code-review subagent for Antigravity CLI's plugin discovery.
+
 #### Codex App
 
 Codex users can install the official CodeRabbit plugin by following the
@@ -90,9 +103,10 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | --- | --- |
 | `skills/` | Portable CodeRabbit skills for agents that support `SKILL.md`. |
 | `.claude-plugin/` | Claude Code plugin marketplace metadata. |
-| `commands/` | Claude Code slash commands shipped by the plugin. |
-| `agents/` | Claude Code subagents shipped by the plugin. |
+| `commands/` | Review command shipped to Claude Code and converted to a skill by Antigravity CLI. |
+| `agents/` | Code-review subagent shipped to Claude Code and Antigravity CLI. |
 | `.cursor-plugin/` | Cursor marketplace metadata. |
+| `plugin.json` | Antigravity CLI plugin manifest. |
 | `assets/` | Shared marketplace and brand assets. |
 | `DISTRIBUTION_CHANNELS.md` | Maintainer inventory of live, packaged, and in-development channels. |
 
@@ -126,7 +140,7 @@ CodeRabbit supports 35+ coding agents.
 | Agent              | Project Path           | Global Path                            |
 | ------------------ | ---------------------- | -------------------------------------- |
 | Amp, Kimi Code CLI | `.agents/skills/`      | `~/.config/agents/skills/`             |
-| Antigravity        | `.agent/skills/`       | `~/.gemini/antigravity/global_skills/` |
+| Antigravity CLI    | `.agents/skills/`      | `~/.gemini/config/skills/`              |
 | Claude Code        | `.claude/skills/`      | `~/.claude/skills/`                    |
 | Cline              | `.cline/skills/`       | `~/.cline/skills/`                     |
 | CodeBuddy          | `.codebuddy/skills/`   | `~/.codebuddy/skills/`                 |
@@ -223,12 +237,20 @@ inside compatible agents.
 - Marketplace manifest: `.cursor-plugin/plugin.json`
 - Skills source: `skills/`
 
+### Antigravity CLI
+
+- Native plugin manifest: `plugin.json`
+- Skills source: `skills/`
+- Review command: `commands/coderabbit-review.md` (converted to a skill during installation)
+- Subagent: `agents/code-reviewer.md`
+
 ## Resources
 
 - [CodeRabbit Documentation](https://coderabbit.ai/docs)
 - [CodeRabbit CLI Guide](https://docs.coderabbit.ai/cli)
 - [Vercel Skills CLI](https://github.com/vercel-labs/skills)
 - [Agent Skills Specification](https://agentskills.io/specification)
+- [Antigravity CLI Plugin Documentation](https://antigravity.google/docs/cli-plugins)
 
 ## License
 
