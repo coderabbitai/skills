@@ -26,7 +26,7 @@ Review code based on: **$ARGUMENTS**
 Otherwise, run:
 
 ```bash
-coderabbit --version 2>/dev/null && coderabbit auth status 2>&1 | head -3
+coderabbit --version 2>/dev/null
 ```
 
 **If CLI not found**, tell user:
@@ -35,15 +35,6 @@ coderabbit --version 2>/dev/null && coderabbit auth status 2>&1 | head -3
 > <https://www.coderabbit.ai/cli>
 >
 > Prefer a package manager or a verified binary, then restart your shell and try again.
-
-**If "Not logged in"**, tell user:
-> You need to authenticate. Run in your terminal:
->
-> ```bash
-> coderabbit auth login
-> ```
->
-> Then try again.
 
 ### Run Review
 
