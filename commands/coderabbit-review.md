@@ -50,8 +50,14 @@ coderabbit --version 2>/dev/null && coderabbit auth status 2>&1 | head -3
 Once prerequisites are met:
 
 ```bash
-# type defaults to "all"; add --base and --dir only when specified
-args=(review --agent -t "${type:-all}")
+# type defaults to "all"; use a public scope option only when requested
+args=(review --agent)
+case "${type:-all}" in
+  committed) args+=(--committed) ;;
+  uncommitted) args+=(--uncommitted) ;;
+  all) ;;
+  *) printf 'Unsupported review type: %s\n' "$type" >&2; exit 2 ;;
+esac
 [ -n "${base:-}" ] && args+=(--base "$base")
 [ -n "${dir:-}" ] && args+=(--dir "$dir")
 coderabbit "${args[@]}"
@@ -59,12 +65,12 @@ coderabbit "${args[@]}"
 
 Where `type`, `base`, and `dir` come from `$ARGUMENTS`:
 
-- `all` (default) - All changes
+- `all` (default) - All tracked changes
 - `committed` - Committed changes only
-- `uncommitted` - Uncommitted only
+- `uncommitted` - Staged changes and unstaged edits to tracked files
 
 Add `--base <branch>` only when a base branch is specified.
-Add `--dir <path>` only when a review directory is specified. The directory must contain an initialized Git repository; verify it first:
+Add `--dir <path>` only when a review directory is specified. The directory must be inside an initialized Git working tree; verify it first:
 
 ```bash
 git -C "$dir" rev-parse --is-inside-work-tree

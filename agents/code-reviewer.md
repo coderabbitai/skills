@@ -46,7 +46,7 @@ Prefer a package manager or a verified binary over piping a remote script to a s
 
 1. **Gather Context**
    - Identify changed files and their scope
-   - Identify any requested review directory and confirm it contains an initialized Git repository
+   - Identify any requested review directory and confirm it is inside an initialized Git working tree
    - Understand the type of changes (feature, bugfix, refactor)
    - Check for related configuration files
 

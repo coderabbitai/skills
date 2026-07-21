@@ -131,7 +131,8 @@ The agent will automatically:
 4. Optionally fix issues and re-review
 
 When you ask for a specific review directory, the agent can pass CodeRabbit CLI
-`--dir <path>` after confirming that path is an initialized Git repository.
+`--dir <path>` after confirming that path is inside an initialized Git working
+tree.
 
 ## Supported Agents
 
@@ -197,7 +198,7 @@ AI-powered code review that finds bugs, security issues, and suggests improvemen
 - Analyzes code changes for bugs, security issues, and anti-patterns
 - Groups findings by severity (critical, warning, info)
 - Supports autonomous fix-review cycles
-- Works with staged, committed, or all changes
+- Reviews tracked changes by default, with committed and uncommitted scopes
 - Supports directory-scoped reviews through CodeRabbit CLI `--dir <path>`
 
 ### [autofix](skills/autofix/SKILL.md)

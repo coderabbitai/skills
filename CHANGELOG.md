@@ -16,6 +16,8 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Updated review guidance to use the public `--committed` and `--uncommitted`
+  selectors and allow `--dir` paths inside a Git working tree.
 - Removed alternate detailed-output guidance so review agents use `--agent`
   exclusively.
 - Reframed the README as the canonical home for CodeRabbit skills and plugin
