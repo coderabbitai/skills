@@ -13,20 +13,15 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 ## Quickstart
 
 Install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
-then authenticate:
-
-```bash
-coderabbit auth login
-```
-
-Then tell your agent: **“Review my code.”**
+then tell your agent: **“Review my code.”** The review command starts the
+authentication flow when needed.
 
 ## Installation
 
 ### 1. Install the CodeRabbit CLI
 
 Use the [CLI docs](https://docs.coderabbit.ai/cli) for the primary install path.
-They cover Homebrew, the install script, authentication, and CLI usage.
+They cover Homebrew, the install script, and CLI usage.
 
 ### 2. Install the agent integration
 
@@ -125,13 +120,14 @@ Review the directory at ../my-service
 
 The agent will automatically:
 
-1. Check if CodeRabbit CLI is installed and authenticated
+1. Check if CodeRabbit CLI is installed
 2. Run the review on your changes
 3. Present findings grouped by severity
 4. Optionally fix issues and re-review
 
 When you ask for a specific review directory, the agent can pass CodeRabbit CLI
-`--dir <path>` after confirming that path is an initialized Git repository.
+`--dir <path>` after confirming that path is inside an initialized Git working
+tree.
 
 ## Supported Agents
 
@@ -197,7 +193,7 @@ AI-powered code review that finds bugs, security issues, and suggests improvemen
 - Analyzes code changes for bugs, security issues, and anti-patterns
 - Groups findings by severity (critical, warning, info)
 - Supports autonomous fix-review cycles
-- Works with staged, committed, or all changes
+- Reviews tracked changes by default, with committed and uncommitted scopes
 - Supports directory-scoped reviews through CodeRabbit CLI `--dir <path>`
 
 ### [autofix](skills/autofix/SKILL.md)
