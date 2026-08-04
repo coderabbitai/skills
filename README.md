@@ -76,14 +76,17 @@ After publication, Cursor marketplace installs use:
 For the current recommended setup, see the
 [Cursor integration guide](https://docs.coderabbit.ai/cli/cursor-integration).
 
-#### Gemini CLI Extension
+#### Gemini CLI Extension (pre-release)
 
-Gemini CLI users can install the native extension directly from this repository:
+Until `v1.2.0` is published as the Latest release, Gemini CLI users can install
+the native extension from `main`:
 
 ```bash
-gemini extensions install https://github.com/coderabbitai/skills
+gemini extensions install https://github.com/coderabbitai/skills --ref main
 gemini extensions list
 ```
+
+After `v1.2.0` is published, the `--ref main` option can be omitted.
 
 The repository-root [`gemini-extension.json`](gemini-extension.json) packages
 the portable skills, `/coderabbit:review` command, and code-review subagent.
