@@ -5,8 +5,8 @@
 [![Agents](https://img.shields.io/badge/works_with-35%2B_agents-brightgreen)](#supported-agents)
 
 The canonical home for CodeRabbit's agent-native skills and plugin packaging.
-Use it to install AI-powered code review into 35+ coding agents, Antigravity
-CLI, Claude Code, Cursor, and other supported agent environments.
+Use it to install AI-powered code review into 35+ coding agents, Gemini CLI,
+Antigravity CLI, Claude Code, Cursor, and other supported agent environments.
 
 CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
@@ -76,6 +76,22 @@ After publication, Cursor marketplace installs use:
 For the current recommended setup, see the
 [Cursor integration guide](https://docs.coderabbit.ai/cli/cursor-integration).
 
+#### Gemini CLI Extension (pre-release)
+
+Until `v1.2.0` is published as the Latest release, Gemini CLI users can install
+the native extension from `main`:
+
+```bash
+gemini extensions install https://github.com/coderabbitai/skills --ref main
+gemini extensions list
+```
+
+After `v1.2.0` is published, the `--ref main` option can be omitted.
+
+The repository-root [`gemini-extension.json`](gemini-extension.json) packages
+the portable skills, `/coderabbit:review` command, and code-review subagent.
+This native extension is separate from the generic skills-installer path above.
+
 #### Antigravity CLI Plugin
 
 Antigravity CLI users can install the native plugin directly from this
@@ -103,9 +119,10 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | --- | --- |
 | `skills/` | Portable CodeRabbit skills for agents that support `SKILL.md`. |
 | `.claude-plugin/` | Claude Code plugin marketplace metadata. |
-| `commands/` | Review command shipped to Claude Code and converted to a skill by Antigravity CLI. |
-| `agents/` | Code-review subagent shipped to Claude Code and Antigravity CLI. |
+| `commands/` | Native review commands for Claude Code, Gemini CLI, and Antigravity CLI. |
+| `agents/` | Code-review subagent shipped to Claude Code, Gemini CLI, and Antigravity CLI. |
 | `.cursor-plugin/` | Cursor marketplace metadata. |
+| `gemini-extension.json` | Gemini CLI extension manifest. |
 | `plugin.json` | Antigravity CLI plugin manifest. |
 | `assets/` | Shared marketplace and brand assets. |
 | `DISTRIBUTION_CHANNELS.md` | Maintainer inventory of live, packaged, and in-development channels. |
@@ -244,12 +261,20 @@ inside compatible agents.
 - Review command: `commands/coderabbit-review.md` (converted to a skill during installation)
 - Subagent: `agents/code-reviewer.md`
 
+### Gemini CLI
+
+- Native extension manifest: `gemini-extension.json`
+- Skills source: `skills/`
+- Slash command: `/coderabbit:review` (`commands/coderabbit/review.toml`)
+- Subagent: `agents/code-reviewer.md`
+
 ## Resources
 
 - [CodeRabbit Documentation](https://coderabbit.ai/docs)
 - [CodeRabbit CLI Guide](https://docs.coderabbit.ai/cli)
 - [Vercel Skills CLI](https://github.com/vercel-labs/skills)
 - [Agent Skills Specification](https://agentskills.io/specification)
+- [Gemini CLI Extension Documentation](https://geminicli.com/docs/extensions/reference/)
 - [Antigravity CLI Plugin Documentation](https://antigravity.google/docs/cli-plugins)
 
 ## License

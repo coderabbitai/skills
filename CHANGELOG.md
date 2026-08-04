@@ -6,6 +6,8 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added native Gemini CLI extension packaging via `gemini-extension.json`,
+  including the `/coderabbit:review` command and existing portable skills.
 - Added native Antigravity CLI plugin packaging via the repository-root
   `plugin.json` manifest, with direct GitHub installation guidance.
 - Documented CodeRabbit CLI `--dir <path>` support for directory-scoped
@@ -16,6 +18,7 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Aligned the shared code-review subagent metadata with Gemini CLI's schema.
 - Removed alternate detailed-output guidance so review agents use `--agent`
   exclusively.
 - Reframed the README as the canonical home for CodeRabbit skills and plugin
