@@ -26,7 +26,7 @@ Review code based on: **$ARGUMENTS**
 Otherwise, run:
 
 ```bash
-coderabbit --version 2>/dev/null && coderabbit auth status 2>&1 | head -3
+coderabbit --version 2>/dev/null
 ```
 
 **If CLI not found**, tell user:
@@ -36,18 +36,11 @@ coderabbit --version 2>/dev/null && coderabbit auth status 2>&1 | head -3
 >
 > Prefer a package manager or a verified binary, then restart your shell and try again.
 
-**If "Not logged in"**, tell user:
-> You need to authenticate. Run in your terminal:
->
-> ```bash
-> coderabbit auth login
-> ```
->
-> Then try again.
-
 ### Run Review
 
-Once prerequisites are met:
+Run the review directly. Do not run a standalone authentication preflight; the
+review command reuses valid CLI authentication and starts its built-in
+authentication flow only when needed.
 
 ```bash
 # type defaults to "all"; add --base and --dir only when specified

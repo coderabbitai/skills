@@ -142,8 +142,8 @@ Review the directory at ../my-service
 
 The agent will automatically:
 
-1. Check if CodeRabbit CLI is installed and authenticated
-2. Run the review on your changes
+1. Run the review directly, reusing existing CLI authentication
+2. Start the CLI's built-in authentication flow only when needed
 3. Present findings grouped by severity
 4. Optionally fix issues and re-review
 
