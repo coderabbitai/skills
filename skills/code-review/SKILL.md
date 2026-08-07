@@ -33,7 +33,9 @@ When user asks to:
 Treat an explicit CodeRabbit review request as consent to send the selected diff
 to CodeRabbit. Otherwise, ask before transmitting code. Before invoking the CLI,
 inspect the complete selected review scope—including committed, staged, and
-unstaged tracked changes—for secrets or credentials.
+unstaged tracked changes—for secrets or credentials. If any are present, stop:
+do not invoke CodeRabbit or include the secret in output. Ask the user to remove
+or rotate the credential, or to provide a sanitized review scope.
 
 Then run the review directly. Do not start with a standalone
 `coderabbit auth status` or `coderabbit auth login` command. The review command

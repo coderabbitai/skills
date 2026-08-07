@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# Retain organization-wide defaults while keeping repository-specific review
+# policy versioned alongside the skills it governs.
+inheritance: true
+
+reviews:
+  # Draft PRs are the normal iteration surface for agent skills. Review them
+  # early, but avoid posting low-signal messages when a review is skipped.
+  review_status: false
+  enable_prompt_for_ai_agents: true
+  auto_review:
+    enabled: true
+    drafts: true
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 5
+
+  path_instructions:
+    - path: "skills/**/SKILL.md"
+      instructions: |
+        Treat skill files as executable agent instructions.
+        Flag ambiguous, conflicting, unsafe, or unavailable commands.
+        Keep guidance portable across declared agents unless it is explicitly scoped.
+        Verify CLI commands and options against current public documentation.
+        Prefer the smallest reliable workflow; avoid redundant preflights and duplicate state machines.
+        Preserve normal user-approval and sandbox boundaries.
+
+    - path: "commands/**/*.md"
+      instructions: |
+        Keep native commands behaviorally aligned with the corresponding canonical skill.
+        Flag stale CLI options, unsafe shell construction, and duplicated prerequisite logic.
+
+    - path: "agents/**/*.md"
+      instructions: |
+        Keep agent workflows behaviorally aligned with the corresponding canonical skill and commands.
+        Flag conflicting prerequisites, review scopes, or remediation guidance.
+
+    - path: "{.claude-plugin,.cursor-plugin}/**/*.json"
+      instructions: |
+        Verify manifest paths, versions, metadata, and packaged components against the repository tree.
+
+    - path: "{gemini-extension.json,plugin.json}"
+      instructions: |
+        Verify manifest paths, metadata, and packaged components against the repository tree.
+
+    - path: "{README.md,CHANGELOG.md,DISTRIBUTION_CHANNELS.md}"
+      instructions: |
+        Keep public installation commands, release status, and source-of-truth claims accurate and mutually consistent.
