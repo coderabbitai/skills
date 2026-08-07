@@ -8,12 +8,24 @@ reviews:
   # Draft PRs are the normal iteration surface for agent skills. Review them
   # early, but avoid posting low-signal messages when a review is skipped.
   review_status: false
+  in_progress_fortune: false
+  poem: false
   enable_prompt_for_ai_agents: true
   auto_review:
     enabled: true
     drafts: true
     auto_incremental_review: true
     auto_pause_after_reviewed_commits: 5
+
+  # This repository primarily ships Markdown instructions and manifests, so
+  # code-generation finishing touches are not useful review actions.
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+    simplify:
+      enabled: false
 
   path_instructions:
     - path: "skills/**/SKILL.md"
