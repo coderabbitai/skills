@@ -6,9 +6,6 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
-- Added repository-level CodeRabbit configuration that inherits shared defaults,
-  reviews draft pull requests, and applies focused guidance to skills, native
-  packaging, and public documentation.
 - Added native Gemini CLI extension packaging via `gemini-extension.json`,
   including the `/coderabbit:review` command and existing portable skills.
 - Added native Antigravity CLI plugin packaging via the repository-root
