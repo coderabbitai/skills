@@ -11,6 +11,17 @@ reviews:
   # including nitpicks and comments outside the diff, and pre-merge checks pass.
   request_changes_workflow: true
 
+  pre_merge_checks:
+    override_requested_reviewers_only: true
+    docstrings:
+      mode: error
+    title:
+      mode: error
+    description:
+      mode: error
+    issue_assessment:
+      mode: error
+
   review_status: true
   in_progress_fortune: true
   poem: true
