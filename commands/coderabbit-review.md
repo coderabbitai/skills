@@ -1,6 +1,6 @@
 ---
 description: Run CodeRabbit AI code review on your changes
-argument-hint: "[type] [--base <branch>] [--dir <path>]"
+argument-hint: "[all|committed|uncommitted|untracked] [--base <branch>] [--dir <path>]"
 allowed-tools: "Bash(coderabbit:*), Bash(cr:*), Bash(git:*)"
 ---
 
@@ -27,6 +27,7 @@ Otherwise, run:
 
 ```bash
 coderabbit --version 2>/dev/null
+coderabbit auth status --agent
 ```
 
 **If CLI not found**, tell user:
@@ -36,15 +37,28 @@ coderabbit --version 2>/dev/null
 >
 > Prefer a package manager or a verified binary, then restart your shell and try again.
 
-### Run Review
+**If the CLI is not authenticated**, ask the user to run:
 
-Run the review directly. Do not run a standalone authentication preflight; the
-review command reuses valid CLI authentication and starts its built-in
-authentication flow only when needed.
+```bash
+coderabbit auth login
+```
+
+Do not start the login flow without the user's explicit action. Claude Code runs
+these checks in its normal host shell; sandboxed agents must follow the portable
+skill's execution-context guidance instead.
+
+### Run Review
 
 ```bash
 # type defaults to "all"; add --base and --dir only when specified
-args=(review --agent -t "${type:-all}")
+args=(review --agent)
+case "${type:-all}" in
+  all) ;;
+  committed) args+=(--committed) ;;
+  uncommitted) args+=(--uncommitted) ;;
+  untracked) args+=(--uncommitted --include-untracked) ;;
+  *) echo "Unsupported review type: $type" >&2; exit 2 ;;
+esac
 [ -n "${base:-}" ] && args+=(--base "$base")
 [ -n "${dir:-}" ] && args+=(--dir "$dir")
 coderabbit "${args[@]}"
@@ -54,7 +68,8 @@ Where `type`, `base`, and `dir` come from `$ARGUMENTS`:
 
 - `all` (default) - All changes
 - `committed` - Committed changes only
-- `uncommitted` - Uncommitted only
+- `uncommitted` - Staged changes and tracked edits
+- `untracked` - Uncommitted changes plus files not yet added to Git
 
 Add `--base <branch>` only when a base branch is specified.
 Add `--dir <path>` only when a review directory is specified. The directory must contain an initialized Git repository; verify it first:

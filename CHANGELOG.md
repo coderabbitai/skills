@@ -18,9 +18,11 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
-- Removed standalone authentication preflights from review guidance. Codex now
-  runs CodeRabbit review commands with command-scoped elevated network access
-  so the CLI can reuse the host machine's existing authentication.
+- Made review authentication checks execution-context-aware: host-native agents
+  such as Claude Code use their normal shell, while sandboxed agents such as
+  Codex use command-scoped host/network approval without weakening the sandbox.
+- Updated review scope guidance to the current CLI flags (`--committed`,
+  `--uncommitted`, and `--include-untracked`).
 - Aligned the shared code-review subagent metadata with Gemini CLI's schema.
 - Removed alternate detailed-output guidance so review agents use `--agent`
   exclusively.

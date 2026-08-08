@@ -35,6 +35,13 @@ CodeRabbit CLI must be installed from the official docs:
 
 Prefer a package manager or a verified binary over piping a remote script to a shell.
 
+Before reviewing, run `coderabbit --version` and
+`coderabbit auth status --agent` from the same execution context that will run
+the review. If the CLI is not authenticated, ask the user to run
+`coderabbit auth login` there. Sandboxed agents must follow the portable
+code-review skill's host-context guidance rather than trusting a sandbox-only
+authentication result.
+
 ## Workflow
 
 1. **Gather Context**

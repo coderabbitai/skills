@@ -142,10 +142,15 @@ Review the directory at ../my-service
 
 The agent will automatically:
 
-1. Run the review directly, reusing existing CLI authentication
-2. Start the CLI's built-in authentication flow only when needed
+1. Verify the CLI and authentication in the execution context used for review
+2. Run the review with the requested current CLI scope flags
 3. Present findings grouped by severity
 4. Optionally fix issues and re-review
+
+Sandboxed agents use their normal command-scoped host/network approval for the
+authentication check and review so a sandbox-only credential result is not
+mistaken for host authentication. Host-native integrations such as Claude Code
+run the same checks in their normal shell context.
 
 When you ask for a specific review directory, the agent can pass CodeRabbit CLI
 `--dir <path>` after confirming that path is an initialized Git repository.
