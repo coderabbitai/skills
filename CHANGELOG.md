@@ -7,9 +7,9 @@ All notable changes to this repository are documented in this file.
 ### Added
 
 - Added a self-contained, assertive repository-level CodeRabbit policy with
-  draft reviews, a one-reviewed-commit automatic pause, a strict request-changes
-  workflow, blocking built-in pre-merge checks, and focused guidance for skills,
-  native packaging, and public documentation.
+  draft and continuous incremental reviews, a strict request-changes workflow,
+  blocking pre-merge checks, public-repository knowledge boundaries, and focused
+  guidance for skills, native packaging, and public documentation.
 - Added native Gemini CLI extension packaging via `gemini-extension.json`,
   including the `/coderabbit:review` command and existing portable skills.
 - Added native Antigravity CLI plugin packaging via the repository-root
@@ -27,9 +27,10 @@ All notable changes to this repository are documented in this file.
   exclusively.
 - Reframed the README as the canonical home for CodeRabbit skills and plugin
   packaging across supported agents.
-- Reclassified the tagged release archive channel as in development after the
-  v1.1.1 archive was published, removed its public README install flow, and
-  recorded the current status in `DISTRIBUTION_CHANNELS.md`.
+- Removed public README guidance for tagged release archives while that channel
+  remains in development.
+- Marked the tagged release archive channel as in development in
+  `DISTRIBUTION_CHANNELS.md`.
 - Quoted Claude Code command frontmatter values so standard YAML parsers can
   validate them.
 
