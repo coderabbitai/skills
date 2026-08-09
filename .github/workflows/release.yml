@@ -6,7 +6,10 @@ on:
       - "v*"
 
 permissions:
+  attestations: write
+  artifact-metadata: write
   contents: write
+  id-token: write
 
 jobs:
   release:
@@ -14,9 +17,10 @@ jobs:
 
     steps:
       - name: Check out tagged source
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Build archive, checksum, and manifest
         env:
@@ -56,8 +60,16 @@ jobs:
             "  \"sourceTarballUrl\": \"${SOURCE_TARBALL_URL}\"" \
             '}' > release-manifest.json
 
+      - name: Attest release assets
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
+        with:
+          subject-path: |
+            coderabbit-skills-*.tar.gz
+            coderabbit-skills-*.sha256
+            release-manifest.json
+
       - name: Publish GitHub release assets
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           files: |
             coderabbit-skills-*.tar.gz
