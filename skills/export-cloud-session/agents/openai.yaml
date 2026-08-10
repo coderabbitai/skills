@@ -1,0 +1,4 @@
+interface:
+  display_name: "Export Cloud Session"
+  short_description: "Continue a local coding session in a cloud task"
+  default_prompt: "Use $export-cloud-session to continue this committed local coding session in an existing cloud task or create a new one when no task ID is supplied."

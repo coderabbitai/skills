@@ -1,0 +1,4 @@
+interface:
+  display_name: "Import Cloud Session"
+  short_description: "Continue a cloud coding task in the current local agent"
+  default_prompt: "Use $import-cloud-session to synchronize a background cloud coding task into this clean local repository and continue from its verified summary and primary Plan when present."

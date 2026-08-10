@@ -1,8 +1,8 @@
 {
   "name": "coderabbit",
   "displayName": "CodeRabbit",
-  "version": "1.1.1",
-  "description": "AI-powered code review and review-comment autofix for Cursor, powered by CodeRabbit.",
+  "version": "1.2.0",
+  "description": "AI-powered code review, review-comment autofix, and cloud coding-session handoff for Cursor, powered by CodeRabbit.",
   "author": {
     "name": "CodeRabbit AI",
     "email": "support@coderabbit.ai"
@@ -17,14 +17,16 @@
     "code-review",
     "security",
     "github",
-    "cursor"
+    "cursor",
+    "session-handoff"
   ],
   "category": "developer-tools",
   "tags": [
     "code-review",
     "security",
     "github",
-    "developer-tools"
+    "developer-tools",
+    "session-handoff"
   ],
   "skills": "./skills/"
 }

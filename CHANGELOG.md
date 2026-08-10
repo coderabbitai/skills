@@ -6,6 +6,9 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added `import-cloud-session` and `export-cloud-session` portable skills for
+  moving committed coding work between local agents and CodeRabbit Cloud using
+  Git plus encrypted summary and optional Plan artifacts.
 - Added native Gemini CLI extension packaging via `gemini-extension.json`,
   including the `/coderabbit:review` command and existing portable skills.
 - Added native Antigravity CLI plugin packaging via the repository-root

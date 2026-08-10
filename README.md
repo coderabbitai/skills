@@ -5,8 +5,9 @@
 [![Agents](https://img.shields.io/badge/works_with-35%2B_agents-brightgreen)](#supported-agents)
 
 The canonical home for CodeRabbit's agent-native skills and plugin packaging.
-Use it to install AI-powered code review into 35+ coding agents, Gemini CLI,
-Antigravity CLI, Claude Code, Cursor, and other supported agent environments.
+Use it to install AI-powered code review and cloud coding-session handoff into
+35+ coding agents, Gemini CLI, Antigravity CLI, Claude Code, Cursor, and other
+supported agent environments.
 
 CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
@@ -138,9 +139,11 @@ What's wrong with my changes?
 Run a code review
 Review my PR
 Review the directory at ../my-service
+Continue CodeRabbit cloud task <task-id> locally
+Continue this local coding session in CodeRabbit Cloud
 ```
 
-The agent will automatically:
+For code review, the agent will automatically:
 
 1. Check if CodeRabbit CLI is installed and authenticated
 2. Run the review on your changes
@@ -149,6 +152,10 @@ The agent will automatically:
 
 When you ask for a specific review directory, the agent can pass CodeRabbit CLI
 `--dir <path>` after confirming that path is an initialized Git repository.
+
+For a cloud session handoff, the agent validates the repository and Git state,
+moves code through the configured Git remote, and uses the CodeRabbit CLI to
+transfer an encrypted summary and optional primary Plan.
 
 ## Supported Agents
 
@@ -237,6 +244,38 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - Parses and prioritizes issues by severity
 - Applies fixes only after validating the issue and getting approval
 - Produces a single consolidated commit and posts a PR summary comment
+
+### [import-cloud-session](skills/import-cloud-session/SKILL.md)
+
+Continue a background CodeRabbit cloud coding task in a local coding agent.
+
+**Use when:**
+
+- You have a CodeRabbit cloud task ID and want to continue it locally
+- You want the agent to synchronize the task branch before using its summary
+- You need explicit keep-local or keep-remote handling for divergent history
+
+**Capabilities:**
+
+- Enforces repository, branch, origin, clean-worktree, and exact-commit checks
+- Fast-forwards the verified task branch without automatic merge or rebase
+- Imports an encrypted summary and optional primary Plan through the CodeRabbit CLI
+
+### [export-cloud-session](skills/export-cloud-session/SKILL.md)
+
+Continue a local coding-agent session in CodeRabbit Cloud.
+
+**Use when:**
+
+- You want to continue committed local work in an existing cloud task
+- You want to create a new cloud task without supplying a task ID
+- You need explicit keep-local or keep-remote handling for divergent history
+
+**Capabilities:**
+
+- Verifies that committed code is present at the exact remote Git commit
+- Exports an encrypted summary and optional primary Plan through the CodeRabbit CLI
+- Continues an existing cloud task or creates an idempotent branch-backed task
 
 ## Plugin Components
 
