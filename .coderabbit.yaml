@@ -1,0 +1,125 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# This public repository owns a complete, versioned review policy.
+inheritance: false
+
+reviews:
+  profile: assertive
+
+  # Hold CodeRabbit approval until every CodeRabbit comment is resolved,
+  # including nitpicks and comments outside the diff, and pre-merge checks pass.
+  request_changes_workflow: true
+
+  pre_merge_checks:
+    override_requested_reviewers_only: true
+    title:
+      mode: error
+    description:
+      mode: error
+    issue_assessment:
+      mode: error
+    custom_checks:
+      - name: Agent guidance structure
+        mode: error
+        instructions: |
+          Pass when the pull request does not change skills, agent guidance,
+          native commands, or their manifests. Otherwise require all of these:
+          - SKILL.md files keep activation, routing, domain context, and workflow
+            framing concise.
+          - Detailed material is loaded through focused references when needed,
+            and repeatable deterministic operations use scripts or tools when
+            practical.
+          - Referenced files, scripts, tools, commands, and options exist and
+            agree with the repository and current public documentation.
+          - Changes follow the Agent Skills specification, the AGENTS.md open
+            format, and current public guidance for each declared host agent.
+          - Native commands, agents, and manifests remain behaviorally aligned
+            with their canonical skills.
+
+  review_status: true
+  review_details: true
+  in_progress_fortune: true
+  poem: true
+  enable_prompt_for_ai_agents: true
+
+  auto_review:
+    enabled: true
+    drafts: true
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 0
+
+  finishing_touches:
+    unit_tests:
+      enabled: false
+    simplify:
+      enabled: true
+
+  tools:
+    actionlint:
+      enabled: true
+    zizmor:
+      enabled: true
+    skillspector:
+      enabled: true
+
+  path_instructions:
+    - path: "skills/**/SKILL.md"
+      instructions: |
+        Keep skill Markdown focused on domain context, routing, and workflow framing.
+        Put repeatable deterministic operations in referenced scripts or tools when practical.
+        Use focused references for details that are only needed in some workflows.
+        Flag ambiguous or conflicting guidance.
+        Keep guidance portable across declared agents unless it is explicitly scoped.
+        Verify CLI commands and options against current public documentation.
+        Check the Agent Skills specification, the AGENTS.md open format, and the
+        current public documentation for every declared host agent.
+
+    - path: "commands/**/*.md"
+      instructions: |
+        Keep native commands behaviorally aligned with the corresponding canonical skill.
+        Flag stale CLI options and duplicated prerequisite logic.
+
+    - path: "agents/**/*.md"
+      instructions: |
+        Keep agent workflows behaviorally aligned with the corresponding canonical skill and commands.
+        Flag conflicting prerequisites, review scopes, or remediation guidance.
+
+    - path: "{.claude-plugin,.cursor-plugin}/**/*.json"
+      instructions: |
+        Verify manifest paths, versions, metadata, and packaged components against the repository tree.
+
+    - path: "{gemini-extension.json,plugin.json}"
+      instructions: |
+        Verify manifest paths, metadata, and packaged components against the repository tree.
+
+    - path: "{README.md,CHANGELOG.md,DISTRIBUTION_CHANNELS.md}"
+      instructions: |
+        Keep public installation commands, release status, and source-of-truth claims accurate and mutually consistent.
+
+chat:
+  allow_non_org_members: false
+  auto_reply: true
+  integrations:
+    jira:
+      usage: disabled
+    linear:
+      usage: disabled
+
+knowledge_base:
+  learnings:
+    scope: local
+  issues:
+    scope: local
+  jira:
+    usage: disabled
+  linear:
+    usage: disabled
+  pull_requests:
+    scope: local
+  mcp:
+    usage: disabled
+  automatic_repository_linking: false
+
+issue_enrichment:
+  auto_enrich:
+    enabled: true
