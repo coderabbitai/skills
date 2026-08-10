@@ -11,6 +11,10 @@ permissions:
   contents: write
   id-token: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -69,10 +73,40 @@ jobs:
             release-manifest.json
 
       - name: Publish GitHub release assets
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
-        with:
-          files: |
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          assets=(
             coderabbit-skills-*.tar.gz
             coderabbit-skills-*.sha256
             release-manifest.json
-          generate_release_notes: true
+          )
+
+          retry() {
+            local attempt=1
+            until "$@"; do
+              if (( attempt >= 3 )); then
+                return 1
+              fi
+              sleep $((attempt * 5))
+              attempt=$((attempt + 1))
+            done
+          }
+
+          ensure_release() {
+            if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+              return 0
+            fi
+
+            gh release create "$TAG_NAME" \
+              --verify-tag \
+              --generate-notes \
+              --title "$TAG_NAME"
+          }
+
+          gh --version
+          retry ensure_release
+          retry gh release upload "$TAG_NAME" "${assets[@]}" --clobber
