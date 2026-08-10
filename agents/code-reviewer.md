@@ -49,6 +49,9 @@ authentication result.
    - Identify any requested review directory and confirm it contains an initialized Git repository
    - Understand the type of changes (feature, bugfix, refactor)
    - Check for related configuration files
+   - Inspect the complete selected scope for credentials or secrets, including
+     untracked files when requested; if one is present, stop before invoking
+     CodeRabbit and ask for a sanitized scope without printing the value
 
 2. **Run CodeRabbit Review**
    - Execute `coderabbit review --agent` to get structured review output
