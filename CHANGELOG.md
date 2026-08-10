@@ -6,6 +6,10 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added a self-contained, assertive repository-level CodeRabbit policy with
+  draft and continuous incremental reviews, a strict request-changes workflow,
+  blocking pre-merge checks, public-repository knowledge boundaries, and focused
+  guidance for skills, native packaging, and public documentation.
 - Added native Gemini CLI extension packaging via `gemini-extension.json`,
   including the `/coderabbit:review` command and existing portable skills.
 - Added native Antigravity CLI plugin packaging via the repository-root
