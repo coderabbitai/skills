@@ -18,6 +18,7 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Aligned the required-approver check with the repository-wide CODEOWNERS.
 - Aligned the shared code-review subagent metadata with Gemini CLI's schema.
 - Removed alternate detailed-output guidance so review agents use `--agent`
   exclusively.
