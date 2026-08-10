@@ -1,0 +1,71 @@
+name: Bug report
+description: Report incorrect behavior in a skill, command, agent, or packaged integration.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Do not include credentials or private repository information.
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Affected surface
+      options:
+        - Portable skill
+        - Claude Code plugin
+        - Cursor plugin
+        - Gemini CLI extension
+        - Antigravity CLI plugin
+        - Codex plugin guidance
+        - Release archive
+        - Other public packaging
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Provide the installed version, release tag, or commit SHA.
+    validations:
+      required: true
+
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and why it is incorrect.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Provide the smallest public reproduction, including the agent and relevant commands.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Public evidence
+      description: Link relevant public documentation and include redacted logs or screenshots when useful.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed credentials, private links, and private repository information.
+          required: true
+        - label: I searched existing issues for the same problem.
+          required: true

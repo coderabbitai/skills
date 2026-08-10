@@ -6,6 +6,8 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added public contribution guidance, structured issue forms, and a pull-request
+  template for agent-skill and integration changes.
 - Added native Gemini CLI extension packaging via `gemini-extension.json`,
   including the `/coderabbit:review` command and existing portable skills.
 - Added native Antigravity CLI plugin packaging via the repository-root
