@@ -22,6 +22,12 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Made review authentication checks execution-context-aware: host-native agents
+  such as Claude Code use their normal shell, while sandboxed agents such as
+  Codex use command-scoped host/network approval without weakening the sandbox.
+- Updated review scope guidance to the current CLI flags (`--committed`,
+  `--uncommitted`, `--include-untracked`, `--base`, and `--base-commit`) and
+  aligned direct review entry points with the shared credential preflight.
 - Aligned the shared code-review subagent metadata with Gemini CLI's schema.
 - Removed alternate detailed-output guidance so review agents use `--agent`
   exclusively.

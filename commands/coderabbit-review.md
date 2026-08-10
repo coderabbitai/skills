@@ -1,6 +1,6 @@
 ---
 description: Run CodeRabbit AI code review on your changes
-argument-hint: "[type] [--base <branch>] [--dir <path>]"
+argument-hint: "[all|committed|uncommitted|untracked] [--base <branch> | --base-commit <sha>] [--dir <path>]"
 allowed-tools: "Bash(coderabbit:*), Bash(cr:*), Bash(git:*)"
 ---
 
@@ -26,7 +26,8 @@ Review code based on: **$ARGUMENTS**
 Otherwise, run:
 
 ```bash
-coderabbit --version 2>/dev/null && coderabbit auth status 2>&1 | head -3
+coderabbit --version 2>/dev/null
+coderabbit auth status --agent
 ```
 
 **If CLI not found**, tell user:
@@ -36,34 +37,54 @@ coderabbit --version 2>/dev/null && coderabbit auth status 2>&1 | head -3
 >
 > Prefer a package manager or a verified binary, then restart your shell and try again.
 
-**If "Not logged in"**, tell user:
-> You need to authenticate. Run in your terminal:
->
-> ```bash
-> coderabbit auth login
-> ```
->
-> Then try again.
+**If the CLI is not authenticated**, ask the user to run:
+
+```bash
+coderabbit auth login
+```
+
+Do not start the login flow without the user's explicit action. Claude Code runs
+these checks in its normal host shell; sandboxed agents must follow the portable
+skill's execution-context guidance instead.
 
 ### Run Review
 
-Once prerequisites are met:
+Before invoking CodeRabbit, inspect the complete selected scope for credentials
+or secrets. Include untracked files when `untracked` is requested, and apply any
+base branch, base commit, or directory selector to the inspection. If a
+credential is present, stop without running the review or printing the value;
+ask the user for a sanitized scope.
 
 ```bash
-# type defaults to "all"; add --base and --dir only when specified
-args=(review --agent -t "${type:-all}")
+# type defaults to "all"; add one base selector and --dir only when specified
+args=(review --agent)
+case "${type:-all}" in
+  all) ;;
+  committed) args+=(--committed) ;;
+  uncommitted) args+=(--uncommitted) ;;
+  untracked) args+=(--uncommitted --include-untracked) ;;
+  *) echo "Unsupported review type: $type" >&2; exit 2 ;;
+esac
+if [ -n "${base:-}" ] && [ -n "${base_commit:-}" ]; then
+  echo "Use either --base or --base-commit, not both." >&2
+  exit 2
+fi
 [ -n "${base:-}" ] && args+=(--base "$base")
+[ -n "${base_commit:-}" ] && args+=(--base-commit "$base_commit")
 [ -n "${dir:-}" ] && args+=(--dir "$dir")
 coderabbit "${args[@]}"
 ```
 
-Where `type`, `base`, and `dir` come from `$ARGUMENTS`:
+Where `type`, `base`, `base_commit`, and `dir` come from `$ARGUMENTS`:
 
 - `all` (default) - All changes
 - `committed` - Committed changes only
-- `uncommitted` - Uncommitted only
+- `uncommitted` - Staged changes and tracked edits
+- `untracked` - Uncommitted changes plus files not yet added to Git
 
 Add `--base <branch>` only when a base branch is specified.
+Add `--base-commit <sha>` only when a base commit is specified. Do not combine
+it with `--base`.
 Add `--dir <path>` only when a review directory is specified. The directory must contain an initialized Git repository; verify it first:
 
 ```bash
