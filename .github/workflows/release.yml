@@ -6,7 +6,14 @@ on:
       - "v*"
 
 permissions:
+  attestations: write
+  artifact-metadata: write
   contents: write
+  id-token: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -14,9 +21,10 @@ jobs:
 
     steps:
       - name: Check out tagged source
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Build archive, checksum, and manifest
         env:
@@ -56,11 +64,49 @@ jobs:
             "  \"sourceTarballUrl\": \"${SOURCE_TARBALL_URL}\"" \
             '}' > release-manifest.json
 
-      - name: Publish GitHub release assets
-        uses: softprops/action-gh-release@v2
+      - name: Attest release assets
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
         with:
-          files: |
+          subject-path: |
             coderabbit-skills-*.tar.gz
             coderabbit-skills-*.sha256
             release-manifest.json
-          generate_release_notes: true
+
+      - name: Publish GitHub release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          assets=(
+            coderabbit-skills-*.tar.gz
+            coderabbit-skills-*.sha256
+            release-manifest.json
+          )
+
+          retry() {
+            local attempt=1
+            until "$@"; do
+              if (( attempt >= 3 )); then
+                return 1
+              fi
+              sleep $((attempt * 5))
+              attempt=$((attempt + 1))
+            done
+          }
+
+          ensure_release() {
+            if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+              return 0
+            fi
+
+            gh release create "$TAG_NAME" \
+              --verify-tag \
+              --generate-notes \
+              --title "$TAG_NAME"
+          }
+
+          gh --version
+          retry ensure_release
+          retry gh release upload "$TAG_NAME" "${assets[@]}" --clobber

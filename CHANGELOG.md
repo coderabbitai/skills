@@ -22,6 +22,8 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Pinned release workflow actions to immutable commits and added signed GitHub
+  build-provenance attestations for published release assets.
 - Aligned the shared code-review subagent metadata with Gemini CLI's schema.
 - Removed alternate detailed-output guidance so review agents use `--agent`
   exclusively.
