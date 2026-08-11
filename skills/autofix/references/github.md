@@ -2,11 +2,19 @@
 
 GitHub-specific commands and data-handling rules for CodeRabbit review-thread based skills.
 
-Use this helper when a skill needs thread-aware CodeRabbit PR feedback, not flat PR summaries. The `autofix` skill mirrors the required execution flow in `SKILL.md`; this file exists as a reusable companion for other skills.
+This file is the single source of truth for the GitHub commands used by the `autofix` skill — its SKILL.md references the sections below instead of inlining them. Use these primitives when you need thread-aware CodeRabbit PR feedback rather than flat PR summaries.
 
 ## Prerequisites
 
-- `gh` authenticated (`gh auth status`)
+- `gh` authenticated for the host of the current repository's remote — verify with:
+
+```bash
+host=$(git remote get-url origin | sed -E 's#^[a-zA-Z+]+://##; s#^[^@/]+@##; s#[:/].*$##')
+gh auth status --hostname "$host" --active
+```
+
+  A non-zero exit status is a hard stop: do not continue the workflow.
+
 - current branch associated with a GitHub repository
 
 ## 1. Resolve Current PR
@@ -34,7 +42,10 @@ gh pr create --title "$title" --body "${body:-Auto-created by CodeRabbit autofix
 ```bash
 owner=$(gh repo view --json owner --jq '.owner.login')
 repo=$(gh repo view --json name --jq '.name')
+host=$(git remote get-url origin | sed -E 's#^[a-zA-Z+]+://##; s#^[^@/]+@##; s#[:/].*$##')
 ```
+
+`gh pr` commands resolve the host from the repo's remotes natively; only `gh api` calls need `--hostname "$host"` (its default is `github.com` regardless of repo context).
 
 ## 3. Fetch Thread-Aware CodeRabbit Feedback
 
@@ -50,7 +61,7 @@ while :; do
     args+=(-F cursor="$cursor")
   fi
 
-  response=$(gh api graphql "${args[@]}" -f query='query($owner:String!, $repo:String!, $pr:Int!, $cursor:String) {
+  response=$(gh api graphql --hostname "$host" "${args[@]}" -f query='query($owner:String!, $repo:String!, $pr:Int!, $cursor:String) {
     repository(owner:$owner, name:$repo) {
       pullRequest(number:$pr) {
         title
@@ -116,21 +127,26 @@ gh pr view "$pr_number" --json comments,reviews --jq '
 
 ## 4. Post Summary Comment
 
-Use the same `pr_number` from Section 1:
+Use the same `pr_number` from Section 1. Set the variables from local workflow state first — the unquoted heredoc substitutes them (backticks inside it must stay escaped):
 
 ```bash
-gh pr comment "$pr_number" --body "$(cat <<'EOF'
+file_count=<number of files changed this run>
+issue_count=<number of issues fixed this run>
+commit_sha=$(git rev-parse --short HEAD)
+branch_name=$(git branch --show-current)
+files_list=$(git show --name-only --pretty=format: HEAD | sed 's/^/- `/;s/$/`/')
+
+gh pr comment "$pr_number" --body "$(cat <<EOF
 ## Fixes Applied Successfully
 
-Fixed <file-count> file(s) based on <issue-count> CodeRabbit feedback item(s).
+Fixed ${file_count} file(s) based on ${issue_count} CodeRabbit feedback item(s).
 
 **Files modified:**
-- `path/to/file-a.ts`
-- `path/to/file-b.ts`
+${files_list}
 
-**Commit:** `<commit-sha>`
+**Commit:** \`${commit_sha}\`
 
-The latest autofix changes are on the `<branch-name>` branch.
+The latest autofix changes are on the \`${branch_name}\` branch.
 
 EOF
 )"
@@ -138,7 +154,19 @@ EOF
 
 Write this comment from local state only. Do not include raw reviewer prompts or secret-bearing output.
 
-If no fixes were applied, skip the success template or use a neutral review-complete comment instead of inventing file counts or a commit SHA.
+If no fixes were applied, skip the success template or post this neutral review-complete comment instead of inventing file counts or a commit SHA. Set `issue_count` from local workflow state first:
+
+```bash
+issue_count=<number of issues reviewed this run>
+
+gh pr comment "$pr_number" --body "$(cat <<EOF
+## CodeRabbit Autofix Review Complete
+
+Reviewed ${issue_count} CodeRabbit feedback item(s) and did not apply code changes in this run.
+
+EOF
+)"
+```
 
 ## 5. Optional Reaction
 
