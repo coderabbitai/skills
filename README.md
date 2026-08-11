@@ -5,8 +5,9 @@
 [![Agents](https://img.shields.io/badge/works_with-35%2B_agents-brightgreen)](#supported-agents)
 
 The canonical home for CodeRabbit's agent-native skills and plugin packaging.
-Use it to install AI-powered code review into 35+ coding agents, Gemini CLI,
-Antigravity CLI, Claude Code, Cursor, and other supported agent environments.
+Use it to install guided configuration and AI-powered code review into 35+
+coding agents, Gemini CLI, Antigravity CLI, Claude Code, Cursor, and other
+supported agent environments.
 
 CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
@@ -20,6 +21,10 @@ coderabbit auth login
 ```
 
 Then tell your agent: **“Review my code.”**
+
+To create, update, or validate repository configuration, invoke the `config`
+skill as `$config` or `/config` (depending on the host), or tell your agent:
+**“Configure CodeRabbit for this repository.”**
 
 ## Installation
 
@@ -138,6 +143,8 @@ What's wrong with my changes?
 Run a code review
 Review my PR
 Review the directory at ../my-service
+Configure CodeRabbit for this repository
+Validate my .coderabbit.yaml
 ```
 
 The agent will automatically:
@@ -146,6 +153,9 @@ The agent will automatically:
 2. Run the review on your changes
 3. Present findings grouped by severity
 4. Optionally fix issues and re-review
+
+Configuration requests activate the `config` skill, which delegates the entire
+guided create, update, and validation flow to the CodeRabbit CLI.
 
 When you ask for a specific review directory, the agent can pass CodeRabbit CLI
 `--dir <path>` after confirming that path is an initialized Git repository.
@@ -193,6 +203,24 @@ CodeRabbit supports 35+ coding agents.
 | Zencoder           | `.zencoder/skills/`    | `~/.zencoder/skills/`                  |
 
 ## Available Skills
+
+### [config](skills/config/SKILL.md)
+
+Thin agent routing for the CodeRabbit CLI's guided repository configuration
+flow.
+
+**Use when:**
+
+- Creating a repository `.coderabbit.yaml`
+- Updating an existing CodeRabbit YAML configuration
+- Validating CodeRabbit configuration against the current official schema
+
+**Capabilities:**
+
+- Invokes the CLI-owned guided create or update flow
+- Routes explicit validation to `coderabbit config --validate`
+- Keeps configuration prompts, precedence handling, YAML writes, and schema
+  validation in one implementation
 
 ### [code-review](skills/code-review/SKILL.md)
 

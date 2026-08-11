@@ -6,6 +6,9 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added the thin `config` skill, which routes guided CodeRabbit YAML creation,
+  updates, and validation through the CodeRabbit CLI without duplicating
+  configuration logic.
 - Added public contribution guidance, structured issue forms, and a pull-request
   template for agent-skill and integration changes.
 - Added a self-contained, assertive repository-level CodeRabbit policy with
