@@ -1,0 +1,61 @@
+name: Skill or integration proposal
+description: Propose a new skill or a behavioral change to an existing agent integration.
+title: "[Proposal]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and user outcome
+      description: Describe the recurring user need and the result the change should make possible.
+    validations:
+      required: true
+
+  - type: textarea
+    id: agents
+    attributes:
+      label: Target agents and distribution surfaces
+      description: List every agent, plugin, command, manifest, or marketplace affected.
+    validations:
+      required: true
+
+  - type: textarea
+    id: sources
+    attributes:
+      label: Public authoritative references
+      description: Link the Agent Skills specification and current public host documentation that define the proposed behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: disclosure
+    attributes:
+      label: Progressive-disclosure design
+      description: Explain what belongs in SKILL.md and what will load on demand from focused references.
+    validations:
+      required: true
+
+  - type: textarea
+    id: deterministic
+    attributes:
+      label: Deterministic scripts, tools, and validation
+      description: Identify repeatable operations that should live in scripts or tools and how the result will be validated.
+    validations:
+      required: true
+
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and migration
+      description: Describe host-specific differences, existing users affected, and any migration or release implications.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: This proposal contains only public information and public references.
+          required: true
+        - label: I searched existing issues and pull requests for related work.
+          required: true
