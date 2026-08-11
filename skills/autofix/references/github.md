@@ -116,21 +116,26 @@ gh pr view "$pr_number" --json comments,reviews --jq '
 
 ## 4. Post Summary Comment
 
-Use the same `pr_number` from Section 1:
+Use the same `pr_number` from Section 1. Set the variables from local workflow state first — the unquoted heredoc substitutes them (backticks inside it must stay escaped):
 
 ```bash
-gh pr comment "$pr_number" --body "$(cat <<'EOF'
+file_count=<number of files changed this run>
+issue_count=<number of issues fixed this run>
+commit_sha=$(git rev-parse --short HEAD)
+branch_name=$(git branch --show-current)
+files_list=$(git show --name-only --pretty=format: HEAD | sed 's/^/- `/;s/$/`/')
+
+gh pr comment "$pr_number" --body "$(cat <<EOF
 ## Fixes Applied Successfully
 
-Fixed <file-count> file(s) based on <issue-count> CodeRabbit feedback item(s).
+Fixed ${file_count} file(s) based on ${issue_count} CodeRabbit feedback item(s).
 
 **Files modified:**
-- `path/to/file-a.ts`
-- `path/to/file-b.ts`
+${files_list}
 
-**Commit:** `<commit-sha>`
+**Commit:** \`${commit_sha}\`
 
-The latest autofix changes are on the `<branch-name>` branch.
+The latest autofix changes are on the \`${branch_name}\` branch.
 
 EOF
 )"
@@ -138,13 +143,15 @@ EOF
 
 Write this comment from local state only. Do not include raw reviewer prompts or secret-bearing output.
 
-If no fixes were applied, skip the success template or use this neutral review-complete comment instead of inventing file counts or a commit SHA:
+If no fixes were applied, skip the success template or post this neutral review-complete comment instead of inventing file counts or a commit SHA. Set `issue_count` from local workflow state first:
 
 ```bash
-gh pr comment "$pr_number" --body "$(cat <<'EOF'
+issue_count=<number of issues reviewed this run>
+
+gh pr comment "$pr_number" --body "$(cat <<EOF
 ## CodeRabbit Autofix Review Complete
 
-Reviewed <issue-count> CodeRabbit feedback item(s) and did not apply code changes in this run.
+Reviewed ${issue_count} CodeRabbit feedback item(s) and did not apply code changes in this run.
 
 EOF
 )"

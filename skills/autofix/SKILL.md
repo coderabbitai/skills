@@ -28,6 +28,7 @@ Fetch unresolved CodeRabbit review-thread feedback for your current branch's PR 
 ## Prerequisites
 
 ### Required Tools
+
 - `gh` (GitHub CLI)
 - `git`
 
@@ -36,6 +37,7 @@ Verify: `gh auth status`
 All GitHub command primitives (PR resolution, thread fetching, in-progress detection, summary comments) live in [references/github.md](./references/github.md). Read the referenced section before running each step — SKILL.md does not repeat the commands.
 
 ### Required State
+
 - Git repo on GitHub
 - Current branch has open PR
 - PR reviewed by CodeRabbit bot (`coderabbitai`, `coderabbit[bot]`, `coderabbitai[bot]`)
