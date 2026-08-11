@@ -9,7 +9,7 @@ This file is the single source of truth for the GitHub commands used by the `aut
 - `gh` authenticated for the host of the current repository's remote — verify with:
 
 ```bash
-host=$(git remote get-url origin | sed -E 's#^(https?://|git@)##; s#[:/].*$##')
+host=$(git remote get-url origin | sed -E 's#^[a-zA-Z+]+://##; s#^[^@/]+@##; s#[:/].*$##')
 gh auth status --hostname "$host" --active
 ```
 
@@ -42,7 +42,10 @@ gh pr create --title "$title" --body "${body:-Auto-created by CodeRabbit autofix
 ```bash
 owner=$(gh repo view --json owner --jq '.owner.login')
 repo=$(gh repo view --json name --jq '.name')
+host=$(git remote get-url origin | sed -E 's#^[a-zA-Z+]+://##; s#^[^@/]+@##; s#[:/].*$##')
 ```
+
+`gh pr` commands resolve the host from the repo's remotes natively; only `gh api` calls need `--hostname "$host"` (its default is `github.com` regardless of repo context).
 
 ## 3. Fetch Thread-Aware CodeRabbit Feedback
 
@@ -58,7 +61,7 @@ while :; do
     args+=(-F cursor="$cursor")
   fi
 
-  response=$(gh api graphql "${args[@]}" -f query='query($owner:String!, $repo:String!, $pr:Int!, $cursor:String) {
+  response=$(gh api graphql --hostname "$host" "${args[@]}" -f query='query($owner:String!, $repo:String!, $pr:Int!, $cursor:String) {
     repository(owner:$owner, name:$repo) {
       pullRequest(number:$pr) {
         title
