@@ -6,6 +6,8 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added public contribution guidance, structured issue forms, and a pull-request
+  template for agent-skill and integration changes.
 - Added a self-contained, assertive repository-level CodeRabbit policy with
   draft and continuous incremental reviews, a strict request-changes workflow,
   blocking pre-merge checks, public-repository knowledge boundaries, and focused
