@@ -2,7 +2,7 @@
 
 GitHub-specific commands and data-handling rules for CodeRabbit review-thread based skills.
 
-Use this helper when a skill needs thread-aware CodeRabbit PR feedback, not flat PR summaries. The `autofix` skill mirrors the required execution flow in `SKILL.md`; this file exists as a reusable companion for other skills.
+Use this helper when a skill needs thread-aware CodeRabbit PR feedback, not flat PR summaries. This file is the single source of truth for these commands — the `autofix` SKILL.md references the sections below instead of inlining them, and other skills may reuse them.
 
 ## Prerequisites
 
@@ -138,7 +138,17 @@ EOF
 
 Write this comment from local state only. Do not include raw reviewer prompts or secret-bearing output.
 
-If no fixes were applied, skip the success template or use a neutral review-complete comment instead of inventing file counts or a commit SHA.
+If no fixes were applied, skip the success template or use this neutral review-complete comment instead of inventing file counts or a commit SHA:
+
+```bash
+gh pr comment "$pr_number" --body "$(cat <<'EOF'
+## CodeRabbit Autofix Review Complete
+
+Reviewed <issue-count> CodeRabbit feedback item(s) and did not apply code changes in this run.
+
+EOF
+)"
+```
 
 ## 5. Optional Reaction
 
