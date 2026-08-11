@@ -24,6 +24,9 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Restricted sandboxed CodeRabbit host execution to command-scoped
+  authentication-status and requested review calls without exposing stored
+  credentials or launching login automatically.
 - Aligned the shared code-review subagent metadata with Gemini CLI's schema.
 - Removed alternate detailed-output guidance so review agents use `--agent`
   exclusively.
