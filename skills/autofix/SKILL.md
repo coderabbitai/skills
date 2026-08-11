@@ -39,7 +39,7 @@ All GitHub command primitives (PR resolution, thread fetching, in-progress detec
 ### Required State
 
 - Git repo on GitHub
-- Current branch has open PR
+- An open PR on the current branch (optional — Step 2 offers to create one)
 - PR reviewed by CodeRabbit bot (`coderabbitai`, `coderabbit[bot]`, `coderabbitai[bot]`)
 
 ## Guidelines
@@ -156,7 +156,9 @@ Display issues in original thread order, but review "Fix" issues in severity ord
 - Inform user can make changes manually
 - Move to next
 
-After all fixes, display summary of fixed/skipped issues.
+**`Review` items** (LOW severity, or downgraded during inspection): do not queue for fixes — validate locally only if the user asks, and record each in the final summary as reviewed-without-fix.
+
+After all fixes, display a summary covering every displayed issue: fixed, deferred, and reviewed-without-fix.
 
 **Sanitization rules for reviewer guidance summaries:**
 - strip paths to credential files, dotfiles, home directories, and unrelated workspace files
