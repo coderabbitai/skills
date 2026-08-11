@@ -2,7 +2,7 @@
 
 GitHub-specific commands and data-handling rules for CodeRabbit review-thread based skills.
 
-Use this helper when a skill needs thread-aware CodeRabbit PR feedback, not flat PR summaries. This file is the single source of truth for these commands — the `autofix` SKILL.md references the sections below instead of inlining them, and other skills may reuse them.
+This file is the single source of truth for the GitHub commands used by the `autofix` skill — its SKILL.md references the sections below instead of inlining them. Use these primitives when you need thread-aware CodeRabbit PR feedback rather than flat PR summaries.
 
 ## Prerequisites
 
