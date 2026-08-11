@@ -6,7 +6,15 @@ This file is the single source of truth for the GitHub commands used by the `aut
 
 ## Prerequisites
 
-- `gh` authenticated (`gh auth status`)
+- `gh` authenticated for the host of the current repository's remote — verify with:
+
+```bash
+host=$(git remote get-url origin | sed -E 's#^(https?://|git@)##; s#[:/].*$##')
+gh auth status --hostname "$host" --active
+```
+
+  A non-zero exit status is a hard stop: do not continue the workflow.
+
 - current branch associated with a GitHub repository
 
 ## 1. Resolve Current PR

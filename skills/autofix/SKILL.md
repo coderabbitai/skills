@@ -32,7 +32,7 @@ Fetch unresolved CodeRabbit review-thread feedback for your current branch's PR 
 - `gh` (GitHub CLI)
 - `git`
 
-Verify: `gh auth status`
+Verify `gh` authentication against the host of the current repository's remote using the command in [references/github.md](./references/github.md) (Prerequisites). Any failure is a hard stop — do not continue the workflow.
 
 All GitHub command primitives (PR resolution, thread fetching, in-progress detection, summary comments) live in [references/github.md](./references/github.md). Read the referenced section before running each step — SKILL.md does not repeat the commands.
 
