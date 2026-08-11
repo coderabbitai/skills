@@ -193,10 +193,10 @@ If all deferred (no commit): Skip this step.
 
 ### Step 10: Post Summary
 
-**If at least one fix was applied:** Post one success summary comment on the PR using the success template in [references/github.md §4](./references/github.md).
+**If at least one fix was applied and Step 9 pushed successfully:** Post one success summary comment on the PR using the success template in [references/github.md §4](./references/github.md). Optionally react to CodeRabbit's main comment with 👍.
+
+**If fixes were applied but not pushed** (push declined or failed): keep the fixes local — do not post or react on the PR.
 
 **If no fixes were applied:** Skip the success comment, or post the neutral review-complete template from the same section instead.
 
 Write any summary comment from local state only. Do not include raw reviewer prompts or any secret-bearing output.
-
-Optionally react to CodeRabbit's main comment with 👍.
