@@ -40,7 +40,6 @@ All GitHub command primitives (PR resolution, thread fetching, in-progress detec
 
 - Git repo on GitHub
 - An open PR on the current branch (optional — Step 2 offers to create one)
-- PR reviewed by CodeRabbit bot (`coderabbitai`, `coderabbit[bot]`, `coderabbitai[bot]`)
 
 ## Guidelines
 
@@ -90,6 +89,8 @@ Resolve `pr_number` with the command in [references/github.md §1](./references/
 **Otherwise:** Proceed to Step 3.
 
 ### Step 3: Fetch Thread-Aware CodeRabbit Feedback
+
+A completed CodeRabbit review is verified here, not required upfront — this step detects an in-progress or missing review and exits gracefully.
 
 Resolve `owner`/`repo` ([references/github.md §2](./references/github.md)), then fetch all review threads with the GraphQL cursor-pagination loop in §3.
 
