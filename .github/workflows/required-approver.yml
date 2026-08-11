@@ -22,7 +22,7 @@ jobs:
     name: verify
     runs-on: ubuntu-latest
     env:
-      REQUIRED_APPROVERS: nehal-a2z,juanpflores
+      REQUIRED_APPROVERS: nehal-a2z,juanpflores,esthor
       GH_TOKEN: ${{ github.token }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       REPOSITORY: ${{ github.repository }}
@@ -85,7 +85,8 @@ jobs:
           )"
 
           if [[ -z "$approved_by" ]]; then
-            echo "::error::This PR needs an approval from nehal-a2z or juanpflores on the latest head commit."
+            required_display="${REQUIRED_APPROVERS//,/ or }"
+            echo "::error::This PR needs an approval from ${required_display} on the latest head commit."
             exit 1
           fi
 
