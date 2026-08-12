@@ -35,34 +35,13 @@ CodeRabbit CLI must be installed from the official docs:
 
 Prefer a package manager or a verified binary over piping a remote script to a shell.
 
-Resolve the host-installed `coderabbit` executable from the user's normal host
-environment and invoke its canonical absolute path rather than an alias or
-function. Reject the executable if its path or resolved target is inside the
-repository or workspace. Do not request host or elevated execution for path resolution,
-`--version`, or `--help`; keep those diagnostics sandboxed when a sandbox is
-present.
-
-In a local sandboxed runtime, grant command-scoped host execution only to the
-exact `coderabbit auth status --agent` check and the requested
-`coderabbit review --agent` command with its supported scope flags. In Codex,
-set `sandbox_permissions: require_escalated` on each exact tool call. Do not
-disable the sandbox for the session or elevate another CodeRabbit subcommand.
-Do not run any other CodeRabbit subcommand, even inside the sandbox.
-
-Run the status check in the same authoritative context as the review. Only if
-it succeeds and returns `authenticated: false`, use the instruction for that
-environment: ask the user to run `coderabbit auth login --agent` in their host
-terminal for a local or host-native session; for a remote or cloud session,
-report that authentication is not configured there and direct the user to the
-official CLI documentation. If required escalation is blocked, the command
-fails, or the output is malformed, report authentication as unknown and do not
-request login. Never run or elevate login, reuse a local host credential in a
-remote environment, or retrieve, expose, copy, store, hash, or pass a
-credential. Let the trusted CLI access its credential store directly.
-
-Host-native agents should use their normal shell. Remote and cloud agents must
-use authentication configured inside that environment and must not attempt to
-access a local host credential store.
+Resolve the host-installed `coderabbit` to its canonical absolute path. Trust
+and execute only that path when it is an expected user or system binary; reject
+repository, workspace, and temporary paths. Run `auth status --agent` in the
+same shell as the review. Proceed only after `authenticated: true`. On
+`false`, ask the user to run `coderabbit auth login`; on failure or malformed
+output, report authentication as unknown and stop. Never run login or access a
+credential.
 
 ## Workflow
 
@@ -73,10 +52,11 @@ access a local host credential store.
    - Check for related configuration files
 
 2. **Run CodeRabbit Review**
-   - Check authentication with the resolved absolute path using `coderabbit auth status --agent`
-   - Execute the resolved absolute path with `coderabbit review --agent` to get structured review output
-   - Add `--dir <path>` when the user requests a specific review directory
-   - Parse and categorize findings by severity and type
+   - Check authentication with the resolved absolute path using `auth status --agent`
+   - Execute `review --agent` through the resolved absolute path to get structured review output
+   - Forward requested `--committed`, `--uncommitted`, `--base`, `--base-commit`, and `--dir` selectors
+   - Add `--include-untracked` only on explicit request and never with `--committed`
+   - Preserve each finding's emitted severity
 
 3. **Analyze Findings**
    - Prioritize critical security issues
@@ -92,33 +72,3 @@ access a local host credential store.
    - Use findings from the resolved absolute path's `review --agent` command as the primary fix workflow
    - Explain complex issues in detail
    - Help implement suggested changes
-
-## Review Categories
-
-### Critical (Must Fix)
-
-- Security vulnerabilities
-- Data exposure risks
-- Authentication/authorization flaws
-- Injection vulnerabilities
-
-### High Priority
-
-- Bug-prone code patterns
-- Missing error handling
-- Resource leaks
-- Race conditions
-
-### Medium Priority
-
-- Code duplication
-- Complex/hard-to-maintain code
-- Missing tests
-- Documentation gaps
-
-### Low Priority (Suggestions)
-
-- Style improvements
-- Minor optimizations
-- Naming conventions
-- Code organization
