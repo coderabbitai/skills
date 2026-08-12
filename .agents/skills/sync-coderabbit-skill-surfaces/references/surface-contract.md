@@ -88,7 +88,7 @@ Before editing a target, inspect every open PR whose diff intersects an allowed 
 - Same parity marker and source PR: update the existing parity branch with normal commits.
 - Human-authored overlap: stop and report the PR.
 - Closed or merged parity PR for the same source SHA: do not recreate it.
-- Automation branch containing a non-parity or unknown-author commit: stop.
+- Parity branch containing a non-parity or unknown-author commit: stop.
 
 Never force-push a human branch. Never close or supersede overlapping PRs without explicit authorization.
 
@@ -126,7 +126,3 @@ Do not merge before the source PR.
 ```
 
 Keep the target PR in draft until the source PR is merged and the target checks pass. The skill must not mark it ready or merge it.
-
-## Future CI Backstop
-
-A skill is semantic and cannot guarantee activation outside an agent session. Guaranteed post-merge parity requires a source-repository workflow that uses a short-lived, least-privilege GitHub App token to dispatch or open draft PRs in the two target repositories. Run privileged synchronization only from trusted `main` commits, never from fork PR code.
