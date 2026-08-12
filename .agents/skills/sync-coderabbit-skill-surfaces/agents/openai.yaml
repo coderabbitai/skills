@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sync CodeRabbit Skill Surfaces"
+  short_description: "Keep CodeRabbit plugin surfaces in parity"
+  default_prompt: "Use $sync-coderabbit-skill-surfaces to propagate this skills-repo change into the affected Cursor and Codex plugin draft PRs."
