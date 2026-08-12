@@ -35,6 +35,14 @@ CodeRabbit CLI must be installed from the official docs:
 
 Prefer a package manager or a verified binary over piping a remote script to a shell.
 
+Resolve the host-installed `coderabbit` to its canonical absolute path. Trust
+and execute only that path when it is an expected user or system binary; reject
+repository, workspace, and temporary paths. Run `auth status --agent` in the
+same shell as the review. Proceed only after `authenticated: true`. On
+`false`, ask the user to run `coderabbit auth login`; on failure or malformed
+output, report authentication as unknown and stop. Never run login or access a
+credential.
+
 ## Workflow
 
 1. **Gather Context**
@@ -44,9 +52,11 @@ Prefer a package manager or a verified binary over piping a remote script to a s
    - Check for related configuration files
 
 2. **Run CodeRabbit Review**
-   - Execute `coderabbit review --agent` to get structured review output
-   - Add `--dir <path>` when the user requests a specific review directory
-   - Parse and categorize findings by severity and type
+   - Check authentication with the resolved absolute path using `auth status --agent`
+   - Execute `review --agent` through the resolved absolute path to get structured review output
+   - Forward requested `--committed`, `--uncommitted`, `--base`, `--base-commit`, and `--dir` selectors
+   - Add `--include-untracked` only on explicit request and never with `--committed`
+   - Preserve each finding's emitted severity
 
 3. **Analyze Findings**
    - Prioritize critical security issues
@@ -59,36 +69,6 @@ Prefer a package manager or a verified binary over piping a remote script to a s
    - Highlight positive aspects of the code
 
 5. **Interactive Resolution**
-   - Use `coderabbit review --agent` findings as the primary fix workflow
+   - Use findings from the resolved absolute path's `review --agent` command as the primary fix workflow
    - Explain complex issues in detail
    - Help implement suggested changes
-
-## Review Categories
-
-### Critical (Must Fix)
-
-- Security vulnerabilities
-- Data exposure risks
-- Authentication/authorization flaws
-- Injection vulnerabilities
-
-### High Priority
-
-- Bug-prone code patterns
-- Missing error handling
-- Resource leaks
-- Race conditions
-
-### Medium Priority
-
-- Code duplication
-- Complex/hard-to-maintain code
-- Missing tests
-- Documentation gaps
-
-### Low Priority (Suggestions)
-
-- Style improvements
-- Minor optimizations
-- Naming conventions
-- Code organization

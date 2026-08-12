@@ -1,7 +1,7 @@
 ---
 description: Run CodeRabbit AI code review on your changes
-argument-hint: "[type] [--base <branch>] [--dir <path>]"
-allowed-tools: "Bash(coderabbit:*), Bash(cr:*), Bash(git:*)"
+argument-hint: "[--committed|--uncommitted] [--include-untracked] [--base <branch>|--base-commit <sha>] [--dir <path>]"
+allowed-tools: "Bash(git:*)"
 ---
 
 # CodeRabbit Code Review
@@ -21,50 +21,30 @@ Review code based on: **$ARGUMENTS**
 
 ### Prerequisites Check
 
-**Skip these checks if you already verified them earlier in this session.**
+Resolve the host-installed `coderabbit` to its canonical absolute path. Trust
+and execute only that path when it is an expected user or system binary; reject
+repository, workspace, and temporary paths. If no trusted path is available,
+stop and point the user to <https://www.coderabbit.ai/cli>.
 
-Otherwise, run:
-
-```bash
-coderabbit --version 2>/dev/null && coderabbit auth status 2>&1 | head -3
-```
-
-**If CLI not found**, tell user:
-> CodeRabbit CLI is not installed. Install it from the official docs:
->
-> <https://www.coderabbit.ai/cli>
->
-> Prefer a package manager or a verified binary, then restart your shell and try again.
-
-**If "Not logged in"**, tell user:
-> You need to authenticate. Run in your terminal:
->
-> ```bash
-> coderabbit auth login
-> ```
->
-> Then try again.
+Run `"/absolute/path/to/coderabbit" auth status --agent` in the same shell as
+the review. Proceed only after a successful `authenticated: true`. On `false`,
+ask the user to run `coderabbit auth login` in their terminal. On failure or
+malformed output, report authentication as unknown and stop. Never run login or
+access, relay, or inject a credential.
 
 ### Run Review
 
-Once prerequisites are met:
+Validate selectors first, then run one direct absolute-path command with
+literal arguments. Do not pre-approve CodeRabbit broadly or wrap the call in a
+pipe, conditional, variable expansion, or command substitution.
 
-```bash
-# type defaults to "all"; add --base and --dir only when specified
-args=(review --agent -t "${type:-all}")
-[ -n "${base:-}" ] && args+=(--base "$base")
-[ -n "${dir:-}" ] && args+=(--dir "$dir")
-coderabbit "${args[@]}"
-```
+- Default: `"/absolute/path/to/coderabbit" review --agent`
+- Committed: `"/absolute/path/to/coderabbit" review --agent --committed`
+- Uncommitted: `"/absolute/path/to/coderabbit" review --agent --uncommitted`
+- Untracked: append `--include-untracked` only on explicit request and never with `--committed`
 
-Where `type`, `base`, and `dir` come from `$ARGUMENTS`:
-
-- `all` (default) - All changes
-- `committed` - Committed changes only
-- `uncommitted` - Uncommitted only
-
-Add `--base <branch>` only when a base branch is specified.
-Add `--dir <path>` only when a review directory is specified. The directory must contain an initialized Git repository; verify it first:
+Append `--base <branch>` or `--base-commit <sha>`, never both. Append
+`--dir <path>` only when requested, after verifying it is in a Git working tree:
 
 ```bash
 git -C "$dir" rev-parse --is-inside-work-tree
@@ -72,10 +52,5 @@ git -C "$dir" rev-parse --is-inside-work-tree
 
 ### Present Results
 
-Group findings by severity:
-
-1. **Critical** - Security vulnerabilities, data loss risks, crashes
-2. **Warning** - Bugs, performance issues, anti-patterns
-3. **Info** - Style issues, suggestions, minor improvements
-
-Offer to apply fixes from the `--agent` findings when the output includes actionable remediation details.
+Preserve the emitted severity (`critical`, `major`, `minor`, `trivial`, or
+`info`). Offer to apply findings with actionable remediation details.

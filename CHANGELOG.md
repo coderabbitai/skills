@@ -24,6 +24,8 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Documented command-scoped host execution for CodeRabbit auth-status and review
+  calls, with user-run login and no credential relay.
 - Aligned the shared code-review subagent metadata with Gemini CLI's schema.
 - Removed alternate detailed-output guidance so review agents use `--agent`
   exclusively.
