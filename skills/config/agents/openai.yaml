@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeRabbit Config"
-  short_description: "Guide CodeRabbit configuration with the CLI"
-  default_prompt: "Use $config to create, update, or validate this repository’s CodeRabbit configuration."
+  display_name: "/config"
+  short_description: "Configure CodeRabbit safely with the CLI"
+  default_prompt: "Use $config to set up this repository with the recommended Standard flow or an evidence-backed Detailed configuration."

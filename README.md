@@ -22,9 +22,11 @@ coderabbit auth login
 
 Then tell your agent: **“Review my code.”**
 
-To create, update, or validate repository configuration, invoke the `config`
-skill as `$config` or `/config` (depending on the host), or tell your agent:
-**“Configure CodeRabbit for this repository.”**
+To create, update, or validate repository configuration, tell your agent:
+**“Configure CodeRabbit for this repository.”** Codex users can invoke
+`$config`; the Claude Code plugin exposes `/coderabbit:config`; Gemini CLI
+activates matching skills automatically. In Antigravity CLI, ask in natural
+language because `/config` opens the host's settings editor.
 
 ## Installation
 
@@ -147,15 +149,15 @@ Configure CodeRabbit for this repository
 Validate my .coderabbit.yaml
 ```
 
-The agent will automatically:
+For review requests, the agent will automatically:
 
 1. Check if CodeRabbit CLI is installed and authenticated
 2. Run the review on your changes
 3. Present findings grouped by severity
 4. Optionally fix issues and re-review
 
-Configuration requests activate the `config` skill, which delegates the entire
-guided create, update, and validation flow to the CodeRabbit CLI.
+Configuration requests activate the `config` skill, which delegates validation
+and every repository-config write to the CodeRabbit CLI.
 
 When you ask for a specific review directory, the agent can pass CodeRabbit CLI
 `--dir <path>` after confirming that path is an initialized Git repository.
@@ -204,23 +206,27 @@ CodeRabbit supports 35+ coding agents.
 
 ## Available Skills
 
-### [config](skills/config/SKILL.md)
+### [config](skills/config/SKILL.md) (release-gated)
 
-Thin agent routing for the CodeRabbit CLI's guided repository configuration
-flow.
+Safe Standard and Detailed configuration through the CodeRabbit CLI.
+
+This skill remains a draft until the required CLI configuration protocol is in
+an official release.
 
 **Use when:**
 
 - Creating a repository `.coderabbit.yaml`
 - Updating an existing CodeRabbit YAML configuration
+- Tailoring reviews and path instructions to repository evidence
 - Validating CodeRabbit configuration against the current official schema
 
 **Capabilities:**
 
-- Invokes the CLI-owned guided create or update flow
-- Routes explicit validation to `coderabbit config --validate`
-- Keeps configuration prompts, precedence handling, YAML writes, and schema
-  validation in one implementation
+- Defaults to the CLI-owned Standard wizard for a quick balanced setup
+- Offers Detailed repository discovery and optional, consent-based insight from
+  relevant Codex or Claude session patterns
+- Validates, previews, concurrency-checks, and applies full-schema proposals
+  through the CLI instead of editing repository YAML directly
 
 ### [code-review](skills/code-review/SKILL.md)
 
