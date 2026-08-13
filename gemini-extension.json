@@ -1,5 +1,5 @@
 {
   "name": "coderabbit",
   "version": "1.2.0",
-  "description": "Guided configuration, AI-powered code review, and review-comment autofix, powered by CodeRabbit."
+  "description": "AI-powered code review and review-comment autofix, powered by CodeRabbit."
 }

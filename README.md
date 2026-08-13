@@ -5,9 +5,8 @@
 [![Agents](https://img.shields.io/badge/works_with-35%2B_agents-brightgreen)](#supported-agents)
 
 The canonical home for CodeRabbit's agent-native skills and plugin packaging.
-Use it to install guided configuration and AI-powered code review into 35+
-coding agents, Gemini CLI, Antigravity CLI, Claude Code, Cursor, and other
-supported agent environments.
+Use it to install AI-powered code review into 35+ coding agents, Gemini CLI,
+Antigravity CLI, Claude Code, Cursor, and other supported agent environments.
 
 CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
@@ -21,12 +20,6 @@ coderabbit auth login
 ```
 
 Then tell your agent: **“Review my code.”**
-
-To create, update, or validate repository configuration, tell your agent:
-**“Configure CodeRabbit for this repository.”** Codex users can invoke
-`$config`; the Claude Code plugin exposes `/coderabbit:config`; Gemini CLI
-activates matching skills automatically. In Antigravity CLI, ask in natural
-language because `/config` opens the host's settings editor.
 
 ## Installation
 
@@ -145,19 +138,14 @@ What's wrong with my changes?
 Run a code review
 Review my PR
 Review the directory at ../my-service
-Configure CodeRabbit for this repository
-Validate my .coderabbit.yaml
 ```
 
-For review requests, the agent will automatically:
+The agent will automatically:
 
 1. Check if CodeRabbit CLI is installed and authenticated
 2. Run the review on your changes
 3. Present findings grouped by severity
 4. Optionally fix issues and re-review
-
-Configuration requests activate the `config` skill, which delegates validation
-and every repository-config write to the CodeRabbit CLI.
 
 When you ask for a specific review directory, the agent can pass CodeRabbit CLI
 `--dir <path>` after confirming that path is an initialized Git repository.
@@ -205,28 +193,6 @@ CodeRabbit supports 35+ coding agents.
 | Zencoder           | `.zencoder/skills/`    | `~/.zencoder/skills/`                  |
 
 ## Available Skills
-
-### [config](skills/config/SKILL.md) (release-gated)
-
-Safe Standard and Detailed configuration through the CodeRabbit CLI.
-
-This skill remains a draft until the required CLI configuration protocol is in
-an official release.
-
-**Use when:**
-
-- Creating a repository `.coderabbit.yaml`
-- Updating an existing CodeRabbit YAML configuration
-- Tailoring reviews and path instructions to repository evidence
-- Validating CodeRabbit configuration against the current official schema
-
-**Capabilities:**
-
-- Defaults to the CLI-owned Standard wizard for a quick balanced setup
-- Offers Detailed repository discovery and optional, consent-based insight from
-  relevant Codex or Claude session patterns
-- Validates, previews, concurrency-checks, and applies full-schema proposals
-  through the CLI instead of editing repository YAML directly
 
 ### [code-review](skills/code-review/SKILL.md)
 
