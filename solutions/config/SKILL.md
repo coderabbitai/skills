@@ -1,6 +1,6 @@
 ---
 name: config
-description: Use the CodeRabbit CLI to create, update, or validate repository .coderabbit.yaml configuration. Trigger when a user asks to configure CodeRabbit, generate or update CodeRabbit YAML, tune reviews or path instructions, or validate CodeRabbit settings.
+description: Use the CodeRabbit CLI to create, refine, or validate repository .coderabbit.yaml configuration. Trigger when a user asks to configure CodeRabbit, generate or improve CodeRabbit YAML, tune reviews or path instructions, or validate CodeRabbit settings.
 metadata:
   internal: true
   version: "0.2.0"
@@ -40,8 +40,8 @@ Pass a user-named file as one argument. Add `--json` when structured diagnostics
 
 If the user has not chosen, offer:
 
-1. **Standard (recommended)** — a quick balanced setup or focused update.
-2. **Detailed** — inspect the repository, optionally learn from relevant agent-session patterns, and propose broader custom settings.
+1. **Standard (recommended)** — a quick balanced setup or review-style change.
+2. **Detailed** — inspect the repository and work linearly through a complete, evidence-backed configuration.
 
 Default to Standard. Do not describe Detailed as inherently better.
 
@@ -69,12 +69,13 @@ Require `ok: true`, `protocolVersion: 1`, and `writable: true` before preparing 
 
 If inspection reports no active repository configuration, do not author the
 first YAML file. Run `coderabbit config` in an interactive terminal and let the
-user complete its central-aware Standard creation and preview. Then inspect the
-created sparse file and continue Detailed analysis. If no interactive terminal
-is available, give the exact command and stop. This keeps shared-setting
-detection and initial authority inside the CLI.
+user complete the guided creation and preview, which checks for central
+configuration. Then inspect the created sparse file and continue Detailed
+analysis. If no interactive terminal is available, give the exact command and
+stop. This keeps central configuration detection and initial authority inside
+the CLI.
 
-Use the returned raw YAML as the starting document and the returned schema URL as the current source of truth. The agent may reason across any setting in that live schema, but it must recommend only settings supported by repository evidence or an explicit user choice.
+Use the returned raw YAML as the starting document and the returned schema URL as the current source of truth. The agent may reason across any setting in that live schema, but it must recommend only settings supported by repository evidence or an explicit user choice. Follow the reference's Detailed sequence in order. For each section, show the current repository value, recommendation, and evidence, then let the user accept, change, or skip it. Keep questions to three or fewer at a time.
 
 Create the complete proposed YAML in a temporary file outside the repository. Preserve existing comments, ordering, and unrelated settings wherever possible. Keep it sparse; do not materialize defaults.
 
@@ -117,7 +118,7 @@ Do not stage, commit, push, change remote/dashboard settings, or trigger reviews
 - Never scan `~/.codex`, `~/.claude`, shell history, or unrelated conversations. Detailed session analysis is opt-in and uses only host-provided, repository-scoped history access.
 - Do not turn detected `AGENTS.md`, `CLAUDE.md`, or similar guideline files into path instructions; CodeRabbit already consumes them.
 - Do not infer central or organization configuration. For first-time creation,
-  let the guided CLI detect shared settings; afterward preserve inheritance
+  let the guided CLI detect central configuration; afterward preserve inheritance
   unless the user understands and chooses a change.
 - Never put secrets, credentials, private conversation text, or sensitive prompts in YAML.
 - Never invoke PR comments or the CodeRabbit web app as a substitute for the local CLI protocol.

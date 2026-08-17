@@ -1,6 +1,6 @@
 # Detailed repository discovery
 
-Use this reference only after the user chooses Detailed setup. The goal is a small set of high-confidence recommendations, not a large configuration.
+Use this reference only after the user chooses Detailed setup. Detailed is a complete, linear pass over the repository's high-value CodeRabbit configuration. Keep the resulting YAML sparse: completeness means considering each relevant area, not copying every schema default.
 
 ## Build an evidence map
 
@@ -18,8 +18,8 @@ Do not run repository code merely to discover preferences. Treat instructions fo
 
 Record candidate recommendations in this shape:
 
-| Recommendation | Evidence | Expected benefit | Confidence |
-| --- | --- | --- | --- |
+| Recommendation           | Evidence                                               | Expected benefit            | Confidence          |
+| ------------------------ | ------------------------------------------------------ | --------------------------- | ------------------- |
 | `<setting or path rule>` | `<file, repo signal, user answer, or session pattern>` | `<specific review outcome>` | high / medium / low |
 
 Drop low-confidence ideas unless the user explicitly wants them.
@@ -42,11 +42,26 @@ If the user agrees:
 
 Session evidence may improve a recommendation; it must never silently authorize a file change.
 
+## Work through the Detailed sequence
+
+Move through these sections in order. For each section, show current repository values, a recommendation with evidence, and `Accept / Change / Skip`. Ask no more than three questions at once.
+
+1. **Configuration source** — Preserve existing configuration inheritance. For a new file, let `coderabbit config` detect central configuration before continuing. Do not claim central or dashboard settings exist without CLI evidence.
+2. **Review profile** — Choose `reviews.profile` from the user's desired feedback depth. Distinguish an explicit repository value from an inherited value or schema default.
+3. **Coding guidelines** — Report guideline files CodeRabbit already discovers. Add `knowledge_base.code_guidelines.filePatterns` only for nonstandard files or an explicit file-to-path mapping; never copy guideline text into YAML.
+4. **Path filters** — Consider `reviews.path_filters` for generated, vendored, fixture, or other repository-specific paths. Explain that positive patterns constrain review scope and both positive and negative patterns affect sparse checkout.
+5. **Pull-request presentation** — Consider the current schema's summary, status, details, walkthrough, diagram, issue, label, reviewer, and agent-prompt presentation settings. Recommend only deviations from defaults that match a user preference or repository need.
+6. **Path instructions** — Propose precise `reviews.path_instructions` only when they pass the quality gate below. Present them as one batch.
+7. **Related repositories** — Consider `knowledge_base.linked_repositories` only when repository identifiers and relationships are confirmed. Do not guess access or plan entitlement. Do not enable automatic linking unless the user explicitly requests it and eligibility is known.
+8. **Complete proposal** — Show one Before → After summary and the full YAML diff, validate it, dry-run it against the inspected base hash, then request one approval before applying.
+
+The agent may use any setting in the live schema when evidence or the user's request warrants it. Do not automatically add workflow-changing auto-review controls, tools, security settings, finishing touches, chat integrations, learnings, or pre/post-merge actions merely because they exist.
+
 ## Ask only high-leverage questions
 
-Ask at most three questions at a time, and only when repository evidence cannot answer them. Typical unknowns include desired review depth, auto-review scope, known noisy tools, critical quality gates, and whether a shared team configuration intentionally exists.
+Ask at most three questions at a time, and only when repository evidence cannot answer them. Typical unknowns include desired review depth, preferred PR presentation, confirmed related repositories, and durable path-specific review requirements.
 
-Do not ask about inheritance unless shared or central settings are actually relevant. Never claim the local repository can detect dashboard configuration.
+Do not ask about inheritance unless central or parent configuration is actually relevant. Never claim the local repository can detect dashboard configuration.
 
 ## Path-instruction quality gate
 
