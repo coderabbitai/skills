@@ -21,8 +21,13 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 
 ## Solutions-assisted onboarding suite
 
+See [candidate prerequisites and the four-lane acceptance checklist](solutions/README.md)
+before sharing this suite. The configuration protocol must be verified on the
+chosen CLI build; installing the latest stable CLI is not sufficient evidence.
+
 These skills are public source but are not part of the default skill package or
-native plugins. Install one only from its exact repository path:
+native plugins. After the suite is merged, install one only from its exact
+repository path:
 
 ```bash
 npx skills add https://github.com/coderabbitai/skills/tree/main/solutions/onboard --skill onboard

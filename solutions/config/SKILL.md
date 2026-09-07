@@ -24,7 +24,7 @@ coderabbit --version
 coderabbit config --help
 ```
 
-If `coderabbit` is missing or `config` does not support the requested operation, ask the user to upgrade from <https://docs.coderabbit.ai/cli>. Do not implement a fallback editor.
+This assisted workflow requires a CLI candidate that supports the guided flow and configuration protocol v1 (`inspect` and `apply`). If `coderabbit` is missing or the requested operation is unsupported, report the missing capability and ask for a compatible candidate from the engagement owner. The [CLI installation docs](https://docs.coderabbit.ai/cli) do not establish that the latest released CLI supports this protocol. Do not implement a fallback editor.
 
 Local configuration does not require CodeRabbit authentication. Do not block this workflow on `coderabbit auth status`.
 
@@ -40,7 +40,7 @@ Pass a user-named file as one argument. Add `--json` when structured diagnostics
 
 If the user has not chosen, offer:
 
-1. **Standard (recommended)** — a quick balanced setup or review-style change.
+1. **Standard (recommended)** — a quick guided setup or review-style change that preserves existing parent configuration unless the user chooses otherwise.
 2. **Detailed** — inspect the repository and work linearly through a complete, evidence-backed configuration.
 
 Default to Standard. Do not describe Detailed as inherently better.
@@ -65,17 +65,20 @@ Read [references/detailed-discovery.md](references/detailed-discovery.md), then 
 coderabbit config inspect --json
 ```
 
-Require `ok: true`, `protocolVersion: 1`, and `writable: true` before preparing a local-file proposal. If the CLI reports TypeScript, delegated, symlinked, or ambiguous authority, explain the reported reason and stop instead of guessing.
+Require `ok: true` and `protocolVersion: 1` before continuing. Inspection reports authority and syntax, not schema validity.
 
-If inspection reports no active repository configuration, do not author the
-first YAML file. Run `coderabbit config` in an interactive terminal and let the
-user complete the guided creation and preview, which checks for central
+Handle `requiresGuidedCreation: true` or no `activeConfig` before checking
+writability: do not author the first YAML file. Run `coderabbit config` in an
+interactive terminal and let the user complete the guided creation and preview,
+which checks for central
 configuration. Then inspect the created sparse file and continue Detailed
 analysis. If no interactive terminal is available, give the exact command and
 stop. This keeps central configuration detection and initial authority inside
 the CLI.
 
-Use the returned raw YAML as the starting document and the returned schema URL as the current source of truth. The agent may reason across any setting in that live schema, but it must recommend only settings supported by repository evidence or an explicit user choice. Follow the reference's Detailed sequence in order. For each section, show the current repository value, recommendation, and evidence, then let the user accept, change, or skip it. Keep questions to three or fewer at a time.
+For an existing active file, require `writable: true` and a real `baseHash` before preparing a proposal. If the CLI reports TypeScript, delegated, symlinked, or ambiguous authority, explain the reported reason and stop instead of guessing. A guided flow that creates no local file does not authorize an apply.
+
+Use the returned raw YAML as the starting document and the returned schema URL as the current source of truth. The agent may reason across any setting in that live schema, but it must recommend only settings supported by repository evidence or an explicit user choice. Consider the reference's Detailed sections in order, reusing explicit choices the user has already made. Show the current repository value, recommendation, and evidence; ask only about material unknowns, in batches of no more than three questions. Do not require a separate approval for every section. Request one approval for the complete validated proposal below.
 
 Create the complete proposed YAML in a temporary file outside the repository. Preserve existing comments, ordering, and unrelated settings wherever possible. Keep it sparse; do not materialize defaults.
 
@@ -88,7 +91,7 @@ coderabbit config validate <temporary-proposal.yaml> --json
 Then preview it against the inspected base hash:
 
 ```bash
-coderabbit config apply <temporary-proposal.yaml> --dry-run --base <baseHash|none> --json
+coderabbit config apply <temporary-proposal.yaml> --dry-run --base <baseHash> --json
 ```
 
 Show the user:
@@ -101,7 +104,7 @@ Show the user:
 Ask for explicit approval. Only after approval, apply the exact validated proposal:
 
 ```bash
-coderabbit config apply <temporary-proposal.yaml> --yes --base <baseHash|none> --json
+coderabbit config apply <temporary-proposal.yaml> --yes --base <baseHash> --json
 ```
 
 If the base changed, inspect again and rebase the proposal. Never bypass the hash check. Remove the temporary proposal when finished.

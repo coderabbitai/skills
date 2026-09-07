@@ -102,10 +102,20 @@ After the connection exists, invoke `$config` when available for any repository
 setting, such as issue scope, Jira project keys, MCP usage, disabled MCP servers,
 or linked repositories.
 
-Without `$config`, use only the CLI-owned configuration protocol. Prefer the
-interactive flow when it covers the requested setting. For a broader proposal,
-require `coderabbit config inspect --json`, schema validation, dry-run, base-hash
-checking, and explicit approval before `coderabbit config apply`.
+Without `$config`, use only a CLI candidate supporting the guided flow and
+configuration protocol v1; do not assume the latest released CLI supports it.
+Run `coderabbit config inspect --json` and require `ok: true` and
+`protocolVersion: 1`. Handle `requiresGuidedCreation: true` or no `activeConfig`
+before checking writability: let the human complete `coderabbit config` in a
+PTY so the CLI checks central configuration, then inspect again. Without a PTY,
+give that exact command and stop. Never prepare the first YAML independently.
+
+For an existing active YAML file, require `writable: true` and its real
+`baseHash`; stop on unsupported or ambiguous authority. Start a sparse proposal
+from the existing raw YAML and the returned live schema. Require schema
+validation, a dry-run against that hash, and one explicit approval for the exact
+proposal before `coderabbit config apply`. Never use `--base none`. If the base
+changes, inspect again and rebase the proposal rather than bypassing the guard.
 
 Never edit `.coderabbit.yaml` directly and never materialize the resolved
 configuration or schema defaults into the file.

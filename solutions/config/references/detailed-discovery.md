@@ -44,7 +44,7 @@ Session evidence may improve a recommendation; it must never silently authorize 
 
 ## Work through the Detailed sequence
 
-Move through these sections in order. For each section, show current repository values, a recommendation with evidence, and `Accept / Change / Skip`. Ask no more than three questions at once.
+Consider these sections in order. Show current repository values and recommendations with evidence, reusing the user's explicit choices without asking them again. Ask only about material unknowns, in batches of no more than three questions. The user may change or skip any recommendation; do not require section-by-section approvals. Request one approval for the complete validated proposal.
 
 1. **Configuration source** — Preserve existing configuration inheritance. For a new file, let `coderabbit config` detect central configuration before continuing. Do not claim central or dashboard settings exist without CLI evidence.
 2. **Review profile** — Choose `reviews.profile` from the user's desired feedback depth. Distinguish an explicit repository value from an inherited value or schema default.
@@ -79,7 +79,7 @@ Generated or vendored paths usually support a scope/filter recommendation, not a
 
 ## Build the proposal
 
-Use the live schema URL returned by `coderabbit config inspect --json`; do not rely on a remembered key catalog. Preserve the current raw YAML as the base document. For a new file, produce a sparse proposal containing only deliberate choices.
+Use the live schema URL returned by `coderabbit config inspect --json`; do not rely on a remembered key catalog. Preserve the existing raw YAML as the base document. If guided creation is required or no active file exists, complete the human-guided CLI flow and inspect again before preparing a proposal. Never author the first YAML independently.
 
 Before validation, check that:
 

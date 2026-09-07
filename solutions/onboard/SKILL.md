@@ -61,6 +61,17 @@ state without writing:
 coderabbit config inspect --json
 ```
 
+Inspection establishes authority and syntax, not schema validity. For an active
+YAML file, also run the read-only validation command:
+
+```bash
+coderabbit config validate --json
+```
+
+Require successful schema validation before reporting local configuration as
+`Ready`. Failed validation is `Needs action`; unavailable validation is
+`Unknown`. Do not infer validity from `ok: true` in inspection output.
+
 Treat a missing command as unsupported, not as permission to inspect home
 directories, query product databases directly, or invent a fallback result.
 
@@ -74,7 +85,7 @@ evidence and the next owner:
 | CLI | An official CLI is present and `coderabbit doctor` has no blocking local failure. |
 | Authentication | Structured auth status confirms login and the intended organization. |
 | Git-platform access | A supported product or CLI response proves CodeRabbit can access this repository. Local Git access alone is insufficient. |
-| Repository configuration | CLI inspection reports a valid active file, or authoritative product/backend evidence proves the intended effective configuration without one. |
+| Repository configuration | CLI inspection identifies the active YAML file and `coderabbit config validate --json` succeeds, or authoritative product/backend evidence proves the intended effective configuration without a local YAML file. |
 | Context connections | Required issue tracker, MCP, related-repository, and reporting setup is verified; optional connections may be `Not needed`. |
 | Review proof | A real local review or existing pull-request review has completed on the intended repository. |
 
