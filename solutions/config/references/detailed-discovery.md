@@ -4,7 +4,7 @@ Use this reference only after the user chooses Detailed setup. Detailed consider
 
 ## Establish complete coverage
 
-After the entrypoint's CLI inspection and any required guided creation, fetch and read the complete schema at the URL returned by `coderabbit config inspect --json`. Use the [configuration reference](https://docs.coderabbit.ai/reference/configuration) to explain behavior and prerequisites, not a remembered key catalog. If retrieval fails or output is truncated, finish reading it or report incomplete coverage; never substitute guessed fields/defaults.
+After the entrypoint's CLI inspection, fetch and read the complete schema at the URL returned by `coderabbit config --agent`. Use the [configuration reference](https://docs.coderabbit.ai/reference/configuration) to explain behavior and prerequisites, not a remembered key catalog. If retrieval fails or output is truncated, finish reading it or report incomplete coverage; never substitute guessed fields/defaults.
 
 Build a working coverage map from the schema's configurable properties, including nested objects, array-item properties, referenced definitions, and alternative forms. Schema metadata such as descriptions and `$schema` is not a user setting. Account for new categories and fields even when they are absent from the conversation order below. This is discovery for this engagement, not a schema copy or a new validator shipped in the skill.
 
@@ -116,7 +116,7 @@ Generated or vendored paths usually support a scope/filter recommendation, not a
 
 ## Build the proposal
 
-Use the live schema URL returned by `coderabbit config inspect --json`; do not rely on a remembered key catalog. Preserve the existing raw YAML as the base document. If guided creation is required or no active file exists, complete the human-guided CLI flow and inspect again before preparing a proposal. Never author the first YAML independently.
+Use the live schema URL returned by `coderabbit config --agent`; do not rely on a remembered key catalog. Preserve existing raw YAML as the base document. For a writable repository with `authority: none`, prepare the first sparse proposal in a temporary file and use `baseHash: none`. The CLI creates the repository file only after the complete proposal is previewed and approved; no starter-file wizard is needed.
 
 Before validation, check that:
 
@@ -130,4 +130,4 @@ Before validation, check that:
 
 Show a compact area-level coverage summary alongside the Before → After summary and exact YAML diff. Keep the field-level map available for drill-down without putting it into YAML or adding repository files. Clearly separate local configuration, skipped/deferred prerequisites, and anything not verified at runtime.
 
-The CLI's schema validation is mandatory even when the YAML parses locally. For a changed proposal, follow the entrypoint's inspect → validate → dry-run → approval → exact-base apply → re-inspect sequence; do not introduce a parallel writer or validator. One final proposal approval suffices, in addition to the initial guided-creation approval when a file did not exist. When nothing needs changing, use the entrypoint's validate-and-reinspect no-change exit instead.
+The CLI validates automatically during preview and save, even when the YAML parses locally. Follow the entrypoint's inspect → proposal → validating dry-run → approval → exact-base apply → re-inspect sequence for both creation and changes; do not introduce a parallel writer or validator. One final proposal approval suffices. When the validated preview reports no changes, re-inspect and report that result without another approval or a save.

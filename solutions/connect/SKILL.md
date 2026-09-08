@@ -3,7 +3,7 @@ name: connect
 description: Plan, configure, and verify the CodeRabbit context connections a repository actually needs, including Jira or Linear, MCP servers, related repositories, and report delivery. Use when a customer, solutions engineer, administrator, or repository owner asks to connect external context, troubleshoot missing integration context, or produce a permission-aware setup handoff without exposing credentials or confusing YAML enablement with a live connection.
 metadata:
   internal: true
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # CodeRabbit Connect
@@ -20,12 +20,12 @@ explicitly supports it.
 Ask what missing context or outcome the team is trying to solve. Recommend only
 the matching connection:
 
-| Need | Connection or setting |
-| --- | --- |
-| Validate a pull request against its work item | GitHub/GitLab issues, Jira, or Linear |
-| Use internal documentation, APIs, or systems | MCP server |
-| Detect changes that break a dependent repository | Linked repositories |
-| Deliver recurring engineering summaries | Scheduled reports |
+| Need                                             | Connection or setting                 |
+| ------------------------------------------------ | ------------------------------------- |
+| Validate a pull request against its work item    | GitHub/GitLab issues, Jira, or Linear |
+| Use internal documentation, APIs, or systems     | MCP server                            |
+| Detect changes that break a dependent repository | Linked repositories                   |
+| Deliver recurring engineering summaries          | Scheduled reports                     |
 
 Do not turn optional integrations into a mandatory checklist. GitHub/GitLab
 issue context and CodeRabbit's detected code guidelines may already work without
@@ -54,14 +54,13 @@ coderabbit config --help
 Ask before running `coderabbit doctor`; it may refresh CLI-local diagnostic
 metadata even though it does not alter repository or product configuration.
 
-Probe repository configuration directly, even when human-facing help does not
-list the hidden agent commands:
+Inspect repository configuration through the CLI's structured agent interface:
 
 ```bash
-coderabbit config inspect --json
+coderabbit config --agent
 ```
 
-Require `ok: true` and `protocolVersion: 1` before using the result. An unknown
+Require `ok: true`, `protocolVersion: 2`, and `operation: inspect` before using the result. An unknown
 command or unsupported protocol needs a compatible CLI candidate; an inspection
 error needs its reported cause addressed. Until then, mark repository settings
 `Unknown` and continue only with the connection planning that does not depend
@@ -80,13 +79,13 @@ storage.
 
 For every requested connection, show:
 
-| Field | Required content |
-| --- | --- |
-| Purpose | The review or reporting outcome it enables. |
-| Scope | Repository or organization. |
-| Connection owner | The user or administrator who can authorize it. |
-| Repository setting | Any sparse `.coderabbit.yaml` change needed after authorization. |
-| Verification | A concrete review, context citation, access check, or test delivery. |
+| Field              | Required content                                                     |
+| ------------------ | -------------------------------------------------------------------- |
+| Purpose            | The review or reporting outcome it enables.                          |
+| Scope              | Repository or organization.                                          |
+| Connection owner   | The user or administrator who can authorize it.                      |
+| Repository setting | Any sparse `.coderabbit.yaml` change needed after authorization.     |
+| Verification       | A concrete review, context citation, access check, or test delivery. |
 
 Prefer repository scope unless the team explicitly wants an organization-wide
 connection. For cross-repository analysis, include only genuine dependencies
@@ -109,20 +108,23 @@ After the connection exists, invoke `$config` when available for any repository
 setting, such as issue scope, Jira project keys, MCP usage, disabled MCP servers,
 or linked repositories.
 
-Without `$config`, use only a CLI candidate supporting the guided flow and
-configuration protocol v1; do not assume the latest released CLI supports it.
-Run `coderabbit config inspect --json` and require `ok: true` and
-`protocolVersion: 1`. Handle `requiresGuidedCreation: true` or no `activeConfig`
-before checking writability: let the human complete `coderabbit config` in a
-PTY so the CLI owns initial file creation, then inspect again. Without a PTY,
-give that exact command and stop. Never prepare the first YAML independently.
+Without `$config`, use only a CLI candidate supporting configuration protocol
+v2; do not assume the latest released CLI supports it. Run
+`coderabbit config --agent` and require `ok: true`, `protocolVersion: 2`, `operation: inspect`, and
+`writable: true`; stop on unsupported or ambiguous authority. An existing YAML
+has a real `baseHash`; `authority: none` uses `baseHash: none` for first creation.
+Start a sparse temporary proposal outside the repository from the raw YAML (or
+an empty document for a new file) and the returned live schema, limited to the
+agreed connection settings. No starter-file wizard is needed.
 
-For an existing active YAML file, require `writable: true` and its real
-`baseHash`; stop on unsupported or ambiguous authority. Start a sparse proposal
-from the existing raw YAML and the returned live schema. Require schema
-validation, a dry-run against that hash, and one explicit approval for the exact
-proposal before `coderabbit config apply`. Never use `--base none`. If the base
-changes, inspect again and rebase the proposal rather than bypassing the guard.
+Preview with `coderabbit config apply <proposal> --agent --dry-run --base <baseHash>`;
+the CLI validates automatically. Show the exact diff and get one
+explicit approval before saving the exact proposal with `--yes` instead of
+`--dry-run`. An unchanged validated preview needs no approval or save. If the
+base changes, inspect again, rebase, preview, and obtain approval for the revised
+proposal instead of bypassing the guard. Require success and re-inspect with
+`coderabbit config --agent` to verify the resulting hash. Report any recovery
+path and remove only the temporary proposal.
 
 Never edit `.coderabbit.yaml` directly and never materialize the resolved
 configuration or schema defaults into the file.

@@ -3,14 +3,14 @@ name: config
 description: Use the CodeRabbit CLI to create, refine, or validate repository .coderabbit.yaml configuration. Trigger when a user asks to configure CodeRabbit, generate or improve CodeRabbit YAML, tune reviews or path instructions, or validate CodeRabbit settings.
 metadata:
   internal: true
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # CodeRabbit Config
 
 Give users two configuration paths while keeping the CodeRabbit CLI as the sole authority for validation and writes:
 
-- **Standard (recommended):** the fast, human-guided CLI flow.
+- **Standard (recommended):** a quick review-style conversation backed by the CLI's proposal generator.
 - **Detailed (agent-assisted):** a conversation-led pass over every category in the live schema, with repository discovery and an evidence-backed proposal.
 
 Never edit the repository configuration directly. Never copy the schema, defaults, or YAML mutation logic into this skill.
@@ -22,19 +22,22 @@ Work in the Git repository the user intends to configure. Load its applicable ag
 ```bash
 coderabbit config --version
 coderabbit config --help
+coderabbit config --agent
 ```
 
-This assisted workflow requires a CLI candidate that supports the guided flow and configuration protocol v1 (`inspect` and `apply`). If `coderabbit` is missing or the requested operation is unsupported, report the missing capability and ask for a compatible candidate from the engagement owner. The [CLI installation docs](https://docs.coderabbit.ai/cli) do not establish that the latest released CLI supports this protocol. Do not implement a fallback editor.
+This assisted workflow requires configuration protocol v2. Require `ok: true`, `protocolVersion: 2`, and `operation: inspect` from `coderabbit config --agent` before continuing. If the CLI is missing, the operation is unsupported, or inspection fails, report the diagnostic and ask for a compatible candidate or the reported issue to be addressed. The [CLI installation docs](https://docs.coderabbit.ai/cli) do not establish that the latest released CLI supports this protocol. Do not substitute a terminal wizard or a fallback editor.
+
+Require `writable: true`. A new repository has `authority: none` and `baseHash: none`; the same proposal-and-save workflow below creates its first file. An existing writable YAML has a real `baseHash` and raw YAML. If the CLI reports TypeScript, delegated, symlinked, or ambiguous authority, explain its reason and stop instead of guessing. Inspection establishes authority and syntax, not schema validity.
 
 Local configuration does not require CodeRabbit authentication. Do not block this workflow on `coderabbit auth status`.
 
 For an explicit validation-only request, run:
 
 ```bash
-coderabbit config validate
+coderabbit config validate --agent
 ```
 
-Pass a user-named file as one argument. Add `--json` when structured diagnostics help the host agent.
+Pass a user-named file as one argument. Normal setup validates automatically during CLI generation, preview, and save; do not add a separate validation step.
 
 ## 2. Choose Standard or Detailed
 
@@ -47,76 +50,54 @@ Default to Standard. Do not describe Detailed as inherently better.
 
 ### Standard
 
-Run the CLI in an interactive terminal or PTY:
+Show the current local review style when it exists, then ask about any desired change; offer keeping the current style only when there is one. For a new repository, recommend Balanced. Use the CLI to generate the proposal:
 
 ```bash
-coderabbit config
+coderabbit config --agent --generate
 ```
 
-Use `coderabbit config --detailed` only when a human wants the CLI's **Manual — review style and path guidance** flow. It is not the agent-assisted, full-schema Detailed path below. Relay prompts when useful, but never choose review behavior or configuration authority on the user's behalf.
+Without a profile argument, the CLI proposes its Balanced starting point for a new file or keeps an existing file byte-for-byte. For a chosen style, add `--profile chill` (Balanced), `--profile quiet` (Focused), or `--profile assertive` (Thorough). Offer `--profile default` only when a local profile override exists and the user wants to remove it; this removes only that override, not other settings, and does not discover central settings or prove the effective runtime profile.
 
-If the host cannot provide an interactive terminal, give the exact command to the user. Do not replace the wizard with agent-authored YAML.
+Require a successful protocol-v2 `operation: generate` result. Generation is read-only: `after` is the complete validated proposal, not a saved file. Keep its `baseHash` with the exact `after` content, write that content to a temporary file outside the repository, and continue to the shared preview-and-save step. The skill handles the conversation; it does not drive a PTY or reproduce the CLI's profile-editing logic.
 
 ### Detailed
 
-Read [references/detailed-discovery.md](references/detailed-discovery.md), then inspect the CLI-owned configuration state:
-
-```bash
-coderabbit config inspect --json
-```
-
-Require `ok: true` and `protocolVersion: 1` before continuing. Inspection reports authority and syntax, not schema validity.
-
-Handle `requiresGuidedCreation: true` or no `activeConfig` before checking
-writability: do not author the first YAML file. Run `coderabbit config` in an
-interactive terminal and let the user complete the guided creation and preview.
-Before opening the CLI, explain: "First we'll create a small starter file in
-the CLI. Choose Standard for the Balanced starting point, or Manual if you want
-to choose another review style. Then we'll continue your Detailed setup here."
-Then inspect the created file and continue. If no interactive terminal is
-available, give the exact command and stop. Initial file creation stays inside
-the CLI.
-
-For an existing active file, require `writable: true` and a real `baseHash` before preparing a proposal. If the CLI reports TypeScript, delegated, symlinked, or ambiguous authority, explain the reported reason and stop instead of guessing. A guided flow that creates no local file does not authorize an apply.
-
-Use the returned raw YAML as the starting document. Read the complete live schema from the returned URL and follow the reference's coverage pass; the section list is a conversation order, not a limit on supported settings. Account for every configurable field as Configure, Keep, Skip, or Pending, grouping fields only when the same reason applies. Do not call an incomplete or truncated schema pass complete.
+Read [references/detailed-discovery.md](references/detailed-discovery.md). Use the inspected raw YAML as the starting document, or an empty proposal when `authority: none`. Read the complete live schema from the returned URL and follow the reference's coverage pass; the section list is a conversation order, not a limit on supported settings. Account for every configurable field as Configure, Keep, Skip, or Pending, grouping fields only when the same reason applies. Do not call an incomplete or truncated schema pass complete.
 
 Lead with what you found in the repository: actual guideline files, path matches, languages, tools, and sensitive areas. Discuss recommendations in the reference's linear order; reuse settled choices and ask only material unknowns, in batches of no more than three questions. Never ask the user to inventory files or invent globs the agent can find. Resolve Pending choices or explicitly defer them before proposing a save. Do not require section-by-section approvals; request one approval for the complete validated proposal below.
 
-If no YAML changes are warranted, validate the active file with the CLI and re-inspect it to confirm it is still the file you considered. Report no changes and the coverage summary; do not request a redundant approval or call `apply`. If the file changed, inspect and reconsider it before reporting completion. A validation failure is not a successful no-change result.
-
 Create the complete proposed YAML in a temporary file outside the repository. Preserve existing comments, ordering, and unrelated settings wherever possible. Keep it sparse; do not materialize defaults.
 
-Validate the proposal:
+Do not use `--detailed` with `--agent`: `coderabbit config --detailed` is the human CLI's Manual flow, not this schema-wide agent conversation.
+
+## 3. Preview and save either path
+
+Preview the exact temporary proposal against its base hash (`none` for first creation). This read-only operation performs schema validation automatically:
 
 ```bash
-coderabbit config validate <temporary-proposal.yaml> --json
+coderabbit config apply <temporary-proposal.yaml> --agent --dry-run --base <baseHash>
 ```
 
-Then preview it against the inspected base hash:
+Require a successful protocol-v2 result. If `changed: false`, re-inspect with `coderabbit config --agent` to confirm the base hash is unchanged, then report no changes without another approval or a save. Failed validation is not a successful no-change result.
 
-```bash
-coderabbit config apply <temporary-proposal.yaml> --dry-run --base <baseHash> --json
-```
-
-Show the user:
+For a changed proposal, show the user:
 
 - the evidence for each recommendation;
 - a concise Before → After summary;
 - the exact YAML diff;
-- a compact coverage summary showing configured, kept, and skipped areas, with any deferred choices or external prerequisites. Do not imply these were configured or verified.
+- for Detailed, a compact coverage summary showing configured, kept, and skipped areas, with any deferred choices or external prerequisites. Do not imply these were configured or verified.
 
-Ask for explicit approval. Only after approval, apply the exact validated proposal:
+Ask for one explicit approval for the complete proposal, including first-time creation. Only after approval, apply the exact previewed content and base hash:
 
 ```bash
-coderabbit config apply <temporary-proposal.yaml> --yes --base <baseHash> --json
+coderabbit config apply <temporary-proposal.yaml> --agent --yes --base <baseHash>
 ```
 
-If the base changed, inspect again and rebase the proposal. Never bypass the hash check. Remove the temporary proposal when finished.
+If the base changed or a file appeared after a `none` inspection, inspect again, rebase, preview, and obtain approval for the revised proposal. Never bypass the hash check. Remove the temporary proposal when finished.
 
-## 3. Report the result
+## 4. Report the result
 
-After Standard, summarize the CLI result and repository diff. After Detailed, verify the resulting file with `coderabbit config inspect --json` and report the applied hash and coverage summary. Distinguish complete schema consideration from local YAML validation and from unverified hosted behavior.
+After a save, require a successful apply result and verify the resulting hash with `coderabbit config --agent`. Summarize the CLI result and repository diff; for Detailed, include the coverage summary. Distinguish complete schema consideration from local YAML validation and from unverified hosted behavior.
 
 If a file was saved, explain that it is local only: commit and push it through
 the team's normal workflow for PR reviews, then verify it on the next review.

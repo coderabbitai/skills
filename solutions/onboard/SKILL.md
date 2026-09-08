@@ -3,7 +3,7 @@ name: onboard
 description: Guide a repository through CodeRabbit readiness using the CodeRabbit CLI, explicit admin handoffs, and an evidence-backed status scorecard. Use when a customer, solutions engineer, or repository owner wants to install or verify CodeRabbit, understand what remains before the first useful review, or resume an incomplete onboarding without making unapproved configuration, integration, billing, or repository changes.
 metadata:
   internal: true
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # CodeRabbit Onboard
@@ -54,26 +54,25 @@ coderabbit auth login --agent
 
 Never ask the user to paste a token or authorization code into chat.
 
-Probe configuration inspection directly; agent commands are intentionally
-hidden from human-facing help:
+Inspect configuration through the CLI's structured agent interface:
 
 ```bash
-coderabbit config inspect --json
+coderabbit config --agent
 ```
 
-Require `ok: true` and `protocolVersion: 1` before using the result or starting
-guided configuration. An unknown command or unsupported protocol means a
+Require `ok: true`, `protocolVersion: 2`, and `operation: inspect` before using
+the result or starting configuration. An unknown command or unsupported protocol means a
 compatible, engagement-approved CLI candidate is needed: stop configuration
 setup and give that candidate handoff. For an inspection error, report its
 diagnostic, mark configuration `Unknown`, and stop configuration setup until
 inspection succeeds. Unrelated onboarding checks may continue. Never bypass
-this gate with a guided-command fallback or by editing YAML yourself.
+this gate with a terminal-wizard fallback or by editing YAML yourself.
 
 Inspection establishes authority and syntax, not schema validity. For an active
 YAML file, also run the read-only validation command:
 
 ```bash
-coderabbit config validate --json
+coderabbit config validate --agent
 ```
 
 Require successful schema validation before reporting local configuration as
@@ -88,14 +87,14 @@ directories, query product databases directly, or invent a fallback result.
 Report each item as `Ready`, `Needs action`, `Blocked`, or `Unknown`, with the
 evidence and the next owner:
 
-| Area | Ready only when |
-| --- | --- |
-| CLI | An official CLI is present and `coderabbit doctor` has no blocking local failure. |
-| Authentication | Structured auth status confirms login and the intended organization. |
-| Git-platform access | A supported product or CLI response proves CodeRabbit can access this repository. Local Git access alone is insufficient. |
-| Repository configuration | CLI inspection identifies the active YAML file and `coderabbit config validate --json` succeeds, or authoritative product/backend evidence proves the intended effective configuration without a local YAML file. |
-| Context connections | Required issue tracker, MCP, related-repository, and reporting setup is verified; optional connections may be `Not needed`. |
-| Review proof | A real local review or existing pull-request review has completed on the intended repository. |
+| Area                     | Ready only when                                                                                                                                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| CLI                      | An official CLI is present and `coderabbit doctor` has no blocking local failure.                                                                                                                                  |
+| Authentication           | Structured auth status confirms login and the intended organization.                                                                                                                                               |
+| Git-platform access      | A supported product or CLI response proves CodeRabbit can access this repository. Local Git access alone is insufficient.                                                                                          |
+| Repository configuration | CLI inspection identifies the active YAML file and `coderabbit config validate --agent` succeeds, or authoritative product/backend evidence proves the intended effective configuration without a local YAML file. |
+| Context connections      | Required issue tracker, MCP, related-repository, and reporting setup is verified; optional connections may be `Not needed`.                                                                                        |
+| Review proof             | A real local review or existing pull-request review has completed on the intended repository.                                                                                                                      |
 
 Do not infer GitHub App installation, seats, subscription policy, central
 configuration, or integration health from repository files.
@@ -103,14 +102,26 @@ configuration, or integration health from repository files.
 ## 4. Route the work
 
 - For missing, invalid, or intentionally updated repository settings, invoke
-  `$config` when available. Without that skill, run the CLI's guided flow in a
-  PTY only with the engagement-approved candidate after the inspection above
-  returned `ok: true` and `protocolVersion: 1`. Otherwise stop configuration
-  setup with the candidate handoff or inspection diagnostic:
+  `$config` when available. Without that skill, offer the CLI's Standard proposal
+  after successful protocol-v2 inspection; require `writable: true`. Generate
+  it without modifying the repository:
 
   ```bash
-  coderabbit config
+  coderabbit config --agent --generate
   ```
+
+  The CLI returns a validated proposal in `after` and its `baseHash`; without a
+  profile argument it proposes Balanced for a new file or keeps an existing file
+  unchanged. If validation fails, report `Needs action` and offer the `$config`
+  skill for a focused repair instead of claiming success. Write the exact
+  successful proposal to a temporary file outside the repository. Preview with
+  `coderabbit config apply <proposal> --agent --dry-run --base <baseHash>` (`none` for a new file),
+  show the exact diff, and obtain one explicit approval before the same command
+  with `--yes` instead of `--dry-run`. If unchanged, no approval or save is needed.
+  Re-inspect with `coderabbit config --agent` to verify the resulting hash. On a
+  stale base, re-inspect and re-preview before renewed approval. Report any
+  recovery path and remove only the temporary proposal. Do not drive a terminal
+  wizard or create a fallback writer.
 
 - For Jira or Linear, MCP, related repositories, or report delivery, invoke
   `$connect` when available. Otherwise create an admin handoff; do not claim the

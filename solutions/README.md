@@ -8,24 +8,25 @@ for, using its exact repository path and `--skill` name. See the repository's
 
 ## CLI prerequisite
 
-Use an engagement-approved CLI candidate that implements the guided
+Use an engagement-approved CLI candidate that implements the human
 `coderabbit config` flow, human-driven `--detailed` mode, and configuration
-protocol v1. Record the candidate version and build provenance; do not assume
+protocol v2 through `--agent`. Record the candidate version and build provenance; do not assume
 the latest public release supports these operations.
 
 ```bash
 coderabbit config --version
 coderabbit config --help
-coderabbit config inspect --help
+coderabbit config --agent
 coderabbit config apply --help
 coderabbit config validate --help
 ```
 
-On an existing YAML fixture, `inspect --json` must report `protocolVersion: 1`
-and a base hash. On a new repository, it must identify guided creation as
-required. Missing capabilities are a candidate blocker, not permission for an
-agent-authored fallback. Standard and both human-driven lanes require a real
-interactive terminal; an agent must leave choices to the human.
+On an existing YAML fixture, `coderabbit config --agent` must report
+`protocolVersion: 2`, `operation: inspect`, and a base hash. On a new repository,
+it must report `authority: none`, `writable: true`, and `baseHash: none`.
+Missing capabilities are a candidate blocker, not permission for a fallback
+editor. Both skill lanes run without a PTY, keep proposals temporary, and save
+through the CLI only after approval. Only the human-driven lanes need a terminal.
 
 ## Four acceptance lanes
 
@@ -40,19 +41,18 @@ an explicit parent/inheritance setting, and an unrelated non-default setting.
 Do not submit reviews, install host skills, authorize integrations, or modify
 product settings as part of these checks.
 
-| Lane                  | Entry point                                                                      | Required observation                                                                                                                                                                                                                                                                                                                                                                            |
-| --------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Standard `$config`    | Invoke `$config` and choose Standard.                                            | Opens `coderabbit config` in a PTY; the human owns source/style choices and preview approval. Preserves parent configuration unless the human deliberately changes it.                                                                                                                                                                                                                          |
-| Detailed `$config`    | Invoke `$config` and choose Detailed. Supply a few explicit preferences upfront. | Inventories the complete live schema, discovers guideline files and real path matches, and discusses every area without re-asking settled choices. Accounts for each field as Configure/Keep/Skip or an explicitly deferred decision; asks only material unknowns, at most three together. Uses inspect → proposal → validate → hash-checked dry-run → one approval → exact apply → re-inspect. |
-| Human-driven Standard | Run `coderabbit config` directly.                                                | Completes the quick guided flow and preview without agent-authored YAML. Existing parent/inheritance behavior is preserved unless explicitly changed.                                                                                                                                                                                                                                           |
-| Human-driven Detailed | Run `coderabbit config --detailed` directly.                                     | The human drives the CLI's core-settings wizard. This is not the agent's schema-wide Detailed discovery workflow.                                                                                                                                                                                                                                                                               |
+| Lane                  | Entry point                                                                      | Required observation                                                                                                                                                                                                                                                                                                                                                                                                      |
+| --------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Standard `$config`    | Invoke `$config` and choose Standard.                                            | Discusses review style and calls `coderabbit config --agent --generate`. Uses the CLI's exact proposal, hash-checked validating dry-run, one approval, apply, and re-inspection. No PTY or repository write before approval, including a new file. Preserves unrelated settings and inheritance.                                                                                                                          |
+| Detailed `$config`    | Invoke `$config` and choose Detailed. Supply a few explicit preferences upfront. | Inventories the complete live schema, discovers guideline files and real path matches, and discusses every area without re-asking settled choices. Accounts for each field as Configure/Keep/Skip or an explicitly deferred decision; asks only material unknowns, at most three together. Uses `--agent` inspection → temporary proposal → hash-checked validating dry-run → one approval → exact apply → re-inspection. |
+| Human-driven Standard | Run `coderabbit config` directly.                                                | Completes the quick guided flow and preview without agent-authored YAML. Existing parent/inheritance behavior is preserved unless explicitly changed.                                                                                                                                                                                                                                                                     |
+| Human-driven Detailed | Run `coderabbit config --detailed` directly.                                     | The human drives the CLI's core-settings wizard. This is not the agent's schema-wide Detailed discovery workflow.                                                                                                                                                                                                                                                                                                         |
 
-For new repositories, both skill lanes must let the local guided CLI create
-the initial file before any agent proposal; no central lookup is performed. Re-inspect
-after creation. Without a PTY, provide the exact human command and stop. If the
-guided flow leaves no active local file, do not proceed to apply. For existing
-YAML, preserve comments, unrelated settings, and sparse inheritance; never
-materialize defaults or a resolved configuration.
+For new repositories, both skill lanes use the same proposal-and-save workflow
+with `--base none`; the CLI creates the initial file after one final approval.
+No central lookup or terminal handoff is performed. For existing YAML, preserve
+comments, unrelated settings, and sparse inheritance; never materialize defaults
+or a resolved configuration.
 
 Additional failure cases:
 
@@ -62,24 +62,27 @@ Additional failure cases:
   checks nested fields, finds real source/target matches, discusses unknown
   requirements, and preserves unrelated values. Add a minimal repository case
   to verify it can keep/skip settings without inventing rules or integrations.
-- No-change Detailed: validate the active file and re-inspect its unchanged hash;
-  no redundant proposal approval or `apply` call.
+- No-change Standard or Detailed: the validating dry-run and re-inspection
+  confirm an unchanged hash; no redundant proposal approval or save.
 - Unavailable/truncated schema, or a deferred conversation: report incomplete
   coverage rather than claiming every configuration area was handled.
 - Valid YAML with a schema-invalid value: `/onboard` must run validation and
   report `Needs action`, even when inspection returns `ok: true`.
 - Install only `/connect`, then request repository integration settings with no
-  local YAML: use guided creation first; never propose an `apply --base none`.
+  local YAML: use `--agent` inspection, a sparse temporary proposal, validating
+  dry-run with `--base none`, one approval, CLI apply, and re-inspection.
 - Change the repository YAML after a Detailed dry-run: the old-hash apply must
   fail without replacing the changed file. Re-inspect, rebase, and obtain fresh
   approval for the revised proposal.
+- Create a YAML file after a `baseHash: none` preview: save must fail without
+  replacing the new file. Repeat the same inspection-and-approval flow.
 - TypeScript, delegated, symlinked, or ambiguous authority: no local apply.
 - No supported connection-status response: `/connect` reports `Unknown` or
   `Configured, verification pending`, not a completed live connection.
 
 Record the candidate version/build, fixture, lane, exact commands, observed
 exit codes, before/after diff, and pass/fail or blocker. A passing packaging
-check below does not establish that these interactive lanes passed.
+check below does not establish that these configuration lanes passed.
 
 ## Repeatable packaging checks
 
