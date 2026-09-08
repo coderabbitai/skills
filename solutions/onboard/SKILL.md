@@ -61,11 +61,13 @@ hidden from human-facing help:
 coderabbit config inspect --json
 ```
 
-Require `ok: true` and `protocolVersion: 1` before using the result. An unknown
-command or unsupported protocol means a compatible CLI candidate is needed.
-An inspection error is not a missing capability: report its diagnostic and
-mark configuration `Unknown` until it can be inspected. Do not fall back to
-editing YAML yourself.
+Require `ok: true` and `protocolVersion: 1` before using the result or starting
+guided configuration. An unknown command or unsupported protocol means a
+compatible, engagement-approved CLI candidate is needed: stop configuration
+setup and give that candidate handoff. For an inspection error, report its
+diagnostic, mark configuration `Unknown`, and stop configuration setup until
+inspection succeeds. Unrelated onboarding checks may continue. Never bypass
+this gate with a guided-command fallback or by editing YAML yourself.
 
 Inspection establishes authority and syntax, not schema validity. For an active
 YAML file, also run the read-only validation command:
@@ -101,7 +103,10 @@ configuration, or integration health from repository files.
 ## 4. Route the work
 
 - For missing, invalid, or intentionally updated repository settings, invoke
-  `$config` when available. Otherwise run the CLI's guided flow in a PTY:
+  `$config` when available. Without that skill, run the CLI's guided flow in a
+  PTY only with the engagement-approved candidate after the inspection above
+  returned `ok: true` and `protocolVersion: 1`. Otherwise stop configuration
+  setup with the candidate handoff or inspection diagnostic:
 
   ```bash
   coderabbit config
