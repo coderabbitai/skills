@@ -14,7 +14,7 @@ protocol v1. Record the candidate version and build provenance; do not assume
 the latest public release supports these operations.
 
 ```bash
-coderabbit --version
+coderabbit config --version
 coderabbit config --help
 coderabbit config inspect --help
 coderabbit config apply --help
@@ -35,15 +35,15 @@ an explicit parent/inheritance setting, and an unrelated non-default setting.
 Do not submit reviews, install host skills, authorize integrations, or modify
 product settings as part of these checks.
 
-| Lane | Entry point | Required observation |
-| --- | --- | --- |
-| Standard `/config` | Invoke `$config` and choose Standard. | Opens `coderabbit config` in a PTY; the human owns source/style choices and preview approval. Preserves parent configuration unless the human deliberately changes it. |
-| Detailed `/config` | Invoke `$config` and choose Detailed. Supply a few explicit preferences upfront. | Considers the detailed sections without re-asking settled choices; asks only material unknowns, at most three together. Uses inspect → proposal → validate → hash-checked dry-run → one approval → exact apply → re-inspect. |
-| Human-driven Standard | Run `coderabbit config` directly. | Completes the quick guided flow and preview without agent-authored YAML. Existing parent/inheritance behavior is preserved unless explicitly changed. |
-| Human-driven Detailed | Run `coderabbit config --detailed` directly. | The human drives the CLI's core-settings wizard. This is not the agent's schema-wide Detailed discovery workflow. |
+| Lane                  | Entry point                                                                      | Required observation                                                                                                                                                                                                                                                                                                                                                                            |
+| --------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Standard `/config`    | Invoke `$config` and choose Standard.                                            | Opens `coderabbit config` in a PTY; the human owns source/style choices and preview approval. Preserves parent configuration unless the human deliberately changes it.                                                                                                                                                                                                                          |
+| Detailed `/config`    | Invoke `$config` and choose Detailed. Supply a few explicit preferences upfront. | Inventories the complete live schema, discovers guideline files and real path matches, and discusses every area without re-asking settled choices. Accounts for each field as Configure/Keep/Skip or an explicitly deferred decision; asks only material unknowns, at most three together. Uses inspect → proposal → validate → hash-checked dry-run → one approval → exact apply → re-inspect. |
+| Human-driven Standard | Run `coderabbit config` directly.                                                | Completes the quick guided flow and preview without agent-authored YAML. Existing parent/inheritance behavior is preserved unless explicitly changed.                                                                                                                                                                                                                                           |
+| Human-driven Detailed | Run `coderabbit config --detailed` directly.                                     | The human drives the CLI's core-settings wizard. This is not the agent's schema-wide Detailed discovery workflow.                                                                                                                                                                                                                                                                               |
 
-For new repositories, both skill lanes must let the guided CLI check central
-configuration and create the initial file before any agent proposal. Re-inspect
+For new repositories, both skill lanes must let the local guided CLI create
+the initial file before any agent proposal; no central lookup is performed. Re-inspect
 after creation. Without a PTY, provide the exact human command and stop. If the
 guided flow leaves no active local file, do not proceed to apply. For existing
 YAML, preserve comments, unrelated settings, and sparse inheritance; never
@@ -51,6 +51,16 @@ materialize defaults or a resolved configuration.
 
 Additional failure cases:
 
+- Detailed coverage: use a mixed-language fixture with nonstandard guidelines,
+  overlapping paths, an existing tool override, and an explicit preference
+  outside profile/path settings. Confirm the agent reads the full live schema,
+  checks nested fields, finds real source/target matches, discusses unknown
+  requirements, and preserves unrelated values. Add a minimal repository case
+  to verify it can keep/skip settings without inventing rules or integrations.
+- No-change Detailed: validate the active file and re-inspect its unchanged hash;
+  no redundant proposal approval or `apply` call.
+- Unavailable/truncated schema, or a deferred conversation: report incomplete
+  coverage rather than claiming every configuration area was handled.
 - Valid YAML with a schema-invalid value: `/onboard` must run validation and
   report `Needs action`, even when inspection returns `ok: true`.
 - Install only `/connect`, then request repository integration settings with no

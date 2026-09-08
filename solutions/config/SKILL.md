@@ -3,7 +3,7 @@ name: config
 description: Use the CodeRabbit CLI to create, refine, or validate repository .coderabbit.yaml configuration. Trigger when a user asks to configure CodeRabbit, generate or improve CodeRabbit YAML, tune reviews or path instructions, or validate CodeRabbit settings.
 metadata:
   internal: true
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # CodeRabbit Config
@@ -11,7 +11,7 @@ metadata:
 Give users two configuration paths while keeping the CodeRabbit CLI as the sole authority for validation and writes:
 
 - **Standard (recommended):** the fast, human-guided CLI flow.
-- **Detailed:** an agent-guided, evidence-backed proposal using the full current schema.
+- **Detailed:** a conversation-led pass over every category in the live schema, with repository discovery and an evidence-backed proposal.
 
 Never edit the repository configuration directly. Never copy the schema, defaults, or YAML mutation logic into this skill.
 
@@ -41,7 +41,7 @@ Pass a user-named file as one argument. Add `--json` when structured diagnostics
 If the user has not chosen, offer:
 
 1. **Standard (recommended)** — a quick Balanced setup for a new repository, or a review-style change that preserves other existing settings.
-2. **Detailed** — inspect the repository and work linearly through a complete, evidence-backed configuration.
+2. **Detailed** — have the agent explore the repository, find guideline files and useful path rules, and discuss every configuration area with you. Keep suitable defaults; customize what matters.
 
 Default to Standard. Do not describe Detailed as inherently better.
 
@@ -77,7 +77,11 @@ the CLI.
 
 For an existing active file, require `writable: true` and a real `baseHash` before preparing a proposal. If the CLI reports TypeScript, delegated, symlinked, or ambiguous authority, explain the reported reason and stop instead of guessing. A guided flow that creates no local file does not authorize an apply.
 
-Use the returned raw YAML as the starting document and the returned schema URL as the current source of truth. The agent may reason across any setting in that live schema, but it must recommend only settings supported by repository evidence or an explicit user choice. Consider the reference's Detailed sections in order, reusing explicit choices the user has already made. Show the current repository value, recommendation, and evidence; ask only about material unknowns, in batches of no more than three questions. Do not require a separate approval for every section. Request one approval for the complete validated proposal below.
+Use the returned raw YAML as the starting document. Read the complete live schema from the returned URL and follow the reference's coverage pass; the section list is a conversation order, not a limit on supported settings. Account for every configurable field as Configure, Keep, Skip, or Pending, grouping fields only when the same reason applies. Do not call an incomplete or truncated schema pass complete.
+
+Lead with what you found in the repository: actual guideline files, path matches, languages, tools, and sensitive areas. Discuss recommendations in the reference's linear order; reuse settled choices and ask only material unknowns, in batches of no more than three questions. Never ask the user to inventory files or invent globs the agent can find. Resolve Pending choices or explicitly defer them before proposing a save. Do not require section-by-section approvals; request one approval for the complete validated proposal below.
+
+If no YAML changes are warranted, validate the active file with the CLI and re-inspect it to confirm it is still the file you considered. Report no changes and the coverage summary; do not request a redundant approval or call `apply`. If the file changed, inspect and reconsider it before reporting completion. A validation failure is not a successful no-change result.
 
 Create the complete proposed YAML in a temporary file outside the repository. Preserve existing comments, ordering, and unrelated settings wherever possible. Keep it sparse; do not materialize defaults.
 
@@ -98,7 +102,7 @@ Show the user:
 - the evidence for each recommendation;
 - a concise Before → After summary;
 - the exact YAML diff;
-- any remaining uncertainty.
+- a compact coverage summary showing configured, kept, and skipped areas, with any deferred choices or external prerequisites. Do not imply these were configured or verified.
 
 Ask for explicit approval. Only after approval, apply the exact validated proposal:
 
@@ -110,7 +114,7 @@ If the base changed, inspect again and rebase the proposal. Never bypass the has
 
 ## 3. Report the result
 
-After Standard, summarize the CLI result and repository diff. After Detailed, verify the resulting file with `coderabbit config inspect --json` and report the applied hash.
+After Standard, summarize the CLI result and repository diff. After Detailed, verify the resulting file with `coderabbit config inspect --json` and report the applied hash and coverage summary. Distinguish complete schema consideration from local YAML validation and from unverified hosted behavior.
 
 Do not stage, commit, push, change remote/dashboard settings, or trigger reviews unless the user separately asks.
 
