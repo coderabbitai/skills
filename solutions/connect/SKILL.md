@@ -54,11 +54,18 @@ coderabbit config --help
 Ask before running `coderabbit doctor`; it may refresh CLI-local diagnostic
 metadata even though it does not alter repository or product configuration.
 
-When available, inspect repository configuration without writing:
+Probe repository configuration directly, even when human-facing help does not
+list the hidden agent commands:
 
 ```bash
 coderabbit config inspect --json
 ```
+
+Require `ok: true` and `protocolVersion: 1` before using the result. An unknown
+command or unsupported protocol needs a compatible CLI candidate; an inspection
+error needs its reported cause addressed. Until then, mark repository settings
+`Unknown` and continue only with the connection planning that does not depend
+on them.
 
 Use this output only for repository configuration state. A YAML key that enables
 Jira, Linear, or MCP usage does not prove that the external connection exists or

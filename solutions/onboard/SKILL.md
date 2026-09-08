@@ -54,12 +54,18 @@ coderabbit auth login --agent
 
 Never ask the user to paste a token or authorization code into chat.
 
-When the CLI advertises the agent inspection protocol, inspect configuration
-state without writing:
+Probe configuration inspection directly; agent commands are intentionally
+hidden from human-facing help:
 
 ```bash
 coderabbit config inspect --json
 ```
+
+Require `ok: true` and `protocolVersion: 1` before using the result. An unknown
+command or unsupported protocol means a compatible CLI candidate is needed.
+An inspection error is not a missing capability: report its diagnostic and
+mark configuration `Unknown` until it can be inspected. Do not fall back to
+editing YAML yourself.
 
 Inspection establishes authority and syntax, not schema validity. For an active
 YAML file, also run the read-only validation command:
