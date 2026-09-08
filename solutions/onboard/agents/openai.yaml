@@ -1,0 +1,6 @@
+interface:
+  display_name: "/onboard"
+  short_description: "Guide CodeRabbit onboarding readiness"
+  default_prompt: "Use $onboard to assess this repository, identify the next setup actions, and verify readiness without making unapproved changes."
+policy:
+  allow_implicit_invocation: false

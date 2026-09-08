@@ -1,0 +1,6 @@
+interface:
+  display_name: "/config"
+  short_description: "Configure CodeRabbit safely with the CLI"
+  default_prompt: "Use $config to set up this repository with the recommended Standard flow or an evidence-backed Detailed configuration."
+policy:
+  allow_implicit_invocation: false
