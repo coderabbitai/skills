@@ -107,7 +107,7 @@ configuration protocol v1; do not assume the latest released CLI supports it.
 Run `coderabbit config inspect --json` and require `ok: true` and
 `protocolVersion: 1`. Handle `requiresGuidedCreation: true` or no `activeConfig`
 before checking writability: let the human complete `coderabbit config` in a
-PTY so the CLI checks central configuration, then inspect again. Without a PTY,
+PTY so the CLI owns initial file creation, then inspect again. Without a PTY,
 give that exact command and stop. Never prepare the first YAML independently.
 
 For an existing active YAML file, require `writable: true` and its real

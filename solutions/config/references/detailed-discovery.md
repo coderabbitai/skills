@@ -46,7 +46,7 @@ Session evidence may improve a recommendation; it must never silently authorize 
 
 Consider these sections in order. Show current repository values and recommendations with evidence, reusing the user's explicit choices without asking them again. Ask only about material unknowns, in batches of no more than three questions. The user may change or skip any recommendation; do not require section-by-section approvals. Request one approval for the complete validated proposal.
 
-1. **Configuration source** — Preserve existing configuration inheritance. For a new file, let `coderabbit config` detect central configuration before continuing. Do not claim central or dashboard settings exist without CLI evidence.
+1. **Configuration file** — Use the CLI's local authority report and preserve unrelated existing settings. For a new file, complete guided `coderabbit config` creation before continuing. Do not look up central or dashboard settings.
 2. **Review profile** — Choose `reviews.profile` from the user's desired feedback depth. Distinguish an explicit repository value from an inherited value or schema default.
 3. **Coding guidelines** — Report guideline files CodeRabbit already discovers. Add `knowledge_base.code_guidelines.filePatterns` only for nonstandard files or an explicit file-to-path mapping; never copy guideline text into YAML.
 4. **Path filters** — Consider `reviews.path_filters` for generated, vendored, fixture, or other repository-specific paths. Explain that positive patterns constrain review scope and both positive and negative patterns affect sparse checkout.
@@ -61,7 +61,7 @@ The agent may use any setting in the live schema when evidence or the user's req
 
 Ask at most three questions at a time, and only when repository evidence cannot answer them. Typical unknowns include desired review depth, preferred PR presentation, confirmed related repositories, and durable path-specific review requirements.
 
-Do not ask about inheritance unless central or parent configuration is actually relevant. Never claim the local repository can detect dashboard configuration.
+Do not add inheritance questions to onboarding. Leave existing inheritance settings unchanged unless the user explicitly asks to change them.
 
 ## Path-instruction quality gate
 
