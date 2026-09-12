@@ -37,6 +37,13 @@
       "pattern": "^(?=[^\\n]*\\b(?:coderabbit|cr)\\s+pullrequest\\s+[\"\\x27]?https://github.com/example/widgets/pull/123)(?=[^\\n]*--show-prompts\\b)(?=[^\\n]*--agent\\b)[^\\n]+$",
       "match": "contains",
       "flags": "mi"
+    },
+    {
+      "name": "pr-prompt-output-format",
+      "type": "regex",
+      "pattern": "(?=[\\s\\S]*\\b(?:NDJSON|newline[- ]delimited JSON)\\b)(?=[\\s\\S]*\\btype[\"\\x27`]*\\s*[:=]\\s*[\"\\x27`]*prompt\\b)",
+      "flags": "i",
+      "match": "contains"
     }
   ]
 }
