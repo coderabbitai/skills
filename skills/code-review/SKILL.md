@@ -83,7 +83,7 @@ coderabbit review --agent --dir path/to/directory
 | `--dir <path>`    | Review directory path; must be inside an initialized Git working tree     |
 | `--agent`         | Agent-readable review output and fix guidance                             |
 
-Default scope includes committed, staged, and tracked unstaged changes; raw untracked files are excluded, while staged new files are included. `--committed` and `--uncommitted` conflict. Preserve the requested scope on retries; do not silently narrow it after a file-limit error. Use the named scope flags in new commands; `-t/--type` is hidden compatibility syntax.
+Default scope includes committed, staged, and tracked unstaged changes; raw untracked files are excluded, while staged new files are included. `--include-untracked` also works by itself with the default scope: `coderabbit review --agent --include-untracked` reviews those tracked changes plus non-ignored untracked files. It does not require `--uncommitted`. `--committed` and `--uncommitted` conflict. Preserve the requested scope on retries; do not silently narrow it after a file-limit error. Use the named scope flags in new commands; `-t/--type` is hidden compatibility syntax.
 
 **Shorthand:** `cr` is an alias for `coderabbit`:
 

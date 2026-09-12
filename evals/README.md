@@ -1,6 +1,6 @@
 # CLI behavior evaluations
 
-Five offline cases exercise public scope flags, untracked-file inclusion, local
+Six offline cases exercise public scope flags, default and uncommitted untracked-file inclusion, local
 versus PR prompt retrieval, EU browser authentication, and incomplete/skipped
 review output. No shell, writes, network tools, or production reviews are granted.
 
