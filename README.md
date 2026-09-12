@@ -208,7 +208,7 @@ AI-powered code review that finds bugs, security issues, and suggests improvemen
 **Capabilities:**
 
 - Analyzes code changes for bugs, security issues, and anti-patterns
-- Groups findings by severity (critical, warning, info)
+- Preserves finding severities (critical, major, minor, trivial, info, none)
 - Supports autonomous fix-review cycles
 - Reviews tracked changes by default, with committed and uncommitted scopes
 - Supports directory-scoped reviews through CodeRabbit CLI `--dir <path>`

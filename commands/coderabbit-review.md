@@ -38,7 +38,7 @@ coderabbit --version 2>/dev/null
 
 ### Run Review
 
-Once prerequisites are met:
+Once prerequisites are met, run review directly; it starts browser authentication when needed. Honor no-login restrictions and use the host flow if a sandbox hides credentials; never read credential files or request pasted tokens.
 
 ```bash
 # type defaults to "all"; use a public scope option only when requested
@@ -60,7 +60,9 @@ Where `type`, `base`, and `dir` come from `$ARGUMENTS`:
 - `committed` - Committed changes only
 - `uncommitted` - Staged changes and unstaged edits to tracked files
 
-Add `--base <branch>` only when a base branch is specified.
+Raw untracked files are excluded by default; staged new files are included. Add `--include-untracked` only when requested; it conflicts with `--committed` but can combine with `--uncommitted`. Never combine committed and uncommitted selectors or silently shrink the requested scope.
+
+Append any requested `--include-untracked`, `--light`, or `--base-commit <commit>` option to the argument array; do not discard these when translating `$ARGUMENTS`. Add `--base <branch>` only when a base branch is specified.
 Add `--dir <path>` only when a review directory is specified. The directory must be inside an initialized Git working tree; verify it first:
 
 ```bash
@@ -69,10 +71,6 @@ git -C "$dir" rev-parse --is-inside-work-tree
 
 ### Present Results
 
-Group findings by severity:
-
-1. **Critical** - Security vulnerabilities, data loss risks, crashes
-2. **Warning** - Bugs, performance issues, anti-patterns
-3. **Info** - Style issues, suggestions, minor improvements
+Parse `--agent` as NDJSON and preserve the returned severity (`critical`, `major`, `minor`, `trivial`, `info`, or `none`). Heartbeats are liveness only. A `complete` event with `status: review_skipped` is not a clean review.
 
 Offer to apply fixes from the `--agent` findings when the output includes actionable remediation details.
