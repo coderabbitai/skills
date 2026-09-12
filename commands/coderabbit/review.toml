@@ -1,0 +1,5 @@
+description = "Run CodeRabbit AI code review on your changes"
+prompt = """
+Activate the `code-review` skill and follow its workflow to review the current changes.
+Apply this requested scope or additional instruction when provided: {{args}}
+"""

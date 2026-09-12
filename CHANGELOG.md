@@ -6,6 +6,14 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added public contribution guidance, structured issue forms, and a pull-request
+  template for agent-skill and integration changes.
+- Added a self-contained, assertive repository-level CodeRabbit policy with
+  draft and continuous incremental reviews, a strict request-changes workflow,
+  blocking pre-merge checks, public-repository knowledge boundaries, and focused
+  guidance for skills, native packaging, and public documentation.
+- Added native Gemini CLI extension packaging via `gemini-extension.json`,
+  including the `/coderabbit:review` command and existing portable skills.
 - Added native Antigravity CLI plugin packaging via the repository-root
   `plugin.json` manifest, with direct GitHub installation guidance.
 - Documented CodeRabbit CLI `--dir <path>` support for directory-scoped
@@ -19,6 +27,7 @@ All notable changes to this repository are documented in this file.
 - Updated review guidance to use the public `--committed` and `--uncommitted`
   selectors, allow `--dir` paths inside a Git working tree, and rely on the
   review command's built-in authentication flow.
+- Aligned the shared code-review subagent metadata with Gemini CLI's schema.
 - Removed alternate detailed-output guidance so review agents use `--agent`
   exclusively.
 - Reframed the README as the canonical home for CodeRabbit skills and plugin

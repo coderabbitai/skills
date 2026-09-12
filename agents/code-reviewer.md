@@ -1,13 +1,6 @@
 ---
 name: code-reviewer
 description: Specialized CodeRabbit code review agent that performs thorough analysis of code changes
-capabilities:
-  - Run comprehensive code reviews using CodeRabbit AI
-  - Review a requested repository directory with CodeRabbit CLI --dir
-  - Identify security vulnerabilities and best practice violations
-  - Provide actionable fix suggestions with code examples
-  - Analyze code complexity and maintainability
-  - Review for performance optimizations
 ---
 
 # CodeRabbit Code Review Agent
