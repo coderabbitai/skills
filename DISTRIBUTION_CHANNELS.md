@@ -1,6 +1,6 @@
 # Distribution Channels
 
-Last verified: 2026-08-04
+Last verified: 2026-08-12
 
 This file is the repository's operating inventory for where CodeRabbit skills and adjacent agent integrations are distributed. Public user-facing install guidance belongs in `README.md`; in-development and maintainer-only channels should stay here until they are ready to launch.
 
@@ -10,7 +10,7 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 | --- | --- | --- | --- |
 | Skills package (`npx skills add coderabbitai/skills`) | Live | `README.md`, `skills/` | Canonical multi-agent distribution path for 35+ skills-compatible agents. |
 | Tagged GitHub release archive for binary installers | In development, not user-facing | `.github/workflows/release.yml` | Workflow publishes a versioned tarball, SHA-256 file, and release manifest on `v*` tags, but this channel is not part of public install guidance yet. |
-| Claude Code plugin marketplace | Live, source migration pending | `.claude-plugin/plugin.json`, `commands/`, `agents/` | In-repo packaging is active; official marketplace source is being moved from `coderabbitai/claude-plugin` to this repository. |
+| Claude Code plugin marketplace | Live | `.claude-plugin/plugin.json`, `commands/`, `agents/` | Official marketplace source. Migration from the legacy `coderabbitai/claude-plugin` repository completed on 2026-05-01. |
 | Cursor native plugin marketplace | Repo-packaged, publication should be verified | `.cursor-plugin/plugin.json` | Repo contains marketplace manifest; treat public listing as separate verification work. |
 | Gemini CLI native extension | Repo-packaged, release pending | `gemini-extension.json`, `skills/`, `commands/coderabbit/review.toml`, `agents/` | Publish direct installation after `v1.2.0`; verify gallery listing separately. |
 | Antigravity CLI native plugin | GitHub-installable | `plugin.json`, `skills/` | Install directly with `agy plugin install https://github.com/coderabbitai/skills`; treat marketplace publication as separate verification work. |
