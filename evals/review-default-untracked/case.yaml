@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.1",
+  "name": "review-default-untracked",
+  "description": "Offline default-scope contract; no shell, network, or file mutations.",
+  "tags": [
+    "cli-parity",
+    "code-review"
+  ],
+  "execution": {
+    "prompt": "Give a CodeRabbit CLI command for the current repo that preserves its default review scope and also includes brand-new untracked files. Use output suitable for a coding agent. Assume a current official CLI and valid login. Do not execute anything; give the command and a short scope explanation.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "skill-activation",
+      "type": "tool_used",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?code-review\""
+    },
+    {
+      "name": "default-plus-untracked-command",
+      "type": "regex",
+      "pattern": "^(?=[^\\n]*\\b(?:coderabbit|cr)\\s+review\\b)(?=[^\\n]*--agent\\b)(?=[^\\n]*--include-untracked\\b)(?![^\\n]*--(?:uncommitted|committed|type)\\b)(?![^\\n]*\\s-t\\s)[^\\n]+$",
+      "flags": "mi",
+      "match": "contains"
+    },
+    {
+      "name": "no-untracked-selector-requirement",
+      "type": "llm",
+      "arm": "with-only",
+      "criteria": "PASS if the proposed command uses --agent and --include-untracked without selecting committed-only or uncommitted-only, and the explanation preserves committed plus staged/tracked-unstaged changes while adding untracked files. FAIL if it says --include-untracked requires --uncommitted or silently narrows the default scope."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.1",
+  "name": "review-untracked",
+  "description": "Offline CLI contract evaluation; no shell, network, or file mutations.",
+  "tags": [
+    "cli-parity",
+    "code-review"
+  ],
+  "execution": {
+    "prompt": "Write a CodeRabbit CLI runbook command, without executing it: review only staged and working-tree changes, including brand-new untracked files, in packages/api. The repo root is above that existing directory. Assume a current official CLI and authenticated host. Return the exact command and briefly explain which changes it includes.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "skill-activation",
+      "type": "tool_used",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?code-review\""
+    },
+    {
+      "name": "uncommitted-untracked-directory",
+      "type": "regex",
+      "pattern": "^(?=[^\\n]*\\b(?:coderabbit|cr)\\s+review\\b)(?=[^\\n]*--agent\\b)(?=[^\\n]*--uncommitted\\b)(?=[^\\n]*--include-untracked\\b)(?=[^\\n]*--dir\\s+[\"\\x27]?packages/api\\b)[^\\n]+$",
+      "match": "contains",
+      "flags": "mi"
+    },
+    {
+      "name": "no-conflicting-committed",
+      "type": "regex",
+      "pattern": "\\b(?:coderabbit|cr)\\s+review\\b[^\\n]*--committed\\b",
+      "match": "not_contains",
+      "flags": "mi"
+    }
+  ]
+}
