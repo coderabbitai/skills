@@ -24,6 +24,11 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Updated review guidance to use the public `--committed` and `--uncommitted`
+  selectors, allow `--dir` paths inside a Git working tree, and rely on the
+  review command's built-in authentication flow. Documented untracked-file scope,
+  NDJSON completion and severities, saved prompts, and current configuration and
+  account-command contracts.
 - Aligned the shared code-review subagent metadata with Gemini CLI's schema.
 - Removed alternate detailed-output guidance so review agents use `--agent`
   exclusively.
