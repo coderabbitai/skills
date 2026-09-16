@@ -1,0 +1,6 @@
+interface:
+  display_name: "/connect"
+  short_description: "Connect CodeRabbit context sources"
+  default_prompt: "Use $connect to plan and verify the CodeRabbit integrations this repository actually needs."
+policy:
+  allow_implicit_invocation: false

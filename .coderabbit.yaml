@@ -63,7 +63,7 @@ reviews:
       enabled: true
 
   path_instructions:
-    - path: "skills/**/SKILL.md"
+    - path: "{skills,solutions}/**/SKILL.md"
       instructions: |
         Keep skill Markdown focused on domain context, routing, and workflow framing.
         Put repeatable deterministic operations in referenced scripts or tools when practical.
