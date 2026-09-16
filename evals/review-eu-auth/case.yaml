@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.1",
+  "name": "review-eu-auth",
+  "description": "Offline CLI contract evaluation; no shell, network, or file mutations.",
+  "tags": [
+    "cli-parity",
+    "code-review"
+  ],
+  "execution": {
+    "prompt": "Prepare a CodeRabbit CLI runbook without executing it. We need a new EU SaaS browser login from an agent with a working local browser callback, then review committed changes. We do not use API keys or self-hosting. Give the login command and review command, keeping both suitable for the agent.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "skill-activation",
+      "type": "tool_used",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?code-review\""
+    },
+    {
+      "name": "eu-agent-login",
+      "type": "regex",
+      "pattern": "^(?=[^\\n]*\\b(?:coderabbit|cr)\\s+auth\\s+login\\b)(?=[^\\n]*--agent\\b)(?=[^\\n]*--region\\s+eu\\b)[^\\n]+$",
+      "match": "contains",
+      "flags": "mi"
+    },
+    {
+      "name": "review-saved-region",
+      "type": "regex",
+      "pattern": "^(?=[^\\n]*\\b(?:coderabbit|cr)\\s+review\\b)(?=[^\\n]*--committed\\b)(?=[^\\n]*--agent\\b)(?![^\\n]*--region\\b)[^\\n]+$",
+      "match": "contains",
+      "flags": "mi"
+    }
+  ]
+}
