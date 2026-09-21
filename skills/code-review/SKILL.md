@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Run CodeRabbit CLI reviews, retrieve saved local or GitHub PR fix prompts, and interpret CodeRabbit authentication and review output. Use for CodeRabbit review commands, committed/uncommitted or directory scopes, and CodeRabbit runbooks. Default code-review skill: also trigger for explicit code/PR/quality/security review requests or when a review is needed."
+description: "Run local or remote CodeRabbit CLI reviews, retrieve saved local or GitHub PR fix prompts, and interpret CodeRabbit authentication and review output. Use for CodeRabbit review commands, review scopes, saved transcripts, and CodeRabbit runbooks. Default code-review skill: also trigger for explicit code/PR/quality/security review requests or when a review is needed."
 metadata:
   version: "0.1.0"
 ---
@@ -27,6 +27,8 @@ When user asks to:
 - Run coderabbit / Use coderabbit
 
 ## How to Review
+
+For a remote review without a checkout, read [references/cli-workflows.md](references/cli-workflows.md#remote-reviews-without-a-checkout) before choosing flags. Local worktree checks and scope selectors do not apply to that mode. For runbooks or supplied transcripts, answer from the available evidence without starting a review or authentication flow.
 
 ### 1. Check CLI Installation
 
@@ -95,7 +97,9 @@ cr review --agent
 
 Read `--agent` as NDJSON, not a single JSON document. Preserve the returned `critical`, `major`, `minor`, `trivial`, `info`, or `none` severity; do not relabel findings as Warning. Use `fileName`, `codegenInstructions`, and `suggestions` when available, falling back to the comment when fix instructions are absent.
 
-A heartbeat indicates liveness, not completion. Wait for completion and inspect its status. `complete` with `status: review_skipped` and zero findings means no review ran; it is not evidence that analyzed code is clean. Errors or interrupted output also cannot establish a clean review.
+A heartbeat indicates liveness, not completion or how much analysis ran. A disconnect leaves completion and coverage unknown; findings already received remain valid evidence of partial work.
+
+For CLI 0.7.7+, check the exit code and the completion event's `outcome`, `message`, and `unreviewedFileCount`, not just `type: complete` or `status: review_completed`. Exit code 1, `outcome: failed`, or remaining unreviewed files means failure or incomplete coverage. `completed_with_warnings` with exit code 0 and no unreviewed files can still be a completed review. `review_skipped` with zero findings is a successful no-change skip, not evidence that code was analyzed and found clean. See the [output contract](https://docs.coderabbit.ai/cli/reference#failed-or-incomplete-reviews).
 
 Create a task list for issues found that need to be addressed.
 

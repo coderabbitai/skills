@@ -2,6 +2,14 @@
 
 Check the installed command's `--help` before using newer features. Public reference: <https://docs.coderabbit.ai/cli/reference>.
 
+## Remote reviews without a checkout
+
+CLI 0.7.7+ supports `coderabbit review --remote owner/repo --base main --source-branch feature --agent`. Use the requested repository and refs; a GitHub HTTPS repository URL is also accepted. The source must be a branch or full 40-character commit SHA, not a tag. Check help/version before using these newer flags; an older binary needs an update, not an invented replacement command.
+
+This requires GitHub Cloud, a repository installed in the active CodeRabbit organization, and browser SaaS authentication or an Agentic API key. Private repositories also require repository read access. GitHub Enterprise, self-hosted CodeRabbit, and other providers are unsupported.
+
+Do not combine remote mode with `--dir`, `--committed`, `--uncommitted`, `--include-untracked`, `--base-commit`, or `--show-prompts`. Local `--config` files are ignored; repository configuration is read at the reviewed source. No local files are uploaded, no checkout is required, and remote results do not create local findings history. Comparisons with 300 or more changed files are rejected; propose a narrower comparison without silently changing requested scope. See the [remote review contract](https://docs.coderabbit.ai/cli/reference#remote-reviews-without-a-checkout).
+
 ## Saved review output
 
 - `coderabbit review findings --dir <path>` displays stored human-readable findings from the most recent matching run **with findings**. Branch, base, and directory affect selection. It does not prove that the latest review was clean; there is no findings-specific `--agent` contract.
