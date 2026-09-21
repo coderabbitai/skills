@@ -30,10 +30,12 @@ It copies only the two canonical skills and their references into clean plugin
 snapshots. It does not change your installed plugin or launch paid runs.
 
 Use `--suite extended` to include the eight `fresh-*` development cases, four
-`validation-*` cases and four `holdout-*` cases (27 cases total). The validation
+`validation-*` cases and eight `holdout-*` cases (31 cases total). The validation
 cases were first evaluated after freezing that candidate; once used for tuning,
 they are no longer an untouched set. The four `holdout-*` prompts were authored
 after freezing candidate `942b075` and were not used to choose its changes.
+Four subsequent `holdout-g-*` prompts were authored after freezing `06c471b`,
+including a mixed-transcript summary and a secret-safe runbook check.
 Preserve their hashes and author new cases
 before claiming another fresh validation. Native runs evaluate all selected
 cases; Lightsage requests are split into batches of at most 20 prompts, with
