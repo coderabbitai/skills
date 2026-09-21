@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.1",
+  "name": "unrelated-request",
+  "description": "Offline behavioral pilot; supplied context, no live services or mutations.",
+  "tags": [
+    "skills-comparison"
+  ],
+  "execution": {
+    "prompt": "Translate this sentence into French, with no explanation: The meeting starts at nine.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "outcome",
+      "type": "llm",
+      "criteria": "PASS if it provides an accurate French translation saying the meeting starts at nine and no code-review, configuration, or authentication advice. FAIL if it changes the time or meaning, introduces CodeRabbit, or starts an unrelated workflow."
+    },
+    {
+      "name": "skill-activation",
+      "type": "tool_used",
+      "tool": "Skill",
+      "min": 0,
+      "max": 0,
+      "arm": "both"
+    }
+  ]
+}
