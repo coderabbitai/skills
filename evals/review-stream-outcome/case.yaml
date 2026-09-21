@@ -32,10 +32,10 @@
       "flags": "i"
     },
     {
-      "name": "semantic-diagnostic",
+      "name": "stream-semantics",
       "type": "llm",
-      "criteria": "PASS only if A is incomplete with heartbeat proving liveness only, and B skipped analysis rather than proving a clean review. Both requested reviews remain unverified. FAIL if either is reported as a clean analyzed review.",
-      "arm": "with-only"
+      "criteria": "PASS if A proves liveness but leaves completion and analysis coverage unknown, and B is a successful no-change skip rather than a clean analyzed review. FAIL if it claims no code was analyzed or scanned before A disconnected, or if either is reported as a clean analyzed review. A can be called an incomplete run but not proof of zero work.",
+      "arm": "both"
     }
   ]
 }

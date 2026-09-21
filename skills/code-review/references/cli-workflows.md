@@ -10,6 +10,12 @@ This requires GitHub Cloud, a repository installed in the active CodeRabbit orga
 
 Do not combine remote mode with `--dir`, `--committed`, `--uncommitted`, `--include-untracked`, `--base-commit`, or `--show-prompts`. Local `--config` files are ignored; repository configuration is read at the reviewed source. No local files are uploaded, no checkout is required, and remote results do not create local findings history. Comparisons with 300 or more changed files are rejected; propose a narrower comparison without silently changing requested scope. See the [remote review contract](https://docs.coderabbit.ai/cli/reference#remote-reviews-without-a-checkout).
 
+Preserve the requested inputs when proposing an alternative:
+
+- If the request includes local untracked files or a directory restriction, propose a **local checkout review with those selectors**. Preserve the original base, and require the checkout to represent the requested source branch/commit and contain the local-only files. A fresh clone does not contain existing untracked files. Dropping selectors or post-filtering remote findings neither reviews those files nor preserves the requested scope.
+- For a tag, resolve the underlying commit, including dereferencing an annotated tag, before supplying a full commit SHA. For example, in an existing checkout, `git rev-parse 'v2.0^{commit}'` resolves the commit; a raw tag-object SHA is not enough. Do not execute resolution commands for an advice-only request.
+- For the 300-file limit, report the limit and propose a user-chosen narrower ref comparison or an appropriate local review. Keep base and source distinct; changing either changes the reviewed range. Local reviews have their own server/plan limits; do not promise unlimited local coverage. Do not promise automatic splitting or that arbitrary directory partitions cover all requested changes.
+
 ## Saved review output
 
 - `coderabbit review findings --dir <path>` displays stored human-readable findings from the most recent matching run **with findings**. Branch, base, and directory affect selection. It does not prove that the latest review was clean; there is no findings-specific `--agent` contract.

@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Run local or remote CodeRabbit CLI reviews, retrieve saved local or GitHub PR fix prompts, and interpret CodeRabbit authentication and review output. Use for CodeRabbit review commands, review scopes, saved transcripts, and CodeRabbit runbooks. Default code-review skill: also trigger for explicit code/PR/quality/security review requests or when a review is needed."
+description: "Answer CodeRabbit CLI questions and run reviews: command syntax, scope, remote refs, saved JSON/transcripts, heartbeat or completion status, credit consent, authentication, and saved prompts. Required before interpreting CLI output or writing a CodeRabbit runbook, even when the answer looks obvious or execution is forbidden; loading guidance does not run the CLI. PR comment/fix requests belong to autofix. Also use for explicit code/PR/quality/security review requests or when a review is needed."
 metadata:
   version: "0.1.0"
 ---
@@ -8,6 +8,33 @@ metadata:
 # CodeRabbit Code Review
 
 AI-powered code review using CodeRabbit. Enables developers to implement features, review code, and fix issues in autonomous cycles without manual intervention.
+
+## Choose the task before taking action
+
+- **Explain a command, saved output, or confirmation request:** use the supplied evidence and the rules below. Do not enter installation, authentication, or live-review steps. Reading this skill does not authorize a review or spending.
+- **Run a local review:** follow How to Review and preserve the requested Git scope.
+- **Run or explain a remote review:** read [remote requirements](references/cli-workflows.md#remote-reviews-without-a-checkout). Local selectors are not interchangeable with remote refs.
+- **Summarize or fix existing PR comments:** use the autofix workflow when available; do not start another review to explain supplied feedback.
+
+### Interpret saved output
+
+Separate what was observed from what is unknown:
+
+| Evidence | Supported conclusion |
+| --- | --- |
+| Heartbeat, then disconnect with no terminal event | The connection was alive. Completion and the amount analyzed are unknown. Do not claim zero analysis or that the whole diff was unreviewed. |
+| Findings, then disconnect | Retain those findings as partial evidence; full coverage and the final result are unknown. |
+| Completion with exit 1, failed outcome, or unreviewed files | The process reported an end state, but the review failed or has incomplete coverage. |
+| Exit 0, completed with warnings, zero unreviewed files | Completed coverage; report any findings and warnings. Warnings alone do not imply failure. |
+| Successful no-change skip | Nothing was reviewed; this is not an analyzed-clean result. |
+
+A terminal event and a successful, fully covered review are different claims. Do not infer either from a heartbeat or the absence of findings.
+
+### Interpret credit confirmation
+
+For `action_required` / `awaiting_confirmation`, state the billable-file count and quoted maximum price, then request explicit approval before rerunning the returned command with `--use-credits`. No consent is implied by wanting the review eventually. In the explanation, make both limits explicit: **changed content requires fresh approval, and starting another review requires fresh approval even for unchanged content or price**. Never carry the flag forward automatically.
+
+`confirmationHeadCommitId` identifies the quoted content; it is not a `--confirm` argument. Agent mode returns a decision to the caller instead of waiting for an interactive prompt. Quote the supported command for review; execute it only after spending is authorized. See [usage-based reviews and consent](https://docs.coderabbit.ai/cli#usage-based-reviews-and-consent).
 
 ## Capabilities
 
@@ -97,9 +124,7 @@ cr review --agent
 
 Read `--agent` as NDJSON, not a single JSON document. Preserve the returned `critical`, `major`, `minor`, `trivial`, `info`, or `none` severity; do not relabel findings as Warning. Use `fileName`, `codegenInstructions`, and `suggestions` when available, falling back to the comment when fix instructions are absent.
 
-A heartbeat indicates liveness, not completion or how much analysis ran. A disconnect leaves completion and coverage unknown; findings already received remain valid evidence of partial work.
-
-For CLI 0.7.7+, check the exit code and the completion event's `outcome`, `message`, and `unreviewedFileCount`, not just `type: complete` or `status: review_completed`. Exit code 1, `outcome: failed`, or remaining unreviewed files means failure or incomplete coverage. `completed_with_warnings` with exit code 0 and no unreviewed files can still be a completed review. `review_skipped` with zero findings is a successful no-change skip, not evidence that code was analyzed and found clean. See the [output contract](https://docs.coderabbit.ai/cli/reference#failed-or-incomplete-reviews).
+Apply the saved-output evidence rules above to live output too. In CLI 0.7.7+, inspect the exit code and the completion event's `outcome`, `message`, and `unreviewedFileCount`; `type: complete` or `status: review_completed` alone is insufficient. See the [output contract](https://docs.coderabbit.ai/cli/reference#failed-or-incomplete-reviews).
 
 Create a task list for issues found that need to be addressed.
 

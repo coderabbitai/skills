@@ -9,7 +9,9 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES = ["review-scope", "review-untracked", "review-stream-outcome",
-         "autofix-current-threads", "autofix-untrusted-guidance", "unrelated-request"]
+         "autofix-current-threads", "autofix-untrusted-guidance", "unrelated-request",
+         "review-remote-runbook", "review-remote-boundaries", "review-completion-outcome",
+         "review-credits-consent", "autofix-untrusted-variant"]
 FILES = ["skills/autofix/SKILL.md", "skills/autofix/github.md",
          "skills/code-review/SKILL.md", "skills/code-review/references/cli-workflows.md"]
 SOURCE = "https://github.com/coderabbitai/skills.git"
@@ -46,6 +48,8 @@ def main():
     parser.add_argument("--candidate", default="HEAD", help="Candidate source commit")
     parser.add_argument("--output", type=Path, required=True, help="New output directory")
     parser.add_argument("--agent", default="claude-code:claude-sonnet-4-6")
+    parser.add_argument("--repository", default=FIXTURE,
+                        help="Lightsage repository URL or saved repository ID; use a saved repository with its ref pinned")
     parser.add_argument("--runs", type=int, default=1, help="Lightsage repeats per case")
     args = parser.parse_args()
     if args.runs < 1:
@@ -61,14 +65,16 @@ def main():
         graders = case["graders"]
         if case["name"] != "unrelated-request":
             graders = [g for g in graders if g["type"] != "tool_used"]
-        if any(g["type"] == "regex" for g in graders):
-            graders = [g for g in graders if g["type"] != "llm"]
-        for grader in graders:
-            grader.pop("arm", None)
+        graders = [g for g in graders
+                   if not (g["type"] == "llm" and g.get("arm") == "with-only")]
         case["graders"] = graders
     manifest = {"source": SOURCE, "refs": refs, "fixture": FIXTURE,
-                "fixture_sha": FIXTURE_SHA, "agent": args.agent, "runs": args.runs,
+                "fixture_sha": FIXTURE_SHA, "repository": args.repository,
+                "fixture_pin_note": "Before launch, verify the saved repository ref equals fixture_sha; a direct URL does not enforce this pin.",
+                "agent": args.agent, "runs": args.runs,
                 "cases": CASES, "skill_hashes": {}}
+    manifest["case_hashes"] = {c["name"]: hashlib.sha256(
+        json.dumps(c, sort_keys=True).encode()).hexdigest() for c in cases}
     for arm, sha in refs.items():
         dest = args.output / arm
         hashes = {}
@@ -84,10 +90,12 @@ def main():
             write_json(dest / "evals" / case["name"] / "case.yaml", case)
     judges = (ROOT / "evals/lightsage-judge.txt").read_text()
     for arm in ["none", "published", "candidate"]:
-        clis = [f"git -C /home/daytona/app checkout --quiet {FIXTURE_SHA}"]
+        # CLI installation can run before the fixture worktree exists. Pin the
+        # fixture through the saved repository's ref, not a checkout here.
+        clis = []
         if arm != "none":
             clis.append(install_command(refs[arm]))
-        request = {"name": f"CodeRabbit skills comparison: {arm}", "repository": FIXTURE,
+        request = {"name": f"CodeRabbit skills comparison: {arm}", "repository": args.repository,
                    "agent": [args.agent], "runs": args.runs,
                    "prompts": [c["execution"]["prompt"] for c in cases],
                    "judges": [judges], "clis": clis, "skills": [], "mcps": [],
@@ -97,6 +105,7 @@ def main():
     write_json(args.output / "manifest.json", manifest)
     print(f"Prepared {len(cases)} cases and 3 arms in {args.output.resolve()}")
     print(f"Lightsage fanout: {len(cases) * 3 * args.runs} attempts. Nothing launched.")
+    print(f"Before Lightsage launch, verify the saved repository ref is {FIXTURE_SHA}; a direct URL is unpinned.")
 
 
 if __name__ == "__main__":
