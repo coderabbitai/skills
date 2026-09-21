@@ -4,7 +4,9 @@ Check the installed command's `--help` before using newer features. Public refer
 
 ## Remote reviews without a checkout
 
-CLI 0.7.7+ supports `coderabbit review --remote owner/repo --base main --source-branch feature --agent`. Use the requested repository and refs; a GitHub HTTPS repository URL is also accepted. The source must be a branch or full 40-character commit SHA, not a tag. Check help/version before using these newer flags; an older binary needs an update, not an invented replacement command.
+CLI 0.7.7+ supports `coderabbit review --remote <owner/repo> --base <base-ref> --source-branch <source-ref> --agent`. Substitute the user's repository and refs literally; do not replace a requested base with a conventional branch name or copy values from an example. A GitHub HTTPS repository URL is also accepted. The source must be a branch or full 40-character commit SHA, not a tag. Check help/version before using these newer flags; an older binary needs an update, not an invented replacement command.
+
+Before presenting a runbook command, check its repository, base, source and local selectors against the request. If a value is not known yet (such as a tag's resolved SHA), use a clearly marked placeholder instead of inventing a realistic-looking value. Keep the same bindings in explanatory prose and any repeated command.
 
 This requires GitHub Cloud, a repository installed in the active CodeRabbit organization, and browser SaaS authentication or an Agentic API key. Private repositories also require repository read access. GitHub Enterprise, self-hosted CodeRabbit, and other providers are unsupported.
 
