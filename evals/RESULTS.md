@@ -2,7 +2,7 @@
 
 **The 90% per-group target is not met.** Candidate H improves the original
 native cases to 30/33 audited passes, but fresh and validation groups still
-fail. The later candidate I has only a focused 12/16 pilot; keep the PR draft.
+fail. The later candidate J has only a focused 12/16 pilot. Further experiments are paused; keep the PR draft.
 
 | Same original eleven cases | No skills | Iteration 2 | Full candidate H |
 |---|---:|---:|---:|
@@ -46,26 +46,46 @@ was falsely reported as analyzed-clean in H. Incorrect general outcome advice
 still counts as a quality failure. Zero observed critical failures is not a
 claim that future behavior is guaranteed safe.
 
-## Latest focused revision
+## Final focused pilots and closeout
 
-Candidate I passed **12/16 audited attempts** across eight failure-prone cases,
-two repeats each (raw 13/16). It clarified ignored remote config and merge-base
-comparisons, and made fix-only proposals omit injection warnings and payload
-recaps. The four sanitization attempts passed. Both initial-consent attempts
-still invented a confirmation flag and omitted full renewal guidance; both
-summary attempts exceeded the requested length. The correct remote answer was
-an automatic false negative. No new full validation was launched after this
-failed pilot, and the earlier H results do not qualify I.
+The current public skill candidate J (`0b128c6`) passed **12/16 audited
+attempts**, as did I before it. J improved initial-consent guidance but retained
+sentence-limit and payload-repetition failures. Neither is qualified by H's
+older full-run scores.
 
-The trace confirmed that invoked skills loaded the newly pinned body. Failed
-initial-consent attempts did not invoke the skill. Short-description rules
-improved some cases but did not consistently replace loading the full guidance.
-No host-specific routing hook has been added.
+| Later pilot | Audited passes | Critical failures |
+|---|---:|---:|
+| I: canonical refinement | 12/16 | 0 |
+| J: routing-focused description | 12/16 | 0 |
+| Isolated output skill | 9/12 | 0 |
+| Isolated combined explanation skill | 13/18 | 2 |
+| Isolated separate output and feedback skills | 16/24 | 0 |
+
+These focused development sets differ; their totals are not a controlled
+improvement estimate. All use Opus 4.6 with Sonnet 4.6 judges and retain
+manual audits of public answers and tool arguments. The combined prototype
+made two unsupported claims that no code was analyzed after heartbeat-only
+disconnects; these are critical false review-result claims. It was rejected.
+The final split prototype had five payload repetitions, two overlong summaries
+and one inconsistent excluded-thread count. Its raw 19/24 became 16/24 after
+audit; reported cost was $2.53. It did not establish a substantial overall gain.
+
+The prototypes remain isolated experiment artifacts: no new skills or routing
+hooks were added to this PR or installed. The traces support a discovery problem
+for short supplied-code questions: failed payload cases often skipped guidance.
+Explicitly loading guidance helped a diagnostic, but that prompted diagnostic
+is not acceptance evidence for automatic discovery.
+
+Experiments are paused. The 90% per-group, zero-critical-failure target is
+**not achieved**. No evaluation is left running. Preserve this draft and the
+pinned evidence; resuming requires a new candidate followed by full repeated,
+fresh-case and Lightsage validation. No further full run followed H.
 
 ## Provenance and methodology
 
 - Full candidate H: `7a83082fec914f1e444d9f5e2ab185e5a9be0136`.
-- Latest pilot I: `57f69e29c12349f9bc97c26a9c978f9e909dddc3`.
+- Latest public skill pilot J: `0b128c631a804fa0600c2c337c46f03feefcd9f6`.
+- Earlier pilot I: `57f69e29c12349f9bc97c26a9c978f9e909dddc3`.
 - Previous candidate: `10f97ce2c3aa8effc0b910f5a84f149d19515fd5`.
 - Public fixture: `Lightsage-Templates/vite-starter` at
   `570fcdb7a3f17e1c1a6e7f372ee2f3df4c28c8d5`, pinned through a saved repository.
