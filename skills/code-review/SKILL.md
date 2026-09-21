@@ -32,7 +32,7 @@ A terminal event and a successful, fully covered review are different claims. Do
 
 ### Interpret credit confirmation
 
-For `action_required` / `awaiting_confirmation`, state the billable-file count and quoted maximum price, then request explicit approval before rerunning the returned command with `--use-credits`. No consent is implied by wanting the review eventually. Approval covers only that review's current content: **changed content or a new review requires fresh approval**, even if the price is unchanged. Never carry the flag forward automatically.
+For `action_required` / `awaiting_confirmation`, state the billable-file count and quoted maximum price, then request explicit approval before rerunning the returned command with `--use-credits`. No consent is implied by wanting the review eventually. In the explanation, make both limits explicit: **changed content requires fresh approval, and starting another review requires fresh approval even for unchanged content or price**. Never carry the flag forward automatically.
 
 `confirmationHeadCommitId` identifies the quoted content; it is not a `--confirm` argument. Agent mode returns a decision to the caller instead of waiting for an interactive prompt. Quote the supported command for review; execute it only after spending is authorized. See [usage-based reviews and consent](https://docs.coderabbit.ai/cli#usage-based-reviews-and-consent).
 

@@ -14,7 +14,7 @@ Preserve the requested inputs when proposing an alternative:
 
 - If the request includes local untracked files or a directory restriction, propose a **local checkout review with those selectors**. Dropping them and filtering remote findings afterward neither reviews the local files nor preserves the requested review scope.
 - For a tag, resolve the underlying commit, including dereferencing an annotated tag, before supplying a full commit SHA. For example, in an existing checkout, `git rev-parse 'v2.0^{commit}'` resolves the commit; a raw tag-object SHA is not enough. Do not execute resolution commands for an advice-only request.
-- For the 300-file limit, report the limit and propose a user-chosen narrower ref comparison or an appropriate local review. Keep base and source distinct; changing either changes the reviewed range. Do not promise automatic splitting or that arbitrary directory partitions cover all requested changes.
+- For the 300-file limit, report the limit and propose a user-chosen narrower ref comparison or an appropriate local review. Keep base and source distinct; changing either changes the reviewed range. Local reviews have their own server/plan limits; do not promise unlimited local coverage. Do not promise automatic splitting or that arbitrary directory partitions cover all requested changes.
 
 ## Saved review output
 
