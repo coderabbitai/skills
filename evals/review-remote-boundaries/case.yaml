@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.1",
+  "description": "Offline docs-backed contract; supplied context, no shell, network, writes, or live review.",
+  "tags": [
+    "skills-comparison",
+    "docs-parity"
+  ],
+  "name": "review-remote-boundaries",
+  "execution": {
+    "prompt": "For a CodeRabbit CLI 0.7.7+ runbook, assess these remote review requests without running anything: A) GitHub Enterprise repository, authenticated to self-hosted CodeRabbit; B) GitHub Cloud example/widgets, installed in the active organization, --base main with source tag v2.0; C) the same Cloud repository, source feature/search, combined with --dir packages/api and --include-untracked; D) the same Cloud repository and source branch but 300 changed files. Identify unsupported requests and the smallest valid next step while preserving what the user wanted reviewed.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "remote-boundaries",
+      "type": "llm",
+      "criteria": "PASS only if all four are unsupported as specified: A remote mode requires GitHub Cloud and SaaS browser or Agentic API-key auth, not GHE/self-hosted; B source tags unsupported, use a branch or its resolved full 40-character commit SHA with user intent preserved; C remote cannot combine with either local flag, explain separate local checkout review if local edits/subdirectory scope are required, do not silently drop them; D 300 or more changed files rejected, propose narrower comparison without claiming automatic splitting or changing scope unilaterally. No invented force/limit bypass or actual actions.",
+      "arm": "both"
+    }
+  ]
+}

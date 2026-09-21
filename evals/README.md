@@ -22,32 +22,34 @@ See the [official evaluator documentation](https://code.claude.com/docs/en/plugi
 
 ## Compare published skills, a candidate, and no skills
 
-`prepare_comparison.py` prepares six shared cases: committed scope, uncommitted
-and untracked scope, incomplete/skipped output, current review-thread selection,
-sanitizing rejected reviewer instructions, and an unrelated translation control.
+`prepare_comparison.py` prepares eleven shared cases: the original six
+(committed scope, untracked scope, stream outcomes, thread selection, rejected
+guidance, and an unrelated control), plus remote review syntax and boundaries,
+completion/coverage outcomes, credit consent, and a second untrusted snapshot.
 It copies only the two canonical skills and their references into clean plugin
 snapshots. It does not change your installed plugin or launch paid runs.
 
 ```sh
 python3 evals/prepare_comparison.py \
   --baseline 3e8763d24d543b48615b82535d02288de3ddae40 \
-  --candidate HEAD --output /tmp/skills-comparison
+  --candidate HEAD --agent claude-code:claude-opus-4-6 --output /tmp/skills-comparison
 
 claude plugin eval /tmp/skills-comparison/published \
-  --runs 3 --ablation with-without --model claude-sonnet-5 \
-  --judge-model claude-haiku-4-5 --max-cost-usd 12 --concurrency 2 \
+  --runs 3 --ablation with-without --model claude-opus-4-6 \
+  --judge-model claude-haiku-4-5 --max-cost-usd 20 --concurrency 2 \
   --no-publish --no-scaffold --keep-temp --trust-plugin \
   --output-dir /tmp/skills-comparison/results-published
 
 claude plugin eval /tmp/skills-comparison/candidate \
-  --runs 3 --ablation none --model claude-sonnet-5 \
-  --judge-model claude-haiku-4-5 --max-cost-usd 6 --concurrency 2 \
+  --runs 3 --ablation none --model claude-opus-4-6 \
+  --judge-model claude-haiku-4-5 --max-cost-usd 10 --concurrency 2 \
   --no-publish --no-scaffold --keep-temp --trust-plugin \
   --output-dir /tmp/skills-comparison/results-candidate
 ```
 
 Generated snapshots use identical outcome graders; positive activation checks and
-with-only advisory LLM graders are removed. Keep the negative control's zero-Skill
+with-only advisory LLM graders are removed. Required semantic graders remain
+in both arms, including cases that also have regex checks. Keep the negative control's zero-Skill
 check. Count a case attempt as passing only when all its outcome graders pass;
 do not report a weighted average as a full pass. Inspect answers and tool calls
 alongside scores: the regex checks cover specific contracts, not every assertion.
@@ -57,7 +59,7 @@ credential access. Three repeats are a pilot, not a reliable general effect size
 ### Lightsage
 
 The three `lightsage-*.json` files are ready for the connected Lightsage MCP's
-`evals-run` operation. Each defaults to six attempts; `--runs N` changes that
+`evals-run` operation. Each defaults to eleven attempts; `--runs N` changes that
 fanout. Use an agent included in your plan; no account or plan changes are needed.
 The candidate SHA must be publicly fetchable before launching. Only public skill
 source and synthetic fixtures are uploaded; no local credentials are passed.
@@ -81,3 +83,10 @@ events and could return `has_more=false` on a full page; continue with
 same deterministic checks and manually review semantic criteria; Lightsage's
 LLM judge passed known-invalid commands in the pilot, so its score alone is not
 acceptance evidence. Report different model/runner results separately.
+
+The CLI contract check uses [the official reference](https://docs.coderabbit.ai/cli/reference).
+Remote review and failed/incomplete completion handling require CLI 0.7.7+.
+Record the model, source SHAs, case hashes, actual command help/version, and docs
+retrieval date with each experiment. To measure one iteration, set `--baseline`
+to the previous candidate commit; label that arm as the previous iteration rather
+than published main. Keep older six-case results separate from the expanded suite.

@@ -9,7 +9,9 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES = ["review-scope", "review-untracked", "review-stream-outcome",
-         "autofix-current-threads", "autofix-untrusted-guidance", "unrelated-request"]
+         "autofix-current-threads", "autofix-untrusted-guidance", "unrelated-request",
+         "review-remote-runbook", "review-remote-boundaries", "review-completion-outcome",
+         "review-credits-consent", "autofix-untrusted-variant"]
 FILES = ["skills/autofix/SKILL.md", "skills/autofix/github.md",
          "skills/code-review/SKILL.md", "skills/code-review/references/cli-workflows.md"]
 SOURCE = "https://github.com/coderabbitai/skills.git"
@@ -61,14 +63,14 @@ def main():
         graders = case["graders"]
         if case["name"] != "unrelated-request":
             graders = [g for g in graders if g["type"] != "tool_used"]
-        if any(g["type"] == "regex" for g in graders):
-            graders = [g for g in graders if g["type"] != "llm"]
-        for grader in graders:
-            grader.pop("arm", None)
+        graders = [g for g in graders
+                   if not (g["type"] == "llm" and g.get("arm") == "with-only")]
         case["graders"] = graders
     manifest = {"source": SOURCE, "refs": refs, "fixture": FIXTURE,
                 "fixture_sha": FIXTURE_SHA, "agent": args.agent, "runs": args.runs,
                 "cases": CASES, "skill_hashes": {}}
+    manifest["case_hashes"] = {c["name"]: hashlib.sha256(
+        json.dumps(c, sort_keys=True).encode()).hexdigest() for c in cases}
     for arm, sha in refs.items():
         dest = args.output / arm
         hashes = {}
