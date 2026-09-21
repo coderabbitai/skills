@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Answer CodeRabbit CLI questions and run reviews: syntax, scope, remote refs, saved output, status, auth and prompts. A disconnect without a terminal event leaves completion and coverage unknown; a skip means no analysis. For brief comparisons, use one sentence per run and one conclusion, within the requested limit. For action_required/awaiting_confirmation, state file count and maximum price, then get explicit approval, renewed for changed content or another review. confirmationHeadCommitId is metadata, never a --confirm flag. Load before interpreting output or writing a runbook, even when execution is forbidden; reading guidance does not run the CLI. PR comment/fix requests belong to autofix. Also use for explicit code/PR/quality/security reviews or when a review is needed."
+description: "Read before answering CodeRabbit CLI questions or interpreting saved output: credit quotes (action_required, awaiting_confirmation), heartbeat/completion transcripts, command syntax, scope, remote refs, auth and saved prompts. The full guidance is required even for a short answer or an advice-only request; reading it does not execute the CLI. Invoke without arguments and answer the original request, retaining its constraints. PR comment/fix requests belong to autofix. Also use for explicit code/PR/quality/security reviews or when a review is needed."
 metadata:
   version: "0.1.0"
 ---
