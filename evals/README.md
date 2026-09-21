@@ -64,7 +64,15 @@ fanout. Use an agent included in your plan; no account or plan changes are neede
 The candidate SHA must be publicly fetchable before launching. Only public skill
 source and synthetic fixtures are uploaded; no local credentials are passed.
 
-Installation pins both the public fixture and skill commit. Single-line `clis`
+Skill installation pins the skill commit. For the public fixture, create a saved
+Lightsage repository with `ref` set to
+`570fcdb7a3f17e1c1a6e7f372ee2f3df4c28c8d5`, verify that saved ref before launch,
+and pass its ID to `prepare_comparison.py --repository <repository-id>`, or use
+a saved configuration referencing it. The default direct URL does not enforce
+the fixture pin. Do not run a fixture `git checkout` in `clis`: that installation
+stage can precede workspace creation and made all attempts fail before agent output.
+
+Single-line `clis`
 installation commands copy skills to both `/home/daytona/.claude/skills` and the
 repository's `.claude/skills`: the observed runner starts in `/home/daytona`.
 `setup_commands` was accepted but did not run in the tested direct-run path.
