@@ -63,7 +63,7 @@ def main():
     case_names = list(CASES)
     if args.suite == "extended":
         case_names += sorted(p.parent.name for p in (ROOT / "evals").glob("*/case.yaml")
-                             if p.parent.name.startswith(("fresh-", "validation-")))
+                             if p.parent.name.startswith(("fresh-", "validation-", "holdout-")))
     cases = [json.loads((ROOT / "evals" / name / "case.yaml").read_text()) for name in case_names]
     # Use identical outcome graders in both plugin snapshots. Activation is a
     # separate trace diagnostic, except the negative-control zero-call contract.

@@ -29,10 +29,12 @@ completion/coverage outcomes, credit consent, and a second untrusted snapshot.
 It copies only the two canonical skills and their references into clean plugin
 snapshots. It does not change your installed plugin or launch paid runs.
 
-Use `--suite extended` to include the eight `fresh-*` development cases and four
-`validation-*` cases added in the next iteration (23 cases total). The validation
+Use `--suite extended` to include the eight `fresh-*` development cases, four
+`validation-*` cases and four `holdout-*` cases (27 cases total). The validation
 cases were first evaluated after freezing that candidate; once used for tuning,
-they are no longer an untouched set. Preserve their hashes and author new cases
+they are no longer an untouched set. The four `holdout-*` prompts were authored
+after freezing candidate `942b075` and were not used to choose its changes.
+Preserve their hashes and author new cases
 before claiming another fresh validation. Native runs evaluate all selected
 cases; Lightsage requests are split into batches of at most 20 prompts, with
 case mappings in `manifest.json`.
