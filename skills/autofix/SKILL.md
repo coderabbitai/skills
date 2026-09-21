@@ -162,7 +162,7 @@ After all fixes, display summary of fixed/skipped issues.
 
 ### Step 7: Create Single Consolidated Commit
 
-If any fixes were applied:
+If fixes were applied and committing is authorized by the user or applicable repository instructions:
 
 ```bash
 git add <all-changed-files>
@@ -181,7 +181,7 @@ If a consolidated commit was created:
 ### Step 9: Push Changes
 
 If a consolidated commit was created:
-- Ask: "Push changes?" → If yes: `git push`
+- If pushing is already authorized, run `git push`; otherwise ask before pushing.
 
 If all deferred (no commit): Skip this step.
 
