@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Answer CodeRabbit CLI questions and run reviews: command syntax, scope, remote refs, saved JSON/transcripts, heartbeat or completion status, authentication, and saved prompts. Required for action_required/awaiting_confirmation credit quotes: state billable-file count and maximum price, then request explicit spending approval, renewed for changed content or another review; never invent confirmation flags. Load before interpreting CLI output or writing a runbook, even when execution is forbidden; loading guidance does not run the CLI. PR comment/fix requests belong to autofix. Also use for explicit code/PR/quality/security review requests or when a review is needed."
+description: "Answer CodeRabbit CLI questions and run reviews: syntax, scope, remote refs, saved output, status, auth and prompts. A disconnect without a terminal event leaves server completion and coverage unknown; a skip means no analysis. Preserve that distinction per run. For action_required/awaiting_confirmation quotes, state billable-file count and maximum price, then request explicit spending approval, renewed for changed content or another review; never invent confirmation flags. Load before interpreting CLI output or writing a runbook, even when execution is forbidden; loading guidance does not run the CLI. PR comment/fix requests belong to autofix. Also use for explicit code/PR/quality/security review requests or when a review is needed."
 metadata:
   version: "0.1.0"
 ---
@@ -31,6 +31,8 @@ Separate what was observed from what is unknown:
 A terminal event and a successful, fully covered review are different claims. Do not infer either from a heartbeat or the absence of findings.
 
 Keep conclusions per run, including in the closing summary. Combining an interrupted run with a skipped run must not turn the interrupted run's unknown coverage into "neither analyzed any code" or "the entire diff was unreviewed." Check that the summary preserves each row's known and unknown facts.
+
+For a brief transcript summary, give each run's result and remaining uncertainty once, within the user's requested length. Do not add a redundant recap that changes the meaning or exceeds that limit.
 
 ### Interpret credit confirmation
 
