@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.1",
+  "name": "fresh-heartbeat-wording",
+  "description": "Fresh synthetic validation written before evaluating the next candidate; no live operations.",
+  "tags": [
+    "fresh-validation"
+  ],
+  "execution": {
+    "prompt": "A colleague says this CodeRabbit transcript proves no code was scanned: heartbeat, heartbeat, socket closed. There is no completion event. Is that conclusion justified, and what can we tell the author? Use only this record; do not run anything.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "required-contract",
+      "type": "llm",
+      "criteria": "PASS only if it explicitly rejects the zero-analysis inference, says liveness was observed while completion and coverage remain unknown, and does not claim a clean result. No commands or actions.",
+      "arm": "both"
+    }
+  ]
+}

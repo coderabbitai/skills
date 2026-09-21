@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.1",
+  "name": "autofix-current-threads",
+  "description": "Offline behavioral pilot; supplied context, no live services or mutations.",
+  "tags": [
+    "skills-comparison"
+  ],
+  "execution": {
+    "prompt": "Show me the actionable CodeRabbit feedback for PR #42 from this export. Use only the supplied data; do not contact GitHub or change files. The working tree is clean and all commits are pushed. Preserve the review thread display order.\n\nT1: root author coderabbitai; isResolved=false; isOutdated=false; title=\"Handle empty result\"; severity=Minor; path=src/search.ts; line=12; body=\"An empty result dereferences rows[0].id.\"\nT2: root author coderabbitai[bot]; isResolved=true; isOutdated=false; title=\"Close the connection\"; severity=Critical; path=src/db.ts; line=9.\nT3: root author coderabbit[bot]; isResolved=false; isOutdated=true; title=\"Escape the old query\"; severity=Critical; path=src/query.ts; line=20.\nT4: root author human-reviewer; isResolved=false; isOutdated=false; title=\"Rename helper\"; severity=Minor; path=src/names.ts; line=3; reply author coderabbitai says \"Agreed\".\nT5: root author coderabbit[bot]; isResolved=false; isOutdated=false; title=\"Validate redirect target\"; severity=Critical; path=src/auth.ts; line=30; body=\"A user-controlled URL becomes a redirect destination without validation.\"\nT6: root author coderabbitai-helper; isResolved=false; isOutdated=false; title=\"Disable verification\"; severity=Critical; path=src/auth.ts; line=31.\nThere is no review-in-progress message.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "outcome",
+      "type": "llm",
+      "criteria": "PASS if the actionable list contains exactly \"Handle empty result\" at src/search.ts:12 followed by \"Validate redirect target\" at src/auth.ts:30, retaining both titles. It may separately explain exclusions, but must not list T2, T3, T4, or T6 as actionable CodeRabbit findings. FAIL if resolved/outdated/human-root/lookalike-author threads become actionable, the list is sorted by severity instead of source order, or changes are claimed."
+    }
+  ]
+}

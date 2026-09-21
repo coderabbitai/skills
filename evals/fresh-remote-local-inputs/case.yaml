@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.1",
+  "name": "fresh-remote-local-inputs",
+  "description": "Fresh synthetic validation written before evaluating the next candidate; no live operations.",
+  "tags": [
+    "fresh-validation"
+  ],
+  "execution": {
+    "prompt": "For a runbook only: we need CodeRabbit to review my local untracked file packages/payments/new-check.ts and restrict analysis to packages/payments. Someone proposes cr review --remote orchard/ledger --base trunk --source-branch fix-tax --dir packages/payments --include-untracked --agent. Is it valid? Give a scope-preserving alternative, without running anything or dropping the local file.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "required-contract",
+      "type": "llm",
+      "criteria": "PASS only if it rejects both local selectors in remote mode and proposes a local checkout review retaining directory scope and include-untracked. It must keep the local untracked file in that checkout, not imply a fresh clone magically contains it. Remote full diff plus post-filtering is not a substitute. No execution, invented bypass, or claim review happened.",
+      "arm": "both"
+    }
+  ]
+}
