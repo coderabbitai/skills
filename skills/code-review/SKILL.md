@@ -11,7 +11,7 @@ AI-powered code review using CodeRabbit. Enables developers to implement feature
 
 ## Choose the task before taking action
 
-- **Explain a command, saved output, or confirmation request:** use the supplied evidence and the rules below. Do not enter installation, authentication, or live-review steps. Reading this skill does not authorize a review or spending.
+- **Explain a command, saved output, or confirmation request:** use the supplied evidence and the rules below. List prerequisite commands without running them unless execution was requested. Do not enter installation, authentication, or live-review steps. Reading this skill does not authorize a review or spending.
 - **Run a local review:** follow How to Review and preserve the requested Git scope.
 - **Run or explain a remote review:** read [remote requirements](references/cli-workflows.md#remote-reviews-without-a-checkout). Local selectors are not interchangeable with remote refs.
 - **Summarize or fix existing PR comments:** use the autofix workflow when available; do not start another review to explain supplied feedback.
@@ -92,7 +92,7 @@ coderabbit review --agent
 
 Run the review directly; the CLI starts browser authentication when needed, including a local callback flow in agent mode. Honor explicit no-login restrictions. If the execution environment hides host credentials or cannot open the callback, use the supported host execution path or hand off `coderabbit auth login`; do not read credential files or request pasted tokens. A sandbox authentication failure alone does not prove the user is logged out on the host.
 
-If the user asks to review a specific directory, append `--dir <path>`. The directory must be inside an initialized Git working tree.
+If the user asks to review a specific directory, append `--dir <path>`. It restricts all selected Git changes to that directory, including untracked files when requested; it is not just a working-directory switch. The directory must be inside an initialized Git working tree.
 
 ```bash
 coderabbit review --agent --dir path/to/directory
@@ -109,10 +109,12 @@ coderabbit review --agent --dir path/to/directory
 | `--light` | Reduce review context; changes review policy, not output format |
 | `--base main`     | Compare against specific branch                                           |
 | `--base-commit`   | Compare against specific commit hash                                      |
-| `--dir <path>`    | Review directory path; must be inside an initialized Git working tree     |
+| `--dir <path>`    | Restrict all selected changes to this directory inside a Git working tree |
 | `--agent`         | Agent-readable review output and fix guidance                             |
 
 Default scope includes committed, staged, and tracked unstaged changes; raw untracked files are excluded, while staged new files are included. `--include-untracked` also works by itself with the default scope: `coderabbit review --agent --include-untracked` reviews those tracked changes plus non-ignored untracked files. It does not require `--uncommitted`. `--committed` and `--uncommitted` conflict. Preserve the requested scope on retries; do not silently narrow it after a file-limit error. Use the named scope flags in new commands; `-t/--type` is hidden compatibility syntax.
+
+Directory, base, and change-type selectors compose. Adding `--include-untracked` does not remove an existing `--dir` or `--base`; do not stage, ignore, or remove unrelated files as a substitute for directory scope. Before presenting the command, verify each requested selector is retained.
 
 **Shorthand:** `cr` is an alias for `coderabbit`:
 
