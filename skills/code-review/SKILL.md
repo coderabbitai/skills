@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Answer CodeRabbit CLI questions and run reviews: command syntax, scope, remote refs, saved JSON/transcripts, heartbeat or completion status, authentication, and saved prompts. Required for action_required/awaiting_confirmation credit quotes: request explicit spending approval, renewed for changed content or another review; never invent confirmation flags. Load before interpreting CLI output or writing a runbook, even when execution is forbidden; loading guidance does not run the CLI. PR comment/fix requests belong to autofix. Also use for explicit code/PR/quality/security review requests or when a review is needed."
+description: "Answer CodeRabbit CLI questions and run reviews: command syntax, scope, remote refs, saved JSON/transcripts, heartbeat or completion status, authentication, and saved prompts. Required for action_required/awaiting_confirmation credit quotes: state billable-file count and maximum price, then request explicit spending approval, renewed for changed content or another review; never invent confirmation flags. Load before interpreting CLI output or writing a runbook, even when execution is forbidden; loading guidance does not run the CLI. PR comment/fix requests belong to autofix. Also use for explicit code/PR/quality/security review requests or when a review is needed."
 metadata:
   version: "0.1.0"
 ---
