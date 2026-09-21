@@ -62,7 +62,9 @@ Where `type`, `base`, and `dir` come from `$ARGUMENTS`:
 
 Raw untracked files are excluded by default; staged new files are included. Add `--include-untracked` only when requested; it conflicts with `--committed` but can combine with `--uncommitted`. Never combine committed and uncommitted selectors or silently shrink the requested scope.
 
-Append any requested `--include-untracked`, `--light`, or `--base-commit <commit>` option to the argument array; do not discard these when translating `$ARGUMENTS`. Add `--base <branch>` only when a base branch is specified.
+Append any requested `--include-untracked`, `--deep`, `--light`, or `--base-commit <commit>` option to the argument array; do not discard these when translating `$ARGUMENTS`. Add `--base <branch>` only when a base branch is specified.
+`--deep` is a boolean option available in CLI 0.8.0 with a compatible server; it selects the GitHub PR review policy. Do not drop it or fall back to normal review when unavailable; explain the required update. Legacy `--light` is accepted as a normal-review alias in 0.8.0; `--deep` wins if both are requested.
+
 Add `--dir <path>` only when a review directory is specified. The directory must be inside an initialized Git working tree; verify it first:
 
 ```bash
