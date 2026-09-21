@@ -30,6 +30,8 @@ Separate what was observed from what is unknown:
 
 A terminal event and a successful, fully covered review are different claims. Do not infer either from a heartbeat or the absence of findings.
 
+Keep conclusions per run, including in the closing summary. Combining an interrupted run with a skipped run must not turn the interrupted run's unknown coverage into "neither analyzed any code" or "the entire diff was unreviewed." Check that the summary preserves each row's known and unknown facts.
+
 ### Interpret credit confirmation
 
 For `action_required` / `awaiting_confirmation`, state the billable-file count and quoted maximum price, then request explicit approval before rerunning the returned command with `--use-credits`. No consent is implied by wanting the review eventually. In the explanation, make both limits explicit: **changed content requires fresh approval, and starting another review requires fresh approval even for unchanged content or price**. Never carry the flag forward automatically.
