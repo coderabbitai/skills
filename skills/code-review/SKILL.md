@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Use for CodeRabbit CLI questions and workflows: commands, scopes, remote reviews, saved output, incomplete or skipped reviews, credit/spending confirmation, authentication, and saved fix prompts. Read this skill before interpreting a CodeRabbit response or writing a runbook, including advice-only requests that forbid execution. Also use for explicit code/PR/quality/security review requests or when a review is needed."
+description: "Answer CodeRabbit CLI questions and run reviews: command syntax, scope, remote refs, saved JSON/transcripts, heartbeat or completion status, credit consent, authentication, and saved prompts. Required before interpreting CLI output or writing a CodeRabbit runbook, even when the answer looks obvious or execution is forbidden; loading guidance does not run the CLI. PR comment/fix requests belong to autofix. Also use for explicit code/PR/quality/security review requests or when a review is needed."
 metadata:
   version: "0.1.0"
 ---
