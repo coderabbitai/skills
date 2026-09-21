@@ -30,12 +30,15 @@ It copies only the two canonical skills and their references into clean plugin
 snapshots. It does not change your installed plugin or launch paid runs.
 
 Use `--suite extended` to include the eight `fresh-*` development cases, four
-`validation-*` cases and eight `holdout-*` cases (31 cases total). The validation
+`validation-*` cases and twelve `holdout-*` cases (35 cases total). The validation
 cases were first evaluated after freezing that candidate; once used for tuning,
 they are no longer an untouched set. The four `holdout-*` prompts were authored
 after freezing candidate `942b075` and were not used to choose its changes.
 Four subsequent `holdout-g-*` prompts were authored after freezing `06c471b`,
 including a mixed-transcript summary and a secret-safe runbook check.
+Four `holdout-h-*` prompts were authored after freezing `7a83082`, including
+already-granted spending approval, retained partial findings, payload sanitization,
+and local base-commit scope.
 Preserve their hashes and author new cases
 before claiming another fresh validation. Native runs evaluate all selected
 cases; Lightsage requests are split into batches of at most 20 prompts, with
@@ -104,7 +107,13 @@ account budget before launching; the native commands above have explicit caps.
 
 Fetch `evals-trace` pages until exhausted. The tested endpoint capped pages at 500
 events and could return `has_more=false` on a full page; continue with
-`next_after_id` when a page is full. Keep tool calls and assistant text. Run the
+`next_after_id` when a page is full. Keep tool calls and assistant text. Split repeated `Starting eval` events into
+separate executions: the provider can rerun a prompt under the same child job ID.
+Retain every observed action; never choose the best answer from a retry. Separate
+empty/incomplete infrastructure executions from completed answers, while still
+auditing actions they emitted. The tested service also injects a no-clarification
+policy and optional artifact/validation guidance, so its environment differs from
+the native runner. Run the
 same deterministic checks and manually review semantic criteria; Lightsage's
 LLM judge passed known-invalid commands in the pilot, so its score alone is not
 acceptance evidence. Report different model/runner results separately.
