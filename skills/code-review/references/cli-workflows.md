@@ -10,6 +10,8 @@ Before presenting a runbook command, check its repository, base, source and loca
 
 This requires GitHub Cloud, a repository installed in the active CodeRabbit organization, and browser SaaS authentication or an Agentic API key. Private repositories also require repository read access. GitHub Enterprise, self-hosted CodeRabbit, and other providers are unsupported.
 
+The server compares the source against its merge base with the requested base ref and reads repository content at the resolved source commit. Do not describe this as a direct diff between the two branch tips (`base..source`).
+
 Do not combine remote mode with `--dir`, `--committed`, `--uncommitted`, `--include-untracked`, `--base-commit`, or `--show-prompts`. Local `--config` files are ignored; repository configuration is read at the reviewed source. No local files are uploaded, no checkout is required, and remote results do not create local findings history. Comparisons with 300 or more changed files are rejected; propose a narrower comparison without silently changing requested scope. See the [remote review contract](https://docs.coderabbit.ai/cli/reference#remote-reviews-without-a-checkout).
 
 Keep ignored configuration distinct from rejected selectors: local `--config` is accepted but has no effect in remote mode. Do not list it as an incompatible flag or claim the command rejects it.
