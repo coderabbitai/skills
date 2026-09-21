@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Answer CodeRabbit CLI questions and run reviews: syntax, scope, remote refs, saved output, status, auth and prompts. A disconnect without a terminal event leaves server completion and coverage unknown; a skip means no analysis. Preserve that distinction per run. For action_required/awaiting_confirmation quotes, state billable-file count and maximum price, then request explicit spending approval, renewed for changed content or another review; never invent confirmation flags. Load before interpreting CLI output or writing a runbook, even when execution is forbidden; loading guidance does not run the CLI. PR comment/fix requests belong to autofix. Also use for explicit code/PR/quality/security review requests or when a review is needed."
+description: "Answer CodeRabbit CLI questions and run reviews: syntax, scope, remote refs, saved output, status, auth and prompts. A disconnect without a terminal event leaves completion and coverage unknown; a skip means no analysis. For brief comparisons, use one sentence per run and one conclusion, within the requested limit. For action_required/awaiting_confirmation, state file count and maximum price, then get explicit approval, renewed for changed content or another review. confirmationHeadCommitId is metadata, never a --confirm flag. Load before interpreting output or writing a runbook, even when execution is forbidden; reading guidance does not run the CLI. PR comment/fix requests belong to autofix. Also use for explicit code/PR/quality/security reviews or when a review is needed."
 metadata:
   version: "0.1.0"
 ---
@@ -11,7 +11,7 @@ AI-powered code review using CodeRabbit. Enables developers to implement feature
 
 ## Choose the task before taking action
 
-- **Explain a command, saved output, or confirmation request:** use the supplied evidence and the rules below. Keep a runbook to the requested steps; list prerequisite commands without running them unless execution was requested. CodeRabbit flags belong on `coderabbit`/`cr` commands, not on Git commands. Do not enter installation, authentication, or live-review steps. Reading this skill does not authorize a review or spending.
+- **Explain a command, saved output, or confirmation request:** use the supplied evidence and the rules below. Keep a runbook to the requested steps; list prerequisite commands without running them unless execution was requested. Do not append result-interpretation or retry tutorials unless requested. CodeRabbit flags belong on `coderabbit`/`cr` commands, not on Git commands. Do not enter installation, authentication, or live-review steps. Reading this skill does not authorize a review or spending.
 - **Run a local review:** follow How to Review and preserve the requested Git scope.
 - **Run or explain a remote review:** read [remote requirements](references/cli-workflows.md#remote-reviews-without-a-checkout). Local selectors are not interchangeable with remote refs.
 - **Summarize or fix existing PR comments:** use the autofix workflow when available; do not start another review to explain supplied feedback.

@@ -12,6 +12,8 @@ This requires GitHub Cloud, a repository installed in the active CodeRabbit orga
 
 Do not combine remote mode with `--dir`, `--committed`, `--uncommitted`, `--include-untracked`, `--base-commit`, or `--show-prompts`. Local `--config` files are ignored; repository configuration is read at the reviewed source. No local files are uploaded, no checkout is required, and remote results do not create local findings history. Comparisons with 300 or more changed files are rejected; propose a narrower comparison without silently changing requested scope. See the [remote review contract](https://docs.coderabbit.ai/cli/reference#remote-reviews-without-a-checkout).
 
+Keep ignored configuration distinct from rejected selectors: local `--config` is accepted but has no effect in remote mode. Do not list it as an incompatible flag or claim the command rejects it.
+
 Preserve the requested inputs when proposing an alternative:
 
 - If the request includes local untracked files or a directory restriction, propose a **local checkout review with those selectors**. Preserve the original base, and require the checkout to represent the requested source branch/commit and contain the local-only files. A fresh clone does not contain existing untracked files. Dropping selectors or post-filtering remote findings neither reviews those files nor preserves the requested scope.
