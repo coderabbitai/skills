@@ -51,6 +51,8 @@ def main():
     parser.add_argument("--repository", default=FIXTURE,
                         help="Lightsage repository URL or saved repository ID; use a saved repository with its ref pinned")
     parser.add_argument("--runs", type=int, default=1, help="Lightsage repeats per case")
+    parser.add_argument("--suite", choices=["core", "extended"], default="core",
+                        help="Core eleven cases, or core plus fresh and validation cases")
     args = parser.parse_args()
     if args.runs < 1:
         parser.error("--runs must be positive")
@@ -58,7 +60,11 @@ def main():
         parser.error("--output must not exist; keep earlier experiment evidence")
     refs = {arm: git("rev-parse", "--verify", ref + "^{commit}").decode().strip()
             for arm, ref in [("published", args.baseline), ("candidate", args.candidate)]}
-    cases = [json.loads((ROOT / "evals" / name / "case.yaml").read_text()) for name in CASES]
+    case_names = list(CASES)
+    if args.suite == "extended":
+        case_names += sorted(p.parent.name for p in (ROOT / "evals").glob("*/case.yaml")
+                             if p.parent.name.startswith(("fresh-", "validation-")))
+    cases = [json.loads((ROOT / "evals" / name / "case.yaml").read_text()) for name in case_names]
     # Use identical outcome graders in both plugin snapshots. Activation is a
     # separate trace diagnostic, except the negative-control zero-call contract.
     for case in cases:
@@ -72,7 +78,7 @@ def main():
                 "fixture_sha": FIXTURE_SHA, "repository": args.repository,
                 "fixture_pin_note": "Before launch, verify the saved repository ref equals fixture_sha; a direct URL does not enforce this pin.",
                 "agent": args.agent, "runs": args.runs,
-                "cases": CASES, "skill_hashes": {}}
+                "cases": case_names, "skill_hashes": {}, "lightsage_batches": {}}
     manifest["case_hashes"] = {c["name"]: hashlib.sha256(
         json.dumps(c, sort_keys=True).encode()).hexdigest() for c in cases}
     for arm, sha in refs.items():
@@ -101,7 +107,13 @@ def main():
                    "judges": [judges], "clis": clis, "skills": [], "mcps": [],
                    "setup_commands": [], "cleanup_commands": [],
                    "tags": ["coderabbit-skills", "offline", "pinned-source"]}
-        write_json(args.output / f"lightsage-{arm}.json", {"request": request})
+        # The current Lightsage endpoint accepts at most twenty prompts per run.
+        for start in range(0, len(cases), 20):
+            suffix = "" if len(cases) <= 20 else f"-{start // 20 + 1}"
+            filename = f"lightsage-{arm}{suffix}.json"
+            batch = {**request, "prompts": request["prompts"][start:start + 20]}
+            write_json(args.output / filename, {"request": batch})
+            manifest["lightsage_batches"][filename] = case_names[start:start + 20]
     write_json(args.output / "manifest.json", manifest)
     print(f"Prepared {len(cases)} cases and 3 arms in {args.output.resolve()}")
     print(f"Lightsage fanout: {len(cases) * 3 * args.runs} attempts. Nothing launched.")

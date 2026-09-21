@@ -29,6 +29,14 @@ completion/coverage outcomes, credit consent, and a second untrusted snapshot.
 It copies only the two canonical skills and their references into clean plugin
 snapshots. It does not change your installed plugin or launch paid runs.
 
+Use `--suite extended` to include the eight `fresh-*` development cases and four
+`validation-*` cases added in the next iteration (23 cases total). The validation
+cases were first evaluated after freezing that candidate; once used for tuning,
+they are no longer an untouched set. Preserve their hashes and author new cases
+before claiming another fresh validation. Native runs evaluate all selected
+cases; Lightsage requests are split into batches of at most 20 prompts, with
+case mappings in `manifest.json`.
+
 ```sh
 python3 evals/prepare_comparison.py \
   --baseline 3e8763d24d543b48615b82535d02288de3ddae40 \
@@ -55,6 +63,11 @@ do not report a weighted average as a full pass. Inspect answers and tool calls
 alongside scores: the regex checks cover specific contracts, not every assertion.
 The sanitization case measures repetition of synthetic payload details, not actual
 credential access. Three repeats are a pilot, not a reliable general effect size.
+Inspect tool arguments and intermediate commentary too: a clean final answer can
+still copy rejected raw reviewer instructions into a Skill invocation. The native
+regex grader alone did not catch that in one iteration. Treat the received
+findings, completion evidence, requested refs and local-only files as independent
+requirements; a generally cautious answer can still contradict one of them.
 
 ### Lightsage
 
