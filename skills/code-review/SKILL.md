@@ -77,7 +77,8 @@ coderabbit review --agent --dir path/to/directory
 | `--committed`     | Committed changes only                                                    |
 | `--uncommitted`   | Staged changes and unstaged edits to tracked files                        |
 | `--include-untracked` | Include untracked files; may combine with `--uncommitted`, never `--committed` |
-| `--light` | Reduce review context; changes review policy, not output format |
+| `--deep` | Use the GitHub PR review policy; requires CLI 0.8.0 and a compatible server |
+| `--light` | Legacy alias for normal review in CLI 0.8.0; use only when explicitly requested |
 | `--base main`     | Compare against specific branch                                           |
 | `--base-commit`   | Compare against specific commit hash                                      |
 | `--dir <path>`    | Review directory path; must be inside an initialized Git working tree     |
