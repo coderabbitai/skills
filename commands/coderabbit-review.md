@@ -40,21 +40,31 @@ coderabbit --version 2>/dev/null
 
 Once prerequisites are met, run review directly; it starts browser authentication when needed. Honor no-login restrictions and use the host flow if a sandbox hides credentials; never read credential files or request pasted tokens.
 
+Parse `$ARGUMENTS` before running the CLI. Accept only the supported options below, preserve each supplied value exactly, and never evaluate the argument text as shell input. Map the result to `review_type` (`all` by default), boolean `include_untracked`, `deep`, and `light` values, plus optional `base`, `base_commit`, and `dir` values. Then build the explicit `args` array:
+
 ```bash
-# type defaults to "all"; use a public scope option only when requested
 args=(review --agent)
-case "${type:-all}" in
+case "${review_type:-all}" in
   committed) args+=(--committed) ;;
   uncommitted) args+=(--uncommitted) ;;
   all) ;;
-  *) printf 'Unsupported review type: %s\n' "$type" >&2; exit 2 ;;
+  *) printf 'Unsupported review type: %s\n' "$review_type" >&2; exit 2 ;;
 esac
+[ "$include_untracked" = true ] && args+=(--include-untracked)
 [ -n "${base:-}" ] && args+=(--base "$base")
+[ -n "${base_commit:-}" ] && args+=(--base-commit "$base_commit")
+if [ "$deep" = true ]; then
+  args+=(--deep)
+elif [ "$light" = true ]; then
+  args+=(--light)
+fi
 [ -n "${dir:-}" ] && args+=(--dir "$dir")
 coderabbit "${args[@]}"
 ```
 
-Where `type`, `base`, and `dir` come from `$ARGUMENTS`:
+Reject unsupported options and missing option values before invoking `coderabbit`. If both `--deep` and `--light` are present, append only `--deep` so the required precedence is explicit. Do not silently discard a supported option while translating `$ARGUMENTS`.
+
+The review type in `$ARGUMENTS` may be:
 
 - `all` (default) - All tracked changes
 - `committed` - Committed changes only
