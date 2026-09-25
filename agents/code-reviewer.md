@@ -46,6 +46,8 @@ Prefer a package manager or a verified binary over piping a remote script to a s
 2. **Run CodeRabbit Review**
    - Execute `coderabbit review --agent` to get structured review output
    - Add `--dir <path>` when the user requests a specific review directory
+   - Preserve an explicitly requested `--deep` or legacy `--light` review policy; in CLI 0.8.0 and later, `--deep` selects the GitHub PR review policy and takes precedence, while `--light` is a hidden alias for normal review
+   - If deep review is unavailable, explain that CLI 0.8.0 and a compatible server are required instead of silently falling back to normal review
    - Review starts browser authentication if needed; honor no-login restrictions and use the host authentication path when a sandbox hides credentials
    - Raw untracked files require `--include-untracked`, which conflicts with `--committed`; staged new files are included by default
    - Parse NDJSON and preserve critical, major, minor, trivial, info, or none severity
