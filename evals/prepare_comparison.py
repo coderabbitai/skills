@@ -12,8 +12,7 @@ CASES = ["review-scope", "review-untracked", "review-stream-outcome",
          "autofix-current-threads", "autofix-untrusted-guidance", "unrelated-request",
          "review-remote-runbook", "review-remote-boundaries", "review-completion-outcome",
          "review-credits-consent", "autofix-untrusted-variant"]
-FILES = ["skills/autofix/SKILL.md", "skills/autofix/github.md",
-         "skills/code-review/SKILL.md", "skills/code-review/references/cli-workflows.md"]
+SKILL_DIRS = ["skills/autofix", "skills/code-review"]
 SOURCE = "https://github.com/coderabbitai/skills.git"
 FIXTURE = "https://github.com/Lightsage-Templates/vite-starter"
 FIXTURE_SHA = "570fcdb7a3f17e1c1a6e7f372ee2f3df4c28c8d5"
@@ -26,6 +25,16 @@ def git(*args):
 def write_json(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2) + "\n")
+
+
+def saved_repository(record):
+    """Validate exported repository metadata; this is not a live API check."""
+    identifier = record.get("id")
+    if not isinstance(identifier, str) or not identifier.strip() or "://" in identifier:
+        raise ValueError("saved repository metadata must contain an ID, not a URL")
+    if record.get("url") != FIXTURE or record.get("ref") != FIXTURE_SHA:
+        raise ValueError("saved repository URL and ref must match the public pinned fixture")
+    return identifier
 
 
 def install_command(sha):
@@ -48,8 +57,8 @@ def main():
     parser.add_argument("--candidate", default="HEAD", help="Candidate source commit")
     parser.add_argument("--output", type=Path, required=True, help="New output directory")
     parser.add_argument("--agent", default="claude-code:claude-sonnet-4-6")
-    parser.add_argument("--repository", default=FIXTURE,
-                        help="Lightsage repository URL or saved repository ID; use a saved repository with its ref pinned")
+    parser.add_argument("--repository-record", type=Path,
+                        help="Exported saved repository JSON with id, url and exact ref; omit for local snapshots only")
     parser.add_argument("--runs", type=int, default=1, help="Lightsage repeats per case")
     parser.add_argument("--suite", choices=["core", "extended"], default="core",
                         help="Core eleven cases, or core plus fresh and validation cases")
@@ -58,6 +67,15 @@ def main():
         parser.error("--runs must be positive")
     if args.output.exists():
         parser.error("--output must not exist; keep earlier experiment evidence")
+    repository = None
+    repository_record_hash = None
+    if args.repository_record:
+        try:
+            record_bytes = args.repository_record.read_bytes()
+            repository = saved_repository(json.loads(record_bytes))
+            repository_record_hash = hashlib.sha256(record_bytes).hexdigest()
+        except (OSError, ValueError, AttributeError) as error:
+            parser.error(str(error))
     refs = {arm: git("rev-parse", "--verify", ref + "^{commit}").decode().strip()
             for arm, ref in [("published", args.baseline), ("candidate", args.candidate)]}
     case_names = list(CASES)
@@ -70,13 +88,16 @@ def main():
     for case in cases:
         graders = case["graders"]
         if case["name"] != "unrelated-request":
-            graders = [g for g in graders if g["type"] != "tool_used"]
+            graders = [g for g in graders
+                       if not (g["type"] == "tool_used" and g.get("tool") == "Skill"
+                               and g.get("max") != 0)]
         graders = [g for g in graders
                    if not (g["type"] == "llm" and g.get("arm") == "with-only")]
         case["graders"] = graders
     manifest = {"source": SOURCE, "refs": refs, "fixture": FIXTURE,
-                "fixture_sha": FIXTURE_SHA, "repository": args.repository,
-                "fixture_pin_note": "Before launch, verify the saved repository ref equals fixture_sha; a direct URL does not enforce this pin.",
+                "fixture_sha": FIXTURE_SHA, "repository": repository,
+                "repository_record_sha256": repository_record_hash,
+                "fixture_pin_note": "Exported metadata is checked offline. Recheck the saved repository's current ref in the dashboard before launch.",
                 "agent": args.agent, "runs": args.runs,
                 "cases": case_names, "skill_hashes": {}, "lightsage_batches": {}}
     manifest["case_hashes"] = {c["name"]: hashlib.sha256(
@@ -84,7 +105,9 @@ def main():
     for arm, sha in refs.items():
         dest = args.output / arm
         hashes = {}
-        for name in FILES:
+        # Copy references added by either revision, not just a stale fixed list.
+        names = git("ls-tree", "-r", "--name-only", sha, "--", *SKILL_DIRS).decode().splitlines()
+        for name in names:
             data = git("show", f"{sha}:{name}")
             target = dest / name
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -95,13 +118,13 @@ def main():
         for case in cases:
             write_json(dest / "evals" / case["name"] / "case.yaml", case)
     judges = (ROOT / "evals/lightsage-judge.txt").read_text()
-    for arm in ["none", "published", "candidate"]:
+    for arm in (["none", "published", "candidate"] if repository else []):
         # CLI installation can run before the fixture worktree exists. Pin the
         # fixture through the saved repository's ref, not a checkout here.
         clis = []
         if arm != "none":
             clis.append(install_command(refs[arm]))
-        request = {"name": f"CodeRabbit skills comparison: {arm}", "repository": args.repository,
+        request = {"name": f"CodeRabbit skills comparison: {arm}", "repository": repository,
                    "agent": [args.agent], "runs": args.runs,
                    "prompts": [c["execution"]["prompt"] for c in cases],
                    "judges": [judges], "clis": clis, "skills": [], "mcps": [],
@@ -115,9 +138,12 @@ def main():
             write_json(args.output / filename, {"request": batch})
             manifest["lightsage_batches"][filename] = case_names[start:start + 20]
     write_json(args.output / "manifest.json", manifest)
-    print(f"Prepared {len(cases)} cases and 3 arms in {args.output.resolve()}")
-    print(f"Lightsage fanout: {len(cases) * 3 * args.runs} attempts. Nothing launched.")
-    print(f"Before Lightsage launch, verify the saved repository ref is {FIXTURE_SHA}; a direct URL is unpinned.")
+    print(f"Prepared {len(cases)} cases and 2 local skill snapshots in {args.output.resolve()}")
+    if repository:
+        print(f"Lightsage fanout: {len(cases) * 3 * args.runs} attempts. Nothing launched.")
+        print(f"Before launch, recheck the saved repository's current ref is {FIXTURE_SHA} in the dashboard.")
+    else:
+        print("No Lightsage requests generated; supply --repository-record for pinned remote requests.")
 
 
 if __name__ == "__main__":

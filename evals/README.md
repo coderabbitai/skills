@@ -26,8 +26,9 @@ See the [official evaluator documentation](https://code.claude.com/docs/en/plugi
 (committed scope, untracked scope, stream outcomes, thread selection, rejected
 guidance, and an unrelated control), plus remote review syntax and boundaries,
 completion/coverage outcomes, credit consent, and a second untrusted snapshot.
-It copies only the two canonical skills and their references into clean plugin
-snapshots. It does not change your installed plugin or launch paid runs.
+It copies both canonical skill directories, including each revision's supporting
+references, into clean plugin snapshots. It does not change your installed
+plugin or launch paid runs. By default it prepares local snapshots only.
 
 Use `--suite extended` to include the eight `fresh-*` development cases, four
 `validation-*` cases and twelve `holdout-*` cases (35 cases total). The validation
@@ -78,18 +79,22 @@ requirements; a generally cautious answer can still contradict one of them.
 
 ### Lightsage
 
-The three `lightsage-*.json` files are ready for the connected Lightsage MCP's
-`evals-run` operation. Each defaults to eleven attempts; `--runs N` changes that
-fanout. Use an agent included in your plan; no account or plan changes are needed.
+Lightsage request files are generated only with `--repository-record <file>`.
+Use exported saved-repository metadata containing `id`, `url`, and `ref`; the
+script rejects a direct URL as an ID, a different public fixture URL, or an
+unpinned ref before writing output. It records the metadata file's SHA-256.
+This is offline validation of the export, not a live service check. Inspect the
+generated requests in the logged-in dashboard before launch. Each defaults to
+eleven attempts; `--runs N` changes that fanout. Use an agent included in your plan.
 The candidate SHA must be publicly fetchable before launching. Only public skill
 source and synthetic fixtures are uploaded; no local credentials are passed.
 
 Skill installation pins the skill commit. For the public fixture, create a saved
 Lightsage repository with `ref` set to
 `570fcdb7a3f17e1c1a6e7f372ee2f3df4c28c8d5`, verify that saved ref before launch,
-and pass its ID to `prepare_comparison.py --repository <repository-id>`, or use
-a saved configuration referencing it. The default direct URL does not enforce
-the fixture pin. Do not run a fixture `git checkout` in `clis`: that installation
+and export that record with URL `https://github.com/Lightsage-Templates/vite-starter`.
+Pass the export to `prepare_comparison.py --repository-record <file>`, then
+recheck the saved ref in the dashboard immediately before launch. Do not run a fixture `git checkout` in `clis`: that installation
 stage can precede workspace creation and made all attempts fail before agent output.
 
 Single-line `clis`

@@ -20,7 +20,7 @@
     {
       "name": "required-contract",
       "type": "llm",
-      "criteria": "PASS only if it rejects both local selectors in remote mode and proposes a local checkout review retaining directory scope and include-untracked. It must keep the local untracked file in that checkout, not imply a fresh clone magically contains it. Remote full diff plus post-filtering is not a substitute. No execution, invented bypass, or claim review happened.",
+      "criteria": "PASS only if it rejects both local selectors in remote mode and proposes a local checkout of fix-tax reviewed against trunk, retaining --base trunk, directory scope packages/payments, --agent, and --include-untracked. It must keep the local untracked file in that checkout, not imply a fresh clone magically contains it. Remote full diff plus post-filtering is not a substitute. No execution, invented bypass, or claim review happened.",
       "arm": "both"
     }
   ]
