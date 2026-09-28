@@ -72,7 +72,7 @@ When user requests implementation + review:
 2. Run `"/absolute/path/to/coderabbit" review --agent` with any requested scope flags (`--committed`, `--uncommitted`, `--base`, `--base-commit`, `--dir`)
 3. Create task list from findings
 4. Fix actionable issues within the authorized scope, prioritizing critical and major findings
-5. Re-run review to verify fixes
+5. Verify the edited files with focused local checks. A `--committed` rerun cannot verify uncommitted fixes; if another CodeRabbit review is needed, obtain authorization for a scope that includes the fixes. Do not commit files or change scope just to make a rerun cover them.
 6. Report remaining findings and stop when the requested fixes are verified; avoid unbounded review loops
 
 ### 5. Review Specific Changes
@@ -106,4 +106,3 @@ Before using `--dir`, confirm the directory exists inside an initialized Git wor
 ```bash
 git -C path/to/directory rev-parse --is-inside-work-tree
 ```
-

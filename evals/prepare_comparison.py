@@ -19,10 +19,12 @@ FIXTURE_SHA = "570fcdb7a3f17e1c1a6e7f372ee2f3df4c28c8d5"
 
 
 def git(*args):
+    """Run a Git command in the skills checkout and return its output bytes."""
     return subprocess.check_output(["git", "-C", str(ROOT), *args])
 
 
 def write_json(path, value):
+    """Write a formatted JSON artifact, creating its parent directories."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2) + "\n")
 
@@ -38,6 +40,7 @@ def saved_repository(record):
 
 
 def install_command(sha):
+    """Build, without executing, installation commands for a pinned skill commit."""
     # Lightsage starts Claude in /home/daytona, outside /home/daytona/app.
     # A single-line CLI installation command was verified in the runner;
     # setup_commands did not execute in the tested direct-run path.
@@ -52,6 +55,7 @@ def install_command(sha):
 
 
 def main():
+    """Validate inputs and prepare local snapshots and optional remote requests."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--baseline", required=True, help="Published source commit")
     parser.add_argument("--candidate", default="HEAD", help="Candidate source commit")
