@@ -1,5 +1,15 @@
-description = "Run CodeRabbit AI code review on your changes"
+description = "Run CodeRabbit reviews or answer questions about its CLI and existing findings"
 prompt = """
-Activate the `code-review` skill and follow its workflow to review the current changes.
-Apply this requested scope or additional instruction when provided: {{args}}
+Requested scope or question: {{args}}
+
+Activate the installed `code-review` skill and follow its workflow routing before
+running commands. With no arguments, review current changes using its default scope.
+Preserve all requested local or remote selectors. For CLI questions, supplied
+output, or credit quotes, use its advice-only and consent routes without starting
+authentication or another review. For existing PR comments or supplied findings,
+activate `autofix` and stop at the requested summary, proposal, or authorized fix.
+Read the canonical output-and-consent reference for live or supplied results;
+preserve partial findings and unknown coverage, and distinguish skipped reviews
+from analyzed-clean code. Follow the canonical host-permission and credential
+boundaries for any authorized execution.
 """

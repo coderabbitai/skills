@@ -32,8 +32,8 @@ itself authorize a review, login, edits, or spending.
   executing them. Keep the answer to the requested steps.
 - **Saved prompts, account tools, or configuration:** read
   [related CLI workflows](references/cli-workflows.md).
-- **Summarize or fix existing PR comments:** use the autofix workflow when
-  available. Do not start a new review to explain supplied feedback.
+- **Summarize or fix existing PR comments:** read the
+  [autofix skill](../autofix/SKILL.md). Do not start a new review to explain supplied feedback.
 
 ## Review results and boundaries
 

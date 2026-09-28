@@ -14,6 +14,11 @@ Separate what was observed from what is unknown:
 
 A terminal event and a successful, fully covered review are different claims. Do not infer either from a heartbeat or the absence of findings.
 
+For CLI 0.7.7+, inspect the process exit code and the completion event's
+`outcome`, `message`, and `unreviewedFileCount` when present. `type: complete`
+or `status: review_completed` alone does not prove success. When a field needed
+to establish completion or coverage is absent, report that property as unknown.
+
 Keep conclusions per run, including in the closing summary. Combining an interrupted run with a skipped run must not turn the interrupted run's unknown coverage into "neither analyzed any code" or "the entire diff was unreviewed." Check that the summary preserves each row's known and unknown facts.
 
 For a brief transcript summary, give each run's result and remaining uncertainty once, within the user's requested length. Do not add a redundant recap that changes the meaning or exceeds that limit.
