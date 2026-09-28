@@ -1,6 +1,6 @@
 ---
 name: autofix
-description: "Explain CodeRabbit review comments and propose or apply authorized fixes from PR threads, pasted findings, or code snapshots. Use code-review for CLI syntax, authentication, status, and credit confirmations."
+description: "Handle CodeRabbit comments, issue reports, and proposed fixes, including pasted code snapshots. Use before explaining or proposing a fix for existing CodeRabbit feedback; CLI usage questions belong to code-review."
 metadata:
   version: "0.1.0"
   triggers:

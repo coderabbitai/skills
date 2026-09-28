@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Run CodeRabbit code reviews and explain its CLI commands, authentication, scope, review output, and credit confirmations. Use for code or PR quality reviews; use autofix for existing review comments."
+description: "Run CodeRabbit reviews and answer CodeRabbit CLI questions about authentication, permission failures, scope, output, or credit confirmations, including advice-only requests. Use autofix for existing review comments."
 metadata:
   version: "0.1.0"
 ---
@@ -13,6 +13,10 @@ itself authorize a review, login, edits, or spending.
 
 ## Choose the workflow
 
+- **Authentication or permission failure:** read
+  [authentication and recovery](references/auth-recovery.md), including for
+  advice-only requests. An inaccessible credential store or denied host request
+  leaves host sign-in unknown; do not invent a token or environment-variable workaround.
 - **Run a local review:** read [local review](references/local-review.md), then
   follow [authentication and recovery](references/auth-recovery.md) before
   execution. Preserve the requested directory, base, and change selectors.
