@@ -62,6 +62,30 @@ Claude Code users can also install this as a plugin directly from the official m
 For the full setup flow, see the
 [Claude Code integration guide](https://docs.coderabbit.ai/cli/claude-code-integration).
 
+##### Optional review reminder
+
+The Claude Code plugin includes a `Stop` hook, disabled by default. With Python 3
+and Git on `PATH`, opt in for a session:
+
+```sh
+CODERABBIT_REVIEW_REMINDER=1 claude
+```
+
+When tracked staged or unstaged changes exist, it gives the agent one reminder
+to use the CodeRabbit code-review skill if this task still needs an authorized
+review. The hook only checks local Git status; it does not run the CLI, upload
+code, or grant permission for review, login, spending, or fixes.
+
+This is a stateless reminder, not a review gate. It cannot tell who made the
+changes or whether they were reviewed, and may remind again on a later user
+turn. It skips hook continuations, plan mode, clean/non-Git directories, raw
+untracked files, submodule-only changes, and changes already committed. The
+agent may finish immediately when review is already done, unrelated,
+unavailable, or not authorized. Unset `CODERABBIT_REVIEW_REMINDER` or set it to
+`0` before launching Claude Code to disable it.
+
+Portable skill-only installs do not register this hook.
+
 #### Cursor Plugin
 
 This repository now includes Cursor marketplace metadata in
