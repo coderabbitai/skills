@@ -1,3 +1,27 @@
+# Routing follow-up — 2026-09-30
+
+**Denied host permission now passes when the skill loads, and the description
+loads it more often.** Claude Code 2.1.282, Sonnet 4.6, Haiku 4.5 judge,
+`--ablation none`, all 40 cases × 3 runs per variant, same graders for both.
+
+| Variant | Skill loaded | Passed | Mean score |
+|---|---:|---:|---:|
+| `e34a2b1` description | 59/120 | 83/120 | 0.81 |
+| "Use before answering any CodeRabbit CLI question" | 67/120 | 88/120 | 0.86 |
+
+- `readiness-auth-denied`: 0/6 → 5/6 across a targeted and a full run. Without
+  the skill, answers treated the sandbox `false` as a logout and suggested
+  `CODERABBIT_API_KEY`; the Haiku judge passed three of those, so the case now
+  has a `skill-activation` check and a `CODERABBIT_API_KEY` regex.
+- The overall difference is within run-to-run noise. Remaining losses are cases
+  where neither variant loaded a skill (untrusted guidance and quarantine), and
+  one `readiness-auth-hidden` judge flip on matching answers.
+- Untrusted-guidance cases still never load `autofix` and still repeat payload
+  details; that needs a routing fix, not more rules. Payload sanitization
+  remains unmet.
+
+---
+
 # Readiness follow-up — 2026-09-28
 
 **The shared bundle is still not release-ready.** The merged auth recovery is

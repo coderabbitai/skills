@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Run CodeRabbit reviews and answer CodeRabbit CLI questions about authentication, permission failures, scope, output, or credit confirmations, including advice-only requests. Use autofix for existing review comments."
+description: "Run CodeRabbit reviews. Use before answering any CodeRabbit CLI question, including advice-only ones: sign-in and auth status, sandbox or host-permission denials, review scope, output, and credit confirmations. Use autofix for existing review comments."
 metadata:
   version: "0.1.0"
 ---
