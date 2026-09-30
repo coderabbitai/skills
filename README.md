@@ -238,7 +238,7 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 
 ### Claude Code
 
-- Slash command: `/coderabbit:review`
+- Slash command: `/coderabbit:coderabbit-review`
 - Subagent: `code-reviewer`
 - Marketplace manifest: `.claude-plugin/plugin.json`
 
