@@ -57,6 +57,29 @@ Claude Code users can also install this as a plugin directly from the official m
 For the full setup flow, see the
 [Claude Code integration guide](https://docs.coderabbit.ai/cli/claude-code-integration).
 
+##### Review reminder
+
+The Claude Code plugin includes hooks that keep CodeRabbit in the loop after the
+agent writes code. When the agent edits code files in a turn and no
+`coderabbit review` runs in that turn, a `Stop` hook reminds it once to review
+those changes with the CodeRabbit review skill. Edits made after a review (fixing its
+findings) don't trigger another, and documentation-only edits don't count.
+
+The hooks need Python 3 and Git on `PATH`. They only record which files the
+agent edited in the current session; they never run the CLI, upload code, or
+grant permission for a review, login, spending, or fixes. They stay quiet
+outside Git repositories, when the CodeRabbit CLI isn't installed, and in plan
+mode. The agent can finish without a review when the user said not to or
+CodeRabbit can't run.
+
+Turn the reminder off by launching Claude Code with the variable set to `0`:
+
+```sh
+CODERABBIT_REVIEW_REMINDER=0 claude
+```
+
+Portable skill-only installs do not register this hook.
+
 #### Cursor Plugin
 
 This repository now includes Cursor marketplace metadata in

@@ -27,3 +27,10 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 - When the Antigravity manifest or plugin schema changes, rerun `agy plugin validate .`.
 - If a channel moves to another repository, keep the status here and link the new owner repo in the note.
 - If a channel is deprecated, keep it in this file until all docs and install references are removed.
+
+## Optional review reminder
+
+The Claude Code plugin bundles `hooks/hooks.json` and a local Python script.
+It is on by default and turned off by `CODERABBIT_REVIEW_REMINDER=0` in the
+agent environment. Portable skill-only installs do not register the hook. The Codex
+plugin carries its own hook packaging in `coderabbitai/codex-plugin`.
