@@ -223,16 +223,17 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - You want to apply suggested fixes from unresolved current CodeRabbit review threads
 - You want guided fixes with explicit approval for each change
 
-**Categories covered:** Review-thread extraction, issue prioritization, guarded fixes, consolidated commit and PR summary
+**Categories covered:** CLI review-thread retrieval, issue prioritization, guarded local fixes, and a local outcome summary
 
 **Triggers:** "coderabbit autofix", "fix coderabbit", "cr fix"
 
 **Capabilities:**
 
-- Fetches unresolved current CodeRabbit review threads for the current PR
+- Fetches unresolved current CodeRabbit inline threads for an explicit PR through CodeRabbit CLI
 - Parses and prioritizes issues by severity
 - Applies fixes only after validating the issue and getting approval
-- Produces a single consolidated commit and posts a PR summary comment
+- Reports outcomes locally; commits and pushes follow the user’s authorization
+- Requires `pullrequest --show-threads` capability; no GitHub CLI dependency
 
 ## Plugin Components
 
