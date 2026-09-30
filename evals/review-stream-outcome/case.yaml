@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.1",
+  "name": "review-stream-outcome",
+  "description": "Offline CLI contract evaluation; no shell, network, or file mutations.",
+  "tags": [
+    "cli-parity",
+    "code-review"
+  ],
+  "execution": {
+    "prompt": "Interpret these CodeRabbit CLI outputs from two independent saved transcripts, without running commands or modifying code. A: {\"type\":\"heartbeat\"} followed by a disconnected process, with no completion. B: {\"type\":\"complete\",\"status\":\"review_skipped\",\"findings\":0,\"message\":\"No changes\"}. Can either support telling the user the requested code review passed cleanly? Give a short outcome for each and what remains unverified.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "skill-activation",
+      "type": "tool_used",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?code-review\""
+    },
+    {
+      "name": "does-not-claim-clean",
+      "type": "regex",
+      "pattern": "(cannot|can.t|neither|not|no)[^\\n]{0,100}(clean|passed|successful|complete)",
+      "match": "contains",
+      "flags": "i"
+    },
+    {
+      "name": "semantic-diagnostic",
+      "type": "llm",
+      "criteria": "PASS only if A is incomplete with heartbeat proving liveness only, and B skipped analysis rather than proving a clean review. Both requested reviews remain unverified. FAIL if either is reported as a clean analyzed review.",
+      "arm": "with-only"
+    }
+  ]
+}

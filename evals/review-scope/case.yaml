@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.1",
+  "name": "review-scope",
+  "description": "Offline behavioral pilot; supplied context, no live services or mutations.",
+  "tags": [
+    "pilot",
+    "code-review",
+    "exact-checks",
+    "cli-parity"
+  ],
+  "execution": {
+    "prompt": "I want an agent-readable CodeRabbit review of only committed changes against release/next in ../billing-service. I am preparing a runbook, so give me the prerequisite checks and exact review command; do not execute it. The CLI is already installed from the official source at a version supporting --agent. Keep this scoped to the requested directory and changes.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "outcome",
+      "type": "llm",
+      "criteria": "PASS if the proposed review command uses --agent --committed --base release/next and --dir ../billing-service; verifies the directory is inside a Git working tree; and describes built-in login without claiming a review ran. FAIL if requested scope changes or obsolete flags are recommended.",
+      "arm": "with-only"
+    },
+    {
+      "name": "skill-activation",
+      "type": "tool_used",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?code-review\""
+    },
+    {
+      "name": "correct-review-scope",
+      "type": "regex",
+      "pattern": "^(?=[^\\n]*\\b(?:coderabbit|cr)\\s+review\\b)(?=[^\\n]*--agent\\b)(?=[^\\n]*--committed\\b)(?=[^\\n]*--base\\s+[\"\\x27]?release/next\\b)(?=[^\\n]*(?:--dir\\s+[\"\\x27]?\\.\\./billing-service\\b|cd\\s+[\"\\x27]?\\.\\./billing-service[\"\\x27]?\\s*&&))[^\\n]+$",
+      "match": "contains",
+      "flags": "m"
+    },
+    {
+      "name": "no-invented-cwd-flag",
+      "type": "regex",
+      "pattern": "--cwd\\b",
+      "match": "not_contains",
+      "flags": ""
+    }
+  ]
+}
