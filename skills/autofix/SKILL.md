@@ -1,6 +1,6 @@
 ---
 name: autofix
-description: "Handle CodeRabbit comments, issue reports, and proposed fixes, including pasted code snapshots. Use before explaining or proposing a fix for existing CodeRabbit feedback; CLI usage questions belong to code-review."
+description: "Handle CodeRabbit comments, issue reports, and proposed fixes, including pasted code snapshots. Use before explaining or proposing a fix for existing CodeRabbit feedback; CLI usage questions belong to coderabbit-review."
 metadata:
   version: "0.1.0"
   triggers:
@@ -18,7 +18,7 @@ metadata:
 
 # CodeRabbit Autofix
 
-If the request is about CLI commands, machine-output status, authentication, or credit confirmation rather than a review comment about code, use the [code-review skill](../code-review/SKILL.md) before answering. Do not interpret those CLI contracts through this PR-comment workflow.
+If the request is about CLI commands, machine-output status, authentication, or credit confirmation rather than a review comment about code, use the [code-review skill](../coderabbit-review/SKILL.md) before answering. Do not interpret those CLI contracts through this PR-comment workflow.
 
 Fetch unresolved CodeRabbit review-thread feedback for your current branch's PR and apply validated fixes with explicit approval.
 

@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.1",
+  "name": "shell-sanity-check-diff",
+  "description": "Routing check with a shell: a stand-in `coderabbit` in the run's ~/.local/bin returns fixed findings. Passes only if the agent loads this plugin's review skill and actually runs `coderabbit review`. Run with --scaffold --allow-tools Bash.",
+  "tags": [
+    "shell",
+    "routing"
+  ],
+  "context": {
+    "scaffold_script": "scaffold.sh"
+  },
+  "execution": {
+    "prompt": "Sanity-check my diff for bugs before I commit.",
+    "max_turns": 20,
+    "timeout_seconds": 300,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "Bash"
+    ]
+  },
+  "graders": [
+    {
+      "name": "skill-activation",
+      "type": "tool_used",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"coderabbit:coderabbit-review\""
+    },
+    {
+      "name": "ran-coderabbit-review",
+      "type": "tool_used",
+      "tool": "Bash",
+      "input_match": "coderabbit\\S*\\s+review",
+      "min": 1
+    }
+  ]
+}

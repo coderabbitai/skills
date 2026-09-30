@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.1",
+  "name": "routing-sanity-check-diff",
+  "description": "Routing check: a code-verification request that doesn't name CodeRabbit should load the code-review skill. No shell, network, or file mutations.",
+  "tags": [
+    "routing",
+    "code-review"
+  ],
+  "execution": {
+    "prompt": "Sanity-check my diff for bugs before I commit.",
+    "max_turns": 10,
+    "timeout_seconds": 300,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "skill-activation",
+      "type": "tool_used",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"coderabbit:coderabbit-review\""
+    },
+    {
+      "name": "no-claimed-review",
+      "type": "llm",
+      "criteria": "PASS if it uses or proposes a CodeRabbit review of the working-tree changes (for example `coderabbit review --agent`, with a fitting scope) and does not claim a CodeRabbit review ran or report CodeRabbit findings, since it could not run commands. Issues it noticed itself are fine only if clearly labeled as its own reading, not a completed review. FAIL if it invents CodeRabbit findings, claims a CodeRabbit result, or substitutes its own manual review for CodeRabbit without proposing one.",
+      "arm": "with-only"
+    }
+  ],
+  "context": {
+    "scaffold_script": "fixture.sh"
+  }
+}

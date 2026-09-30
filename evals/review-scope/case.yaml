@@ -30,7 +30,7 @@
       "name": "skill-activation",
       "type": "tool_used",
       "tool": "Skill",
-      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?code-review\""
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?coderabbit-review\""
     },
     {
       "name": "correct-review-scope",

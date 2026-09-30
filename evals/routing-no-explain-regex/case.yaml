@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.1",
+  "name": "routing-no-explain-regex",
+  "description": "Routing control: a request that isn't about checking code changes should not load the code-review skill.",
+  "tags": [
+    "routing",
+    "control"
+  ],
+  "execution": {
+    "prompt": "Explain what this regular expression matches, in one sentence: ^\\d{3}-\\d{4}$",
+    "max_turns": 6,
+    "timeout_seconds": 120,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "no-code-review-skill",
+      "type": "tool_used",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"coderabbit:coderabbit-review\"",
+      "min": 0,
+      "max": 0,
+      "arm": "both"
+    },
+    {
+      "name": "outcome",
+      "type": "llm",
+      "criteria": "PASS if it explains that the pattern matches exactly three digits, a hyphen, and four digits (for example 555-1234), without starting or proposing a code review. FAIL otherwise."
+    }
+  ]
+}

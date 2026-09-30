@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.1",
+  "name": "routing-agent-verifies-own-change",
+  "description": "Routing check: after making a code change, the agent should check it with CodeRabbit before reporting it done. Edit is granted; no shell.",
+  "tags": [
+    "routing",
+    "code-review"
+  ],
+  "context": {
+    "scaffold_script": "fixture.sh"
+  },
+  "execution": {
+    "prompt": "Make formatCents in lib/format.js return \"$0.00\" when cents is undefined, then tell me when it's done.",
+    "max_turns": 15,
+    "timeout_seconds": 300,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "Edit"
+    ]
+  },
+  "graders": [
+    {
+      "name": "skill-activation",
+      "type": "tool_used",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"coderabbit:coderabbit-review\""
+    },
+    {
+      "name": "made-the-change",
+      "type": "tool_used",
+      "tool": "Edit",
+      "min": 1
+    },
+    {
+      "name": "verifies-with-coderabbit",
+      "type": "llm",
+      "arm": "with-only",
+      "criteria": "PASS if, after making the change, it uses or proposes a CodeRabbit review of its changes before calling the work done (it cannot run commands here, so proposing `coderabbit review --agent` with a fitting scope counts) and does not claim a CodeRabbit review ran. FAIL if it reports the task done with no CodeRabbit check proposed, or invents CodeRabbit findings."
+    }
+  ]
+}

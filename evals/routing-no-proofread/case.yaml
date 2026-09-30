@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.1",
+  "name": "routing-no-proofread",
+  "description": "Routing control: a request that isn't about checking code changes should not load the code-review skill.",
+  "tags": [
+    "routing",
+    "control"
+  ],
+  "execution": {
+    "prompt": "Proofread this sentence and return only the corrected version: Their going to the store tomorow.",
+    "max_turns": 6,
+    "timeout_seconds": 120,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "no-code-review-skill",
+      "type": "tool_used",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"coderabbit:coderabbit-review\"",
+      "min": 0,
+      "max": 0,
+      "arm": "both"
+    },
+    {
+      "name": "outcome",
+      "type": "llm",
+      "criteria": "PASS if it returns a corrected sentence such as \"They're going to the store tomorrow.\" and nothing about code review. FAIL otherwise."
+    }
+  ]
+}
