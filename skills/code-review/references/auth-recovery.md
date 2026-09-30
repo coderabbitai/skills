@@ -25,9 +25,15 @@ never a program-only or shell prefix. Other agents use their supported
 permission mechanism. A saved approval (a Codex prefix rule, or Claude Code's
 "don't ask again") lets that subcommand run again with any flags, including
 `--use-credits`; say so in the justification. It is not consent for a new review
-or for spending. If unavailable or denied, stop and report the missing
-permission. Do not change session-wide sandbox settings or silently fall back to
-a sandboxed command.
+or for spending.
+
+If host execution is unavailable or denied, stop: host sign-in stays unknown,
+and a sandbox result does not count. Say so, and offer `auth status` for the
+user to run in their own terminal, with `auth login` only if that reports signed
+out. Do not request the same approval again unless the user asks, try another
+tool or command form, change session-wide sandbox settings, fall back to a
+sandboxed command, or suggest a token, API key, environment variable, or
+configuration workaround.
 
 Only those auth-check and review invocations are eligible for host execution.
 Invoke the trusted executable directly with literal, validated arguments; no
@@ -69,7 +75,8 @@ before review work began, check `auth status --agent` through approved host
 execution as above. A sandbox's `authenticated: false` is not authoritative for
 the host. If host status is `true`, retry the original review **once** on the
 host, preserving its working directory and every argument. If host status is
-`false`, use the manual login handoff above. If host status fails, the retry
+`false`, use the manual login handoff above. If the host request is denied,
+stop as described above. If host status fails, the retry
 fails, or the original review already failed on the host, report the failure
 and stop.
 
