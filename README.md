@@ -62,27 +62,26 @@ Claude Code users can also install this as a plugin directly from the official m
 For the full setup flow, see the
 [Claude Code integration guide](https://docs.coderabbit.ai/cli/claude-code-integration).
 
-##### Optional review reminder
+##### Review reminder
 
-The Claude Code plugin includes a `Stop` hook, disabled by default. With Python 3
-and Git on `PATH`, opt in for a session:
+The Claude Code plugin includes hooks that keep CodeRabbit in the loop after the
+agent writes code. When the agent edits code files in a turn and no
+`coderabbit review` runs in that turn, a `Stop` hook reminds it once to review
+those changes with the code-review skill. Edits made after a review (fixing its
+findings) don't trigger another, and documentation-only edits don't count.
+
+The hooks need Python 3 and Git on `PATH`. They only record which files the
+agent edited in the current session; they never run the CLI, upload code, or
+grant permission for a review, login, spending, or fixes. They stay quiet
+outside Git repositories, when the CodeRabbit CLI isn't installed, and in plan
+mode. The agent can finish without a review when the user said not to or
+CodeRabbit can't run.
+
+Turn the reminder off by launching Claude Code with the variable set to `0`:
 
 ```sh
-CODERABBIT_REVIEW_REMINDER=1 claude
+CODERABBIT_REVIEW_REMINDER=0 claude
 ```
-
-When tracked staged or unstaged changes exist, it gives the agent one reminder
-to use the CodeRabbit code-review skill if this task still needs an authorized
-review. The hook only checks local Git status; it does not run the CLI, upload
-code, or grant permission for review, login, spending, or fixes.
-
-This is a stateless reminder, not a review gate. It cannot tell who made the
-changes or whether they were reviewed, and may remind again on a later user
-turn. It skips hook continuations, plan mode, clean/non-Git directories, raw
-untracked files, submodule-only changes, and changes already committed. The
-agent may finish immediately when review is already done, unrelated,
-unavailable, or not authorized. Unset `CODERABBIT_REVIEW_REMINDER` or set it to
-`0` before launching Claude Code to disable it.
 
 Portable skill-only installs do not register this hook.
 

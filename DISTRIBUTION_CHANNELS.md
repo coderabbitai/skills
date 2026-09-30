@@ -31,6 +31,6 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 ## Optional review reminder
 
 The Claude Code plugin bundles `hooks/hooks.json` and a local Python script.
-It is disabled unless `CODERABBIT_REVIEW_REMINDER=1` is present in the agent
-environment. Portable skill-only installs do not register the hook. The Codex
+It is on by default and turned off by `CODERABBIT_REVIEW_REMINDER=0` in the
+agent environment. Portable skill-only installs do not register the hook. The Codex
 plugin carries its own hook packaging in `coderabbitai/codex-plugin`.

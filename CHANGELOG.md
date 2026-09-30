@@ -6,7 +6,7 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
-- Added an opt-in Claude Code stop-hook reminder for tracked uncommitted changes.
+- Added a Claude Code review reminder: after the agent changes code in a turn and no CodeRabbit review ran, a `Stop` hook reminds it once to review those changes. On by default; set `CODERABBIT_REVIEW_REMINDER=0` to turn it off.
 
 - Added public contribution guidance, structured issue forms, and a pull-request
   template for agent-skill and integration changes.
