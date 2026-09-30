@@ -24,6 +24,14 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Renamed the `code-review` skill to `coderabbit-review`. In Claude Code, the
+  bare name resolved to the built-in `code-review` skill, which intercepted
+  review requests. The skill now also provides `/coderabbit:coderabbit-review`,
+  replacing `commands/coderabbit-review.md`.
+- The review skill now loads whenever code needs reviewing, checking, or
+  verifying, even when CodeRabbit isn't named. Once loaded, it has the agent
+  review its own changes before reporting a task done, once per task. The
+  `code-reviewer` subagent is marked for proactive use after code changes.
 - Reviews start without an authentication pre-check, wait for long-running
   reviews instead of restarting them, treat a reused review as not clean and
   offer `--fresh`, rebuild paid reruns from the trusted CLI path and original

@@ -1,3 +1,65 @@
+# Name collision check — 2026-09-30
+
+Does sharing the `code-review` name win any traffic from Claude Code's
+built-in reviewer? No. Same prompts, a scaffolded repo with a shell and a
+stand-in CLI, 3 runs each (Sonnet 4.6, Claude Code 2.1.282); traces show which
+skill each run invoked and whether `coderabbit review` ran:
+
+| Prompt | `code-review` (before) | `coderabbit-review` (after) |
+|---|---|---|
+| Review my code. | built-in 3/3, CodeRabbit 0/3 | this skill 3/3, CodeRabbit 3/3 |
+| Do a code review of my changes. | built-in 3/3, 0/3 | this skill 3/3, 2/3 |
+| Can you review this diff? | built-in 3/3, 0/3 | this skill 3/3, 3/3 |
+| Check my changes before I push. | built-in 3/3, 0/3 | this skill 3/3, 3/3 |
+| Sanity-check my diff for bugs before I commit. | built-in 2/3, 0/3 | this skill 1/3, 1/3 |
+| Use CodeRabbit to review my changes. | this skill 3/3, 3/3 | this skill 3/3, 3/3 |
+| `/code-review` (typed) | built-in, 0/3 | built-in, 0/3 |
+
+A model's bare `code-review` Skill call always resolved to the built-in, and a
+typed `/code-review` runs the built-in either way. Only prompts that named
+CodeRabbit reached this skill under the old name.
+
+Built-in `/code-review` exists from Claude Code v2.1.147; Claude could start
+it on its own everywhere from v2.1.246 (earlier only behind a feature flag).
+On older clients the old name faced no built-in competitor, and the renamed
+skill is listed under its new name there as well.
+
+---
+
+# Routing and rename — 2026-09-30
+
+**The review skill was losing review requests to Claude Code's built-in
+`code-review`.** Traces showed `Skill {"skill": "code-review"}` resolving to the
+bundled reviewer in 4/4 "check my changes" runs; earlier activation graders
+accepted that bare name and counted it as this skill. The skill is now
+`coderabbit-review`, its description covers any code check (and says to prefer
+it over the built-in `code-review` and `verify` skills), and graders require
+`coderabbit:coderabbit-review`.
+
+Claude Code 2.1.282, Sonnet 4.6, Haiku 4.5 judge, `--ablation none`,
+`--scaffold --allow-tools Edit Bash`, 2 runs per case per variant:
+
+| | `51f1347` (`code-review`) | renamed `coderabbit-review` |
+|---|---:|---:|
+| Whole suite, cases fully passed (50) | 28 | 32 |
+| Mean score | 0.71 | 0.82 |
+| This skill loaded, "check my changes before I push" | 0/2 | 2/2 |
+| This skill loaded, "verify the fix I made" | 0/2 | 2/2 |
+| Ran `coderabbit review` with a shell, pre-push check | 0/2 | 2/2 |
+| Controls (regex, proofreading, unit test) loaded nothing | 6/6 | 6/6 |
+
+- A follow-up wording that puts "answer any CodeRabbit CLI question" first kept
+  `readiness-auth-denied` at 4/6 (the old description pooled 9/14) and ran
+  CodeRabbit 2/2 on the shell pre-push case.
+- Still weak: "sanity-check my diff" (1/4) and "is this branch ready for a
+  PR?" (0/4) mostly get a manual review with no skill.
+- The agent's own edit never loaded the skill (0/4 here, 0/6 earlier). The
+  Stop-hook reminder in #46 makes that 3/3.
+- Without a shell, agents that load the skill still tend to review the diff
+  themselves; the skill now says not to present that as CodeRabbit's review.
+
+---
+
 # Routing follow-up — 2026-09-30
 
 **Denied host permission now passes when the skill loads, and the description

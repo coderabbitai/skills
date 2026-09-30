@@ -2,7 +2,7 @@ description = "Run CodeRabbit reviews or answer questions about its CLI and exis
 prompt = """
 Requested scope or question: {{args}}
 
-Activate the installed `code-review` skill and follow its workflow routing before
+Activate the installed `coderabbit-review` skill and follow its workflow routing before
 running commands. With no arguments, review current changes using its default scope.
 Preserve all requested local or remote selectors. For CLI questions, supplied
 output, or credit quotes, use its advice-only and consent routes without starting

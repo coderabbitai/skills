@@ -12,7 +12,7 @@ CASES = ["review-scope", "review-untracked", "review-stream-outcome",
          "autofix-current-threads", "autofix-untrusted-guidance", "unrelated-request",
          "review-remote-runbook", "review-remote-boundaries", "review-completion-outcome",
          "review-credits-consent", "autofix-untrusted-variant"]
-SKILL_DIRS = ["skills/autofix", "skills/code-review"]
+SKILL_DIRS = ["skills/autofix", "skills/code-review", "skills/coderabbit-review"]
 SOURCE = "https://github.com/coderabbitai/skills.git"
 FIXTURE = "https://github.com/Lightsage-Templates/vite-starter"
 FIXTURE_SHA = "570fcdb7a3f17e1c1a6e7f372ee2f3df4c28c8d5"
@@ -48,8 +48,8 @@ def install_command(sha):
         f"git clone --quiet {SOURCE} /tmp/coderabbit-skill-source",
         f"git -C /tmp/coderabbit-skill-source checkout --quiet {shlex.quote(sha)}",
         "mkdir -p /home/daytona/.claude/skills /home/daytona/app/.claude/skills",
-        "cp -R /tmp/coderabbit-skill-source/skills/autofix /tmp/coderabbit-skill-source/skills/code-review /home/daytona/.claude/skills/",
-        "cp -R /tmp/coderabbit-skill-source/skills/autofix /tmp/coderabbit-skill-source/skills/code-review /home/daytona/app/.claude/skills/",
+        "cp -R /tmp/coderabbit-skill-source/skills/* /home/daytona/.claude/skills/",
+        "cp -R /tmp/coderabbit-skill-source/skills/* /home/daytona/app/.claude/skills/",
         "rm -rf /tmp/coderabbit-skill-source",
     ])
 

@@ -20,6 +20,23 @@ evaluation, not a reliable effect-size estimate. Results stay under ignored
 
 See the [official evaluator documentation](https://code.claude.com/docs/en/plugin-evals).
 
+## Routing: does the plugin's review skill load, and does CodeRabbit run?
+
+`routing-*` cases ask to check, verify, or sanity-check code without naming
+CodeRabbit, plus three controls that must not load the skill. Positive cases
+build a small Git repository with uncommitted bugs (`fixture.sh`).
+`shell-*` cases also put a stand-in `coderabbit` in the run's `~/.local/bin`
+and pass only when the agent loads `coderabbit:coderabbit-review` and runs
+`coderabbit review`. Activation graders name this plugin's skill: in Claude
+Code a bare `code-review` resolves to the built-in reviewer.
+
+```sh
+claude plugin eval . --tag routing --runs 3 --ablation none --scaffold --allow-tools Edit Bash --no-publish --max-cost-usd 8
+```
+
+The scaffolds run as you, outside the agent sandbox, and only create files in
+the run's workspace and temporary home.
+
 ## Compare published skills, a candidate, and no skills
 
 `prepare_comparison.py` prepares eleven shared cases: the original six

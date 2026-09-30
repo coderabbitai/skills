@@ -97,8 +97,8 @@ agy plugin install https://github.com/coderabbitai/skills
 agy plugin list
 ```
 
-The repository-root [`plugin.json`](plugin.json) manifest packages the skills,
-review command, and code-review subagent for Antigravity CLI's plugin discovery.
+The repository-root [`plugin.json`](plugin.json) manifest packages the skills and
+code-review subagent for Antigravity CLI's plugin discovery.
 
 #### Codex App
 
@@ -114,7 +114,7 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | --- | --- |
 | `skills/` | Portable CodeRabbit skills for agents that support `SKILL.md`. |
 | `.claude-plugin/` | Claude Code plugin marketplace metadata. |
-| `commands/` | Native review commands for Claude Code, Gemini CLI, and Antigravity CLI. |
+| `commands/` | Native review command for Gemini CLI. Claude Code and Antigravity CLI invoke the `coderabbit-review` skill directly. |
 | `agents/` | Code-review subagent shipped to Claude Code, Gemini CLI, and Antigravity CLI. |
 | `.cursor-plugin/` | Cursor marketplace metadata. |
 | `gemini-extension.json` | Gemini CLI extension manifest. |
@@ -190,7 +190,7 @@ CodeRabbit supports 35+ coding agents.
 
 ## Available Skills
 
-### [code-review](skills/code-review/SKILL.md)
+### [coderabbit-review](skills/coderabbit-review/SKILL.md)
 
 AI-powered code review that finds bugs, security issues, and suggests improvements using CodeRabbit.
 
@@ -200,10 +200,11 @@ AI-powered code review that finds bugs, security issues, and suggests improvemen
 - Checking for bugs, security vulnerabilities, or anti-patterns
 - Getting PR feedback or suggestions for improvements
 - Running automated code quality checks
+- The agent finishes a code change: once loaded, the skill has it review its own changes before reporting the work done (once per task, never spending credits without approval)
 
 **Categories covered:** Bug detection, security analysis, code quality, performance issues, best practices
 
-**Triggers:** "review my code", "check for bugs", "security review", "PR feedback", "run coderabbit"
+**Triggers:** "review my code", "check my changes", "verify this fix", "is this ready to push?", "check for bugs", "security review", "PR feedback", "run coderabbit"
 
 **Capabilities:**
 
@@ -238,12 +239,13 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 
 ### Claude Code
 
-- Slash command: `/coderabbit:coderabbit-review`
+- Slash command: `/coderabbit:coderabbit-review` (the `coderabbit-review` skill)
 - Subagent: `code-reviewer`
 - Marketplace manifest: `.claude-plugin/plugin.json`
 
-The `code-review` skill also remains available for natural-language triggering
-inside compatible agents. Native commands and the code-review agent route through
+The skill is named `coderabbit-review` so it doesn't collide with other
+`code-review` skills, including Claude Code's built-in one. It loads on its own
+when code needs reviewing or checking. The Gemini command and the code-review agent route through
 the canonical skills and references for local and remote reviews, CLI questions,
 supplied findings, completion evidence, and credit consent. Questions or supplied
 output do not by themselves authorize a new review, login, or spending.
@@ -257,7 +259,6 @@ output do not by themselves authorize a new review, login, or spending.
 
 - Native plugin manifest: `plugin.json`
 - Skills source: `skills/`
-- Review command: `commands/coderabbit-review.md` (converted to a skill during installation)
 - Subagent: `agents/code-reviewer.md`
 
 ### Gemini CLI
