@@ -1,3 +1,31 @@
+# Name collision check — 2026-09-30
+
+Does sharing the `code-review` name win any traffic from Claude Code's
+built-in reviewer? No. Same prompts, a scaffolded repo with a shell and a
+stand-in CLI, 3 runs each (Sonnet 4.6, Claude Code 2.1.282); traces show which
+skill each run invoked and whether `coderabbit review` ran:
+
+| Prompt | `code-review` (before) | `coderabbit-review` (after) |
+|---|---|---|
+| Review my code. | built-in 3/3, CodeRabbit 0/3 | this skill 3/3, CodeRabbit 3/3 |
+| Do a code review of my changes. | built-in 3/3, 0/3 | this skill 3/3, 2/3 |
+| Can you review this diff? | built-in 3/3, 0/3 | this skill 3/3, 3/3 |
+| Check my changes before I push. | built-in 3/3, 0/3 | this skill 3/3, 3/3 |
+| Sanity-check my diff for bugs before I commit. | built-in 2/3, 0/3 | this skill 1/3, 1/3 |
+| Use CodeRabbit to review my changes. | this skill 3/3, 3/3 | this skill 3/3, 3/3 |
+| `/code-review` (typed) | built-in, 0/3 | built-in, 0/3 |
+
+A model's bare `code-review` Skill call always resolved to the built-in, and a
+typed `/code-review` runs the built-in either way. Only prompts that named
+CodeRabbit reached this skill under the old name.
+
+Built-in `/code-review` exists from Claude Code v2.1.147; Claude could start
+it on its own everywhere from v2.1.246 (earlier only behind a feature flag).
+On older clients the old name faced no built-in competitor, and the renamed
+skill is listed under its new name there as well.
+
+---
+
 # Routing and rename — 2026-09-30
 
 **The review skill was losing review requests to Claude Code's built-in
