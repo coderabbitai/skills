@@ -7,8 +7,9 @@ For a remote review without a checkout, read [references/cli-workflows.md](cli-w
 ### 1. Check CLI and Authentication
 
 Before running a review, read and follow [authentication and recovery](auth-recovery.md).
-Resolve the trusted CLI to a quoted canonical absolute path, check authentication
-in the approved review execution context, and proceed only on `authenticated: true`.
+Resolve the trusted CLI to a quoted canonical absolute path and run the review
+in the approved execution context. Do not check authentication before every
+review; the recovery procedure handles a pre-review authentication failure.
 Never start login automatically or access credentials yourself. Examples below
 use the validated absolute path; substitute only the path verified by that procedure.
 
@@ -27,10 +28,10 @@ Use `--agent` for output optimized for AI agents:
 "/absolute/path/to/coderabbit" review --agent
 ```
 
-Use the same approved context as the auth check. On a pre-review authentication
-failure, follow the linked recovery procedure before asking for login. Only a
-failed sandbox attempt with confirmed host authentication qualifies for one host
-retry; preserve its directory and all arguments. Never retry after review work starts.
+On a pre-review authentication failure, follow the linked recovery procedure
+before asking for login. Only a failed sandbox attempt with confirmed host
+authentication qualifies for one host retry; preserve its directory and all
+arguments. Never retry after review work starts.
 
 If the user asks to review a specific directory, append `--dir <path>`. It restricts all selected Git changes to that directory, including untracked files when requested; it is not just a working-directory switch. The directory must be inside an initialized Git working tree.
 
@@ -46,13 +47,15 @@ If the user asks to review a specific directory, append `--dir <path>`. It restr
 | `--committed`     | Committed changes only                                                    |
 | `--uncommitted`   | Staged changes and unstaged edits to tracked files                        |
 | `--include-untracked` | Include untracked files; may combine with `--uncommitted`, never `--committed` |
-| `--light` | Reduce review context; changes review policy, not output format |
+| `--deep [focus]`  | Full pull request review policy; slower. Focus text requires early access |
+| `--fresh`         | Review again without reusing the previous local checkpoint                |
+| `-c, --config <files...>` | Extra instruction files, such as `AGENTS.md` or `CLAUDE.md`       |
 | `--base main`     | Compare against specific branch                                           |
 | `--base-commit`   | Compare against specific commit hash                                      |
 | `--dir <path>`    | Restrict all selected changes to this directory inside a Git working tree |
 | `--agent`         | Agent-readable review output and fix guidance                             |
 
-Default scope includes committed, staged, and tracked unstaged changes; raw untracked files are excluded, while staged new files are included. `--include-untracked` also works by itself with the default scope: `"/absolute/path/to/coderabbit" review --agent --include-untracked` reviews those tracked changes plus non-ignored untracked files. It does not require `--uncommitted`. Validate selectors before execution: `--committed` conflicts with `--uncommitted` and `--include-untracked`; `--base` conflicts with `--base-commit`. Preserve the requested scope on retries; do not silently narrow it after a file-limit error. Use the named scope flags in new commands; `-t/--type` is hidden compatibility syntax.
+Default scope includes committed, staged, and tracked unstaged changes; raw untracked files are excluded, while staged new files are included. `--include-untracked` also works by itself with the default scope: `"/absolute/path/to/coderabbit" review --agent --include-untracked` reviews those tracked changes plus non-ignored untracked files. It does not require `--uncommitted`. Validate selectors before execution: `--committed` conflicts with `--uncommitted` and `--include-untracked`; `--base` conflicts with `--base-commit`. Preserve the requested scope on retries; do not silently narrow it after a file-limit error. Use the named scope flags in new commands; `-t/--type` is hidden compatibility syntax. Preserve a requested `--deep` and its focus text; CLI 0.7.x has `--light` instead of `--deep` and `--fresh`, so check `review --help` and report an older binary rather than dropping the option.
 
 Directory, base, and change-type selectors compose. Adding `--include-untracked` does not remove an existing `--dir` or `--base`; do not stage, ignore, or remove unrelated files as a substitute for directory scope. Before presenting the command, verify each requested selector is retained.
 
