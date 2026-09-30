@@ -62,7 +62,7 @@ For the full setup flow, see the
 The Claude Code plugin includes hooks that keep CodeRabbit in the loop after the
 agent writes code. When the agent edits code files in a turn and no
 `coderabbit review` runs in that turn, a `Stop` hook reminds it once to review
-those changes with the code-review skill. Edits made after a review (fixing its
+those changes with the CodeRabbit review skill. Edits made after a review (fixing its
 findings) don't trigger another, and documentation-only edits don't count.
 
 The hooks need Python 3 and Git on `PATH`. They only record which files the

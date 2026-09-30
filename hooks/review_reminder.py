@@ -111,7 +111,7 @@ def stop(event, path):
         "decision": "block",
         "reason": (
             f"CodeRabbit review reminder: you changed code ({listed}) and haven't reviewed it "
-            "with CodeRabbit. Use the CodeRabbit code-review skill to review those changes "
+            "with CodeRabbit. Use the CodeRabbit review skill (coderabbit-review) to review those changes "
             "before you finish (usually --uncommitted; add --include-untracked for new files), "
             "unless the user said not to. If CodeRabbit can't run, say so and finish. "
             "This reminder appears once and does not authorize credits, login, or retries."
