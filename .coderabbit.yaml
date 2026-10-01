@@ -74,7 +74,7 @@ reviews:
         Check the Agent Skills specification, the AGENTS.md open format, and the
         current public documentation for every declared host agent.
 
-    - path: "commands/**/*.md"
+    - path: "commands/**"
       instructions: |
         Keep native commands behaviorally aligned with the corresponding canonical skill.
         Flag stale CLI options and duplicated prerequisite logic.
