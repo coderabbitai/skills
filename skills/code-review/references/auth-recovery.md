@@ -1,6 +1,8 @@
 # Review authentication and recovery
 
-Use this before running a review and after a pre-review authentication failure.
+Use this for agents other than Codex, before running a review and after a
+pre-review authentication failure. In Codex, use [Codex execution](codex-execution.md)
+instead; its review flow checks authentication reactively.
 
 ## Execution boundary
 
@@ -12,9 +14,8 @@ and stop. Use the quoted, validated absolute path in every command below.
 
 In a local agent sandbox, use the harness's supported command-scoped host
 execution for `auth status --agent` and the user-requested `review --agent`.
-Request normal approval with a command-specific justification. In Codex modes
-exposing `sandbox_permissions`, use `require_escalated` on that exact call;
-other agents use their supported permission mechanism. If unavailable or denied,
+Request normal approval with a command-specific justification using the host's
+supported permission mechanism. If unavailable or denied,
 stop and report the missing permission. Do not change session-wide sandbox
 settings or silently fall back to a sandboxed command.
 

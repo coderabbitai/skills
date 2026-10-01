@@ -6,6 +6,10 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added native Codex metadata in `.codex-plugin/plugin.json`, reusing the shared
+  review and autofix skills with Codex execution guidance and UI metadata.
+  Marketplace publication remains a separate step.
+
 - Added a Claude directory listing icon and a README "Data and Privacy"
   section that discloses what the plugin runs and sends.
 - Added public contribution guidance, structured issue forms, and a pull-request

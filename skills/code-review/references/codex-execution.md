@@ -1,4 +1,4 @@
-# CodeRabbit execution and authentication
+# CodeRabbit execution in Codex
 
 ## Execution Context and Authentication
 
@@ -78,3 +78,17 @@ recovery sequence:
 Structured statuses are additive: do not require an upgrade to recognize the
 legacy failure path, and do not infer missing authentication from an absent
 status field alone.
+
+## Review context and active sessions
+
+If `AGENTS.md`, `.coderabbit.yaml`, or `CLAUDE.md` exists, pass relevant
+instruction files with `-c` when starting the requested review.
+
+While a review is active, avoid repetitive polling commentary. A tool result
+that returns a session ID means the review is still running: keep polling that
+same session until the CLI exits, retaining partial NDJSON lines across chunks.
+Allow at least ten minutes before declaring a timeout, and do not kill or
+restart a live review just because time passed. A terminal error ends that
+wait: use the recovery procedure above for a pre-review auth failure, and
+report other failures. Never replace a failed CodeRabbit review with an
+unlabelled manual review.

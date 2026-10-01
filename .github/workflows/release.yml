@@ -18,14 +18,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Claude Code and Cursor keep a cached copy until the manifest version changes.
+      # Keep versioned native manifests aligned with the release tag.
       - name: Check manifest versions match the tag
         env:
           TAG_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
           status=0
-          for f in .claude-plugin/plugin.json .cursor-plugin/plugin.json gemini-extension.json; do
+          for f in .claude-plugin/plugin.json .cursor-plugin/plugin.json .codex-plugin/plugin.json gemini-extension.json; do
             v=$(jq -r .version "$f")
             if [ "$v" != "${TAG_NAME#v}" ]; then
               echo "::error file=$f::version $v does not match tag $TAG_NAME"
