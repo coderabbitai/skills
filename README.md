@@ -253,8 +253,7 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
   `@agent-coderabbit:code-reviewer` and `@agent-coderabbit:autofix`.
 - Manifest: `.claude-plugin/plugin.json`
 
-The Claude plugin doesn't include the review command in `commands/`, which is
-packaged for Gemini CLI and Antigravity CLI. In Claude, use
+The Claude plugin has no slash commands of its own. In Claude, use
 `/coderabbit:code-review` instead of the earlier
 `/coderabbit:coderabbit-review`.
 
@@ -273,7 +272,7 @@ and chat doesn't run subagents.
 
 - Native plugin manifest: `plugin.json`
 - Skills source: `skills/`
-- Review command: `commands/coderabbit-review.md` (converted to a skill during installation)
+- Review command: `/coderabbit:review` from `commands/coderabbit/review.toml` (converted to a skill during installation)
 - Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
 
 ### Gemini CLI
