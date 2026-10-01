@@ -19,6 +19,8 @@ form, not through a public issue.
   remain behaviorally aligned with the corresponding canonical skill.
 - `.claude-plugin/`, `.cursor-plugin/`, `gemini-extension.json`, and
   `plugin.json` describe host-specific packaging.
+- `packaging/codex/` preserves the separately exported Codex plugin; see
+  `packaging/README.md` for discovery and publication boundaries.
 - `DISTRIBUTION_CHANNELS.md` records which channels are live, packaged, or still
   in development.
 

@@ -105,6 +105,9 @@ review command, and code-review subagent for Antigravity CLI's plugin discovery.
 Codex users can install the official CodeRabbit plugin by following the
 [Codex app integration guide](https://docs.coderabbit.ai/cli/codex-integration#codex-app).
 
+Maintainers: the Codex package source and ZIP export instructions are in
+[`packaging/README.md`](packaging/README.md). Publication is a separate step.
+
 For an at-a-glance inventory of active and repo-packaged distribution paths, see
 [DISTRIBUTION_CHANNELS.md](DISTRIBUTION_CHANNELS.md).
 
@@ -120,6 +123,8 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | `gemini-extension.json` | Gemini CLI extension manifest. |
 | `plugin.json` | Antigravity CLI plugin manifest. |
 | `assets/` | Shared marketplace and brand assets. |
+| `packaging/codex/` | Codex package source, exported separately for portal submission. |
+| `scripts/build_codex_plugin.py` | Reproducible Codex ZIP exporter. |
 | `DISTRIBUTION_CHANNELS.md` | Maintainer inventory of live, packaged, and in-development channels. |
 
 ## Usage
