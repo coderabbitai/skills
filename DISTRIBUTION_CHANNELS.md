@@ -9,13 +9,13 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 | Channel | Status | Source of truth | Notes |
 | --- | --- | --- | --- |
 | Skills package (`npx skills add coderabbitai/skills`) | Live | `README.md`, `skills/` | Canonical multi-agent distribution path for 35+ skills-compatible agents. |
-| Tagged GitHub release archive for binary installers | In development, not user-facing | `.github/workflows/release.yml` | Workflow publishes a versioned tarball, SHA-256 file, and release manifest on `v*` tags, but this channel is not part of public install guidance yet. |
+| Tagged GitHub release archive (`coderabbit skills`) | Live; `v1.2.0` pending | `.github/workflows/release.yml`, [skills install docs](https://docs.coderabbit.ai/cli/skills) | CLI installs the latest published release after manifest and checksum verification. As of 2026-09-30, Latest is `v1.1.1`; publish `v1.2.0` to deliver the merged updates. |
 | Claude Code plugin marketplace | Live | `.claude-plugin/plugin.json`, `commands/`, `agents/` | Official marketplace source: `coderabbitai/skills`. Migration from the legacy `coderabbitai/claude-plugin` repository completed on 2026-05-01. |
 | Claude directory (claude.ai, desktop, Cowork) | Submission in progress | `.claude-plugin/plugin.json`, `README.md` | Submitted from the CodeRabbit claude.ai organization through the developer portal at claude.ai/directory/manage; tracks `main`. |
 | Cursor native plugin marketplace | Repo-packaged, publication should be verified | `.cursor-plugin/plugin.json` | Repo contains marketplace manifest; treat public listing as separate verification work. |
 | Gemini CLI native extension | Repo-packaged, release pending | `gemini-extension.json`, `skills/`, `commands/coderabbit/review.toml`, `agents/` | Publish direct installation after `v1.2.0`; verify gallery listing separately. |
 | Antigravity CLI native plugin | GitHub-installable | `plugin.json`, `skills/` | Install directly with `agy plugin install https://github.com/coderabbitai/skills`; treat marketplace publication as separate verification work. |
-| Codex plugin marketplace | Live, separate repo | CodeRabbit docs + `coderabbitai/codex-plugin` | Not packaged from this repository today. |
+| Codex plugin marketplace | Live, separate repo | [`openai/plugins`](https://github.com/openai/plugins/tree/main/plugins/coderabbit) (published listing); `coderabbitai/codex-plugin` (source) | Not packaged from this repository. The listing changes only when a new version is uploaded to OpenAI's plugin portal, so fixes in `coderabbitai/codex-plugin` do not reach users until then. |
 | VS Code / Cursor / Windsurf IDE extension | Live, separate distribution | CodeRabbit IDE extension docs | Complements skills; not a replacement for `SKILL.md` installs. |
 | GitHub Marketplace app (PR reviews) | Live, separate product channel | CodeRabbit GitHub Marketplace listing | Product distribution, not a skills install path. |
 
