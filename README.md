@@ -238,12 +238,18 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 
 ### Claude Code
 
-- Slash command: `/coderabbit:review`
+- Slash command: `/coderabbit:coderabbit-review`
 - Subagent: `code-reviewer`
 - Marketplace manifest: `.claude-plugin/plugin.json`
+- Listing icon: `.claude-plugin/icon.png`
 
 The `code-review` skill also remains available for natural-language triggering
 inside compatible agents.
+
+The plugin runs reviews through the locally installed CodeRabbit CLI, so it
+needs a shell on the machine where the CLI is installed and logged in. Use it in
+Claude Code. Claude chat on the web, desktop, and mobile can load the plugin's
+skills but has no local CLI to run.
 
 ### Cursor
 
@@ -263,6 +269,27 @@ inside compatible agents.
 - Skills source: `skills/`
 - Slash command: `/coderabbit:review` (`commands/coderabbit/review.toml`)
 - Subagent: `agents/code-reviewer.md`
+
+## Data and Privacy
+
+The plugin contains skills, a command, and a subagent. It bundles no MCP
+servers, hooks, or executables.
+
+- **Local commands**: the review command runs read-only Git commands (`pwd`,
+  `git rev-parse`, `git branch`, `git status`) to describe the working tree.
+  The `code-review` skill and subagent run the installed `coderabbit` CLI. The
+  `autofix` skill uses the installed GitHub CLI (`gh`) to read CodeRabbit review
+  threads on the current pull request and, when you approve, to create a pull
+  request or post a summary comment.
+- **Data sent**: when you run a review, the CodeRabbit CLI sends the code
+  changes under review and the repository context needed to review them to
+  CodeRabbit's service. `autofix` exchanges pull request data with GitHub
+  through `gh`. The plugin sends nothing on its own.
+- **Credentials**: the CodeRabbit CLI and `gh` handle their own login and store
+  their own credentials. The plugin doesn't read or send credentials.
+- **Policy**: CodeRabbit's handling, retention, and sharing of review data is
+  described in the [CodeRabbit Privacy Policy](https://www.coderabbit.ai/privacy-policy).
+  Contact <support@coderabbit.ai> with questions.
 
 ## Resources
 
