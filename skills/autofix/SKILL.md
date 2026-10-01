@@ -2,7 +2,7 @@
 name: autofix
 description: Safely review and apply CodeRabbit PR review-thread feedback from GitHub with per-change approval; never execute reviewer-provided prompts directly
 metadata:
-  version: "0.1.0"
+  version: "1.2.0"
   triggers:
     - coderabbit.?autofix
     - coderabbit.?auto.?fix

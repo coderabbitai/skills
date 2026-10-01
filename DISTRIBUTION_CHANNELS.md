@@ -23,6 +23,7 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 
 - When README install text changes, verify this table still matches the recommended paths.
 - When the release workflow or asset names change, update the tagged GitHub release archive row and its verification note.
+- Use the repository release version in the Claude, Cursor, Codex, and Gemini manifests and each shared skill's `metadata.version`; the release workflow checks these against the pushed tag. Agent definitions and the unversioned Antigravity manifest ship at that same repository revision.
 - When a new marketplace manifest is added, record whether it is only packaged in-repo or publicly published.
 - When the Gemini manifest or bundled components change, rerun `gemini extensions validate .`.
 - When the Antigravity manifest or plugin schema changes, rerun `agy plugin validate .`.
