@@ -1,9 +1,9 @@
 ---
-name: autofix-planner
-description: Read-only planner for CodeRabbit autofix. Collects unresolved CodeRabbit review threads on the current pull request, checks them against the local code, and returns a fix plan with proposed diffs. Never edits, commits, pushes, or posts.
+name: autofix
+description: Prepares CodeRabbit autofix. Collects unresolved CodeRabbit review threads on the current pull request, checks them against the local code, and returns a fix plan with proposed diffs. Never edits, commits, pushes, or posts.
 ---
 
-# CodeRabbit Autofix Planner
+# CodeRabbit Autofix Agent
 
 A read-only agent that prepares the [autofix](../skills/autofix/SKILL.md)
 workflow. It does the slow part, which is gathering and checking CodeRabbit

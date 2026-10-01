@@ -8,7 +8,7 @@ All notable changes to this repository are documented in this file.
 
 - Added a Claude directory listing icon and a README "Data and Privacy"
   section that discloses what the plugin runs and sends.
-- Added the read-only `autofix-planner` subagent, which collects and checks
+- Added the read-only `autofix` subagent, which collects and checks
   unresolved CodeRabbit review threads and returns a fix plan for the `autofix`
   skill to apply with per-change approval.
 - Added Claude directory listing metadata to `.claude-plugin/plugin.json`:
@@ -33,7 +33,7 @@ All notable changes to this repository are documented in this file.
 ### Changed
 
 - The Claude plugin now ships the `code-review` and `autofix` skills and the
-  `code-reviewer` and `autofix-planner` subagents. It no longer includes the
+  `code-reviewer` and `autofix` subagents. It no longer includes the
   `/coderabbit:coderabbit-review` command, because skills supersede commands
   in Claude; run `/coderabbit:code-review` instead. Gemini CLI and Antigravity
   CLI keep their review commands.

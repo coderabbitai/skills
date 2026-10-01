@@ -123,7 +123,7 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | `skills/` | Portable CodeRabbit skills for agents that support `SKILL.md`. |
 | `.claude-plugin/` | Claude Code plugin marketplace metadata. |
 | `commands/` | Native review commands for Gemini CLI and Antigravity CLI. |
-| `agents/` | `code-reviewer` and `autofix-planner` subagents shipped to Claude Code, Gemini CLI, and Antigravity CLI. |
+| `agents/` | `code-reviewer` and `autofix` subagents shipped to Claude Code, Gemini CLI, and Antigravity CLI. |
 | `.cursor-plugin/` | Cursor marketplace metadata. |
 | `gemini-extension.json` | Gemini CLI extension manifest. |
 | `plugin.json` | Antigravity CLI plugin manifest. |
@@ -250,9 +250,9 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
   and `/coderabbit:autofix`, or ask in plain language, such as "review my
   changes" or "fix the CodeRabbit comments on this PR".
 - Subagents: `code-reviewer` runs a CodeRabbit review in its own context, and
-  `autofix-planner` collects and checks unresolved CodeRabbit review threads
+  `autofix` collects and checks unresolved CodeRabbit review threads
   and returns a fix plan without editing anything. Mention them as
-  `@agent-coderabbit:code-reviewer` and `@agent-coderabbit:autofix-planner`.
+  `@agent-coderabbit:code-reviewer` and `@agent-coderabbit:autofix`.
 - Manifest: `.claude-plugin/plugin.json`
 
 The Claude plugin doesn't include the review command in `commands/`, which is
@@ -276,14 +276,14 @@ and chat doesn't run subagents.
 - Native plugin manifest: `plugin.json`
 - Skills source: `skills/`
 - Review command: `commands/coderabbit-review.md` (converted to a skill during installation)
-- Subagents: `agents/code-reviewer.md`, `agents/autofix-planner.md`
+- Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
 
 ### Gemini CLI
 
 - Native extension manifest: `gemini-extension.json`
 - Skills source: `skills/`
 - Slash command: `/coderabbit:review` (`commands/coderabbit/review.toml`)
-- Subagents: `agents/code-reviewer.md`, `agents/autofix-planner.md`
+- Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
 
 ## Data and Privacy
 
@@ -294,7 +294,7 @@ servers, hooks, or executables.
   run the installed `coderabbit` CLI and read-only Git commands. The `autofix`
   skill uses the installed GitHub CLI (`gh`) to read CodeRabbit review threads
   on the current pull request and, when you approve, to create a pull request or
-  post a summary comment. The `autofix-planner` subagent only reads: it runs
+  post a summary comment. The `autofix` subagent only reads: it runs
   read-only `git` and `gh` commands and never edits, commits, pushes, or posts.
 - **Data sent**: when you run a review, the CodeRabbit CLI sends the code
   changes under review and the repository context needed to review them to
