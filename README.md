@@ -241,7 +241,6 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - Slash command: `/coderabbit:coderabbit-review`
 - Subagent: `code-reviewer`
 - Marketplace manifest: `.claude-plugin/plugin.json`
-- Listing icon: `.claude-plugin/icon.png`
 
 The `code-review` skill also remains available for natural-language triggering
 inside compatible agents.
