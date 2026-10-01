@@ -305,8 +305,11 @@ servers, hooks, or executables.
 
 ## Resources
 
+- [Documentation](https://docs.coderabbit.ai/cli)
+- [Support](https://docs.coderabbit.ai/support)
+- [Privacy Policy](https://www.coderabbit.ai/privacy-policy)
+- [Terms of Service](https://www.coderabbit.ai/legal/terms-of-service)
 - [CodeRabbit Documentation](https://coderabbit.ai/docs)
-- [CodeRabbit CLI Guide](https://docs.coderabbit.ai/cli)
 - [Vercel Skills CLI](https://github.com/vercel-labs/skills)
 - [Agent Skills Specification](https://agentskills.io/specification)
 - [Gemini CLI Extension Documentation](https://geminicli.com/docs/extensions/reference/)

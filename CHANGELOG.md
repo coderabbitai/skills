@@ -11,9 +11,9 @@ All notable changes to this repository are documented in this file.
 - Added the read-only `autofix` subagent, which collects and checks
   unresolved CodeRabbit review threads and returns a fix plan for the `autofix`
   skill to apply with per-change approval.
-- Added Claude directory listing metadata to `.claude-plugin/plugin.json`:
-  `displayName`, documentation, support, privacy policy, and terms of service
-  URLs.
+- Added `displayName` to `.claude-plugin/plugin.json` and README links for
+  documentation, support, privacy policy, and terms of service, which the
+  Claude directory shows on the listing.
 - Added public contribution guidance, structured issue forms, and a pull-request
   template for agent-skill and integration changes.
 - Added a self-contained, assertive repository-level CodeRabbit policy with
