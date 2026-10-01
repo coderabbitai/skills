@@ -1,8 +1,13 @@
 {
   "name": "coderabbit",
+  "displayName": "CodeRabbit",
   "version": "1.2.0",
-  "description": "AI-powered code review in Claude Code, powered by CodeRabbit",
+  "description": "AI code review and review-comment autofix, powered by CodeRabbit",
   "homepage": "https://docs.coderabbit.ai/cli/claude-code-integration",
+  "documentationUrl": "https://docs.coderabbit.ai/cli",
+  "supportUrl": "https://docs.coderabbit.ai/support",
+  "privacyPolicyUrl": "https://www.coderabbit.ai/privacy-policy",
+  "termsOfServiceUrl": "https://www.coderabbit.ai/legal/terms-of-service",
   "author": {
     "name": "CodeRabbit AI",
     "email": "support@coderabbit.ai",
@@ -12,8 +17,10 @@
   "license": "MIT",
   "keywords": [
     "code-review",
+    "autofix",
     "ai",
     "coderabbit",
     "claude-code"
-  ]
+  ],
+  "commands": []
 }

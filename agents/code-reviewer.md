@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Specialized CodeRabbit code review agent that performs thorough analysis of code changes
+description: Runs a CodeRabbit CLI review of the current code changes in its own context and returns the findings by severity with suggested fixes. Use for a thorough review before a commit or pull request.
 ---
 
 # CodeRabbit Code Review Agent
