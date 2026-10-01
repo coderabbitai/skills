@@ -111,6 +111,10 @@ review command, and both subagents for Antigravity CLI's plugin discovery.
 Codex users can install the official CodeRabbit plugin by following the
 [Codex app integration guide](https://docs.coderabbit.ai/cli/codex-integration#codex-app).
 
+Native Codex metadata in [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json)
+references the existing `skills/` directory. Marketplace publication remains a
+separate step; this source change does not update the live listing.
+
 For an at-a-glance inventory of active and repo-packaged distribution paths, see
 [DISTRIBUTION_CHANNELS.md](DISTRIBUTION_CHANNELS.md).
 
@@ -123,6 +127,7 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | `commands/` | Native review commands for Gemini CLI and Antigravity CLI. |
 | `agents/` | `code-reviewer` and `autofix` subagents shipped to Claude Code, Gemini CLI, and Antigravity CLI. |
 | `.cursor-plugin/` | Cursor marketplace metadata. |
+| `.codex-plugin/` | Codex metadata referencing the shared skills. |
 | `gemini-extension.json` | Gemini CLI extension manifest. |
 | `plugin.json` | Antigravity CLI plugin manifest. |
 | `assets/` | Shared marketplace and brand assets. |
