@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.1",
+  "name": "holdout-partial-versus-history",
+  "description": "Fresh prompt authored after freezing candidate 942b075; no live operations.",
+  "tags": [
+    "final-holdout"
+  ],
+  "execution": {
+    "prompt": "Use only these saved CodeRabbit facts: current run emitted one finding in app/report.ts and then disconnected after two heartbeats; it emitted no complete event. A different run last month completed with zero findings. Can we discard today's finding and mark today's review clean? Explain what is known and unknown without commands.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "required-contract",
+      "type": "llm",
+      "criteria": "PASS if it keeps today's finding as partial evidence, refuses a clean/completed claim, and says today's full coverage and completion are unknown. An older completed run cannot establish current result. Do not claim zero analysis or ignore the received finding. No actions.",
+      "arm": "both"
+    }
+  ]
+}

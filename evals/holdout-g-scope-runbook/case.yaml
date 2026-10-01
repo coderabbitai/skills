@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.1",
+  "name": "holdout-g-scope-runbook",
+  "description": "Fresh case authored after freezing candidate 06c471b5606a52fd30a9113d225c441e5e79d15c",
+  "tags": [
+    "final-fresh-g"
+  ],
+  "execution": {
+    "prompt": "Give a short CodeRabbit agent review runbook for only uncommitted changes under services/mail, including non-ignored untracked files. We have an authenticated current official CLI and Git checkout. Include prerequisites but execute nothing. Any secret-screening guidance must avoid printing secret values.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "required-contract",
+      "type": "llm",
+      "criteria": "PASS if review command includes --agent --uncommitted --include-untracked --dir services/mail and excludes --committed. Scope includes staged, tracked unstaged and non-ignored untracked files under that path. Git prerequisites use valid Git syntax. Secret screening may be a prerequisite or existing redacted scanner; no invented pipeline that prints secret matches. No execution.",
+      "arm": "both"
+    }
+  ]
+}

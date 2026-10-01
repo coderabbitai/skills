@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.1",
+  "name": "holdout-composed-scope",
+  "description": "Fresh prompt authored after freezing candidate 942b075; no live operations.",
+  "tags": [
+    "final-holdout"
+  ],
+  "execution": {
+    "prompt": "Write only a CodeRabbit agent-mode runbook command and its scope explanation. Review changes under lib/export against release/2026-q3, including commits, staged edits, tracked unstaged edits, and non-ignored untracked files. We already have a suitable authenticated CLI and checkout. Do not execute checks or the review.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "required-contract",
+      "type": "llm",
+      "criteria": "PASS if the command has --agent --base release/2026-q3 --dir lib/export --include-untracked and neither --committed nor --uncommitted. Explain that all four requested change categories are retained within lib/export. No command execution, dropping selectors or advice to stage/remove/ignore unrelated files.",
+      "arm": "both"
+    }
+  ]
+}

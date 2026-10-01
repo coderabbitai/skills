@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.1",
+  "name": "fresh-completion-warning",
+  "description": "Fresh synthetic validation written before evaluating the next candidate; no live operations.",
+  "tags": [
+    "fresh-validation"
+  ],
+  "execution": {
+    "prompt": "Interpret this saved CodeRabbit 0.7.7+ result, without running anything: exit 0; complete; review_completed; outcome completed_with_warnings; unreviewedFileCount 0; findings 0. Separately, last week's stored findings command had one finding. Does this run establish completion and zero findings? Does it prove the code is bug-free or that old history was cleared?",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "required-contract",
+      "type": "llm",
+      "criteria": "PASS if it says the current run completed with zero reported findings and no unreviewed files, warnings alone are not failure, no bug-free guarantee, and this result does not prove stored findings/history were cleared. No execution or inference that old history makes this run failed.",
+      "arm": "both"
+    }
+  ]
+}

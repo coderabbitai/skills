@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.1",
+  "description": "Offline docs-backed contract; supplied context, no shell, network, writes, or live review.",
+  "tags": [
+    "skills-comparison",
+    "docs-parity"
+  ],
+  "name": "review-completion-outcome",
+  "execution": {
+    "prompt": "Interpret four saved CodeRabbit CLI 0.7.7+ transcripts. Do not run anything. A: one finding, then heartbeat, then disconnect with no completion. B: exit 1 and {\"type\":\"complete\",\"status\":\"review_completed\",\"outcome\":\"failed\",\"unreviewedFileCount\":2,\"findings\":0}. C: exit 0 and {\"type\":\"complete\",\"status\":\"review_completed\",\"outcome\":\"completed_with_warnings\",\"unreviewedFileCount\":0,\"findings\":0}. D: exit 0 and {\"type\":\"complete\",\"status\":\"review_skipped\",\"findings\":0,\"message\":\"No changes detected\"}. Which establish completion, which leave coverage unverified, and which support a zero-finding analyzed review? Do not infer more than the evidence.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "completion-and-coverage",
+      "type": "llm",
+      "criteria": "PASS if A is partial/incomplete with a real finding already received and unknown full coverage (must not say no analysis happened); B failed/incomplete despite complete/review_completed due exit 1, failed outcome and two unreviewed files; C completed with warnings and zero findings/no unreviewed files, warnings alone are not failure (can qualify this as not a bug-free guarantee); D successful skip, not an analyzed zero-finding pass. FAIL if B is treated as complete success, C automatically fails due to warnings, or A is said to prove no code was analyzed.",
+      "arm": "both"
+    }
+  ]
+}

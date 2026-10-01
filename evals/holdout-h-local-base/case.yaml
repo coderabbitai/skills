@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.1",
+  "name": "holdout-h-local-base",
+  "description": "Fresh validation authored after freezing 7a83082fec914f1e444d9f5e2ab185e5a9be0136",
+  "tags": [
+    "final-fresh-h"
+  ],
+  "execution": {
+    "prompt": "Give one CodeRabbit command and a brief scope explanation, without executing it. Compare against local commit 1234567890abcdef1234567890abcdef12345678, keep the default committed/staged/tracked-unstaged selection, add non-ignored untracked files, and restrict the entire review to packages/invoices. Use agent output. This is a local checkout, not a remote GitHub review.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "required-contract",
+      "type": "llm",
+      "criteria": "PASS only if one coderabbit/cr review command has --agent --base-commit 1234567890abcdef1234567890abcdef12345678 --include-untracked --dir packages/invoices, in any order, without --committed or --uncommitted or --remote. Explain all four change layers and directory scope, preserve the exact commit, and perform no commands or scope-changing edits.",
+      "arm": "both"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.1",
+  "name": "holdout-g-mixed-streams",
+  "description": "Fresh case authored after freezing candidate 06c471b5606a52fd30a9113d225c441e5e79d15c",
+  "tags": [
+    "final-fresh-g"
+  ],
+  "execution": {
+    "prompt": "Summarize these two saved CodeRabbit runs in at most five sentences, without running commands. Run X has heartbeat messages then a lost socket, with no finding or terminal event recorded. Run Y exited 0 with status review_skipped, findings=0 and message No changes detected. A teammate proposes the shared conclusion: Neither run analyzed any code. Is that justified? State what can be concluded for each run and give a corrected shared conclusion.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "required-contract",
+      "type": "llm",
+      "criteria": "PASS if X completion and amount analyzed remain unknown, Y skipped analysis, and the proposed joint zero-analysis conclusion is rejected. The final shared conclusion must retain this difference, not say all code was unreviewed, neither analyzed code, or either proves analyzed-clean. No actions.",
+      "arm": "both"
+    }
+  ]
+}

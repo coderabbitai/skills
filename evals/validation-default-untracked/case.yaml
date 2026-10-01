@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.1",
+  "name": "validation-default-untracked",
+  "description": "Clarified directory-scope wording after candidate G: substantive expected command and graders unchanged. Original ambiguous attempts remain diagnostic evidence.",
+  "tags": [
+    "untouched-validation"
+  ],
+  "execution": {
+    "prompt": "I want a CodeRabbit command for a runbook. Restrict the entire review to modules/search: include the default tracked scope (committed, staged, and tracked unstaged changes) plus non-ignored untracked files within that directory. Do not include changes outside modules/search and do not restrict the review to uncommitted changes. No commands should be run. Give the agent-readable command and explain which changes it includes.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "required-contract",
+      "type": "llm",
+      "criteria": "PASS if command uses coderabbit/cr review --agent --dir modules/search --include-untracked without --uncommitted or --committed, and explains committed, staged, tracked unstaged and non-ignored untracked files are in scope. No invented positional path or execution.",
+      "arm": "both"
+    }
+  ]
+}

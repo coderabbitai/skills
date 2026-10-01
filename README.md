@@ -140,7 +140,7 @@ The agent will automatically:
 1. Check if CodeRabbit CLI is installed
 2. Run the review on your changes
 3. Present findings grouped by severity
-4. Optionally fix issues and re-review
+4. Apply authorized fixes and verify the edited content with focused checks
 
 When you ask for a specific review directory, the agent can pass CodeRabbit CLI
 `--dir <path>` after confirming that path is inside an initialized Git working
@@ -244,7 +244,10 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - Listing icon: `.claude-plugin/icon.png`
 
 The `code-review` skill also remains available for natural-language triggering
-inside compatible agents.
+inside compatible agents. Native commands and the code-review agent route through
+the canonical skills and references for local and remote reviews, CLI questions,
+supplied findings, completion evidence, and credit consent. Questions or supplied
+output do not by themselves authorize a new review, login, or spending.
 
 The plugin runs reviews through the locally installed CodeRabbit CLI, so it
 needs a shell on the machine where the CLI is installed and logged in. Use it in

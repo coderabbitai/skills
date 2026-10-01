@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.1",
+  "description": "Offline docs-backed contract; supplied context, no shell, network, writes, or live review.",
+  "tags": [
+    "skills-comparison",
+    "docs-parity"
+  ],
+  "name": "review-remote-runbook",
+  "execution": {
+    "prompt": "Write an agent-readable CodeRabbit CLI runbook command to review the GitHub repository example/widgets from main to feature/search without cloning or using a local checkout. Assume a current official CLI 0.7.7 or newer and an authenticated GitHub Cloud organization in which the repository is installed. Do not execute commands or authenticate. Give the exact command and explain whether local files, local --config overrides, or local findings history participate.",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "remote-command",
+      "type": "regex",
+      "pattern": "^(?=(?:\\\\\\r?\\n|[^\\r\\n])*\\b(?:coderabbit|cr)[ \\t]+review\\b)(?=(?:\\\\\\r?\\n|[^\\r\\n])*--remote[ \\t]+[\"\\x27]?(?:example/widgets|https://github.com/example/widgets)\\b)(?=(?:\\\\\\r?\\n|[^\\r\\n])*--base[ \\t]+[\"\\x27]?main\\b)(?=(?:\\\\\\r?\\n|[^\\r\\n])*--source-branch[ \\t]+[\"\\x27]?feature/search\\b)(?=(?:\\\\\\r?\\n|[^\\r\\n])*--agent\\b)(?:\\\\\\r?\\n|[^\\r\\n])+$",
+      "match": "contains",
+      "flags": "mi"
+    },
+    {
+      "name": "remote-semantics",
+      "type": "llm",
+      "criteria": "PASS if the proposed command reviews the supplied repository and refs remotely without a checkout, states local files are not uploaded, local --config overrides are ignored, and no local findings history is written. No local scope flags may appear in the proposed remote command. Do not require cloning, git init, or commands to execute. Explanations of forbidden flags are allowed. FAIL for unsupported substitutes or requiring a local checkout. The repository is explicitly example/widgets; replacing it with a placeholder or treating it as a local directory fails.",
+      "arm": "both"
+    }
+  ]
+}

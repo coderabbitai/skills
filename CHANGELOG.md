@@ -28,6 +28,17 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Reviews start without an authentication pre-check, wait for long-running
+  reviews instead of restarting them, treat a reused review as not clean and
+  offer `--fresh`, rebuild paid reruns from the trusted CLI path and original
+  selectors, and explain sandbox auth errors with the fix.
+- A denied host execution request now ends auth recovery: host sign-in stays
+  unknown, the agent offers `auth status` for the user's terminal, and it does
+  not re-request approval or suggest token or configuration workarounds.
+- Documented CLI 0.8 `--deep`, `--fresh`, `-c/--config`, and
+  `review findings --clear` in place of `--light`; restored install guidance;
+  added Codex prefix-rule approval; corrected the Claude Code slash command to
+  `/coderabbit:coderabbit-review` in the README.
 - Hardened review authentication with trusted CLI paths, command-scoped host
   permissions, and one bounded retry for pre-review sandbox auth failures.
 
