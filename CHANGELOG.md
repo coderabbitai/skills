@@ -6,6 +6,10 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added a Claude directory listing icon at `.claude-plugin/icon.png` and a
+  README "Data and Privacy" section that discloses what the plugin runs and
+  sends.
+
 - Added public contribution guidance, structured issue forms, and a pull-request
   template for agent-skill and integration changes.
 - Added a self-contained, assertive repository-level CodeRabbit policy with
