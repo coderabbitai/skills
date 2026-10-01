@@ -11,9 +11,9 @@ All notable changes to this repository are documented in this file.
 - Added the read-only `autofix` subagent, which collects and checks
   unresolved CodeRabbit review threads and returns a fix plan for the `autofix`
   skill to apply with per-change approval.
-- Added Claude directory listing metadata to `.claude-plugin/plugin.json`:
-  `displayName`, documentation, support, privacy policy, and terms of service
-  URLs.
+- Added `displayName` to `.claude-plugin/plugin.json` and README links for
+  documentation, support, privacy policy, and terms of service, which the
+  Claude directory shows on the listing.
 - Added public contribution guidance, structured issue forms, and a pull-request
   template for agent-skill and integration changes.
 - Added a self-contained, assertive repository-level CodeRabbit policy with
@@ -37,6 +37,10 @@ All notable changes to this repository are documented in this file.
   `/coderabbit:coderabbit-review` command, because skills supersede commands
   in Claude; run `/coderabbit:code-review` instead. Gemini CLI and Antigravity
   CLI keep their review commands.
+- Removed the duplicate Markdown review command `commands/coderabbit-review.md`.
+  Antigravity CLI and Gemini CLI both use `/coderabbit:review` from
+  `commands/coderabbit/review.toml`, and the Claude manifest no longer needs a
+  `commands` key to hide it.
 - Rewrote the `code-reviewer` subagent description so Claude knows when to
   delegate to it.
 - Hardened review authentication with trusted CLI paths, command-scoped host

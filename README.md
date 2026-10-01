@@ -258,8 +258,7 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
   `@agent-coderabbit:code-reviewer` and `@agent-coderabbit:autofix`.
 - Manifest: `.claude-plugin/plugin.json`
 
-The Claude plugin doesn't include the review command in `commands/`, which is
-packaged for Gemini CLI and Antigravity CLI. In Claude, use
+The Claude plugin has no slash commands of its own. In Claude, use
 `/coderabbit:code-review` instead of the earlier
 `/coderabbit:coderabbit-review`.
 
@@ -278,7 +277,7 @@ and chat doesn't run subagents.
 
 - Native plugin manifest: `plugin.json`
 - Skills source: `skills/`
-- Review command: `commands/coderabbit-review.md` (converted to a skill during installation)
+- Review command: `/coderabbit:review` from `commands/coderabbit/review.toml` (converted to a skill during installation)
 - Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
 
 ### Gemini CLI
@@ -311,8 +310,11 @@ servers, hooks, or executables.
 
 ## Resources
 
+- [Documentation](https://docs.coderabbit.ai/cli)
+- [Support](https://docs.coderabbit.ai/support)
+- [Privacy Policy](https://www.coderabbit.ai/privacy-policy)
+- [Terms of Service](https://www.coderabbit.ai/legal/terms-of-service)
 - [CodeRabbit Documentation](https://coderabbit.ai/docs)
-- [CodeRabbit CLI Guide](https://docs.coderabbit.ai/cli)
 - [Vercel Skills CLI](https://github.com/vercel-labs/skills)
 - [Agent Skills Specification](https://agentskills.io/specification)
 - [Gemini CLI Extension Documentation](https://geminicli.com/docs/extensions/reference/)
