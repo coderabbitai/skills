@@ -45,14 +45,20 @@ Installation options for the skills installer:
 | `-s, --skill`  | Install particular skills by name                |
 | `--all`        | Install all skills to all agents without prompts |
 
-#### Claude Code Plugin
+#### Claude Plugin
 
-Claude Code users can also install this as a plugin directly from the official marketplace:
+In Claude Code, install the plugin from the official marketplace:
 
 ```text
 /plugin marketplace update
-/plugin install coderabbit
+/plugin install coderabbit@claude-plugins-official
 ```
+
+A listing in the Claude directory is in review. Once it's published, you'll
+also be able to add CodeRabbit from **Customize > Plugins > Discover** in
+claude.ai or the Claude desktop app, and it will sync to Claude Code sessions
+where you're signed in with the same claude.ai account. If you install from
+both places, Claude Code loads the marketplace copy.
 
 For the full setup flow, see the
 [Claude Code integration guide](https://docs.coderabbit.ai/cli/claude-code-integration).
@@ -84,7 +90,7 @@ gemini extensions list
 After `v1.2.0` is published, the `--ref main` option can be omitted.
 
 The repository-root [`gemini-extension.json`](gemini-extension.json) packages
-the portable skills, `/coderabbit:review` command, and code-review subagent.
+the portable skills, `/coderabbit:review` command, and both subagents.
 This native extension is separate from the generic skills-installer path above.
 
 #### Antigravity CLI Plugin
@@ -98,18 +104,16 @@ agy plugin list
 ```
 
 The repository-root [`plugin.json`](plugin.json) manifest packages the skills,
-review command, and code-review subagent for Antigravity CLI's plugin discovery.
+review command, and both subagents for Antigravity CLI's plugin discovery.
 
 #### Codex App
 
 Codex users can install the official CodeRabbit plugin by following the
 [Codex app integration guide](https://docs.coderabbit.ai/cli/codex-integration#codex-app).
 
-This repository includes native Codex metadata in
-[`.codex-plugin/plugin.json`](.codex-plugin/plugin.json), using the same
-`skills/code-review` and `skills/autofix` as the other integrations. The existing
-marketplace listing updates only after a separately approved ZIP upload.
-Maintainers: see [Codex submission](DISTRIBUTION_CHANNELS.md#codex-submission).
+Native Codex metadata in [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json)
+references the existing `skills/` directory. Marketplace publication remains a
+separate step; this source change does not update the live listing.
 
 For an at-a-glance inventory of active and repo-packaged distribution paths, see
 [DISTRIBUTION_CHANNELS.md](DISTRIBUTION_CHANNELS.md).
@@ -120,13 +124,13 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | --- | --- |
 | `skills/` | Portable CodeRabbit skills for agents that support `SKILL.md`. |
 | `.claude-plugin/` | Claude Code plugin marketplace metadata. |
-| `commands/` | Native review commands for Claude Code, Gemini CLI, and Antigravity CLI. |
-| `agents/` | Code-review subagent shipped to Claude Code, Gemini CLI, and Antigravity CLI. |
+| `commands/` | Native review commands for Gemini CLI and Antigravity CLI. |
+| `agents/` | `code-reviewer` and `autofix` subagents shipped to Claude Code, Gemini CLI, and Antigravity CLI. |
 | `.cursor-plugin/` | Cursor marketplace metadata. |
+| `.codex-plugin/` | Codex metadata referencing the shared skills. |
 | `gemini-extension.json` | Gemini CLI extension manifest. |
 | `plugin.json` | Antigravity CLI plugin manifest. |
 | `assets/` | Shared marketplace and brand assets. |
-| `.codex-plugin/` | Codex metadata referencing the shared `skills/` directory. |
 | `DISTRIBUTION_CHANNELS.md` | Maintainer inventory of live, packaged, and in-development channels. |
 
 ## Usage
@@ -245,17 +249,25 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 
 ### Claude Code
 
-- Slash command: `/coderabbit:coderabbit-review`
-- Subagent: `code-reviewer`
-- Marketplace manifest: `.claude-plugin/plugin.json`
+- Skills: `code-review` and `autofix`. Run them as `/coderabbit:code-review`
+  and `/coderabbit:autofix`, or ask in plain language, such as "review my
+  changes" or "fix the CodeRabbit comments on this PR".
+- Subagents: `code-reviewer` runs a CodeRabbit review in its own context, and
+  `autofix` collects and checks unresolved CodeRabbit review threads
+  and returns a fix plan without editing anything. Mention them as
+  `@agent-coderabbit:code-reviewer` and `@agent-coderabbit:autofix`.
+- Manifest: `.claude-plugin/plugin.json`
 
-The `code-review` skill also remains available for natural-language triggering
-inside compatible agents.
+The Claude plugin doesn't include the review command in `commands/`, which is
+packaged for Gemini CLI and Antigravity CLI. In Claude, use
+`/coderabbit:code-review` instead of the earlier
+`/coderabbit:coderabbit-review`.
 
 The plugin runs reviews through the locally installed CodeRabbit CLI, so it
-needs a shell on the machine where the CLI is installed and logged in. Use it in
-Claude Code. Claude chat on the web, desktop, and mobile can load the plugin's
-skills but has no local CLI to run.
+needs a shell on a machine where the CLI is installed and logged in. Claude Code
+has full support. Cowork and Claude chat on the web, desktop, and mobile can
+load the skills, but a review runs only where the CodeRabbit CLI is available,
+and chat doesn't run subagents.
 
 ### Cursor
 
@@ -267,26 +279,26 @@ skills but has no local CLI to run.
 - Native plugin manifest: `plugin.json`
 - Skills source: `skills/`
 - Review command: `commands/coderabbit-review.md` (converted to a skill during installation)
-- Subagent: `agents/code-reviewer.md`
+- Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
 
 ### Gemini CLI
 
 - Native extension manifest: `gemini-extension.json`
 - Skills source: `skills/`
 - Slash command: `/coderabbit:review` (`commands/coderabbit/review.toml`)
-- Subagent: `agents/code-reviewer.md`
+- Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
 
 ## Data and Privacy
 
-The plugin contains skills, a command, and a subagent. It bundles no MCP
+The Claude plugin contains two skills and two subagents. It bundles no MCP
 servers, hooks, or executables.
 
-- **Local commands**: the review command runs read-only Git commands (`pwd`,
-  `git rev-parse`, `git branch`, `git status`) to describe the working tree.
-  The `code-review` skill and subagent run the installed `coderabbit` CLI. The
-  `autofix` skill uses the installed GitHub CLI (`gh`) to read CodeRabbit review
-  threads on the current pull request and, when you approve, to create a pull
-  request or post a summary comment.
+- **Local commands**: the `code-review` skill and the `code-reviewer` subagent
+  run the installed `coderabbit` CLI and read-only Git commands. The `autofix`
+  skill uses the installed GitHub CLI (`gh`) to read CodeRabbit review threads
+  on the current pull request and, when you approve, to create a pull request or
+  post a summary comment. The `autofix` subagent only reads: it runs
+  read-only `git` and `gh` commands and never edits, commits, pushes, or posts.
 - **Data sent**: when you run a review, the CodeRabbit CLI sends the code
   changes under review and the repository context needed to review them to
   CodeRabbit's service. `autofix` exchanges pull request data with GitHub

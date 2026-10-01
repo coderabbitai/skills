@@ -31,7 +31,7 @@
     "privacyPolicyURL": "https://www.coderabbit.ai/privacy-policy",
     "termsOfServiceURL": "https://www.coderabbit.ai/terms-of-service",
     "brandColor": "#FF570A",
-    "composerIcon": "./skills/code-review/assets/coderabbit-small.png",
+    "composerIcon": "./assets/coderabbit-small.png",
     "logo": "./assets/logo.png",
     "defaultPrompt": [
       "Review my current changes and provide feedback"

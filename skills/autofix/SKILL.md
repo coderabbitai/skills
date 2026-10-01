@@ -207,7 +207,7 @@ CodeRabbit Issues for PR #123: [PR Title]
 
 ### Step 5: Ask User for Fix Preference
 
-Use the host's user-question tool when available, or ask directly:
+Use AskUserQuestion:
 - 🔍 "Review issues" - Review each issue and approve fixes one by one
 - ⏭️ "Skip all" - Exit without changing code
 - ❌ "Cancel" - Exit
@@ -235,7 +235,7 @@ Display issues in original thread order. Review recognized severities in this or
    - Sanitized reviewer guidance summary
    - Why the issue appears valid or invalid
    - Proposed diff
-   - Ask: ✅ Apply fix | ⏭️ Defer | 🔧 Modify
+   - AskUserQuestion: ✅ Apply fix | ⏭️ Defer | 🔧 Modify
 
 **If "Apply fix":**
 - Apply with Edit tool
@@ -243,7 +243,7 @@ Display issues in original thread order. Review recognized severities in this or
 - Confirm: "✅ Fix applied"
 
 **If "Defer":**
-- Ask for reason (using the host's question tool when available)
+- Ask for reason (AskUserQuestion)
 - Move to next
 
 **If "Modify":**

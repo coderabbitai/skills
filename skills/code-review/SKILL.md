@@ -7,7 +7,7 @@ metadata:
 
 # CodeRabbit Code Review
 
-AI-powered code review using CodeRabbit. Review changes and fix findings within the user's authorized scope. For advice or supplied output, answer from the evidence without starting a review, login, or installation. Reading this skill does not authorize edits or spending.
+AI-powered code review using CodeRabbit. Enables developers to implement features, review code, and fix issues in autonomous cycles without manual intervention.
 
 ## Capabilities
 
@@ -30,17 +30,11 @@ When user asks to:
 
 ### 1. Check CLI and Authentication
 
-Before running a review, read the execution guidance for the current host:
-
-- **Codex (desktop, CLI, or cloud):** [Codex execution](references/codex-execution.md).
-  Start the requested review in its approved context; check authentication only
-  after a pre-review authentication failure.
-- **Other agents:** [authentication and recovery](references/auth-recovery.md).
-  Check authentication in the approved context before starting the review.
-
-Both paths resolve a trusted CLI to a quoted canonical absolute path and keep
-credential access inside that CLI. Never start login automatically or access
-credentials yourself. Examples below use the validated absolute path.
+Before running a review, read and follow [authentication and recovery](references/auth-recovery.md).
+Resolve the trusted CLI to a quoted canonical absolute path, check authentication
+in the approved review execution context, and proceed only on `authenticated: true`.
+Never start login automatically or access credentials yourself. Examples below
+use the validated absolute path; substitute only the path verified by that procedure.
 
 Check `"/absolute/path/to/coderabbit" review --help` when support for an option is uncertain.
 Older binaries may lack current flags; report the mismatch and use the official upgrade path.
@@ -57,8 +51,8 @@ Use `--agent` for output optimized for AI agents:
 "/absolute/path/to/coderabbit" review --agent
 ```
 
-Use the approved context defined by the host guidance above. On a pre-review
-authentication failure, follow that recovery procedure before asking for login. Only a
+Use the same approved context as the auth check. On a pre-review authentication
+failure, follow the linked recovery procedure before asking for login. Only a
 failed sandbox attempt with confirmed host authentication qualifies for one host
 retry; preserve its directory and all arguments. Never retry after review work starts.
 
@@ -85,9 +79,6 @@ If the user asks to review a specific directory, append `--dir <path>`. The dire
 Default scope includes committed, staged, and tracked unstaged changes; raw untracked files are excluded, while staged new files are included. `--include-untracked` also works by itself with the default scope: `"/absolute/path/to/coderabbit" review --agent --include-untracked` reviews those tracked changes plus non-ignored untracked files. It does not require `--uncommitted`. Validate selectors before execution: `--committed` conflicts with `--uncommitted` and `--include-untracked`; `--base` conflicts with `--base-commit`. Preserve the requested scope on retries; do not silently narrow it after a file-limit error. Use the named scope flags in new commands; `-t/--type` is hidden compatibility syntax.
 
 ### 3. Present Results
-
-Read [output and spending consent](references/review-output.md) for live results,
-supplied transcripts, incomplete coverage, or credit confirmation requests.
 
 Read `--agent` as NDJSON, not a single JSON document. Preserve the returned `critical`, `major`, `minor`, `trivial`, `info`, or `none` severity; do not relabel findings as Warning. Use `fileName`, `codegenInstructions`, and `suggestions` when available, falling back to the comment when fix instructions are absent.
 

@@ -17,7 +17,7 @@ form, not through a public issue.
 - `skills/` contains the canonical portable skills.
 - `commands/` and `agents/` contain native command and agent packaging that must
   remain behaviorally aligned with the corresponding canonical skill.
-- `.claude-plugin/`, `.cursor-plugin/`, `.codex-plugin/`, `gemini-extension.json`, and
+- `.claude-plugin/`, `.cursor-plugin/`, `gemini-extension.json`, and
   `plugin.json` describe host-specific packaging.
 - `DISTRIBUTION_CHANNELS.md` records which channels are live, packaged, or still
   in development.
@@ -46,7 +46,7 @@ Run the checks that match your change:
 
 ```bash
 git diff --check
-jq empty .claude-plugin/plugin.json .cursor-plugin/plugin.json .codex-plugin/plugin.json gemini-extension.json plugin.json
+jq empty .claude-plugin/plugin.json .cursor-plugin/plugin.json gemini-extension.json plugin.json
 ```
 
 When changing `.coderabbit.yaml`, also run:
