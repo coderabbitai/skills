@@ -1,6 +1,6 @@
 # Distribution Channels
 
-Last verified: 2026-08-12
+Last verified: 2026-10-01
 
 This file is the repository's operating inventory for where CodeRabbit skills and adjacent agent integrations are distributed. Public user-facing install guidance belongs in `README.md`; in-development and maintainer-only channels should stay here until they are ready to launch.
 
@@ -22,7 +22,7 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 ## Maintenance checklist
 
 - When README install text changes, verify this table still matches the recommended paths.
-- When the release workflow or asset names change, update the binary-installer row and its verification note.
+- When the release workflow or asset names change, update the tagged GitHub release archive row and its verification note.
 - When a new marketplace manifest is added, record whether it is only packaged in-repo or publicly published.
 - When the Gemini manifest or bundled components change, rerun `gemini extensions validate .`.
 - When the Antigravity manifest or plugin schema changes, rerun `agy plugin validate .`.
