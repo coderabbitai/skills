@@ -5,7 +5,7 @@
   "description": "AI-powered code review in Claude Code, powered by CodeRabbit",
   "homepage": "https://docs.coderabbit.ai/cli/claude-code-integration",
   "author": {
-    "name": "CodeRabbit AI",
+    "name": "CodeRabbit",
     "email": "support@coderabbit.ai",
     "url": "https://coderabbit.ai"
   },
