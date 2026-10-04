@@ -22,7 +22,7 @@ committed, or uncommitted changes, see when the review is running, and bring the
 original findings into your conversation. Requires the official CodeRabbit CLI
 and an authenticated account. Reviews start only when you invoke the command.
 
-Links and the icon are bundled in README.md and `.claude-plugin/icon.png`.
+Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.png`.
 
 ## Validation recorded
 
@@ -34,6 +34,20 @@ Links and the icon are bundled in README.md and `.claude-plugin/icon.png`.
 - Tests use synthetic process responses. An authenticated end-to-end review
   against a development service has **not** been exercised. Do not describe
   the test suite as proof of service authentication or review quality.
+
+## Live portal validation
+
+The candidate subfolder passed all seven source checks on 2026-10-04 and was
+recognized as one mod, with all six listing links populated. The directory
+correctly limited installation to Claude Code. Local CLI execution, dynamic
+executable selection, and local-read/outbound-data capability require human
+policy review. The publisher name also requires ownership review against the
+existing CodeRabbit listing. These are review holds, not a technical validation
+failure or an approval.
+
+The portal's compliance form still requires a declaration that no code executes
+outside declared MCP servers, including for a package it recognizes as a mod.
+This package cannot truthfully make that declaration. It remains unsubmitted.
 
 ## Data-handling review
 

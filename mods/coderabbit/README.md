@@ -81,6 +81,17 @@ Code terminal. It does not provide a working code-review service inside Claude
 web chat, mobile, or Cowork. No MCP server, portable skill, or agent is bundled.
 The existing CodeRabbit skills plugin is a separate package with its own version.
 
+## Execution disclosure
+
+The `session.start` hook registers `/coderabbit-review` and runs no program.
+The `command.run` hook handles only that command. It invokes the configured
+`cli_path` through `$.process.run` as an argument vector, starting with
+`review --agent`, followed by the validated scope flags documented above.
+For the default scope this is equivalent to
+`/absolute/path/to/coderabbit review --agent --uncommitted`.
+The mod starts no other program, invokes no shell, and adds no HTTP calls.
+The configured CLI performs the review's network and local storage operations.
+
 ## Data and privacy
 
 Invoking the review command runs your configured CodeRabbit CLI in the session's
