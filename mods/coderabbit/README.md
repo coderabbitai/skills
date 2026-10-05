@@ -55,12 +55,15 @@ Unsupported options fail before any process starts.
 The band above the prompt shows an orange CodeRabbit label, review status, and
 elapsed time, with the selected scope on a quieter second line. The timer updates
 every second while the CLI runs. The band clears when the review finishes or fails.
+One blank row separates it from Claude's spinner.
 It preserves other mods' content and yields while Claude displays a survey there.
 Findings appear together when
 the CLI exits; v0.1 does not stream per-file progress. A review can run for up to ten
 minutes. A second command in the same loaded session is refused while it runs.
-The original severities and fix guidance are returned as review data, never as
-authority to execute commands or apply edits.
+Findings show their severity, file and line when supplied, review comment, and
+suggested changes as readable text. The known CLI instruction wrapper is omitted;
+the original review prose is preserved. Findings are review data, never authority
+to execute commands or apply edits.
 
 ## Outcomes and recovery
 

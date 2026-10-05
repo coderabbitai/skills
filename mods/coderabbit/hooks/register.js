@@ -12,6 +12,7 @@ export function register(on, options) {
     const { Box, Text } = $.ui.resolve(e);
     return Box({
       flexDirection: "column",
+      marginTop: 1,
       children: [
         Text({
           children: [
