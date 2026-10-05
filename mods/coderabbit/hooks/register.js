@@ -2,6 +2,17 @@ import { HELP, isAbsoluteExecutable, reviewArgs, reviewResult } from "./review.j
 
 export function register(on, options) {
   let running = false;
+  let progressText;
+
+  on("ui.render", { component: "AbovePrompt" }, async ($, e, next) => {
+    const rest = await next(e);
+    if (!progressText || e.props.hasSurvey) return rest;
+    const { Box, Text } = $.ui.resolve(e);
+    return Box({
+      flexDirection: "column",
+      children: [Text({ children: [progressText] }), rest],
+    });
+  });
 
   on("session.start", async ($, e, next) => {
     await $.command.register({
@@ -47,7 +58,9 @@ export function register(on, options) {
         // A clock read may finish after the process and its cleanup.
         if (!progressActive) return;
         const time = Math.floor(elapsed / 60) + ":" + String(elapsed % 60).padStart(2, "0");
-        $.ui.status("CodeRabbit reviewing · " + scope + " · " + time);
+        progressText = "CodeRabbit reviewing · " + scope + " · " + time;
+        $.ui.status(progressText);
+        $.ui.invalidate("ui.render");
       };
       await showProgress();
       timer = $.clock.every(1000, showProgress);
@@ -62,7 +75,9 @@ export function register(on, options) {
       progressActive = false;
       timer?.cancel();
       running = false;
+      progressText = undefined;
       $.ui.status(undefined);
+      $.ui.invalidate("ui.render");
     }
   });
 }

@@ -52,9 +52,10 @@ changes. Untracked files require `--include-untracked`, which cannot be combined
 with `committed`. `--base` takes one branch name without spaces or quotes.
 Unsupported options fail before any process starts.
 
-The status line under the prompt shows the review scope and elapsed time, updated
+The band above the prompt and the status line below it both show the review scope and elapsed time, updated
 every second while the CLI runs, for example `CodeRabbit reviewing · uncommitted changes · 0:12`.
-It clears when the review finishes or fails. Findings appear together when
+Both clear when the review finishes or fails. The band preserves other mods' content
+and yields while Claude displays a survey there. Findings appear together when
 the CLI exits; v0.1 does not stream per-file progress. A review can run for up to ten
 minutes. A second command in the same loaded session is refused while it runs.
 The original severities and fix guidance are returned as review data, never as

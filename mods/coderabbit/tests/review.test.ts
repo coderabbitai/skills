@@ -227,20 +227,49 @@ for (const fails of [false, true]) {
         if (fails) throw new Error("Process interrupted");
         return { value: output(complete()) };
       });
+      on("ui.render", { component: "AbovePrompt" }, ($, e) => {
+        const { Text } = $.ui.resolve(e);
+        return Text({ key: "other-mod", children: ["Other mod content"] });
+      });
+      const band = await $.ui.mount({
+        plugin: "coderabbit-mod",
+        surface: "terminal",
+        component: "AbovePrompt",
+        props: {
+          hasSurvey: false,
+          isWorking: false,
+          maxRows: 5,
+          bodyColumns: 80,
+          scroll: { offset: 0, bodyRows: 5 },
+          view: {},
+        },
+      });
+      expect(JSON.stringify(await band.drawn())).not.toContain("CodeRabbit reviewing");
       const pending = $.command.run({
         command: "coderabbit-review",
         args: "committed --base main",
       });
       await clock.settle();
       expect(statuses[0]).toBe("CodeRabbit reviewing · committed changes · 0:00");
+      expect(await band.drawn()).toMatchObject({
+        type: "Box",
+        children: [
+          { type: "Text", children: [statuses[0]] },
+          { type: "Text", children: ["Other mod content"] },
+        ],
+      });
+      expect(JSON.stringify(await band.drawn())).toContain("Other mod content");
       await clock.advance(12000);
       expect(statuses[statuses.length - 1]).toBe("CodeRabbit reviewing · committed changes · 0:12");
+      expect(JSON.stringify(await band.drawn())).toContain(statuses[statuses.length - 1]);
       await clock.advance(50000);
       expect(statuses[statuses.length - 1]).toBe("CodeRabbit reviewing · committed changes · 1:02");
       await clock.advance(3000);
       const answer = await pending;
       expect(answer.text).toContain(fails ? "Coverage is unverified" : "review completed");
       expect(statuses[statuses.length - 1]).toBeUndefined();
+      expect(JSON.stringify(await band.drawn())).not.toContain("CodeRabbit reviewing");
+      expect(JSON.stringify(await band.drawn())).toContain("Other mod content");
       const count = statuses.length;
       await clock.advance(5000);
       expect(statuses.length).toBe(count);
