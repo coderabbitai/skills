@@ -59,7 +59,9 @@ change the sentence as the CLI connects, prepares, maps code, summarizes, and
 writes review comments. Heartbeats do not invent progress or change the phase.
 **Activity** expands scope, severity counts, and the last event time. The final
 outcome stays visible with **Details**; file counts appear only when the CLI
-supplies them on successful completion. Narrow surfaces wrap the row.
+supplies them on successful completion. The **×** dismisses the bar without
+cancelling a review or its notification; a new review shows it again. Narrow
+surfaces wrap the row.
 
 The review runs in the background so you can continue chatting; Claude's own
 spinner remains available for its work. The band preserves other mods' content

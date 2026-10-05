@@ -910,3 +910,45 @@ test(
     expect(submissions).toEqual([]);
   },
 );
+
+for (const surface of ["desktop", "terminal"]) {
+  test(
+    surface + " can dismiss the bar without stopping delivery and show the next review",
+    OPTIONS,
+    async ($, on) => {
+      const clock = mock.clock(on);
+      const { submissions } = interactiveHost(on);
+      on("session.surfaces", () => ({ value: [surface] }));
+      on("ui.render", { component: "AbovePrompt" }, ($, e) =>
+        $.ui.resolve(e).Text({ children: ["Other mod content"] }),
+      );
+      mockProcess(on, async () => {
+        await clock.sleep(5000);
+        return { value: output(complete()) };
+      });
+      await $.session.start({ surface, isInteractive: true, cwd: "/work" });
+      const band = await $.ui.mount(liveBand(surface));
+      await $.command.run({ command: "coderabbit-review", args: "" });
+      await clock.advance(1);
+      await band.press({ key: "review-activity" });
+      await band.press({ key: "review-dismiss" });
+      expect(JSON.stringify(await band.drawn())).not.toContain("● CodeRabbit");
+      expect(JSON.stringify(await band.drawn())).toContain("Other mod content");
+      await clock.advance(5000);
+      expect(submissions.length).toBe(1);
+      expect((await $.command.run({ command: "coderabbit-results", args: "" })).text).toContain(
+        "review completed",
+      );
+      expect(JSON.stringify(await band.drawn())).not.toContain("● CodeRabbit");
+      await $.command.run({ command: "coderabbit-review", args: "" });
+      await clock.advance(1);
+      expect(JSON.stringify(await band.drawn())).toContain("● CodeRabbit");
+      expect(JSON.stringify(await band.drawn())).not.toContain("Scope:");
+      await clock.advance(5000);
+      expect(JSON.stringify(await band.drawn())).toContain("No findings reported");
+      await band.press({ key: "review-dismiss" });
+      expect(JSON.stringify(await band.drawn())).not.toContain("● CodeRabbit");
+      expect(submissions.length).toBe(2);
+    },
+  );
+}

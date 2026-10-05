@@ -6,7 +6,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId) {
   on("ui.render", { component: "AbovePrompt" }, async ($, e, next) => {
     const rest = await next(e);
     const progress = getProgress();
-    if (!progress || e.props.hasSurvey) return rest;
+    if (!progress || progress.dismissed || e.props.hasSurvey) return rest;
     const { Box, Text, Button } = $.ui.resolve(e);
     const wide = e.props.bodyColumns >= 85;
     const count = progress.findings
@@ -46,6 +46,18 @@ export function registerInterface(on, getProgress, getResult, getActiveId) {
               onPress: () => {
                 if (details) expanded.delete("activity");
                 else expanded.add("activity");
+                $.ui.invalidate("ui.render");
+              },
+            }),
+            Button({
+              key: "review-dismiss",
+              role: "dismiss",
+              label: e.surface === "terminal" ? "×" : "Dismiss CodeRabbit",
+              plain: true,
+              dimColor: true,
+              onPress: () => {
+                progress.dismissed = true;
+                expanded.delete("activity");
                 $.ui.invalidate("ui.render");
               },
             }),
