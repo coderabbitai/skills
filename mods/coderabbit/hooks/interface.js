@@ -7,20 +7,76 @@ export function registerInterface(on, getProgress, getResult, getActiveId) {
     const rest = await next(e);
     const progress = getProgress();
     if (!progress || e.props.hasSurvey) return rest;
-    const { Box, Text } = $.ui.resolve(e);
+    const { Box, Text, Button } = $.ui.resolve(e);
+    const wide = e.props.bodyColumns >= 85;
+    const count = progress.findings
+      ? progress.findings +
+        (progress.findings === 1 ? " finding" : " findings") +
+        (progress.finished ? (progress.success ? "" : " received") : " so far")
+      : "";
+    const details = expanded.has("activity");
     return Box({
       flexDirection: "column",
       marginTop: 1,
       children: [
         Box({
           flexDirection: "row",
-          justifyContent: "space-between",
+          flexWrap: "wrap",
+          columnGap: 1,
+          alignItems: "center",
           children: [
             Text({ color: BRAND_ORANGE, bold: true, children: ["● CodeRabbit"] }),
+            Box({
+              flexDirection: "row",
+              flexGrow: 1,
+              flexWrap: "wrap",
+              columnGap: 1,
+              children: [
+                Text({ children: [progress.label] }),
+                ...(count ? [Text({ color: BRAND_ORANGE, children: ["· " + count] })] : []),
+                ...(wide && !count
+                  ? [Text({ dimColor: true, children: ["· " + progress.scope] })]
+                  : []),
+              ],
+            }),
             Text({ dimColor: true, children: [progress.time] }),
+            Button({
+              key: "review-activity",
+              label: details ? "Hide" : progress.finished ? "Details" : "Activity",
+              onPress: () => {
+                if (details) expanded.delete("activity");
+                else expanded.add("activity");
+                $.ui.invalidate("ui.render");
+              },
+            }),
           ],
         }),
-        Text({ dimColor: true, children: ["Reviewing " + progress.scope] }),
+        ...(details
+          ? [
+              Text({
+                dimColor: true,
+                children: [
+                  "Scope: " +
+                    progress.scope +
+                    (progress.lastSignal ? " · Last CLI event at " + progress.lastSignal : "") +
+                    (progress.success && Number.isInteger(progress.reviewedFiles)
+                      ? " · " +
+                        progress.reviewedFiles +
+                        (progress.reviewedFiles === 1 ? " file reviewed" : " files reviewed")
+                      : "") +
+                    (Object.keys(progress.severities).length
+                      ? " · " +
+                        Object.entries(progress.severities)
+                          .map(([severity, count]) => count + " " + severity)
+                          .join(" · ")
+                      : "") +
+                    (progress.finished
+                      ? " · See the conversation for the result."
+                      : " · Keep chatting while the review runs."),
+                ],
+              }),
+            ]
+          : []),
         rest,
       ],
     });

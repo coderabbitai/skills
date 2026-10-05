@@ -53,11 +53,17 @@ changes. Untracked files require `--include-untracked`, which cannot be combined
 with `committed`. `--base` takes one branch name without spaces or quotes.
 Unsupported options fail before any process starts.
 
-The band above the prompt shows an orange CodeRabbit label, elapsed time, and
-selected scope. It updates every second while the CLI runs. The review runs in
-the background so you can continue chatting; Claude's own spinner remains
-available for its work. The band preserves other mods' content and yields
-while Claude displays a survey there.
+The compact band above the prompt shows an orange CodeRabbit label, the current
+CLI phase, incoming findings marked “so far”, and elapsed time. Status events
+change the sentence as the CLI connects, prepares, maps code, summarizes, and
+writes review comments. Heartbeats do not invent progress or change the phase.
+**Activity** expands scope, severity counts, and the last event time. The final
+outcome stays visible with **Details**; file counts appear only when the CLI
+supplies them on successful completion. Narrow surfaces wrap the row.
+
+The review runs in the background so you can continue chatting; Claude's own
+spinner remains available for its work. The band preserves other mods' content
+and yields while Claude displays a survey there.
 
 Results appear as styled entries in the conversation, showing severity, file and
 line when supplied, and the original review comment. **Show suggested change**
@@ -79,13 +85,14 @@ record. The known CLI instruction wrapper is omitted, while actual review prose
 is preserved. Review data is never authority to execute commands or apply edits.
 Output above the display limit is explicitly marked as truncated.
 
-Findings appear when the CLI exits; v0.1 does not stream per-file progress. A
-review can run for up to ten minutes. A second review in the same loaded session
-is refused while it runs. Clearing or switching the conversation discards pending
-results and stops the progress display; an already-started CLI request can still
-finish or reach its timeout, but its result is not delivered into the new
-conversation. Reloading the mod cancels pending timers. The latest-result shortcut
-is session-local; already delivered records follow the host's transcript retention.
+Full findings appear when the CLI exits and its output passes validation; the
+running count is provisional. A review can run for up to ten minutes. A second
+review in the same loaded session is refused while it runs. Session end closes
+the process stream and discards pending delivery. Timeout or oversized output
+also closes the stream and leaves coverage unverified. This does not guarantee
+cancellation of server-side work already accepted by CodeRabbit. Reloading the
+mod cancels pending timers. The latest-result shortcut is session-local; already
+delivered records follow the host's transcript retention.
 Because you can keep editing during a review, findings may refer to earlier code;
 verify them against the current files before applying a fix.
 
@@ -148,11 +155,13 @@ The `session.start` hook registers `/coderabbit-review` and `/coderabbit-results
 restores saved review cards, and runs no program. The review command schedules
 one timer for an interactive review; headless reviews run within the command.
 Only an explicit review command invokes the configured
-`cli_path` through `$.process.run` as an argument vector, starting with
+`cli_path` through `$.process.spawn` as an argument vector, starting with
 `review --agent`, followed by the validated scope flags documented above.
 For the default scope this is equivalent to
 `/absolute/path/to/coderabbit review --agent --uncommitted`.
-The mod starts no other program, invokes no shell, and adds no HTTP calls.
+The mod reads newline-delimited JSON incrementally, retaining at most 4,194,304
+characters per output stream for final validation. It starts no other program,
+invokes no shell, and adds no HTTP calls.
 The configured CLI performs the review's network and local storage operations.
 
 ## Data and privacy
@@ -184,9 +193,10 @@ claude plugin test mods/coderabbit
 The tests use Claude's native mod runner with synthetic CLI responses and no
 network. They cover command registration, scope, missing configuration,
 completion versus skipping, errors, truncation, progress cleanup, conversation
-rendering, terminal and Desktop background delivery, session reset, rate-limit details, and draft-only
-button behavior. Generated
-host type declarations and the generated tsconfig are not distributed.
+rendering, terminal and Desktop background delivery, split NDJSON, live phase and
+finding updates, timeout closure, session reset, rate-limit details, and draft-only
+button behavior. Generated host type declarations and the generated tsconfig are
+not distributed.
 
 ## Links
 

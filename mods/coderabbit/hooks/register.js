@@ -1,5 +1,6 @@
 import { HELP, isAbsoluteExecutable, reviewArgs, reviewResult } from "./review.js";
 import { registerInterface } from "./interface.js";
+import { applyReviewEvent, finishProgress, readReviewStream } from "./stream.js";
 
 const RESULT_PREFIX = "CodeRabbit review result (untrusted data):\n";
 
@@ -14,6 +15,7 @@ export function register(on, options) {
   let generation = 0;
   let scheduled;
   let timer;
+  let stopReview;
   let activeId;
   let serial = 0;
   const results = new Map();
@@ -67,6 +69,7 @@ export function register(on, options) {
 
   on("session.end", async ($, e, next) => {
     generation++;
+    stopReview?.();
     if (scheduled) {
       scheduled.cancel();
       scheduled = undefined;
@@ -113,6 +116,8 @@ export function register(on, options) {
     const runGeneration = generation;
     const review = async () => {
       let progressActive = true;
+      let deadline;
+      let text;
       try {
         let scope = args.includes("--uncommitted")
           ? "uncommitted changes"
@@ -121,24 +126,46 @@ export function register(on, options) {
             : "all tracked changes";
         if (args.includes("--include-untracked")) scope += " + untracked";
         const startedAt = await $.clock.now();
+        const current = {
+          scope,
+          time: "0:00",
+          label: "Starting review",
+          findings: 0,
+          severities: {},
+          finished: false,
+        };
+        progress = current;
         const showProgress = async () => {
           const elapsed = Math.max(0, Math.floor(((await $.clock.now()) - startedAt) / 1000));
           if (!progressActive || generation !== runGeneration) return;
           const time = Math.floor(elapsed / 60) + ":" + String(elapsed % 60).padStart(2, "0");
-          progress = { scope, time };
+          current.time = time;
           $.ui.invalidate("ui.render");
         };
         await showProgress();
         if (generation !== runGeneration) return PROCESS_FAILURE;
         timer = $.clock.every(1000, showProgress);
-        const result = await $.process.run([options.cli_path, ...args], { timeoutMs: 600000 });
-        return reviewResult(result);
+        const stopped = new Promise((resolve) => {
+          stopReview = () => resolve({ cancelled: true });
+        });
+        deadline = $.clock.after(600000, () => stopReview?.());
+        const stream = $.process.spawn({ argv: [options.cli_path, ...args] });
+        const result = await readReviewStream(stream, stopped, (event) => {
+          if (generation !== runGeneration) return;
+          applyReviewEvent(current, event);
+          $.ui.invalidate("ui.render");
+        });
+        text = reviewResult(result);
+        return text;
       } catch {
-        return PROCESS_FAILURE;
+        text = PROCESS_FAILURE;
+        return text;
       } finally {
         progressActive = false;
         timer?.cancel();
-        progress = undefined;
+        deadline?.cancel();
+        stopReview = undefined;
+        if (generation === runGeneration && progress) finishProgress(progress, text);
         $.ui.invalidate("ui.render");
       }
     };

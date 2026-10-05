@@ -29,7 +29,7 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
 ## Validation recorded
 
 - Claude Code 2.1.289: `claude plugin validate mods/coderabbit --strict` passed.
-- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 55 tests.
+- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 58 tests.
 - A real non-interactive Claude 2.1.289 session loaded the module and ran
   `/coderabbit-review --help` successfully.
 - CodeRabbit CLI 0.8.2 `review --help` exposes every review option used here.
@@ -40,6 +40,11 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
   labeled synthetic; no review service was called. The official CLI path was
   restored afterward. Desktop needed configuration under the bare plugin name
   in user settings because it loaded the local plugin as a directory.
+- The streaming update passed strict validation in terminal 2.1.289 and Desktop
+  engine 2.1.286. A labeled offline Desktop fixture showed live phase changes in
+  one row, then one finding, the completion toast, and expandable scope/severity/
+  reviewed-file details. No review service was called; the official CLI path was
+  restored afterward.
 - Tests use synthetic process responses. An authenticated end-to-end review
   against a development service has **not** been exercised. Do not describe
   the test suite as proof of service authentication or review quality.
@@ -77,7 +82,7 @@ retained” solely because the mod itself writes no files.
    differ from the CLI validator, particularly for executable mods.
 3. Confirm that the portal accepts the declared local CLI execution. A declaration
    that no code executes outside MCP servers does not describe this package:
-   it uses `$.process.run` and declares no MCP server. Resolve any such conflicting
+   it uses `$.process.spawn` and declares no MCP server. Resolve any such conflicting
    attestation with Anthropic before submitting; never tick an inaccurate claim.
 4. An authorized publisher must review data-handling answers and accept directory
    terms. Local validation is not submission, approval, or publication.

@@ -36,6 +36,17 @@ const output = (stdout, extra = {}) => ({
   ...extra,
 });
 
+function mockProcess(on, handler) {
+  on("process.spawn", async function* ($, event) {
+    const { value: result } = await handler($, event);
+    if (result.stdout) yield { stream: "stdout", text: result.stdout };
+    if (result.stderr) yield { stream: "stderr", text: result.stderr };
+    if (result.isStdoutTruncated) yield { stream: "stdout", text: "x".repeat(4 * 1024 * 1024 + 1) };
+    if (result.isStderrTruncated) yield { stream: "stderr", text: "x".repeat(4 * 1024 * 1024 + 1) };
+    return { value: { code: result.exitCode, signal: null } };
+  });
+}
+
 function stubProcess(on, result) {
   mock.clock(on);
   on("session.surfaces", () => ({ value: [] }));
@@ -46,7 +57,7 @@ function stubProcess(on, result) {
     return { value: undefined };
   });
   on("ui.log", () => ({ value: undefined }));
-  on("process.run", ($, e) => {
+  mockProcess(on, ($, e) => {
     calls.push(e);
     return { value: result };
   });
@@ -87,7 +98,7 @@ for (const [args, expected] of [
     expect(messageText(answer)).toContain("review completed: 0 finding(s)");
     expect(calls.length).toBe(1);
     expect(calls[0].argv).toEqual(["/test/CodeRabbit CLI", "review", "--agent", ...expected]);
-    expect(calls[0].init).toEqual({ timeoutMs: 600000 });
+    expect(Object.keys(calls[0])).toEqual(["argv"]);
     expect(statuses.length).toBe(0);
   });
 }
@@ -197,7 +208,7 @@ test(
       return { value: undefined };
     });
     on("ui.log", () => ({ value: undefined }));
-    on("process.run", () => {
+    mockProcess(on, () => {
       calls++;
       throw new Error("Process unavailable");
     });
@@ -225,7 +236,7 @@ test("refuses an overlapping review without launching a second process", OPTIONS
   });
   on("ui.status", () => ({ value: undefined }));
   on("ui.log", () => ({ value: undefined }));
-  on("process.run", async () => {
+  mockProcess(on, async () => {
     calls++;
     started();
     return { value: await pending };
@@ -252,7 +263,7 @@ for (const fails of [false, true]) {
         return { value: undefined };
       });
       on("ui.log", () => ({ value: undefined }));
-      on("process.run", async () => {
+      mockProcess(on, async () => {
         await clock.sleep(65000);
         if (fails) throw new Error("Process interrupted");
         return { value: output(complete()) };
@@ -295,7 +306,9 @@ for (const fails of [false, true]) {
       expect(statuses.length).toBe(0);
       expect(await band.drawn()).toMatchObject({ type: "Box", props: { marginTop: 1 } });
       expect(JSON.stringify(await band.drawn())).toContain("#FF570A");
-      expect(JSON.stringify(await band.drawn())).toContain("Reviewing committed changes");
+      await band.press({ key: "review-activity" });
+      expect(JSON.stringify(await band.drawn())).toContain("committed changes");
+      await band.press({ key: "review-activity" });
       expect(JSON.stringify(await band.drawn())).toContain("0:00");
       expect(JSON.stringify(await band.drawn())).toContain("Other mod content");
       await clock.advance(12000);
@@ -306,7 +319,9 @@ for (const fails of [false, true]) {
       const answer = await pending;
       expect(messageText(answer)).toContain(fails ? "Coverage is unverified" : "review completed");
       expect(statuses.length).toBe(0);
-      expect(JSON.stringify(await band.drawn())).not.toContain("● CodeRabbit");
+      expect(JSON.stringify(await band.drawn())).toContain(
+        fails ? "Review could not finish" : "No findings reported",
+      );
       expect(JSON.stringify(await band.drawn())).toContain("Other mod content");
       expect(await spinner.drawn()).toEqual(idleSpinner);
       const finishedBand = await band.drawn();
@@ -604,7 +619,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
       const attachedSurfaces = [];
       on("session.surfaces", () => ({ value: attachedSurfaces }));
       let calls = 0;
-      on("process.run", async () => {
+      mockProcess(on, async () => {
         calls++;
         await clock.sleep(5000);
         if (outcome === "process_failure") throw new Error("Process timeout");
@@ -672,7 +687,7 @@ for (const beforeLaunch of [true, false]) {
       const clock = mock.clock(on);
       const { toasts } = interactiveHost(on);
       let calls = 0;
-      on("process.run", async () => {
+      mockProcess(on, async () => {
         calls++;
         await clock.sleep(5000);
         return { value: output(complete()) };
@@ -737,3 +752,85 @@ test("restores completed background cards from the saved conversation", OPTIONS,
   const result = await $.command.run({ command: "coderabbit-results", args: "" });
   expect(result.text).toBe(report);
 });
+
+function liveBand(surface = "desktop", columns = 100) {
+  return {
+    plugin: "coderabbit-mod",
+    surface,
+    component: "AbovePrompt",
+    props: {
+      hasSurvey: false,
+      isWorking: false,
+      maxRows: 5,
+      bodyColumns: columns,
+      scroll: { offset: 0, bodyRows: 5 },
+      view: {},
+    },
+  };
+}
+
+for (const surface of ["desktop", "terminal"]) {
+  test(
+    surface + " streams split NDJSON and counts findings without inventing progress",
+    OPTIONS,
+    async ($, on) => {
+      const clock = mock.clock(on);
+      interactiveHost(on);
+      on("session.surfaces", () => ({ value: [surface] }));
+      on("ui.render", { component: "AbovePrompt" }, ($, e) =>
+        $.ui.resolve(e).Text({ children: ["Host content"] }),
+      );
+      on("process.spawn", async function* () {
+        yield { stream: "stdout", text: '{"type":"status","status":"building_' };
+        await clock.sleep(1000);
+        yield { stream: "stdout", text: 'code_graph"}\n' + JSON.stringify(finding) + "\n" };
+        await clock.sleep(1000);
+        yield { stream: "stdout", text: '{"type":"heartbeat","status":"reviewing"}\n' };
+        await clock.sleep(1000);
+        yield { stream: "stdout", text: complete("review_completed", 1).trimEnd() };
+        await clock.sleep(1000);
+        return { value: { code: 0, signal: null } };
+      });
+      await $.session.start({ surface: null, isInteractive: false, cwd: "/work" });
+      const band = await $.ui.mount(liveBand(surface));
+      await $.command.run({ command: "coderabbit-review", args: "" });
+      await clock.advance(1);
+      expect(JSON.stringify(await band.drawn())).toContain("Starting review");
+      await clock.advance(1000);
+      expect(JSON.stringify(await band.drawn())).toContain("Mapping code changes");
+      expect(JSON.stringify(await band.drawn())).toContain("1 finding so far");
+      await clock.advance(1000);
+      expect(JSON.stringify(await band.drawn())).toContain("Mapping code changes");
+      await clock.advance(1000);
+      expect(JSON.stringify(await band.drawn())).not.toContain("Review complete");
+      await clock.advance(1000);
+      expect(JSON.stringify(await band.drawn())).toContain("Review complete");
+      expect(JSON.stringify(await band.drawn())).not.toContain("so far");
+      expect(JSON.stringify(await band.drawn())).toContain("Host content");
+    },
+  );
+}
+
+test(
+  "ten-minute deadline closes the stream and leaves incomplete coverage",
+  { ...OPTIONS, timeoutMs: 15000 },
+  async ($, on) => {
+    const clock = mock.clock(on);
+    on("session.surfaces", () => ({ value: [] }));
+    let closed = false;
+    on("process.spawn", async function* () {
+      try {
+        while (true) {
+          await clock.sleep(1000);
+          yield { stream: "stdout", text: '{"type":"heartbeat"}\n' };
+        }
+      } finally {
+        closed = true;
+      }
+    });
+    const result = $.command.run({ command: "coderabbit-review", args: "" });
+    await clock.advance(601000);
+    expect((await result).text).toContain("Coverage is unverified");
+    expect(closed).toBe(true);
+  },
+);
