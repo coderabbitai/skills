@@ -1,13 +1,7 @@
 const BRAND_ORANGE = "#FF570A";
 
-export function registerInterface(on, getProgress) {
+export function registerInterface(on, getProgress, getResult, getActiveId) {
   const expanded = new Set();
-
-  on("ui.render", { component: "Spinner" }, async ($, e, next) => {
-    if (!getProgress()) return next(e);
-    const { Box } = $.ui.resolve(e);
-    return Box({ children: [] });
-  });
 
   on("ui.render", { component: "AbovePrompt" }, async ($, e, next) => {
     const rest = await next(e);
@@ -33,7 +27,10 @@ export function registerInterface(on, getProgress) {
   });
 
   on("ui.render", { component: "CommandOutput" }, async ($, e, next) => {
-    if (e.props.command !== "coderabbit-review" || !e.props.text.startsWith("coderabbit-mod: "))
+    if (
+      !["coderabbit-review", "coderabbit-results"].includes(e.props.command) ||
+      !e.props.text.startsWith("coderabbit-mod: ")
+    )
       return next(e);
     // Help, validation errors and process exceptions remain ordinary command output.
     let report;
@@ -41,6 +38,31 @@ export function registerInterface(on, getProgress) {
       report = JSON.parse(e.props.text.slice("coderabbit-mod: ".length));
     } catch {
       return next(e);
+    }
+    if (report?.schema === "coderabbit-pending/1") {
+      const result = getResult(report.id);
+      if (result === undefined) {
+        const { Box, Text } = $.ui.resolve(e);
+        return Box({
+          flexDirection: "column",
+          marginY: 1,
+          children: [
+            Text({ color: BRAND_ORANGE, bold: true, children: ["● CodeRabbit"] }),
+            Text({
+              children: [
+                getActiveId() === report.id
+                  ? "Reviewing in the background. Keep chatting — findings will appear here."
+                  : "This review is no longer active; its result is unavailable in this conversation.",
+              ],
+            }),
+          ],
+        });
+      }
+      try {
+        report = JSON.parse(result);
+      } catch {
+        return next({ ...e, props: { ...e.props, text: "coderabbit-mod: " + result } });
+      }
     }
     if (report?.schema !== "coderabbit-review/1") return next(e);
     const { Box, Text, Button, Markdown } = $.ui.resolve(e);

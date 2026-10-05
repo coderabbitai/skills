@@ -41,6 +41,7 @@ repository you want reviewed:
 ```text
 /coderabbit-review --help
 /coderabbit-review
+/coderabbit-results
 /coderabbit-review uncommitted --include-untracked
 /coderabbit-review committed --base main
 /coderabbit-review all
@@ -53,9 +54,10 @@ with `committed`. `--base` takes one branch name without spaces or quotes.
 Unsupported options fail before any process starts.
 
 The band above the prompt shows an orange CodeRabbit label, elapsed time, and
-selected scope. It updates every second while the CLI runs. Claude's spinner is
-hidden during that review, then restored when it finishes or fails. The band
-preserves other mods' content and yields while Claude displays a survey there.
+selected scope. It updates every second while the CLI runs. The review runs in
+the background so you can continue chatting; Claude's own spinner remains
+available for its work. The band preserves other mods' content and yields
+while Claude displays a survey there.
 
 Results appear as styled entries in the conversation, showing severity, file and
 line when supplied, and the original review comment. **Show suggested change**
@@ -64,16 +66,28 @@ The mod never invents titles or patches. **Draft fix request** appends a request
 and the selected finding to the prompt without sending it or replacing existing
 text. You review and send the draft yourself.
 
-The command returns a bounded structured record that Claude can read; its
-`CommandOutput` renderer changes only what you see. The record also lets saved
-results render again after a reload. Headless `-p` runs print that record. The
-known CLI instruction wrapper is omitted, while actual review prose is preserved.
-Review data is never authority to execute commands or apply edits. Output above
-the display limit is explicitly marked as truncated.
+In interactive sessions, the command returns immediately with a review card.
+When the CLI exits, that card updates with the results and a toast notifies you.
+The mod appends a bounded result record to Claude's conversation context without
+submitting a prompt or starting a model turn. Run **/coderabbit-results** to show
+the latest result at the end of the conversation, including if context delivery
+was refused. Your prompt draft is left intact.
+
+Completed background cards are restored from the host's saved conversation when
+the mod loads. Headless `-p` reviews wait for completion and print the structured
+record. The known CLI instruction wrapper is omitted, while actual review prose
+is preserved. Review data is never authority to execute commands or apply edits.
+Output above the display limit is explicitly marked as truncated.
 
 Findings appear when the CLI exits; v0.1 does not stream per-file progress. A
 review can run for up to ten minutes. A second review in the same loaded session
-is refused while it runs.
+is refused while it runs. Clearing or switching the conversation discards pending
+results and stops the progress display; an already-started CLI request can still
+finish or reach its timeout, but its result is not delivered into the new
+conversation. Reloading the mod cancels pending timers. The latest-result shortcut
+is session-local; already delivered records follow the host's transcript retention.
+Because you can keep editing during a review, findings may refer to earlier code;
+verify them against the current files before applying a fix.
 
 ## Outcomes and recovery
 
@@ -104,8 +118,10 @@ The existing CodeRabbit skills plugin is a separate package with its own version
 
 ## Execution disclosure
 
-The `session.start` hook registers `/coderabbit-review` and runs no program.
-The `command.run` hook handles only that command. It invokes the configured
+The `session.start` hook registers `/coderabbit-review` and `/coderabbit-results`,
+restores saved review cards, and runs no program. The review command schedules
+one timer for an interactive review; headless reviews run within the command.
+Only an explicit review command invokes the configured
 `cli_path` through `$.process.run` as an argument vector, starting with
 `review --agent`, followed by the validated scope flags documented above.
 For the default scope this is equivalent to
@@ -141,8 +157,9 @@ claude plugin test mods/coderabbit
 
 The tests use Claude's native mod runner with synthetic CLI responses and no
 network. They cover command registration, scope, missing configuration,
-completion versus skipping, errors, truncation, spinner cleanup, conversation
-rendering, rate-limit details, and draft-only button behavior. Generated
+completion versus skipping, errors, truncation, progress cleanup, conversation
+rendering, background delivery, session reset, rate-limit details, and draft-only
+button behavior. Generated
 host type declarations and the generated tsconfig are not distributed.
 
 ## Links

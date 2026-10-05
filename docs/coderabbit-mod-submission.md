@@ -19,7 +19,8 @@ package and must not be replaced or downgraded to publish this mod.
 
 Run CodeRabbit reviews from Claude Code with `/coderabbit-review`. Choose tracked,
 committed, or uncommitted changes, see when the review is running, and bring the
-original findings into your conversation. Requires the official CodeRabbit CLI
+original findings into your conversation while you keep chatting. Completion
+updates the review card and shows a toast. Requires the official CodeRabbit CLI
 and an authenticated account. Reviews start only when you invoke the command.
 
 Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.png`.
@@ -27,7 +28,7 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
 ## Validation recorded
 
 - Claude Code 2.1.289: `claude plugin validate mods/coderabbit --strict` passed.
-- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 31 tests.
+- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 52 tests.
 - A real non-interactive Claude 2.1.289 session loaded the module and ran
   `/coderabbit-review --help` successfully.
 - CodeRabbit CLI 0.8.2 `review --help` exposes every review option used here.
