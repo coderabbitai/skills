@@ -32,12 +32,25 @@ export function register(on, options) {
         text: "A CodeRabbit review is already running in this session. Wait for its result before starting another.",
       };
     running = true;
+    let timer;
+    let progressActive = true;
     try {
-      $.ui.status(
-        "Review running: " +
-          (args.slice(2).join(" ") || "all tracked changes") +
-          " (up to 10 minutes)",
-      );
+      let scope = args.includes("--uncommitted")
+        ? "uncommitted changes"
+        : args.includes("--committed")
+          ? "committed changes"
+          : "all tracked changes";
+      if (args.includes("--include-untracked")) scope += " + untracked";
+      const startedAt = await $.clock.now();
+      const showProgress = async () => {
+        const elapsed = Math.max(0, Math.floor(((await $.clock.now()) - startedAt) / 1000));
+        // A clock read may finish after the process and its cleanup.
+        if (!progressActive) return;
+        const time = Math.floor(elapsed / 60) + ":" + String(elapsed % 60).padStart(2, "0");
+        $.ui.status("CodeRabbit reviewing · " + scope + " · " + time);
+      };
+      await showProgress();
+      timer = $.clock.every(1000, showProgress);
       $.ui.log("Review started. CodeRabbit findings will appear when the CLI finishes.");
       const result = await $.process.run([options.cli_path, ...args], { timeoutMs: 600000 });
       return { text: reviewResult(result) };
@@ -46,6 +59,8 @@ export function register(on, options) {
         text: "CodeRabbit could not finish the review. The CLI may be unavailable, blocked, interrupted, or timed out after 10 minutes. Coverage is unverified. Check the configured executable and run coderabbit auth status; use coderabbit auth login if needed. No automatic retry was started.",
       };
     } finally {
+      progressActive = false;
+      timer?.cancel();
       running = false;
       $.ui.status(undefined);
     }

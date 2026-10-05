@@ -1,4 +1,4 @@
-import { expect, test } from "claude-code/testing";
+import { expect, mock, test } from "claude-code/testing";
 
 const OPTIONS = { options: { cli_path: "/test/CodeRabbit CLI" } };
 const complete = (status = "review_completed", findings = 0) =>
@@ -13,6 +13,7 @@ const output = (stdout, extra = {}) => ({
 });
 
 function stubProcess(on, result) {
+  mock.clock(on);
   const calls = [];
   const statuses = [];
   on("ui.status", ($, e) => {
@@ -60,7 +61,8 @@ for (const [args, expected] of [
     expect(calls[0].argv).toEqual(["/test/CodeRabbit CLI", "review", "--agent", ...expected]);
     expect(calls[0].init).toEqual({ timeoutMs: 600000 });
     expect(statuses.length).toBe(2);
-    expect(statuses[0]).toContain("Review running");
+    expect(statuses[0]).toContain("CodeRabbit reviewing");
+    expect(statuses[0]).toContain("0:00");
     expect(statuses[1]).toBeUndefined();
   });
 }
@@ -159,6 +161,7 @@ test(
   "failed process clears progress, does not retry, and allows a later user retry",
   OPTIONS,
   async ($, on) => {
+    mock.clock(on);
     let calls = 0;
     const statuses = [];
     on("ui.status", ($, e) => {
@@ -181,6 +184,7 @@ test(
 );
 
 test("refuses an overlapping review without launching a second process", OPTIONS, async ($, on) => {
+  mock.clock(on);
   let finish;
   let started;
   let calls = 0;
@@ -205,3 +209,41 @@ test("refuses an overlapping review without launching a second process", OPTIONS
   finish(output(complete()));
   expect((await first).text).toContain("review completed");
 });
+
+for (const fails of [false, true]) {
+  test(
+    "updates elapsed status and stops after " + (fails ? "failure" : "completion"),
+    OPTIONS,
+    async ($, on) => {
+      const clock = mock.clock(on);
+      const statuses = [];
+      on("ui.status", ($, e) => {
+        statuses.push(e.text);
+        return { value: undefined };
+      });
+      on("ui.log", () => ({ value: undefined }));
+      on("process.run", async () => {
+        await clock.sleep(65000);
+        if (fails) throw new Error("Process interrupted");
+        return { value: output(complete()) };
+      });
+      const pending = $.command.run({
+        command: "coderabbit-review",
+        args: "committed --base main",
+      });
+      await clock.settle();
+      expect(statuses[0]).toBe("CodeRabbit reviewing · committed changes · 0:00");
+      await clock.advance(12000);
+      expect(statuses[statuses.length - 1]).toBe("CodeRabbit reviewing · committed changes · 0:12");
+      await clock.advance(50000);
+      expect(statuses[statuses.length - 1]).toBe("CodeRabbit reviewing · committed changes · 1:02");
+      await clock.advance(3000);
+      const answer = await pending;
+      expect(answer.text).toContain(fails ? "Coverage is unverified" : "review completed");
+      expect(statuses[statuses.length - 1]).toBeUndefined();
+      const count = statuses.length;
+      await clock.advance(5000);
+      expect(statuses.length).toBe(count);
+    },
+  );
+}
