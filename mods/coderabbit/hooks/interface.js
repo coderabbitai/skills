@@ -52,7 +52,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId) {
             Button({
               key: "review-dismiss",
               role: "dismiss",
-              label: e.surface === "terminal" ? "×" : "Dismiss CodeRabbit",
+              label: "×",
               plain: true,
               dimColor: true,
               onPress: () => {
