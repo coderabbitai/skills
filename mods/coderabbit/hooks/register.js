@@ -1,16 +1,28 @@
 import { HELP, isAbsoluteExecutable, reviewArgs, reviewResult } from "./review.js";
 
+const BRAND_ORANGE = "#FF570A";
+
 export function register(on, options) {
   let running = false;
-  let progressText;
+  let progress;
 
   on("ui.render", { component: "AbovePrompt" }, async ($, e, next) => {
     const rest = await next(e);
-    if (!progressText || e.props.hasSurvey) return rest;
+    if (!progress || e.props.hasSurvey) return rest;
     const { Box, Text } = $.ui.resolve(e);
     return Box({
       flexDirection: "column",
-      children: [Text({ children: [progressText] }), rest],
+      children: [
+        Text({
+          children: [
+            Text({ color: BRAND_ORANGE, bold: true, children: ["● CodeRabbit"] }),
+            "  Reviewing  ",
+            Text({ dimColor: true, children: [progress.time] }),
+          ],
+        }),
+        Text({ dimColor: true, children: ["  " + progress.scope] }),
+        rest,
+      ],
     });
   });
 
@@ -58,8 +70,7 @@ export function register(on, options) {
         // A clock read may finish after the process and its cleanup.
         if (!progressActive) return;
         const time = Math.floor(elapsed / 60) + ":" + String(elapsed % 60).padStart(2, "0");
-        progressText = "CodeRabbit reviewing · " + scope + " · " + time;
-        $.ui.status(progressText);
+        progress = { scope, time };
         $.ui.invalidate("ui.render");
       };
       await showProgress();
@@ -75,8 +86,7 @@ export function register(on, options) {
       progressActive = false;
       timer?.cancel();
       running = false;
-      progressText = undefined;
-      $.ui.status(undefined);
+      progress = undefined;
       $.ui.invalidate("ui.render");
     }
   });
