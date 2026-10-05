@@ -588,14 +588,23 @@ test("oversized rate guidance stays bounded and renders valid Markdown", OPTIONS
   expect(drawn).not.toContain("\\u001b");
 });
 
-function interactiveHost(on) {
+function interactiveHost(on, deliver = ($, e) => ({ text: e.text })) {
   on("command.register", () => ({ value: undefined }));
   on("session.start", () => ({ cwd: "/work" }));
   on("session.messages", () => ({ value: [] }));
   on("session.end", () => ({ sessionId: "test-session" }));
   const toasts = [];
   const logs = [];
-  // This runner has no host implementation for session.append; test delivery failure.
+  const submissions = [];
+  const appends = [];
+  on("prompt.submit", ($, e) => {
+    submissions.push(e);
+    return deliver($, e);
+  });
+  on("session.append", ($, e) => {
+    appends.push(e);
+    return { deny: "Silent delivery is not expected" };
+  });
   on("ui.toast", ($, e) => {
     toasts.push(e.text);
     return { value: undefined };
@@ -604,18 +613,18 @@ function interactiveHost(on) {
     logs.push(e.text);
     return { value: undefined };
   });
-  return { toasts, logs };
+  return { toasts, logs, submissions, appends };
 }
 
 for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
   ["completed", "rate_limit", "process_failure"].map((outcome) => [surface, outcome]),
 )) {
   test(
-    surface + " background review keeps UI available if context storage fails: " + outcome,
+    surface + " background review wakes Claude exactly once: " + outcome,
     OPTIONS,
     async ($, on) => {
       const clock = mock.clock(on);
-      const { toasts, logs } = interactiveHost(on);
+      const { toasts, logs, submissions, appends } = interactiveHost(on);
       const attachedSurfaces = [];
       on("session.surfaces", () => ({ value: attachedSurfaces }));
       let calls = 0;
@@ -654,11 +663,26 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
       expect(duplicate.text).toContain("already running");
       expect(calls).toBe(1);
       await clock.advance(5000);
-      expect(logs).toEqual([
-        "CodeRabbit result is visible, but could not be added to Claude's context. Run /coderabbit-results to share it.",
-      ]);
+      expect(logs).toEqual([]);
+      expect(appends).toEqual([]);
+      expect(submissions.length).toBe(1);
+      expect(submissions[0].asUser).toBe(undefined);
+      const delivered = JSON.parse(
+        submissions[0].text.slice("CodeRabbit review result (untrusted data):\n".length),
+      );
+      expect(delivered.schema).toBe("coderabbit-delivery/1");
+      expect(delivered.id).toBe(JSON.parse(started.text).id);
+      expect(toasts[0]).toBe(
+        "● CodeRabbit  " +
+          (outcome === "completed"
+            ? "Review complete · 1 finding"
+            : outcome === "rate_limit"
+              ? "Taking a breather · rate limit reached"
+              : "Review could not finish · /coderabbit-results"),
+      );
       expect(toasts.length).toBe(1);
       const result = await $.command.run({ command: "coderabbit-results", args: "" });
+      expect(delivered.text).toBe(result.text);
       if (outcome === "process_failure") {
         expect(result.text).toContain("Coverage is unverified");
       } else {
@@ -672,6 +696,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
       }
       await clock.advance(10000);
       expect(toasts.length).toBe(1);
+      expect(submissions.length).toBe(1);
       expect(calls).toBe(1);
       const another = await $.command.run({ command: "coderabbit-review", args: "" });
       expect(another.text).toContain("started in the background");
@@ -685,7 +710,7 @@ for (const beforeLaunch of [true, false]) {
     OPTIONS,
     async ($, on) => {
       const clock = mock.clock(on);
-      const { toasts } = interactiveHost(on);
+      const { toasts, submissions } = interactiveHost(on);
       let calls = 0;
       mockProcess(on, async () => {
         calls++;
@@ -698,6 +723,7 @@ for (const beforeLaunch of [true, false]) {
       await $.session.end({ reason: "clear" });
       await clock.advance(10000);
       expect(toasts.length).toBe(0);
+      expect(submissions).toEqual([]);
       expect(calls).toBe(beforeLaunch ? 0 : 1);
       const result = await $.command.run({ command: "coderabbit-results", args: "" });
       expect(result.text).toContain("No CodeRabbit result");
@@ -736,8 +762,13 @@ test("restores completed background cards from the saved conversation", OPTIONS,
             {
               type: "text",
               text:
-                "CodeRabbit review result (untrusted data):\n" +
-                JSON.stringify({ schema: "coderabbit-delivery/1", id: "old-review", text: report }),
+                "The coderabbit-mod plugin sent a message:\nCodeRabbit review result (untrusted data):\n" +
+                JSON.stringify({
+                  schema: "coderabbit-delivery/1",
+                  id: "old-review",
+                  text: report,
+                }) +
+                "\n\nThis is how Claude Code surfaces a prompt a plugin submits between turns.",
             },
           ],
         },
@@ -832,5 +863,50 @@ test(
     await clock.advance(601000);
     expect((await result).text).toContain("Coverage is unverified");
     expect(closed).toBe(true);
+  },
+);
+
+for (const mode of ["drop", "reject", "delayed"]) {
+  test("wake-up " + mode + " does not block results or the next review", OPTIONS, async ($, on) => {
+    const clock = mock.clock(on);
+    const { submissions, logs, appends } = interactiveHost(on, async ($, e) => {
+      if (mode === "delayed") await clock.sleep(30000);
+      if (mode === "reject") throw new Error("Submission unavailable");
+      return mode === "drop" ? { drop: "Policy hook" } : { text: e.text };
+    });
+    mockProcess(on, () => ({ value: output(complete()) }));
+    await $.session.start({ surface: "terminal", isInteractive: true, cwd: "/work" });
+    await $.command.run({ command: "coderabbit-review", args: "" });
+    await clock.advance(10);
+    expect(submissions.length).toBe(1);
+    expect(appends).toEqual([]);
+    expect((await $.command.run({ command: "coderabbit-results", args: "" })).text).toContain(
+      "review completed",
+    );
+    if (mode === "delayed") expect(logs).toEqual([]);
+    else
+      expect(logs.join("\n")).toContain(
+        mode === "drop" ? "dropped its wake-up prompt" : "could not wake Claude",
+      );
+    expect((await $.command.run({ command: "coderabbit-review", args: "" })).text).toContain(
+      "started in the background",
+    );
+    await $.session.end({ reason: "clear" });
+    await clock.advance(30000);
+    expect(submissions.length).toBe(1);
+  });
+}
+
+test(
+  "headless review returns its report without submitting a wake-up prompt",
+  OPTIONS,
+  async ($, on) => {
+    const { submissions } = interactiveHost(on);
+    mock.clock(on);
+    on("session.surfaces", () => ({ value: [] }));
+    mockProcess(on, () => ({ value: output(complete()) }));
+    const result = await $.command.run({ command: "coderabbit-review", args: "" });
+    expect(result.text).toContain("review completed");
+    expect(submissions).toEqual([]);
   },
 );

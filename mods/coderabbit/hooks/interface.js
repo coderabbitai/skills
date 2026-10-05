@@ -100,14 +100,17 @@ export function registerInterface(on, getProgress, getResult, getActiveId) {
       if (result === undefined) {
         const { Box, Text } = $.ui.resolve(e);
         return Box({
-          flexDirection: "column",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          columnGap: 1,
           marginY: 1,
           children: [
             Text({ color: BRAND_ORANGE, bold: true, children: ["● CodeRabbit"] }),
             Text({
+              dimColor: true,
               children: [
                 getActiveId() === report.id
-                  ? "Reviewing in the background. Keep chatting — findings will appear here."
+                  ? "Reviewing in the background · Claude will be notified"
                   : "This review is no longer active; its result is unavailable in this conversation.",
               ],
             }),
@@ -265,7 +268,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId) {
                       });
                       if (!result.isFilled)
                         $.ui.toast(
-                          "Could not add the draft to the prompt. Try again when the prompt is available.",
+                          "● CodeRabbit  Could not add the draft · try again when the prompt is available.",
                         );
                     },
                   }),

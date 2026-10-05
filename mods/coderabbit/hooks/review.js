@@ -5,7 +5,7 @@ all: committed and uncommitted tracked changes.
 --include-untracked: explicitly include non-ignored untracked files (not with committed).
 --base: compare against a Git branch; use an unquoted branch name without spaces.
 
-Interactive reviews run in the background. Keep chatting; a toast and the review card show the outcome. Use /coderabbit-results to show the latest result again. Headless reviews wait for completion.
+Interactive reviews run in the background. Keep chatting; a toast and the review card show the outcome, then the mod queues a Claude turn with the result once Claude is idle. This uses your normal Claude model allowance. Use /coderabbit-results to show the latest result again. Headless reviews wait for completion.
 
 Reviews send the selected diff and relevant code context to CodeRabbit using your existing CLI account and review allowance. Check the selected files for secrets first. Configure cli_path with the absolute path to your official CodeRabbit CLI and authenticate with coderabbit auth login. This command does not apply fixes or purchase credits.`;
 

@@ -74,10 +74,13 @@ text. You review and send the draft yourself.
 
 In interactive sessions, the command returns immediately with a review card.
 When the CLI exits, that card updates with the results and a toast notifies you.
-The mod appends a bounded result record to Claude's conversation context without
-submitting a prompt or starting a model turn. Run **/coderabbit-results** to show
-the latest result at the end of the conversation, including if context delivery
-was refused. Your prompt draft is left intact.
+The mod submits a bounded result record as a plugin-attributed prompt, waking
+Claude into a new turn once the session is idle. It does not interrupt a running
+turn or fill your prompt box. Each completed review attempt, including a failure
+or rate limit, can therefore use your normal Claude model allowance. Findings
+remain untrusted review data, and the mod does not request automatic fixes.
+Run **/coderabbit-results** to show the latest result again, including if a hook
+refused the wake-up prompt. Your prompt draft is left intact.
 
 Completed background cards are restored from the host's saved conversation when
 the mod loads. Headless `-p` reviews wait for completion and print the structured
@@ -163,6 +166,8 @@ The mod reads newline-delimited JSON incrementally, retaining at most 4,194,304
 characters per output stream for final validation. It starts no other program,
 invokes no shell, and adds no HTTP calls.
 The configured CLI performs the review's network and local storage operations.
+On background completion, `$.prompt.submit` queues one result notification in
+this same conversation, using the host's normal model turn and plugin attribution.
 
 ## Data and privacy
 
@@ -175,7 +180,8 @@ can contain personal information when it is present in code or repository
 metadata: check the selected scope for secrets and personal data first.
 
 The mod itself does not read credentials, copy tokens, add HTTP calls, store
-review output in its own files, or call an LLM directly. Credentials remain
+review output in its own files, or call an LLM directly. Its completion notification
+starts a normal Claude turn through the host. Credentials remain
 managed by the CLI. Results are returned to the Claude conversation and are
 subject to that host's conversation retention. CodeRabbit service retention is
 governed by the [Privacy Policy](https://www.coderabbit.ai/privacy-policy) and
@@ -194,7 +200,8 @@ The tests use Claude's native mod runner with synthetic CLI responses and no
 network. They cover command registration, scope, missing configuration,
 completion versus skipping, errors, truncation, progress cleanup, conversation
 rendering, terminal and Desktop background delivery, split NDJSON, live phase and
-finding updates, timeout closure, session reset, rate-limit details, and draft-only
+finding updates, timeout closure, session reset, wake-up delivery and refusal,
+rate-limit details, and draft-only
 button behavior. Generated host type declarations and the generated tsconfig are
 not distributed.
 

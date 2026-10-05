@@ -45,9 +45,11 @@ export function register(on, options) {
       const messages = await $.session.messages({ as: "api" });
       for (const message of messages) {
         for (const block of Array.isArray(message.content) ? message.content : []) {
-          if (block.type !== "text" || !block.text.startsWith(RESULT_PREFIX)) continue;
+          if (block.type !== "text") continue;
+          const at = block.text.indexOf(RESULT_PREFIX);
+          if (at < 0) continue;
           try {
-            const saved = JSON.parse(block.text.slice(RESULT_PREFIX.length));
+            const saved = JSON.parse(block.text.slice(at + RESULT_PREFIX.length).split("\n", 1)[0]);
             if (
               saved.schema === "coderabbit-delivery/1" &&
               typeof saved.id === "string" &&
@@ -190,36 +192,41 @@ export function register(on, options) {
         results.set(reviewId, result);
         activeId = undefined;
         $.ui.invalidate("ui.render");
-        let notification = "Review could not finish. See /coderabbit-results.";
+        let notification = "Review could not finish · /coderabbit-results";
         if (result.startsWith("{")) {
           const report = JSON.parse(result);
+          const completed = /^CodeRabbit review completed: (\d+) finding\(s\)\.$/.exec(
+            report.headline,
+          );
           notification = report.rateLimit
-            ? "Taking a breather — rate limit reached. See /coderabbit-results."
-            : report.headline + " See /coderabbit-results.";
+            ? "Taking a breather · rate limit reached"
+            : completed
+              ? "Review complete · " +
+                completed[1] +
+                (Number(completed[1]) === 1 ? " finding" : " findings")
+              : report.headline;
         }
-        $.ui.toast(notification, { timeoutMs: 8000 });
-        try {
-          const saved = await $.session.append({
-            message: {
-              type: "user",
-              content: [
-                {
-                  type: "text",
-                  text:
-                    RESULT_PREFIX +
-                    JSON.stringify({ schema: "coderabbit-delivery/1", id: reviewId, text: result }),
-                },
-              ],
-            },
-          });
-          if (generation !== runGeneration) return;
-          if (saved.deny) throw new Error("Context write refused");
-        } catch {
-          if (generation === runGeneration)
-            $.ui.log(
-              "CodeRabbit result is visible, but could not be added to Claude's context. Run /coderabbit-results to share it.",
-            );
-        }
+        $.ui.toast("● CodeRabbit  " + notification, { timeoutMs: 8000 });
+        // Queue a plugin-attributed turn once Claude is idle. Do not await it:
+        // accepting another review must not depend on the wake-up turn starting.
+        const delivery =
+          RESULT_PREFIX +
+          JSON.stringify({ schema: "coderabbit-delivery/1", id: reviewId, text: result });
+        void $.prompt.submit({ text: delivery }).then(
+          (entered) => {
+            if (generation !== runGeneration) return;
+            if (entered && "drop" in entered)
+              $.ui.log(
+                "CodeRabbit result is visible, but a hook dropped its wake-up prompt. Run /coderabbit-results to share it.",
+              );
+          },
+          () => {
+            if (generation === runGeneration)
+              $.ui.log(
+                "CodeRabbit result is visible, but could not wake Claude. Run /coderabbit-results to share it.",
+              );
+          },
+        );
       } catch {
         if (generation === runGeneration)
           $.ui.log(
@@ -235,7 +242,7 @@ export function register(on, options) {
         schema: "coderabbit-pending/1",
         id: reviewId,
         message:
-          "CodeRabbit review started in the background. Keep chatting — the result will appear here when it finishes.",
+          "CodeRabbit review started in the background. Keep chatting — Claude will be notified with the result when it finishes.",
       }),
     };
   });
