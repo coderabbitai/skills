@@ -37,8 +37,10 @@ Run `"/absolute/path/to/coderabbit" auth status --agent` in the same approved
 context that will run the review. Proceed only after a successful, well-formed
 `authenticated: true`. On `false`, ask the user to run
 `"/absolute/path/to/coderabbit" auth login` in that environment's terminal; never
-start or elevate login automatically. Resume after the user confirms login and
-the status check succeeds. Failure or malformed output means unknown; report
+start or elevate login automatically. If the user explicitly asks you to start
+login, run `"/absolute/path/to/coderabbit" auth login --agent` instead, give the
+user the sign-in URL it prints, and wait for it to finish; never request pasted
+tokens. Resume after the user confirms login and the status check succeeds. Failure or malformed output means unknown; report
 the error and stop. Abort any interactive login prompt from a review command.
 
 ## Recover a sandbox auth failure
