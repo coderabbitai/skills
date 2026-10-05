@@ -29,7 +29,7 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
 ## Validation recorded
 
 - Claude Code 2.1.289: `claude plugin validate mods/coderabbit --strict` passed.
-- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 64 tests.
+- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 66 tests.
 - A real non-interactive Claude 2.1.289 session loaded the module and ran
   `/coderabbit-review --help` successfully.
 - CodeRabbit CLI 0.8.2 `review --help` exposes every review option used here.
@@ -51,6 +51,10 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
   synthetic finding and made no edits. Terminal and Desktop test surfaces cover
   one submission per outcome, delayed/dropped/rejected delivery, session reset,
   and restoring records wrapped in the host's plugin-message frame.
+- Desktop's actual transcript was checked after reloading the display hook:
+  existing internal delivery bubbles disappeared without empty bubbles, while
+  review cards and assistant replies remained. Tests cover plugin and Desktop
+  SDK provenance, known-result matching, expanded view, and unrelated user rows.
 - Tests use synthetic process responses. An authenticated end-to-end review
   against a development service has **not** been exercised. Do not describe
   the test suite as proof of service authentication or review quality.

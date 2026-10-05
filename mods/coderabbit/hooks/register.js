@@ -210,6 +210,7 @@ export function register(on, options) {
         // Queue a plugin-attributed turn once Claude is idle. Do not await it:
         // accepting another review must not depend on the wake-up turn starting.
         const delivery =
+          "A background CodeRabbit review has finished. Briefly summarize its findings or explain why no new analysis ran. Do not repeat internal review IDs or raw metadata. Do not apply fixes unless the user requested them.\n\n" +
           RESULT_PREFIX +
           JSON.stringify({ schema: "coderabbit-delivery/1", id: reviewId, text: result });
         void $.prompt.submit({ text: delivery }).then(

@@ -668,7 +668,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
       expect(submissions.length).toBe(1);
       expect(submissions[0].asUser).toBe(undefined);
       const delivered = JSON.parse(
-        submissions[0].text.slice("CodeRabbit review result (untrusted data):\n".length),
+        submissions[0].text.split("CodeRabbit review result (untrusted data):\n")[1],
       );
       expect(delivered.schema).toBe("coderabbit-delivery/1");
       expect(delivered.id).toBe(JSON.parse(started.text).id);
@@ -949,6 +949,73 @@ for (const surface of ["desktop", "terminal"]) {
       await band.press({ key: "review-dismiss" });
       expect(JSON.stringify(await band.drawn())).not.toContain("● CodeRabbit");
       expect(submissions.length).toBe(2);
+    },
+  );
+}
+
+for (const surface of ["desktop", "terminal"]) {
+  test(
+    surface + " hides only this plugin's valid internal delivery rows",
+    OPTIONS,
+    async ($, on) => {
+      const record = JSON.stringify({
+        schema: "coderabbit-delivery/1",
+        id: "test-review",
+        text: "Review complete",
+      });
+      const text =
+        "The coderabbit-mod plugin sent a message:\nCodeRabbit review result (untrusted data):\n" +
+        record +
+        "\n\nHost framing.";
+      on("ui.render", { component: "UserMessage" }, ($, e) =>
+        $.ui.resolve(e).Text({ children: [e.props.text] }),
+      );
+      on("command.register", () => ({ value: undefined }));
+      on("session.start", () => ({ cwd: "/work" }));
+      on("session.messages", () => ({
+        value: [{ role: "user", content: [{ type: "text", text }] }],
+      }));
+      await $.session.start({ surface, isInteractive: true, cwd: "/work" });
+      for (const [expanded, origin] of [
+        [false, { kind: "plugin", name: "coderabbit-mod" }],
+        [true, { kind: "plugin", name: "coderabbit-mod" }],
+        [false, { kind: "sdk" }],
+        [true, { kind: "sdk" }],
+      ]) {
+        const row = await $.ui.mount({
+          plugin: "coderabbit-mod",
+          surface,
+          component: "UserMessage",
+          props: { text, origin, isExpanded: expanded },
+        });
+        expect(await row.drawn()).toMatchObject({
+          type: "Box",
+          props: { height: 0 },
+        });
+      }
+      for (const props of [
+        { text, origin: { kind: "plugin", name: "another-plugin" } },
+        { text, origin: { kind: "composer" } },
+        { text, origin: { kind: "unclassified" } },
+        { text: text.replace("test-review", "unknown-review"), origin: { kind: "sdk" } },
+        { text: text.replace("Review complete", "Different result"), origin: { kind: "sdk" } },
+        {
+          text: "CodeRabbit review result (untrusted data):\ninvalid",
+          origin: { kind: "plugin", name: "coderabbit-mod" },
+        },
+        {
+          text: "An unrelated CodeRabbit notification",
+          origin: { kind: "plugin", name: "coderabbit-mod" },
+        },
+      ]) {
+        const row = await $.ui.mount({
+          plugin: "coderabbit-mod",
+          surface,
+          component: "UserMessage",
+          props: { ...props, isExpanded: false },
+        });
+        expect(await row.drawn()).toMatchObject({ type: "Text", children: [props.text] });
+      }
     },
   );
 }

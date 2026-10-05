@@ -77,8 +77,12 @@ text. You review and send the draft yourself.
 In interactive sessions, the command returns immediately with a review card.
 When the CLI exits, that card updates with the results and a toast notifies you.
 The mod submits a bounded result record as a plugin-attributed prompt, waking
-Claude into a new turn once the session is idle. It does not interrupt a running
-turn or fill your prompt box. Each completed review attempt, including a failure
+Claude into a new turn once the session is idle. The internal delivery row is
+hidden from the conversation view; the CodeRabbit card and Claude's reply remain.
+The stored record and model context keep the original payload and provenance.
+Desktop marks this delivery as SDK-originated, so its render hook also requires
+the exact CodeRabbit frame and a matching known result before hiding it.
+It does not interrupt a running turn or fill your prompt box. Each completed review attempt, including a failure
 or rate limit, can therefore use your normal Claude model allowance. Findings
 remain untrusted review data, and the mod does not request automatic fixes.
 Run **/coderabbit-results** to show the latest result again, including if a hook

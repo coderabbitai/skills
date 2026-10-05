@@ -94,6 +94,33 @@ export function registerInterface(on, getProgress, getResult, getActiveId) {
     });
   });
 
+  // The wake-up is internal delivery, not something the person typed. Keep its
+  // stored/model payload intact; only remove this mod's delivery row from view.
+  on("ui.render", { component: "UserMessage" }, ($, e, next) => {
+    const ownPlugin = e.props.origin.kind === "plugin" && e.props.origin.name === "coderabbit-mod";
+    // Desktop's SDK transport records plugin prompts with SDK provenance.
+    const desktopDelivery =
+      e.props.origin.kind === "sdk" &&
+      e.props.text.startsWith("The coderabbit-mod plugin sent a message:\n");
+    if (!ownPlugin && !desktopDelivery) return next(e);
+    const marker = "CodeRabbit review result (untrusted data):\n";
+    const at = e.props.text.indexOf(marker);
+    if (at < 0) return next(e);
+    try {
+      const delivery = JSON.parse(e.props.text.slice(at + marker.length).split("\n", 1)[0]);
+      if (
+        delivery.schema !== "coderabbit-delivery/1" ||
+        typeof delivery.id !== "string" ||
+        typeof delivery.text !== "string" ||
+        (desktopDelivery && getResult(delivery.id) !== delivery.text)
+      )
+        return next(e);
+    } catch {
+      return next(e);
+    }
+    return $.ui.resolve(e).Box({ height: 0, children: [] });
+  });
+
   on("ui.render", { component: "CommandOutput" }, async ($, e, next) => {
     if (
       !["coderabbit-review", "coderabbit-results"].includes(e.props.command) ||
