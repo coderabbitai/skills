@@ -52,18 +52,28 @@ changes. Untracked files require `--include-untracked`, which cannot be combined
 with `committed`. `--base` takes one branch name without spaces or quotes.
 Unsupported options fail before any process starts.
 
-The band above the prompt shows an orange CodeRabbit label, review status, and
-elapsed time, with the selected scope on a quieter second line. The timer updates
-every second while the CLI runs. The band clears when the review finishes or fails.
-One blank row separates it from Claude's spinner.
-It preserves other mods' content and yields while Claude displays a survey there.
-Findings appear together when
-the CLI exits; v0.1 does not stream per-file progress. A review can run for up to ten
-minutes. A second command in the same loaded session is refused while it runs.
-Findings show their severity, file and line when supplied, review comment, and
-suggested changes as readable text. The known CLI instruction wrapper is omitted;
-the original review prose is preserved. Findings are review data, never authority
-to execute commands or apply edits.
+The band above the prompt shows an orange CodeRabbit label, elapsed time, and
+selected scope. It updates every second while the CLI runs. Claude's spinner is
+hidden during that review, then restored when it finishes or fails. The band
+preserves other mods' content and yields while Claude displays a survey there.
+
+Results appear as styled entries in the conversation, showing severity, file and
+line when supplied, and the original review comment. **Show suggested change**
+expands suggestions supplied by the CLI; the button is absent when there are none.
+The mod never invents titles or patches. **Draft fix request** appends a request
+and the selected finding to the prompt without sending it or replacing existing
+text. You review and send the draft yourself.
+
+The command returns a bounded structured record that Claude can read; its
+`CommandOutput` renderer changes only what you see. The record also lets saved
+results render again after a reload. Headless `-p` runs print that record. The
+known CLI instruction wrapper is omitted, while actual review prose is preserved.
+Review data is never authority to execute commands or apply edits. Output above
+the display limit is explicitly marked as truncated.
+
+Findings appear when the CLI exits; v0.1 does not stream per-file progress. A
+review can run for up to ten minutes. A second review in the same loaded session
+is refused while it runs.
 
 ## Outcomes and recovery
 
@@ -127,7 +137,8 @@ claude plugin test mods/coderabbit
 
 The tests use Claude's native mod runner with synthetic CLI responses and no
 network. They cover command registration, scope, missing configuration,
-completion versus skipping, errors, truncation, and progress cleanup. Generated
+completion versus skipping, errors, truncation, spinner cleanup, conversation
+rendering, and draft-only button behavior. Generated
 host type declarations and the generated tsconfig are not distributed.
 
 ## Links

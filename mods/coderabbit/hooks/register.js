@@ -1,31 +1,11 @@
 import { HELP, isAbsoluteExecutable, reviewArgs, reviewResult } from "./review.js";
-
-const BRAND_ORANGE = "#FF570A";
+import { registerInterface } from "./interface.js";
 
 export function register(on, options) {
   let running = false;
   let progress;
 
-  on("ui.render", { component: "AbovePrompt" }, async ($, e, next) => {
-    const rest = await next(e);
-    if (!progress || e.props.hasSurvey) return rest;
-    const { Box, Text } = $.ui.resolve(e);
-    return Box({
-      flexDirection: "column",
-      marginTop: 1,
-      children: [
-        Text({
-          children: [
-            Text({ color: BRAND_ORANGE, bold: true, children: ["● CodeRabbit"] }),
-            "  Reviewing  ",
-            Text({ dimColor: true, children: [progress.time] }),
-          ],
-        }),
-        Text({ dimColor: true, children: ["  " + progress.scope] }),
-        rest,
-      ],
-    });
-  });
+  registerInterface(on, () => progress);
 
   on("session.start", async ($, e, next) => {
     await $.command.register({
@@ -76,7 +56,6 @@ export function register(on, options) {
       };
       await showProgress();
       timer = $.clock.every(1000, showProgress);
-      $.ui.log("Review started. CodeRabbit findings will appear when the CLI finishes.");
       const result = await $.process.run([options.cli_path, ...args], { timeoutMs: 600000 });
       return { text: reviewResult(result) };
     } catch {
