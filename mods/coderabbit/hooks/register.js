@@ -142,8 +142,9 @@ export function register(on, options) {
         $.ui.invalidate("ui.render");
       }
     };
-    // Headless invocations must wait: there is no interactive session to deliver into later.
-    if (!interactive) {
+    // Desktop starts through the SDK (isInteractive=false) and attaches its UI later.
+    // Check at command time; only a session without a prompt or attached UI must wait.
+    if (!interactive && (await $.session.surfaces()).length === 0) {
       try {
         latestResult = await review();
         return { text: latestResult };

@@ -109,10 +109,36 @@ Rate limits appear as a compact “Taking a breather” card with the CLI-report
 wait estimate. Expand **Limit details** for account requirements and review usage
 links. A rate-limited review remains incomplete; the mod never retries automatically.
 
-## Supported surface
+## Supported surfaces
 
-This mod uses Claude Code's local process API and is intended for the Claude
-Code terminal. It does not provide a working code-review service inside Claude
+This mod uses Claude Code's local process API in the terminal and in **Local
+Code sessions in Claude Desktop**. Both show the running band, update the
+conversation card, and notify on completion without holding the prompt.
+Desktop attaches its interface after its SDK session starts; the mod checks
+attached surfaces when the review command runs. Headless runs still wait.
+
+Install the plugin for the folder opened in Desktop. When Desktop loads a local
+plugin as a directory, it resolves configuration by the bare plugin name rather
+than its marketplace-qualified id. Set the following entry in
+`~/.claude/settings.json`, preserving your other settings and using your actual
+official CLI path:
+
+```json
+{
+  "pluginConfigs": {
+    "coderabbit-mod": {
+      "options": { "cli_path": "/absolute/path/to/coderabbit" }
+    }
+  }
+}
+```
+
+Mod options are read from user or managed settings, not project settings.
+Run `/reload-plugins`, then `/coderabbit-review --help` to verify loading
+without starting a review. An installed plugin can be enabled but fail to load
+its mod if the required executable option is missing.
+
+This package does not provide a working code-review service inside Claude
 web chat, mobile, or Cowork. No MCP server, portable skill, or agent is bundled.
 The existing CodeRabbit skills plugin is a separate package with its own version.
 
@@ -158,7 +184,7 @@ claude plugin test mods/coderabbit
 The tests use Claude's native mod runner with synthetic CLI responses and no
 network. They cover command registration, scope, missing configuration,
 completion versus skipping, errors, truncation, progress cleanup, conversation
-rendering, background delivery, session reset, rate-limit details, and draft-only
+rendering, terminal and Desktop background delivery, session reset, rate-limit details, and draft-only
 button behavior. Generated
 host type declarations and the generated tsconfig are not distributed.
 

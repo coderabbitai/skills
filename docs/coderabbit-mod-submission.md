@@ -8,7 +8,8 @@
 - Manifest name: `coderabbit-mod`
 - Display name: CodeRabbit Review Mod
 - Version: `0.1.0`
-- Intended host: Claude Code terminal, version 2.1.289 or later
+- Intended hosts: Claude Code terminal (2.1.289 or later) and Local Code sessions
+  in a mod-enabled Claude Desktop app
 
 Use the candidate PR branch only to preview validation. A saved directory draft
 locks its repository, folder, and branch; do not save a release submission against
@@ -28,10 +29,17 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
 ## Validation recorded
 
 - Claude Code 2.1.289: `claude plugin validate mods/coderabbit --strict` passed.
-- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 52 tests.
+- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 55 tests.
 - A real non-interactive Claude 2.1.289 session loaded the module and ran
   `/coderabbit-review --help` successfully.
 - CodeRabbit CLI 0.8.2 `review --help` exposes every review option used here.
+- Claude Desktop with embedded engine 2.1.286: an offline 12-second process
+  fixture verified the branded running band, immediate command return, a second
+  command while the review ran, an editable draft preserved through completion,
+  the updated finding card, and the completion toast. The fixture was explicitly
+  labeled synthetic; no review service was called. The official CLI path was
+  restored afterward. Desktop needed configuration under the bare plugin name
+  in user settings because it loaded the local plugin as a directory.
 - Tests use synthetic process responses. An authenticated end-to-end review
   against a development service has **not** been exercised. Do not describe
   the test suite as proof of service authentication or review quality.

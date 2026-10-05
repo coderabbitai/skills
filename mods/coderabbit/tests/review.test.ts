@@ -38,6 +38,7 @@ const output = (stdout, extra = {}) => ({
 
 function stubProcess(on, result) {
   mock.clock(on);
+  on("session.surfaces", () => ({ value: [] }));
   const calls = [];
   const statuses = [];
   on("ui.status", ($, e) => {
@@ -188,6 +189,7 @@ test(
   OPTIONS,
   async ($, on) => {
     mock.clock(on);
+    on("session.surfaces", () => ({ value: [] }));
     let calls = 0;
     const statuses = [];
     on("ui.status", ($, e) => {
@@ -211,6 +213,7 @@ test(
 
 test("refuses an overlapping review without launching a second process", OPTIONS, async ($, on) => {
   mock.clock(on);
+  on("session.surfaces", () => ({ value: [] }));
   let finish;
   let started;
   let calls = 0;
@@ -242,6 +245,7 @@ for (const fails of [false, true]) {
     OPTIONS,
     async ($, on) => {
       const clock = mock.clock(on);
+      on("session.surfaces", () => ({ value: [] }));
       const statuses = [];
       on("ui.status", ($, e) => {
         statuses.push(e.text);
@@ -588,13 +592,17 @@ function interactiveHost(on) {
   return { toasts, logs };
 }
 
-for (const outcome of ["completed", "rate_limit", "process_failure"]) {
+for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
+  ["completed", "rate_limit", "process_failure"].map((outcome) => [surface, outcome]),
+)) {
   test(
-    "background review keeps UI available if context storage fails: " + outcome,
+    surface + " background review keeps UI available if context storage fails: " + outcome,
     OPTIONS,
     async ($, on) => {
       const clock = mock.clock(on);
       const { toasts, logs } = interactiveHost(on);
+      const attachedSurfaces = [];
+      on("session.surfaces", () => ({ value: attachedSurfaces }));
       let calls = 0;
       on("process.run", async () => {
         calls++;
@@ -607,11 +615,17 @@ for (const outcome of ["completed", "rate_limit", "process_failure"]) {
               : output(JSON.stringify(finding) + "\n" + complete("review_completed", 1)),
         };
       });
-      await $.session.start({ surface: "terminal", isInteractive: true, cwd: "/work" });
+      await $.session.start({
+        surface: surface === "desktop" ? null : "terminal",
+        isInteractive: surface === "terminal",
+        cwd: "/work",
+      });
+      // Desktop attaches after SDK session.start, before the person runs a command.
+      attachedSurfaces.push(surface);
       const started = await $.command.run({ command: "coderabbit-review", args: "" });
       expect(started.text).toContain("started in the background");
       expect(calls).toBe(0);
-      const original = await $.ui.mount(commandTarget(started.text));
+      const original = await $.ui.mount({ ...commandTarget(started.text), surface });
       expect(JSON.stringify(await original.drawn())).toContain("Reviewing in the background");
       await clock.advance(1);
       expect(calls).toBe(1);
