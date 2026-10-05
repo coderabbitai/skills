@@ -19,12 +19,14 @@ export function register(on, options) {
   let activeId;
   let serial = 0;
   const results = new Map();
+  const wakeTexts = new Set();
 
   registerInterface(
     on,
     () => progress,
     (id) => results.get(id),
     () => activeId,
+    (text) => wakeTexts.has(text),
   );
 
   on("session.start", async ($, e, next) => {
@@ -56,6 +58,7 @@ export function register(on, options) {
               typeof saved.text === "string"
             ) {
               results.set(saved.id, saved.text);
+              if (typeof saved.wakeText === "string") wakeTexts.add(saved.wakeText);
               latestResult = saved.text;
             }
           } catch {
@@ -82,6 +85,7 @@ export function register(on, options) {
     latestResult = undefined;
     activeId = undefined;
     results.clear();
+    wakeTexts.clear();
     $.ui.invalidate("ui.render");
     return next(e);
   });
@@ -209,25 +213,13 @@ export function register(on, options) {
         $.ui.toast("● CodeRabbit  " + notification, { timeoutMs: 8000 });
         // Queue a plugin-attributed turn once Claude is idle. Do not await it:
         // accepting another review must not depend on the wake-up turn starting.
+        const wakeText = "CodeRabbit: " + notification + ". See the review card above.";
+        wakeTexts.add(wakeText);
         const delivery =
           "A background CodeRabbit review has finished. The visible CodeRabbit card already contains the full findings, locations, severities, and fix actions. Acknowledge the outcome in one short sentence; do not repeat or list the findings, restate their details, or re-rate their severity. For a skipped, failed, or incomplete review, briefly state that outcome without claiming clean coverage. Do not repeat internal review IDs or raw metadata. Do not apply fixes unless the user requested them. If the user has already asked for fixes or another action, carry out that request instead of stopping at an acknowledgment.\n\n" +
           RESULT_PREFIX +
-          JSON.stringify({ schema: "coderabbit-delivery/1", id: reviewId, text: result });
-        void $.prompt.submit({ text: delivery }).then(
-          (entered) => {
-            if (generation !== runGeneration) return;
-            if (entered && "drop" in entered)
-              $.ui.log(
-                "CodeRabbit result is visible, but a hook dropped its wake-up prompt. Run /coderabbit-results to share it.",
-              );
-          },
-          () => {
-            if (generation === runGeneration)
-              $.ui.log(
-                "CodeRabbit result is visible, but could not wake Claude. Run /coderabbit-results to share it.",
-              );
-          },
-        );
+          JSON.stringify({ schema: "coderabbit-delivery/1", id: reviewId, text: result, wakeText });
+        await deliverReview($, delivery, wakeText, () => generation === runGeneration);
       } catch {
         if (generation === runGeneration)
           $.ui.log(
@@ -247,4 +239,42 @@ export function register(on, options) {
       }),
     };
   });
+}
+
+export async function deliverReview($, delivery, wakeText, isCurrent) {
+  // Terminal excludes the submitting plugin from its message's render
+  // chain. Keep the record in a model-only note, not the visible wake-up.
+  try {
+    const appended = await $.session.append({
+      message: { type: "user", content: [{ type: "text", text: delivery }] },
+    });
+    if (!isCurrent()) return;
+    if (appended.deny) {
+      $.ui.log(
+        "CodeRabbit result is visible, but could not attach it for Claude. Run /coderabbit-results to share it.",
+      );
+      return;
+    }
+  } catch {
+    if (isCurrent())
+      $.ui.log(
+        "CodeRabbit result is visible, but could not attach it for Claude. Run /coderabbit-results to share it.",
+      );
+    return;
+  }
+  void $.prompt.submit({ text: wakeText }).then(
+    (entered) => {
+      if (!isCurrent()) return;
+      if (entered && "drop" in entered)
+        $.ui.log(
+          "CodeRabbit result is visible, but a hook dropped its wake-up prompt. Run /coderabbit-results to share it.",
+        );
+    },
+    () => {
+      if (isCurrent())
+        $.ui.log(
+          "CodeRabbit result is visible, but could not wake Claude. Run /coderabbit-results to share it.",
+        );
+    },
+  );
 }

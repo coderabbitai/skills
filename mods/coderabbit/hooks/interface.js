@@ -1,6 +1,6 @@
 const BRAND_ORANGE = "#FF570A";
 
-export function registerInterface(on, getProgress, getResult, getActiveId) {
+export function registerInterface(on, getProgress, getResult, getActiveId, isWakeText) {
   const expanded = new Set();
 
   on("ui.render", { component: "AbovePrompt" }, async ($, e, next) => {
@@ -103,6 +103,9 @@ export function registerInterface(on, getProgress, getResult, getActiveId) {
       e.props.origin.kind === "sdk" &&
       e.props.text.startsWith("The coderabbit-mod plugin sent a message:\n");
     if (!ownPlugin && !desktopDelivery) return next(e);
+    const wakeBody = e.props.text.replace(/^The coderabbit-mod plugin sent a message:\n/, "");
+    if (isWakeText(wakeBody.split("\n", 1)[0]))
+      return $.ui.resolve(e).Box({ height: 0, children: [] });
     const marker = "CodeRabbit review result (untrusted data):\n";
     const at = e.props.text.indexOf(marker);
     if (at < 0) return next(e);
