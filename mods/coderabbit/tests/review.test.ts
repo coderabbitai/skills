@@ -460,3 +460,108 @@ test("oversized suggestion arrays remain bounded valid review data", OPTIONS, as
   const row = await $.ui.mount(commandTarget(answer.text));
   expect(JSON.stringify(await row.drawn())).toContain("Display truncated");
 });
+
+const limitError = {
+  type: "error",
+  errorType: "rate_limit",
+  message: "Rate limit exceeded",
+  metadata: {
+    waitTime: "12 minutes",
+    policyGuidance:
+      "**Limit details:** You've used all 3 included reviews currently available.\n\nLink or assign a seat, or use an Agentic API key, then retry.\n\n[Review usage](https://app.coderabbit.ai/dashboard)",
+  },
+};
+
+test(
+  "rate limits render a compact card with expandable account guidance",
+  OPTIONS,
+  async ($, on) => {
+    const { calls } = stubProcess(
+      on,
+      output(JSON.stringify(limitError), {
+        exitCode: 1,
+        stderr: "Error: Rate limit exceeded\n",
+      }),
+    );
+    const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+    const report = JSON.parse(answer.text);
+    expect(report.headline).toContain("failed; coverage is unverified");
+    expect(report.rateLimit.guidance).toBe(limitError.metadata.policyGuidance);
+    expect(report.notices).toEqual([]);
+    const row = await $.ui.mount(commandTarget(answer.text));
+    const before = JSON.stringify(await row.drawn());
+    expect(before).toContain("Taking a breather");
+    expect(before).toContain("Try again in 12 minutes.");
+    expect(before).toContain("This review didn't complete");
+    expect(before).toContain("No automatic retry");
+    expect(before).not.toContain("CLI errors");
+    expect(before).not.toContain("Link or assign");
+    await row.press({ key: "rate-limit-details" });
+    const details = JSON.stringify(await row.drawn());
+    expect(details).toContain("Link or assign a seat");
+    expect(details).toContain("https://app.coderabbit.ai/dashboard");
+    await row.press({ key: "rate-limit-details" });
+    expect(JSON.stringify(await row.drawn())).not.toContain("Link or assign");
+    expect(calls.length).toBe(1);
+  },
+);
+
+for (const waitTime of [undefined, "0 minutes and 0 seconds"]) {
+  test("rate limits do not invent a reset estimate: " + waitTime, OPTIONS, async ($, on) => {
+    stubProcess(
+      on,
+      output(JSON.stringify({ ...limitError, metadata: { waitTime } }), {
+        exitCode: 1,
+        stderr: "An unrelated diagnostic",
+      }),
+    );
+    const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+    const row = await $.ui.mount(commandTarget(answer.text));
+    const drawn = JSON.stringify(await row.drawn());
+    expect(drawn).toContain("No reset estimate from the CLI.");
+    expect(drawn).toContain("An unrelated diagnostic");
+    await row.press({ key: "rate-limit-details" });
+    expect(JSON.stringify(await row.drawn())).toContain("Rate limit exceeded");
+  });
+}
+
+test(
+  "a generic error mentioning a rate limit keeps its original diagnostics",
+  OPTIONS,
+  async ($, on) => {
+    stubProcess(
+      on,
+      output(JSON.stringify({ ...limitError, errorType: "unknown" }), { exitCode: 1 }),
+    );
+    const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+    expect(JSON.parse(answer.text).rateLimit).toBeUndefined();
+    const row = await $.ui.mount(commandTarget(answer.text));
+    const drawn = JSON.stringify(await row.drawn());
+    expect(drawn).not.toContain("Taking a breather");
+    expect(drawn).toContain("CLI errors");
+  },
+);
+
+test("oversized rate guidance stays bounded and renders valid Markdown", OPTIONS, async ($, on) => {
+  stubProcess(
+    on,
+    output(
+      JSON.stringify({
+        ...limitError,
+        metadata: {
+          ...limitError.metadata,
+          policyGuidance: "Account guidance \u001b".repeat(4000),
+        },
+      }),
+      { exitCode: 1 },
+    ),
+  );
+  const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+  expect(answer.text.length <= 24000).toBe(true);
+  expect(JSON.parse(answer.text).truncated).toBe(true);
+  const row = await $.ui.mount(commandTarget(answer.text));
+  await row.press({ key: "rate-limit-details" });
+  const drawn = JSON.stringify(await row.drawn());
+  expect(drawn).toContain("Account guidance");
+  expect(drawn).not.toContain("\\u001b");
+});

@@ -43,7 +43,15 @@ export function registerInterface(on, getProgress) {
       return next(e);
     }
     if (report?.schema !== "coderabbit-review/1") return next(e);
-    const { Box, Text, Button } = $.ui.resolve(e);
+    const { Box, Text, Button, Markdown } = $.ui.resolve(e);
+    const limitId = e.requestId + ":rate-limit";
+    const waitTime = report.rateLimit?.waitTime.trim();
+    const hasWait = waitTime && !/^0\s+minutes?\s+and\s+0\s+seconds?$/i.test(waitTime);
+    // Markdown has a 10,000-character limit and disallows terminal control codes.
+    const guidance = (report.rateLimit?.guidance || report.rateLimit?.message || "").replace(
+      /[\x00-\x08\x0b-\x1f\x7f]/g,
+      "",
+    );
     const heading = report.headline.replace(
       /^CodeRabbit review completed: (\d+) finding\(s\)\.$/,
       (_, count) => "Review complete · " + count + (count === "1" ? " finding" : " findings"),
@@ -59,15 +67,64 @@ export function registerInterface(on, getProgress) {
           columnGap: 2,
           children: [
             Text({ color: BRAND_ORANGE, bold: true, children: ["● CodeRabbit"] }),
-            Text({ children: [heading] }),
+            Text({ children: [report.rateLimit ? "Rate limit reached" : heading] }),
           ],
         }),
+        ...(report.rateLimit
+          ? [
+              Box({
+                flexDirection: "column",
+                marginTop: 1,
+                paddingLeft: 2,
+                children: [
+                  Text({ bold: true, children: ["Taking a breather"] }),
+                  Text({
+                    children: [
+                      hasWait
+                        ? "Try again in " + waitTime + "."
+                        : "No reset estimate from the CLI.",
+                    ],
+                  }),
+                  Text({
+                    dimColor: true,
+                    children: [
+                      "This review didn't complete. Check limit details for account requirements.",
+                    ],
+                  }),
+                  Box({
+                    marginTop: 1,
+                    children: [
+                      Button({
+                        key: "rate-limit-details",
+                        label: expanded.has(limitId) ? "Hide limit details" : "Limit details",
+                        onPress: () => {
+                          if (expanded.has(limitId)) expanded.delete(limitId);
+                          else expanded.add(limitId);
+                          $.ui.invalidate("ui.render");
+                        },
+                      }),
+                    ],
+                  }),
+                  ...(expanded.has(limitId)
+                    ? [
+                        Markdown({ text: guidance.slice(0, 10000) }),
+                        ...(guidance.length > 10000
+                          ? [Text({ dimColor: true, children: ["Limit details truncated."] })]
+                          : []),
+                      ]
+                    : []),
+                ],
+              }),
+            ]
+          : []),
         ...report.notices.map((notice) => Text({ children: [notice] })),
         ...(report.truncated
           ? [
               Text({
                 children: [
-                  "Display truncated. Run coderabbit review findings in this workspace to inspect all saved findings.",
+                  report.rateLimit
+                    ? "Display truncated. Some CLI details were omitted."
+                    : "Display truncated. Run coderabbit review findings in this workspace to inspect all saved findings.",
                 ],
               }),
             ]
@@ -142,7 +199,17 @@ export function registerInterface(on, getProgress) {
             ],
           });
         }),
-        Box({ marginTop: 1, children: [Text({ dimColor: true, children: ["No changes made"] })] }),
+        Box({
+          marginTop: 1,
+          children: [
+            Text({
+              dimColor: true,
+              children: [
+                report.rateLimit ? "No changes made · No automatic retry" : "No changes made",
+              ],
+            }),
+          ],
+        }),
       ],
     });
   });

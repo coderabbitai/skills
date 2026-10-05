@@ -91,6 +91,10 @@ usage credits, or widens the selected scope. On authentication errors run
 says its display was truncated, inspect the CLI's saved findings with
 `coderabbit review findings` in the same workspace.
 
+Rate limits appear as a compact “Taking a breather” card with the CLI-reported
+wait estimate. Expand **Limit details** for account requirements and review usage
+links. A rate-limited review remains incomplete; the mod never retries automatically.
+
 ## Supported surface
 
 This mod uses Claude Code's local process API and is intended for the Claude
@@ -138,7 +142,7 @@ claude plugin test mods/coderabbit
 The tests use Claude's native mod runner with synthetic CLI responses and no
 network. They cover command registration, scope, missing configuration,
 completion versus skipping, errors, truncation, spinner cleanup, conversation
-rendering, and draft-only button behavior. Generated
+rendering, rate-limit details, and draft-only button behavior. Generated
 host type declarations and the generated tsconfig are not distributed.
 
 ## Links
