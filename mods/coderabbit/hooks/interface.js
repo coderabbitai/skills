@@ -183,7 +183,6 @@ export function registerInterface(on, getProgress, getResult, getActiveId) {
         Box({
           flexDirection: "row",
           flexWrap: "wrap",
-          justifyContent: "space-between",
           columnGap: 2,
           children: [
             Text({ color: BRAND_ORANGE, bold: true, children: ["● CodeRabbit"] }),
@@ -251,22 +250,34 @@ export function registerInterface(on, getProgress, getResult, getActiveId) {
           : []),
         ...report.findings.map((finding, index) => {
           const id = e.requestId + ":" + index;
+          // Promote only a short, verbatim opening sentence or clause. The CLI
+          // agent stream has no title; never invent a diagnosis from its prose.
+          const lead =
+            /^(.{1,160}?)(?:\r?\n+|(?<=[.!?])\s+|\s+(?=so |before |because ))([\s\S]+)$/.exec(
+              finding.body,
+            );
+          const shortBody = !lead && finding.body.length <= 160;
+          const title = lead ? lead[1] : shortBody ? finding.body : finding.location;
+          const description = lead ? lead[2] : shortBody ? "" : finding.body;
+          const severity = finding.severity.toLowerCase();
+          const prominent = ["critical", "major"].includes(severity);
           return Box({
             flexDirection: "column",
-            marginTop: 1,
-            paddingLeft: 2,
+            marginTop: index === 0 ? 1 : 2,
             children: [
+              Text({ bold: true, children: [title] }),
               Text({
                 children: [
                   Text({
-                    color: BRAND_ORANGE,
-                    bold: true,
-                    children: [finding.severity.toUpperCase()],
+                    ...(prominent ? { color: BRAND_ORANGE } : { dimColor: true }),
+                    children: [severity.charAt(0).toUpperCase() + severity.slice(1)],
                   }),
-                  Text({ dimColor: true, children: ["  " + finding.location] }),
+                  ...(title !== finding.location
+                    ? [Text({ dimColor: true, children: [" · " + finding.location] })]
+                    : []),
                 ],
               }),
-              Text({ children: [finding.body] }),
+              ...(description ? [Text({ children: [description] })] : []),
               Box({
                 flexDirection: "row",
                 flexWrap: "wrap",
@@ -290,7 +301,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId) {
                     : []),
                   Button({
                     key: "draft-" + index,
-                    label: "Draft fix request",
+                    label: "Ask Claude to fix",
                     onPress: async () => {
                       const result = await $.prompt.fill({
                         text:

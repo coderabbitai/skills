@@ -463,9 +463,52 @@ test(
     await oldRow.redraw();
     expect(JSON.stringify(await oldRow.drawn())).toContain("Check the nullable value.");
     expect(await oldRow.find({ key: "suggestion-0" })).toBeUndefined();
-    expect((await oldRow.find({ key: "draft-0" }))?.props.label).toBe("Draft fix request");
+    expect((await oldRow.find({ key: "draft-0" }))?.props.label).toBe("Ask Claude to fix");
   },
 );
+
+for (const [body, heading, detail] of [
+  ["Correct the amount. Preserve zero values.", "Correct the amount.", "Preserve zero values."],
+  [
+    "Divide cents by 100 before formatting the dollar amount.",
+    "Divide cents by 100",
+    "before formatting the dollar amount.",
+  ],
+  [
+    "Keep the 1000 g boundary inclusive so the lower tier applies.",
+    "Keep the 1000 g boundary inclusive",
+    "so the lower tier applies.",
+  ],
+]) {
+  test(
+    "finding headings preserve the original review and fix draft: " + heading,
+    OPTIONS,
+    async ($, on) => {
+      stubProcess(
+        on,
+        output(
+          JSON.stringify({ ...finding, codegenInstructions: body }) +
+            "\n" +
+            complete("review_completed", 1),
+        ),
+      );
+      const drafts = [];
+      on("prompt.fill", ($, e) => {
+        drafts.push(e);
+        return { isFilled: true };
+      });
+      const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+      const row = await $.ui.mount(commandTarget(answer.text));
+      const drawing = JSON.stringify(await row.drawn());
+      expect(drawing.split(heading).length).toBe(2);
+      expect(drawing.split(detail).length).toBe(2);
+      expect(JSON.parse(answer.text).findings[0].body).toBe(body);
+      await row.press({ key: "draft-0" });
+      expect(drafts[0].text).toContain(body);
+      expect(drafts[0].mode).toBe("append");
+    },
+  );
+}
 
 test("oversized suggestion arrays remain bounded valid review data", OPTIONS, async ($, on) => {
   stubProcess(

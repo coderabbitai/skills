@@ -70,7 +70,10 @@ and yields while Claude displays a survey there.
 Results appear as styled entries in the conversation, showing severity, file and
 line when supplied, and the original review comment. **Show suggested change**
 expands suggestions supplied by the CLI; the button is absent when there are none.
-The mod never invents titles or patches. **Draft fix request** appends a request
+A short opening sentence or clause becomes the finding heading, using the original
+wording; longer prose uses the file location as its heading. Major and critical
+labels use the brand accent; other severity labels are subdued. The mod never
+invents diagnoses or patches. **Ask Claude to fix** appends a request
 and the selected finding to the prompt without sending it or replacing existing
 text. You review and send the draft yourself.
 
@@ -79,6 +82,8 @@ When the CLI exits, that card updates with the results and a toast notifies you.
 The mod submits a bounded result record as a plugin-attributed prompt, waking
 Claude into a new turn once the session is idle. The internal delivery row is
 hidden from the conversation view; the CodeRabbit card and Claude's reply remain.
+Claude is asked to acknowledge completion in one short sentence without repeating
+the findings or changing their severities, unless you have already requested action.
 The stored record and model context keep the original payload and provenance.
 Desktop marks this delivery as SDK-originated, so its render hook also requires
 the exact CodeRabbit frame and a matching known result before hiding it.

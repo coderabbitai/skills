@@ -210,7 +210,7 @@ export function register(on, options) {
         // Queue a plugin-attributed turn once Claude is idle. Do not await it:
         // accepting another review must not depend on the wake-up turn starting.
         const delivery =
-          "A background CodeRabbit review has finished. Briefly summarize its findings or explain why no new analysis ran. Do not repeat internal review IDs or raw metadata. Do not apply fixes unless the user requested them.\n\n" +
+          "A background CodeRabbit review has finished. The visible CodeRabbit card already contains the full findings, locations, severities, and fix actions. Acknowledge the outcome in one short sentence; do not repeat or list the findings, restate their details, or re-rate their severity. For a skipped, failed, or incomplete review, briefly state that outcome without claiming clean coverage. Do not repeat internal review IDs or raw metadata. Do not apply fixes unless the user requested them. If the user has already asked for fixes or another action, carry out that request instead of stopping at an acknowledgment.\n\n" +
           RESULT_PREFIX +
           JSON.stringify({ schema: "coderabbit-delivery/1", id: reviewId, text: result });
         void $.prompt.submit({ text: delivery }).then(
