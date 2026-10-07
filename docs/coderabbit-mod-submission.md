@@ -18,8 +18,9 @@ package and must not be replaced or downgraded to publish this mod.
 
 ## Listing text
 
-Run CodeRabbit reviews from Claude Code with `/coderabbit-review`. Choose tracked,
-committed, or uncommitted changes, see when the review is running, and bring the
+Run CodeRabbit reviews from Claude Code with `/coderabbit-review`. Choose `all`,
+`committed`, or `uncommitted` changes; add `--include-untracked` with `all` or
+`uncommitted` to include non-ignored new files. See when the review is running and bring the
 original findings into your conversation while you keep chatting. Completion
 updates the review card, shows a toast, and saves the result as context without
 starting a Claude turn. Requires the official CodeRabbit CLI
@@ -43,8 +44,12 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
   execution with an explicitly synthetic offline CLI verified argument forwarding
   and no-fresh outcome handling without contacting a review service.
 - Claude Code 2.1.289: `claude plugin validate mods/coderabbit --strict` passed.
-- Current Desktop embedded engine 2.1.289: strict validation passed.
-- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 103 tests.
+- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 107 tests.
+  Startup failures leave the next review available; delayed cleanup from an ended
+  session cannot clear the running state, result, or timer of a newer review.
+- Desktop embedded engine 2.1.289: package strict validation passed. The older
+  interactive Desktop fixture observations below used 2.1.286; they are not
+  claims that those runtime scenarios were repeated on 2.1.289.
 - **Run fresh review…** prepares the same scope with `--fresh`; Enter starts an
   independent conversation card and preserves prior results. An occupied prompt
   is not replaced. A real terminal fixture verified the button, prepared command,
@@ -85,7 +90,7 @@ policy review. The publisher name also requires ownership review against the
 existing CodeRabbit listing. These are review holds, not a technical validation
 failure or an approval.
 
-The portal's compliance form still requires a declaration that no code executes
+Rechecked on 2026-10-07: the portal's compliance form still requires a declaration that no code executes
 outside declared MCP servers, including for a package it recognizes as a mod.
 This package cannot truthfully make that declaration. It remains unsubmitted.
 

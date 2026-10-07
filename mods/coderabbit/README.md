@@ -66,6 +66,9 @@ The default reviews staged changes and unstaged edits to tracked files; staged
 new files count as tracked. `all` includes committed and uncommitted tracked
 changes. Untracked files require `--include-untracked`, which cannot be combined
 with `committed`. `--base` takes one branch name without spaces or quotes.
+This standalone mod intentionally defaults to `uncommitted`; the separate
+code-review skill follows the CLI's broader default. Use `/coderabbit-review all`
+to select that scope explicitly.
 Unsupported options fail before any process starts.
 `--fresh` explicitly requests a new review without reusing the local checkpoint;
 it uses your review allowance and requires a CLI whose `review --help` lists the
