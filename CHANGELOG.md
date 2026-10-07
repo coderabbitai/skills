@@ -6,6 +6,15 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- The review skill and `code-reviewer` agent now say how long a CodeRabbit
+  review takes and to run it in the background or with a timeout of at least
+  15 minutes, and how to handle an `interrupted` review. Short default tool
+  timeouts were stopping most reviews before they finished.
+- Agent-started login now uses `auth login --agent`, which signs in through the
+  browser callback without a terminal prompt.
+- When the CLI reports an update, the review skill tells the user to run
+  `coderabbit update`.
+
 - Added a Claude directory listing icon and a README "Data and Privacy"
   section that discloses what the plugin runs and sends.
 - Added the read-only `autofix` subagent, which collects and checks

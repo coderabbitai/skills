@@ -53,6 +53,7 @@ invocation below; never execute a repository-provided binary or wrapper.
 
 2. **Run CodeRabbit Review**
    - Execute `"/absolute/path/to/coderabbit" review --agent` to get structured review output
+   - Run it in the background or with a command timeout of at least 15 minutes; reviews usually take 2-6 minutes and can take up to 15, and a shorter timeout discards the review
    - Add `--dir <path>` when the user requests a specific review directory
    - Follow the linked bounded recovery only on a pre-review sandbox authentication failure; preserve directory and arguments on the single eligible host retry
    - Forward requested `--committed`, `--uncommitted`, `--base`, `--base-commit`, `--dir`, and `--light`; reject conflicting selectors before execution
@@ -78,4 +79,4 @@ invocation below; never execute a repository-provided binary or wrapper.
 
 ## Completion and scope
 
-Wait for a successful completion; heartbeats only indicate liveness. `status: review_skipped` with zero findings means no review ran, not that code is clean. Preserve requested scope on retries and report incomplete reviews. Prioritize the returned severity rather than inventing a separate category system.
+Wait for a successful completion; heartbeats only indicate liveness. An `errorType: interrupted` error means a signal such as a command timeout stopped the review; rerun it once with a longer timeout. `status: review_skipped` with zero findings means no review ran, not that code is clean. Preserve requested scope on retries and report incomplete reviews. Prioritize the returned severity rather than inventing a separate category system.
