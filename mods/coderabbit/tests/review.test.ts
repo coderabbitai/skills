@@ -567,6 +567,15 @@ test(
     await row.press({ key: "draft-0" });
     expect(drafts.length).toBe(1);
     expect(drafts[0].mode).toBe("append");
+    expect(drafts[0].text).toContain("Fix CodeRabbit finding 1");
+    expect(drafts[0].text).toContain("Verify it against the current code.");
+    expect(drafts[0].text).toContain(
+      "make the smallest appropriate change and run the relevant checks",
+    );
+    expect(drafts[0].text).toContain("If it no longer applies, explain why.");
+    expect(drafts[0].text).toContain("CodeRabbit finding (reference):");
+    expect(drafts[0].text).toContain("Suggested changes (reference):");
+    expect(drafts[0].text).not.toContain("untrusted");
     expect(drafts[0].text).toContain("src/example.ts");
     expect(drafts[0].text).toContain("Check the nullable value.");
     expect(drafts[0].text).toContain("Keep existing behavior.");
