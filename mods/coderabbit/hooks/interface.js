@@ -140,10 +140,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
   });
 
   on("ui.render", { component: "CommandOutput" }, async ($, e, next) => {
-    if (
-      !["coderabbit-review", "coderabbit-results"].includes(e.props.command) ||
-      !e.props.text.startsWith("coderabbit-mod: ")
-    )
+    if (e.props.command !== "coderabbit-review" || !e.props.text.startsWith("coderabbit-mod: "))
       return next(e);
     // Help, validation errors and process exceptions remain ordinary command output.
     let report;

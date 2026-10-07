@@ -34,12 +34,8 @@ export function register(on, options) {
     await $.command.register({
       name: "coderabbit-review",
       description: "Review changes with CodeRabbit (sends selected code to CodeRabbit)",
-      argumentHint: "[uncommitted|committed|all] [--include-untracked] [--base branch] [--fresh]",
-      immediate: true,
-    });
-    await $.command.register({
-      name: "coderabbit-results",
-      description: "Show the latest CodeRabbit review result in this session",
+      argumentHint:
+        "[results|uncommitted|committed|all] [--include-untracked] [--base branch] [--fresh]",
       immediate: true,
     });
     // Completed cards can be reconstructed from the host's saved conversation.
@@ -90,15 +86,15 @@ export function register(on, options) {
     return next(e);
   });
 
-  on("command.run", { command: "coderabbit-results" }, async () => ({
-    text:
-      latestResult ??
-      (running
-        ? "CodeRabbit is still reviewing. The result will appear when it finishes."
-        : "No CodeRabbit result is available in this session. Run /coderabbit-review to start one."),
-  }));
-
   on("command.run", { command: "coderabbit-review" }, async ($, e) => {
+    if (e.args.trim() === "results")
+      return {
+        text:
+          latestResult ??
+          (running
+            ? "CodeRabbit is still reviewing. The result will appear when it finishes."
+            : "No CodeRabbit result is available in this session. Run /coderabbit-review to start one."),
+      };
     let args;
     try {
       args = reviewArgs(e.args);
@@ -115,7 +111,7 @@ export function register(on, options) {
     }
     if (running)
       return {
-        text: "A CodeRabbit review is already running or awaiting delivery. You can keep chatting; use /coderabbit-results to check its result.",
+        text: "A CodeRabbit review is already running or awaiting delivery. You can keep chatting; use /coderabbit-review results to check its result.",
       };
     running = true;
     latestResult = undefined;
@@ -200,7 +196,7 @@ export function register(on, options) {
         results.set(reviewId, result);
         activeId = undefined;
         $.ui.invalidate("ui.render");
-        let notification = "Review could not finish · /coderabbit-results";
+        let notification = "Review could not finish · /coderabbit-review results";
         if (result.startsWith("{")) {
           const report = JSON.parse(result);
           notification = reviewSummary(report).heading;
@@ -218,7 +214,7 @@ export function register(on, options) {
       } catch {
         if (generation === runGeneration)
           $.ui.log(
-            "CodeRabbit could not display its result automatically. Run /coderabbit-results.",
+            "CodeRabbit could not display its result automatically. Run /coderabbit-review results.",
           );
       } finally {
         running = false;
@@ -246,14 +242,14 @@ export async function deliverReview($, delivery, wakeText, isCurrent) {
     if (!isCurrent()) return;
     if (appended.deny) {
       $.ui.log(
-        "CodeRabbit result is visible, but could not attach it for Claude. Run /coderabbit-results to share it.",
+        "CodeRabbit result is visible, but could not attach it for Claude. Run /coderabbit-review results to share it.",
       );
       return;
     }
   } catch {
     if (isCurrent())
       $.ui.log(
-        "CodeRabbit result is visible, but could not attach it for Claude. Run /coderabbit-results to share it.",
+        "CodeRabbit result is visible, but could not attach it for Claude. Run /coderabbit-review results to share it.",
       );
     return;
   }
@@ -262,13 +258,13 @@ export async function deliverReview($, delivery, wakeText, isCurrent) {
       if (!isCurrent()) return;
       if (entered && "drop" in entered)
         $.ui.log(
-          "CodeRabbit result is visible, but a hook dropped its wake-up prompt. Run /coderabbit-results to share it.",
+          "CodeRabbit result is visible, but a hook dropped its wake-up prompt. Run /coderabbit-review results to share it.",
         );
     },
     () => {
       if (isCurrent())
         $.ui.log(
-          "CodeRabbit result is visible, but could not wake Claude. Run /coderabbit-results to share it.",
+          "CodeRabbit result is visible, but could not wake Claude. Run /coderabbit-review results to share it.",
         );
     },
   );

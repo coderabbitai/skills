@@ -29,7 +29,7 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
 ## Validation recorded
 
 - 2026-10-07 candidate refinement: remains a standalone mod with no bundled skills,
-  agents, or autofix workflow. Two explicit commands, live progress, conversation
+  agents, or autofix workflow. One review command with a `results` action, live progress, conversation
   findings, and a draft-only handoff to Claude form the v0.1 scope.
 - The band, card, and toast share outcome wording. The CLI's known no-fresh-analysis
   completion notice now yields “No new review”; partial failures keep received
@@ -40,7 +40,7 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
   and no-fresh outcome handling without contacting a review service.
 - Claude Code 2.1.289: `claude plugin validate mods/coderabbit --strict` passed.
 - Current Desktop embedded engine 2.1.289: strict validation passed.
-- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 82 tests.
+- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 84 tests.
 - A real non-interactive Claude 2.1.289 session loaded the module and ran
   `/coderabbit-review --help` successfully.
 - CodeRabbit CLI 0.8.2 `review --help` exposes every review option used here.

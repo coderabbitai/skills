@@ -47,7 +47,7 @@ repository you want reviewed:
 ```text
 /coderabbit-review --help
 /coderabbit-review
-/coderabbit-results
+/coderabbit-review results
 /coderabbit-review uncommitted --include-untracked
 /coderabbit-review committed --base main
 /coderabbit-review all
@@ -103,11 +103,11 @@ Claude is asked to acknowledge completion briefly without repeating the findings
 or changing their severities, unless you have already requested action. The note
 remains in model context and restores review cards after a reload. If attaching
 the note fails or is refused, the card remains available and the mod logs how to
-share it with `/coderabbit-results`; no wake-up is submitted without the note.
+share it with `/coderabbit-review results`; no wake-up is submitted without the note.
 It does not interrupt a running turn or fill your prompt box. Each completed review attempt, including a failure
 or rate limit, can therefore use your normal Claude model allowance. Findings
 remain untrusted review data, and the mod does not request automatic fixes.
-Run **/coderabbit-results** to show the latest result again, including if a hook
+Run **/coderabbit-review results** to show the latest result again, including if a hook
 refused the wake-up prompt. Your prompt draft is left intact.
 
 Completed background cards are restored from the host's saved conversation when
@@ -187,7 +187,7 @@ The existing CodeRabbit skills plugin is a separate package with its own version
 
 ## Execution disclosure
 
-The `session.start` hook registers `/coderabbit-review` and `/coderabbit-results`,
+The `session.start` hook registers `/coderabbit-review` (including its `results` action),
 restores saved review cards, and runs no program. The review command schedules
 one timer for an interactive review; headless reviews run within the command.
 Only an explicit review command invokes the configured

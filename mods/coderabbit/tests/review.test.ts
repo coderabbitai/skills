@@ -73,9 +73,8 @@ test("registers the command without running a process", OPTIONS, async ($, on) =
   on("session.start", () => ({ cwd: "/work" }));
   on("session.messages", () => ({ value: [] }));
   await $.session.start({ surface: "terminal", isInteractive: true, cwd: "/work" });
-  expect(registered.length).toBe(2);
+  expect(registered.length).toBe(1);
   expect(registered.every((command) => command.immediate)).toBe(true);
-  expect(registered[1].name).toBe("coderabbit-results");
   expect(registered[0].name).toBe("coderabbit-review");
 });
 
@@ -83,6 +82,18 @@ test("help discloses data transfer and does not run a review", OPTIONS, async ($
   const answer = await $.command.run({ command: "coderabbit-review", args: "--help" });
   expect(messageText(answer)).toContain("Usage: /coderabbit-review");
   expect(messageText(answer)).toContain("send the selected diff");
+  expect(messageText(answer)).toContain("/coderabbit-review results");
+});
+
+test("results reads the latest review without starting another process", OPTIONS, async ($, on) => {
+  const { calls } = stubProcess(on, output(complete()));
+  const empty = await $.command.run({ command: "coderabbit-review", args: "results" });
+  expect(empty.text).toContain("No CodeRabbit result is available");
+  expect(calls.length).toBe(0);
+  const review = await $.command.run({ command: "coderabbit-review", args: "" });
+  const saved = await $.command.run({ command: "coderabbit-review", args: " results " });
+  expect(saved.text).toBe(review.text);
+  expect(calls.length).toBe(1);
 });
 
 for (const [args, expected] of [
@@ -115,6 +126,7 @@ for (const args of [
   "all --api-key secret",
   "all --base main --base other",
   "all ; echo injected",
+  "results --fresh",
 ]) {
   test("rejects invalid scope without a process: " + args, OPTIONS, async ($) => {
     const answer = await $.command.run({ command: "coderabbit-review", args });
@@ -175,7 +187,7 @@ for (const surface of ["terminal", "desktop"]) {
       expect(drawn).toContain("No fresh analysis ran");
       expect(drawn).not.toContain("Review complete");
       expect(drawn).not.toContain("CLI message:");
-      const report = await $.command.run({ command: "coderabbit-results", args: "" });
+      const report = await $.command.run({ command: "coderabbit-review", args: "results" });
       expect(messageText(report)).toContain("no new analysis");
       expect(messageText(report)).not.toContain("review completed:");
     },
@@ -810,7 +822,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
       // A second command completes while the review's process is still unresolved.
       const help = await $.command.run({ command: "coderabbit-review", args: "--help" });
       expect(help.text).toContain("Usage:");
-      const pending = await $.command.run({ command: "coderabbit-results", args: "" });
+      const pending = await $.command.run({ command: "coderabbit-review", args: "results" });
       expect(pending.text).toContain("still reviewing");
       const duplicate = await $.command.run({ command: "coderabbit-review", args: "" });
       expect(duplicate.text).toContain("already running");
@@ -824,15 +836,14 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
             ? "Review complete · 1 finding"
             : outcome === "rate_limit"
               ? "Review limit reached"
-              : "Review could not finish · /coderabbit-results"),
+              : "Review could not finish · /coderabbit-review results"),
       );
       expect(toasts.length).toBe(1);
-      const result = await $.command.run({ command: "coderabbit-results", args: "" });
+      const result = await $.command.run({ command: "coderabbit-review", args: "results" });
       if (outcome === "process_failure") {
         expect(result.text).toContain("Coverage is unverified");
       } else {
         const target = commandTarget(result.text, "latest-result-row");
-        target.props.command = "coderabbit-results";
         const row = await $.ui.mount(target);
         const expected =
           outcome === "rate_limit" ? "Review limit reached" : "Review complete · 1 finding";
@@ -870,7 +881,7 @@ for (const beforeLaunch of [true, false]) {
       expect(toasts.length).toBe(0);
       expect(submissions).toEqual([]);
       expect(calls).toBe(beforeLaunch ? 0 : 1);
-      const result = await $.command.run({ command: "coderabbit-results", args: "" });
+      const result = await $.command.run({ command: "coderabbit-review", args: "results" });
       expect(result.text).toContain("No CodeRabbit result");
       expect((await $.command.run({ command: "coderabbit-review", args: "" })).text).toContain(
         "started in the background",
@@ -925,7 +936,7 @@ test("restores completed background cards from the saved conversation", OPTIONS,
     commandTarget(JSON.stringify({ schema: "coderabbit-pending/1", id: "old-review" })),
   );
   expect(JSON.stringify(await row.drawn())).toContain("Check the quantity.");
-  const result = await $.command.run({ command: "coderabbit-results", args: "" });
+  const result = await $.command.run({ command: "coderabbit-review", args: "results" });
   expect(result.text).toBe(report);
 });
 
@@ -1081,9 +1092,9 @@ for (const surface of ["desktop", "terminal"]) {
       expect(JSON.stringify(await band.drawn())).toContain("Other mod content");
       await clock.advance(5000);
       expect(submissions.length).toBe(0);
-      expect((await $.command.run({ command: "coderabbit-results", args: "" })).text).toContain(
-        "review completed",
-      );
+      expect(
+        (await $.command.run({ command: "coderabbit-review", args: "results" })).text,
+      ).toContain("review completed");
       expect(JSON.stringify(await band.drawn())).not.toContain("● CodeRabbit");
       await $.command.run({ command: "coderabbit-review", args: "" });
       await clock.advance(1);
