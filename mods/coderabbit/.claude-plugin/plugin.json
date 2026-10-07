@@ -1,0 +1,23 @@
+{
+  "name": "coderabbit-mod",
+  "displayName": "CodeRabbit Review Mod",
+  "version": "0.1.0",
+  "description": "Run CodeRabbit reviews from a Claude Code command and bring findings into the conversation.",
+  "author": {
+    "name": "CodeRabbit",
+    "email": "support@coderabbit.ai",
+    "url": "https://coderabbit.ai"
+  },
+  "homepage": "https://docs.coderabbit.ai/cli/claude-code-integration",
+  "repository": "https://github.com/coderabbitai/skills",
+  "license": "MIT",
+  "keywords": ["code-review", "coderabbit", "claude-code", "mod"],
+  "userConfig": {
+    "cli_path": {
+      "type": "file",
+      "title": "CodeRabbit CLI",
+      "description": "Absolute path to your official CodeRabbit CLI executable. Authenticate it with coderabbit auth login before reviewing.",
+      "required": true
+    }
+  }
+}

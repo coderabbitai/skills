@@ -33,8 +33,13 @@ reviews:
             agree with the repository and current public documentation.
           - Changes follow the Agent Skills specification, the AGENTS.md open
             format, and current public guidance for each declared host agent.
-          - Native commands, agents, and manifests remain behaviorally aligned
-            with their canonical skills.
+          - Native commands and agents that wrap a canonical skill, and their
+            manifests, remain behaviorally aligned with that skill.
+          - A standalone mod with its own command and no bundled or delegated
+            canonical skill follows its own documented contract. Require its
+            parser, help, README, and tests to agree on defaults and scopes,
+            and require differences from related skills to be explicit. Shared
+            branding or use of the same CLI alone does not make it a skill wrapper.
 
   review_status: true
   review_details: true
