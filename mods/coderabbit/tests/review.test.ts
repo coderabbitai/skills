@@ -1327,3 +1327,81 @@ for (const surface of ["terminal", "desktop"]) {
     );
   }
 }
+
+for (const surface of ["terminal", "desktop"]) {
+  test(
+    surface + " shows browser sign-in before review and keeps auth completion separate",
+    OPTIONS,
+    async ($, on) => {
+      const clock = mock.clock(on);
+      const { submissions } = interactiveHost(on);
+      on("session.surfaces", () => ({ value: [surface] }));
+      on("ui.render", { component: "AbovePrompt" }, ($, e) =>
+        $.ui.resolve(e).Text({ children: [] }),
+      );
+      const events = [
+        { type: "status", phase: "auth", status: "starting_login" },
+        {
+          type: "status",
+          phase: "auth",
+          status: "awaiting_browser_auth",
+          authUrl: "https://example.invalid/private-auth-url",
+        },
+        { type: "heartbeat", phase: "auth" },
+        { type: "status", phase: "auth", status: "processing_callback" },
+        { type: "complete", phase: "auth", status: "authenticated" },
+        { type: "status", status: "reviewing" },
+        { type: "complete", status: "review_completed", findings: 0 },
+      ];
+      on("process.spawn", async function* () {
+        for (const event of events) {
+          yield { stream: "stdout", text: JSON.stringify(event) + "\n" };
+          await clock.sleep(1000);
+        }
+        return { value: { code: 0, signal: null } };
+      });
+      await $.session.start({ surface, isInteractive: true, cwd: "/work" });
+      const band = await $.ui.mount(liveBand(surface));
+      const started = await $.command.run({ command: "coderabbit-review", args: "--fresh" });
+      const card = await $.ui.mount({ ...commandTarget(started.text), surface });
+      await clock.advance(1);
+      expect(JSON.stringify(await band.drawn())).toContain("Starting sign-in");
+      expect(JSON.stringify(await card.drawn())).not.toContain("Reviewing in the background");
+      await clock.advance(1000);
+      expect(JSON.stringify(await band.drawn())).toContain("Waiting for sign-in");
+      expect(JSON.stringify(await card.drawn())).toContain("Complete sign-in in your browser");
+      expect(JSON.stringify(await card.drawn())).not.toContain("private-auth-url");
+      await band.press({ key: "review-activity" });
+      expect(JSON.stringify(await band.drawn())).toContain("Complete sign-in in your browser");
+      await clock.advance(1000);
+      expect(JSON.stringify(await band.drawn())).toContain("Waiting for sign-in");
+      await clock.advance(1000);
+      expect(JSON.stringify(await card.drawn())).toContain("Completing sign-in");
+      await clock.advance(1000);
+      expect(JSON.stringify(await band.drawn())).toContain("Signed in · Preparing review");
+      expect(JSON.stringify(await card.drawn())).not.toContain("Review complete");
+      await clock.advance(1000);
+      expect(JSON.stringify(await band.drawn())).toContain("Reviewing changes");
+      expect(JSON.stringify(await band.drawn())).not.toContain("Complete sign-in in your browser");
+      expect(JSON.stringify(await card.drawn())).toContain("Reviewing in the background");
+      await clock.advance(2000);
+      expect(JSON.stringify(await card.drawn())).toContain("Review complete · No findings");
+      expect(submissions).toEqual([]);
+    },
+  );
+}
+
+for (const [auth, headline] of [
+  [{ type: "complete", phase: "auth", status: "authenticated" }, "review incomplete"],
+  [
+    { type: "error", phase: "auth", status: "authentication_failed", message: "Sign-in timed out" },
+    "sign-in required",
+  ],
+]) {
+  test("auth alone cannot count as a successful review: " + auth.status, OPTIONS, async ($, on) => {
+    stubProcess(on, output(JSON.stringify(auth) + "\n"));
+    const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+    expect(JSON.parse(answer.text).headline).toContain(headline);
+    expect(JSON.parse(answer.text).headline).not.toContain("review completed");
+  });
+}

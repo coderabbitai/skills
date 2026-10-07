@@ -177,6 +177,9 @@ export function reviewResult(result) {
       const event = JSON.parse(line);
       if (!event || typeof event !== "object" || typeof event.type !== "string") {
         malformed = true;
+      } else if (event.phase === "auth") {
+        // Sign-in has its own completion event; it is not a review outcome.
+        if (event.type === "error") errors.push({ ...event, errorType: "auth" });
       } else if (event.type === "finding") findings.push(event);
       else if (event.type === "error") errors.push(event);
       else if (event.type === "complete") {

@@ -109,6 +109,9 @@ export function registerInterface(on, getProgress, getResult, getActiveId, resul
                       : ""),
                 ],
               }),
+              ...(progress.auth && !progress.finished && progress.authDetail
+                ? [Text({ children: [progress.authDetail] })]
+                : []),
               ...(progress.finished && progress.detail
                 ? [Text({ children: [progress.detail] })]
                 : []),
@@ -135,6 +138,9 @@ export function registerInterface(on, getProgress, getResult, getActiveId, resul
       const result = getResult(report.id);
       if (result === undefined) {
         const { Box, Text } = $.ui.resolve(e);
+        const progress = getProgress();
+        const auth =
+          getActiveId() === report.id && progress?.reviewId === report.id && progress.auth;
         return Box({
           flexDirection: "row",
           flexWrap: "wrap",
@@ -146,7 +152,9 @@ export function registerInterface(on, getProgress, getResult, getActiveId, resul
               dimColor: true,
               children: [
                 getActiveId() === report.id
-                  ? "Reviewing in the background."
+                  ? auth
+                    ? progress.label + (progress.authDetail ? ". " + progress.authDetail : ".")
+                    : "Reviewing in the background."
                   : "This review is no longer active; its result is unavailable in this conversation.",
               ],
             }),

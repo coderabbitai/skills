@@ -76,6 +76,9 @@ The compact band above the prompt shows an orange CodeRabbit label, the current
 CLI phase, incoming findings marked “so far”, and elapsed time. Status events
 change the sentence as the CLI connects, prepares, maps code, summarizes, and
 writes findings. Heartbeats do not invent progress or change the phase.
+During browser authentication, the band and conversation card show **Waiting for
+sign-in** and ask you to finish in your browser. They show **Completing sign-in**
+before review progress resumes. Sign-in completion is separate from review completion.
 **Activity** expands scope (including the base and an explicit fresh review),
 severity counts, and the last event time. **View findings** jumps to the completed
 review card when there are findings; other outcomes offer **Details**. In plain terminal mode, or if the

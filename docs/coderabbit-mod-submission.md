@@ -44,7 +44,13 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
   and no-fresh outcome handling without contacting a review service.
 - Claude Code 2.1.289: `claude plugin validate mods/coderabbit --strict` passed.
 - Current Desktop embedded engine 2.1.289: strict validation passed.
-- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 95 tests.
+- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 103 tests.
+- **Run fresh review…** prepares the same scope with `--fresh`; Enter starts an
+  independent conversation card and preserves prior results. An occupied prompt
+  is not replaced. A real terminal fixture verified the button, prepared command,
+  new acknowledgment, and separate result card without contacting a review service.
+- Browser sign-in events update both the live band and conversation card. Auth
+  completion is not counted as a review completion; auth failures remain failures.
 - A real non-interactive Claude 2.1.289 session loaded the module and ran
   `/coderabbit-review --help` successfully.
 - CodeRabbit CLI 0.8.2 `review --help` exposes every review option used here.

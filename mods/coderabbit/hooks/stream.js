@@ -16,9 +16,44 @@ const LABELS = {
   other: "Reviewing changes",
 };
 
+const AUTH_LABELS = {
+  checking_auth: "Checking sign-in",
+  starting_login: "Starting sign-in",
+  awaiting_browser_auth: "Waiting for sign-in",
+  browser_open_unavailable: "Sign-in needs attention",
+  automatic_login_failed: "Sign-in needs attention",
+  processing_callback: "Completing sign-in",
+  fetching_user: "Completing sign-in",
+  authenticated: "Signed in · Preparing review",
+};
+
 export function applyReviewEvent(progress, event) {
   if (!event || typeof event !== "object") return;
   progress.lastSignalSeconds = progress.elapsedSeconds;
+  if (event.phase === "auth") {
+    if (!["status", "complete", "action_required", "error"].includes(event.type)) return;
+    progress.auth = true;
+    progress.authDetail = "The review will start after sign-in.";
+    if (event.type === "error") {
+      progress.errorType = "auth";
+      progress.label = "Sign-in failed";
+      progress.authDetail = "Run coderabbit auth login, then start the review again.";
+    } else if (event.type === "action_required") {
+      progress.label = "Sign-in needs attention";
+      progress.authDetail = "Finish sign-in with coderabbit auth login in your terminal.";
+    } else if (event.type === "status" || event.type === "complete") {
+      progress.label = Object.hasOwn(AUTH_LABELS, event.status)
+        ? AUTH_LABELS[event.status]
+        : "Signing in";
+      if (event.status === "awaiting_browser_auth")
+        progress.authDetail =
+          "Complete sign-in in your browser. The review will continue afterward.";
+      else if (event.status === "authenticated") progress.authDetail = "";
+      else if (["browser_open_unavailable", "automatic_login_failed"].includes(event.status))
+        progress.authDetail = "Finish sign-in with coderabbit auth login in your terminal.";
+    }
+    return;
+  }
   if (
     event.type === "complete" &&
     Array.isArray(event.reviewedFiles) &&
@@ -27,10 +62,12 @@ export function applyReviewEvent(progress, event) {
     progress.reviewedFiles = new Set(event.reviewedFiles).size;
   }
   if (event.type === "status" && !progress.errorType) {
+    progress.auth = false;
     progress.label = Object.hasOwn(LABELS, event.status)
       ? LABELS[event.status]
       : "Reviewing changes";
   } else if (event.type === "finding") {
+    progress.auth = false;
     progress.findings++;
     if (["critical", "major", "minor", "trivial", "info"].includes(event.severity))
       progress.severities[event.severity] = (progress.severities[event.severity] || 0) + 1;
