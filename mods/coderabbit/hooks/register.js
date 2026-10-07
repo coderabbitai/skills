@@ -97,14 +97,20 @@ export function register(on, options) {
     try {
       await next(e);
       if (state.progress !== current) return { element: e.element };
-      const result = await runCommand(
-        $,
-        { args: current.retryArgs },
-        options,
-        state,
-        current.reviewId,
+      const draft = await $.prompt.read();
+      if (draft.text.trim()) {
+        $.ui.toast("Send or clear your draft, then choose Run fresh review.");
+        return { element: e.element };
+      }
+      const result = await $.prompt.fill({
+        text: "/coderabbit-review " + current.retryArgs,
+        mode: "append",
+      });
+      $.ui.toast(
+        result.isFilled
+          ? "Press Enter to start a fresh review."
+          : "Could not prepare the command. Try again when the prompt is available.",
       );
-      if (!result.text.startsWith('{"schema":"coderabbit-pending/1"')) $.ui.toast(result.text);
     } catch {
       $.ui.toast("Could not start the review. Run /coderabbit-review help.");
     } finally {
@@ -115,7 +121,7 @@ export function register(on, options) {
   });
 }
 
-async function runCommand($, e, options, state, reuseId) {
+async function runCommand($, e, options, state) {
   if (e.args.trim() === "results")
     return {
       text:
@@ -217,8 +223,7 @@ async function runCommand($, e, options, state, reuseId) {
       state.running = false;
     }
   }
-  const reviewId = reuseId ?? String(await $.clock.now()) + ":" + ++state.serial;
-  state.results.delete(reviewId);
+  const reviewId = String(await $.clock.now()) + ":" + ++state.serial;
   state.activeId = reviewId;
   state.scheduled = $.clock.after(1, async () => {
     state.scheduled = undefined;

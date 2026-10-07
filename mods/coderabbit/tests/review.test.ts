@@ -1128,11 +1128,17 @@ for (const surface of ["desktop", "terminal"]) {
 for (const surface of ["terminal", "desktop"]) {
   for (const scope of ["committed --base main", "all --include-untracked --fresh"]) {
     test(
-      surface + " review again preserves scope and adds fresh once: " + scope,
+      surface + " fresh review draft preserves scope and creates a separate card: " + scope,
       OPTIONS,
       async ($, on) => {
         const clock = mock.clock(on);
-        const { toasts } = interactiveHost(on);
+        const { toasts, submissions } = interactiveHost(on);
+        const drafts = [];
+        on("prompt.read", () => ({ value: { text: "", cursor: 0 } }));
+        on("prompt.fill", ($, e) => {
+          drafts.push(e);
+          return { isFilled: true };
+        });
         const calls = [];
         mockProcess(on, ($, e) => {
           calls.push(e.argv);
@@ -1159,22 +1165,39 @@ for (const surface of ["terminal", "desktop"]) {
         const card = await $.ui.mount({ ...commandTarget(started.text), surface });
         await clock.advance(1);
         await clock.settle();
-        expect(JSON.stringify(await band.drawn())).toContain("Review again");
+        expect(JSON.stringify(await band.drawn())).toContain("Run fresh review…");
         expect(JSON.stringify(await band.drawn())).not.toContain("uses your review allowance");
         await band.press({ key: "review-again" });
         await clock.settle();
+        expect(calls.length).toBe(1);
+        expect(drafts.length).toBe(1);
+        expect(drafts[0].mode).toBe("append");
+        const freshArgs = scope.includes("--fresh") ? scope : scope + " --fresh";
+        expect(drafts[0].text).toBe("/coderabbit-review " + freshArgs);
+        // The person sends the prepared command; the button never submits it.
+        expect(submissions).toEqual([]);
+        const fresh = await $.command.run({ command: "coderabbit-review", args: freshArgs });
+        expect(JSON.parse(fresh.text).id).not.toBe(JSON.parse(started.text).id);
+        const freshCard = await $.ui.mount({ ...commandTarget(fresh.text, "fresh-row"), surface });
+        expect(JSON.stringify(await freshCard.drawn())).toContain("Reviewing in the background.");
+        expect(JSON.stringify(await card.drawn())).toContain("Review skipped");
         await clock.advance(1);
         await clock.settle();
-        expect(toasts).toEqual(["Review skipped", "Review complete · No findings"]);
+        expect(toasts).toEqual([
+          "Review skipped",
+          "Press Enter to start a fresh review.",
+          "Review complete · No findings",
+        ]);
         expect(calls.length).toBe(2);
         expect(calls[1]).toEqual(
           calls[0].includes("--fresh") ? calls[0] : [...calls[0], "--fresh"],
         );
         expect(calls[1].filter((arg) => arg === "--fresh").length).toBe(1);
-        expect(JSON.stringify(await band.drawn())).not.toContain("Review again");
+        expect(JSON.stringify(await band.drawn())).not.toContain("Run fresh review…");
         expect(JSON.stringify(await band.drawn())).toContain("No findings");
-        expect(JSON.stringify(await card.drawn())).toContain("No findings");
-        expect(JSON.stringify(await card.drawn())).not.toContain("Review skipped");
+        expect(JSON.stringify(await freshCard.drawn())).toContain("No findings");
+        expect(JSON.stringify(await card.drawn())).toContain("Review skipped");
+        expect(JSON.stringify(await card.drawn())).not.toContain("No findings");
       },
     );
   }
@@ -1201,7 +1224,7 @@ for (const surface of ["terminal", "desktop"]) {
       await clock.advance(1);
       await clock.settle();
       expect(JSON.stringify(await band.drawn())).toContain("View findings");
-      expect(JSON.stringify(await band.drawn())).not.toContain("Review again");
+      expect(JSON.stringify(await band.drawn())).not.toContain("Run fresh review");
       await band.press({ key: "review-activity" });
       await clock.settle();
       expect(toasts).toEqual([
@@ -1247,6 +1270,59 @@ for (const surface of ["terminal", "desktop"]) {
         expect(JSON.stringify(await card.drawn())).not.toContain("cli_path");
         expect(JSON.stringify(await card.drawn())).not.toContain("--include-untracked");
         expect(calls.length).toBe(0);
+      },
+    );
+  }
+}
+
+for (const surface of ["terminal", "desktop"]) {
+  for (const blocked of ["draft", "composer"]) {
+    test(
+      surface + " fresh review preserves an occupied or unavailable prompt: " + blocked,
+      OPTIONS,
+      async ($, on) => {
+        const clock = mock.clock(on);
+        const { toasts, submissions } = interactiveHost(on);
+        const drafts = [];
+        let calls = 0;
+        on("prompt.read", () => ({
+          value: { text: blocked === "draft" ? "my unfinished message" : "", cursor: 0 },
+        }));
+        on("prompt.fill", ($, e) => {
+          drafts.push(e);
+          return { isFilled: false };
+        });
+        on("session.surfaces", () => ({ value: [surface] }));
+        on("ui.render", { component: "AbovePrompt" }, ($, e) =>
+          $.ui.resolve(e).Text({ children: [] }),
+        );
+        mockProcess(on, () => {
+          calls++;
+          return {
+            value: output(
+              JSON.stringify({
+                type: "complete",
+                status: "review_completed",
+                findings: 0,
+                message: noFreshMessage,
+              }),
+            ),
+          };
+        });
+        await $.session.start({ surface, isInteractive: true, cwd: "/work" });
+        const band = await $.ui.mount(liveBand(surface));
+        const started = await $.command.run({ command: "coderabbit-review", args: "" });
+        const card = await $.ui.mount({ ...commandTarget(started.text), surface });
+        await clock.advance(1);
+        await clock.settle();
+        await band.press({ key: "review-again" });
+        expect(calls).toBe(1);
+        expect(submissions).toEqual([]);
+        expect(drafts.length).toBe(blocked === "draft" ? 0 : 1);
+        expect(toasts.at(-1)).toContain(
+          blocked === "draft" ? "Send or clear your draft" : "Could not prepare the command",
+        );
+        expect(JSON.stringify(await card.drawn())).toContain("Review skipped");
       },
     );
   }

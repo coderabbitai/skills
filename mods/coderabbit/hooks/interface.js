@@ -45,7 +45,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, resul
               ? [
                   Button({
                     key: "review-again",
-                    label: progress.retryRequested ? "Queued" : "Review again",
+                    label: progress.retryRequested ? "Preparing" : "Run fresh review…",
                     onPress: () => expanded.delete("activity"),
                   }),
                 ]

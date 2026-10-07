@@ -81,9 +81,10 @@ severity counts, and the last event time. **View findings** jumps to the complet
 review card when there are findings; other outcomes offer **Details**. In plain terminal mode, or if the
 host cannot reveal the card, `/coderabbit-review results` reopens the saved result.
 File counts appear only when the CLI supplies them on successful completion.
-When the CLI explicitly says no fresh analysis ran, **Review again** repeats the
-same scope and base with `--fresh`, using your review allowance. It refreshes the
-existing conversation card and never retries automatically. Other skips, failures,
+When the CLI explicitly says no fresh analysis ran, **Run fresh review…** prepares
+the same scope and base with `--fresh` in an empty prompt. Press Enter to start it,
+using your review allowance. Each run gets its own conversation card; the previous
+result stays intact. An existing draft is left untouched. Other skips, failures,
 and rate limits do not offer this action. The **×** dismisses the bar without
 cancelling a review or its notification; a new review shows it again. Narrow
 surfaces use shorter control labels and hide the timer below 70 columns; the row
@@ -197,7 +198,7 @@ The existing CodeRabbit skills plugin is a separate package with its own version
 The `session.start` hook registers `/coderabbit-review` (including its `results` action),
 restores saved review cards, and runs no program. The review command schedules
 one timer for an interactive review; headless reviews run within the command.
-Only an explicit review command or **Review again** action invokes the configured
+Only an explicit review command invokes the configured
 `cli_path` through `$.process.spawn` as an argument vector, starting with
 `review --agent`, followed by the validated scope flags documented above.
 For the default scope this is equivalent to
