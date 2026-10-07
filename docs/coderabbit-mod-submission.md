@@ -32,6 +32,9 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
 - 2026-10-07 candidate refinement: remains a standalone mod with no bundled skills,
   agents, or autofix workflow. One review command with a `results` action, live progress, conversation
   findings, and a draft-only handoff to Claude form the v0.1 scope.
+- Help uses the same branded card style, with four main actions and separately
+  expandable advanced options and setup details. All three help aliases are
+  covered on Terminal and Desktop without starting a review.
 - The band, card, and toast share outcome wording. The CLI's known no-fresh-analysis
   completion notice now yields “Review skipped”; partial failures keep received
   findings visible without claiming completion. Diagnostics expand on demand.
@@ -41,7 +44,7 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
   and no-fresh outcome handling without contacting a review service.
 - Claude Code 2.1.289: `claude plugin validate mods/coderabbit --strict` passed.
 - Current Desktop embedded engine 2.1.289: strict validation passed.
-- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 89 tests.
+- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 95 tests.
 - A real non-interactive Claude 2.1.289 session loaded the module and ran
   `/coderabbit-review --help` successfully.
 - CodeRabbit CLI 0.8.2 `review --help` exposes every review option used here.

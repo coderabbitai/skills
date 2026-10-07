@@ -1,4 +1,4 @@
-import { reviewSummary } from "./review.js";
+import { HELP, HELP_ACTIONS, HELP_ADVANCED, HELP_SETUP, reviewSummary } from "./review.js";
 
 const BRAND_ORANGE = "#FF570A";
 
@@ -122,7 +122,8 @@ export function registerInterface(on, getProgress, getResult, getActiveId, resul
   on("ui.render", { component: "CommandOutput" }, async ($, e, next) => {
     if (e.props.command !== "coderabbit-review" || !e.props.text.startsWith("coderabbit-mod: "))
       return next(e);
-    // Help, validation errors and process exceptions remain ordinary command output.
+    if (e.props.text === "coderabbit-mod: " + HELP) return renderHelp($, e, expanded);
+    // Validation errors and process exceptions remain ordinary command output.
     let report;
     try {
       report = JSON.parse(e.props.text.slice("coderabbit-mod: ".length));
@@ -370,4 +371,88 @@ export async function showFindings($, requestId) {
   } catch {
     $.ui.toast("Could not open findings. Run /coderabbit-review results.");
   }
+}
+
+function renderHelp($, e, expanded) {
+  const { Box, Text, Button } = $.ui.resolve(e);
+  const advancedId = e.requestId + ":help-advanced";
+  const setupId = e.requestId + ":help-setup";
+  const advanced = expanded.has(advancedId);
+  const setup = expanded.has(setupId);
+  return Box({
+    flexDirection: "column",
+    marginY: 1,
+    children: [
+      Box({
+        flexDirection: "row",
+        flexWrap: "wrap",
+        columnGap: 2,
+        children: [
+          Text({ color: BRAND_ORANGE, bold: true, children: ["● CodeRabbit"] }),
+          Text({ children: ["Review guide"] }),
+        ],
+      }),
+      Text({ dimColor: true, children: ["Review your changes while you keep chatting."] }),
+      ...HELP_ACTIONS.map(([command, description]) =>
+        Box({
+          flexDirection: "column",
+          marginTop: 1,
+          children: [
+            Text({ bold: true, children: [command] }),
+            Text({ dimColor: true, children: [description] }),
+          ],
+        }),
+      ),
+      Box({
+        flexDirection: "row",
+        flexWrap: "wrap",
+        columnGap: 1,
+        marginTop: 1,
+        children: [
+          Button({
+            key: "help-advanced",
+            label: advanced ? "Hide options" : "Advanced options",
+            onPress: () => {
+              if (advanced) expanded.delete(advancedId);
+              else expanded.add(advancedId);
+              $.ui.invalidate("ui.render");
+            },
+          }),
+          Button({
+            key: "help-setup",
+            label: setup ? "Hide setup" : "Setup and details",
+            onPress: () => {
+              if (setup) expanded.delete(setupId);
+              else expanded.add(setupId);
+              $.ui.invalidate("ui.render");
+            },
+          }),
+        ],
+      }),
+      ...(advanced
+        ? [
+            Text({ dimColor: true, children: ["Add these after /coderabbit-review."] }),
+            ...HELP_ADVANCED.map(([option, description]) =>
+              Box({
+                flexDirection: "column",
+                marginTop: 1,
+                children: [
+                  Text({ bold: true, children: [option] }),
+                  Text({ children: [description] }),
+                ],
+              }),
+            ),
+          ]
+        : []),
+      ...(setup
+        ? HELP_SETUP.map((text) => Box({ marginTop: 1, children: [Text({ children: [text] })] }))
+        : []),
+      Box({
+        marginTop: 1,
+        children: [
+          Text({ dimColor: true, children: ["Selected code is sent to CodeRabbit for review."] }),
+        ],
+      }),
+    ],
+  });
 }

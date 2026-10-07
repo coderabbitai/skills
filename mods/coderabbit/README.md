@@ -52,7 +52,9 @@ repository you want reviewed:
 ```
 
 The composer shows `[--fresh | help | results]`. Leave it blank to review current
-changes. Help lists the advanced scopes and flags:
+changes. In Terminal and Desktop, help uses a branded review guide with the four
+main commands first. **Advanced options** and **Setup and details** expand
+separately. Headless help prints the same information as text. Advanced examples:
 
 ```text
 /coderabbit-review uncommitted --include-untracked

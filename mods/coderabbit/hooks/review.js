@@ -1,16 +1,46 @@
-export const HELP = `Usage: /coderabbit-review [uncommitted|committed|all] [--include-untracked] [--base branch] [--fresh]
-       /coderabbit-review results
+export const HELP_ACTIONS = [
+  ["/coderabbit-review", "Review your current changes."],
+  ["/coderabbit-review --fresh", "Run fresh analysis of your current changes."],
+  ["/coderabbit-review results", "Show the latest result without starting a review."],
+  ["/coderabbit-review help", "Show this guide."],
+];
 
-Default: uncommitted tracked changes, including staged new files.
-results: show the latest result in this session without starting a review. Takes no review options.
-all: committed and uncommitted tracked changes.
---include-untracked: explicitly include non-ignored untracked files (not with committed).
---base: compare against a Git branch; use an unquoted branch name without spaces.
---fresh: request a new review without reusing the previous local checkpoint. Uses your review allowance; requires CLI support.
+export const HELP_ADVANCED = [
+  [
+    "uncommitted",
+    "The default: staged changes and unstaged edits to tracked files, including staged new files.",
+  ],
+  ["committed --base main", "Example: review committed changes against main."],
+  ["all", "Review committed and uncommitted tracked changes."],
+  [
+    "--include-untracked",
+    "Also include non-ignored untracked files. Cannot be combined with committed.",
+  ],
+  ["--base <branch>", "Compare against a Git branch. Use an unquoted branch name without spaces."],
+  [
+    "--fresh",
+    "Skip the previous local checkpoint. Keep your scope and base when repeating a review. Requires CLI support and uses your review allowance.",
+  ],
+];
 
-Interactive reviews run in the background. Keep chatting; a toast and the review card show the outcome, the result is also saved as context for your next message. Completion does not start a Claude turn. Use /coderabbit-review results to show the latest result again. Headless reviews wait for completion.
+export const HELP_SETUP = [
+  "Set cli_path to the absolute path of your official CodeRabbit CLI, then reload the plugin.",
+  "Sign in with coderabbit auth login.",
+  "Reviews send the selected diff and relevant code context to CodeRabbit using your existing CLI account and review allowance. Check the selected files for secrets first.",
+  "Results appear in the review card and are saved as context for your next message. Completion does not start a Claude turn. Headless reviews wait for completion.",
+  "The mod does not apply fixes or purchase credits. The results action takes no review options.",
+];
 
-Reviews send the selected diff and relevant code context to CodeRabbit using your existing CLI account and review allowance. Check the selected files for secrets first. Configure cli_path with the absolute path to your official CodeRabbit CLI and authenticate with coderabbit auth login. This command does not apply fixes or purchase credits.`;
+export const HELP = [
+  "Usage: /coderabbit-review [--fresh | help | results]",
+  ...HELP_ACTIONS.map(([command, description]) => command + " — " + description),
+  "",
+  "Advanced options (after /coderabbit-review)",
+  ...HELP_ADVANCED.map(([option, description]) => option + " — " + description),
+  "",
+  "Setup and review details",
+  ...HELP_SETUP,
+].join("\n");
 
 export function reviewArgs(input) {
   const tokens = input.trim().split(/\s+/).filter(Boolean);

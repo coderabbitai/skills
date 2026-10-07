@@ -1204,3 +1204,41 @@ for (const surface of ["terminal", "desktop"]) {
     },
   );
 }
+
+for (const surface of ["terminal", "desktop"]) {
+  for (const args of ["help", "--help", "-h"]) {
+    test(
+      surface + " help keeps main actions visible and expands details: " + args,
+      OPTIONS,
+      async ($, on) => {
+        const { calls } = stubProcess(on, output(complete()));
+        const answer = await $.command.run({ command: "coderabbit-review", args });
+        const card = await $.ui.mount({ ...commandTarget(answer.text, "help-one"), surface });
+        const second = await $.ui.mount({ ...commandTarget(answer.text, "help-two"), surface });
+        const summary = JSON.stringify(await card.drawn());
+        expect(summary).toContain("#FF570A");
+        expect(summary).toContain("● CodeRabbit");
+        expect(summary).toContain("Review guide");
+        expect(summary).toContain("/coderabbit-review --fresh");
+        expect(summary).toContain("/coderabbit-review results");
+        expect(summary).toContain("/coderabbit-review help");
+        expect(summary).toContain("Selected code is sent to CodeRabbit");
+        expect(summary).not.toContain("Usage:");
+        expect(summary).not.toContain("cli_path");
+        expect(summary).not.toContain("--include-untracked");
+        await card.press({ key: "help-advanced" });
+        expect(JSON.stringify(await card.drawn())).toContain("--include-untracked");
+        expect(JSON.stringify(await second.drawn())).not.toContain("--include-untracked");
+        await card.press({ key: "help-setup" });
+        const details = JSON.stringify(await card.drawn());
+        expect(details).toContain("coderabbit auth login");
+        expect(details).toContain("Completion does not start a Claude turn");
+        await card.press({ key: "help-advanced" });
+        await card.press({ key: "help-setup" });
+        expect(JSON.stringify(await card.drawn())).not.toContain("cli_path");
+        expect(JSON.stringify(await card.drawn())).not.toContain("--include-untracked");
+        expect(calls.length).toBe(0);
+      },
+    );
+  }
+}
