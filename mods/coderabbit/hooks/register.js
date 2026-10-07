@@ -78,6 +78,9 @@ export function register(on, options) {
       state.running = false;
     }
     state.timer?.cancel();
+    state.timer = undefined;
+    state.stopReview = undefined;
+    state.running = false;
     state.progress = undefined;
     state.latestResult = undefined;
     state.activeId = undefined;
@@ -154,6 +157,7 @@ async function runCommand($, e, options, state) {
   const review = async () => {
     let progressActive = true;
     let deadline;
+    let timer;
     let text;
     try {
       let scope = args.includes("--uncommitted")
@@ -165,6 +169,7 @@ async function runCommand($, e, options, state) {
       if (args.includes("--base")) scope += " · base " + args[args.indexOf("--base") + 1];
       if (args.includes("--fresh")) scope += " · fresh review";
       const startedAt = await $.clock.now();
+      if (state.generation !== runGeneration) return PROCESS_FAILURE;
       const current = {
         scope,
         reviewId: state.activeId,
@@ -187,11 +192,14 @@ async function runCommand($, e, options, state) {
       };
       await showProgress();
       if (state.generation !== runGeneration) return PROCESS_FAILURE;
-      state.timer = $.clock.every(1000, showProgress);
+      timer = $.clock.every(1000, showProgress);
+      state.timer = timer;
+      let stopReview;
       const stopped = new Promise((resolve) => {
-        state.stopReview = () => resolve({ cancelled: true });
+        stopReview = () => resolve({ cancelled: true });
       });
-      deadline = $.clock.after(600000, () => state.stopReview?.());
+      state.stopReview = stopReview;
+      deadline = $.clock.after(600000, stopReview);
       const stream = $.process.spawn({ argv: [options.cli_path, ...args] });
       const result = await readReviewStream(stream, stopped, (event) => {
         if (state.generation !== runGeneration) return;
@@ -205,25 +213,37 @@ async function runCommand($, e, options, state) {
       return text;
     } finally {
       progressActive = false;
-      state.timer?.cancel();
+      timer?.cancel();
       deadline?.cancel();
-      state.stopReview = undefined;
-      if (state.generation === runGeneration && state.progress)
-        finishProgress(state.progress, text);
+      if (state.generation === runGeneration) {
+        state.timer = undefined;
+        state.stopReview = undefined;
+        if (state.progress) finishProgress(state.progress, text);
+      }
       $.ui.invalidate("ui.render");
     }
   };
   // Desktop starts through the SDK (isInteractive=false) and attaches its UI later.
   // Check at command time; only a session without a prompt or attached UI must wait.
-  if (!state.interactive && (await $.session.surfaces()).length === 0) {
+  let headless;
+  let reviewId;
+  try {
+    headless = !state.interactive && (await $.session.surfaces()).length === 0;
+    if (!headless) reviewId = String(await $.clock.now()) + ":" + ++state.serial;
+  } catch {
+    if (state.generation === runGeneration) state.running = false;
+    return { text: PROCESS_FAILURE };
+  }
+  if (state.generation !== runGeneration) return { text: PROCESS_FAILURE };
+  if (headless) {
     try {
-      state.latestResult = await review();
-      return { text: state.latestResult };
+      const result = await review();
+      if (state.generation === runGeneration) state.latestResult = result;
+      return { text: result };
     } finally {
-      state.running = false;
+      if (state.generation === runGeneration) state.running = false;
     }
   }
-  const reviewId = String(await $.clock.now()) + ":" + ++state.serial;
   state.activeId = reviewId;
   state.scheduled = $.clock.after(1, async () => {
     state.scheduled = undefined;
@@ -254,8 +274,10 @@ async function runCommand($, e, options, state) {
           "CodeRabbit could not display its result automatically. Run /coderabbit-review results.",
         );
     } finally {
-      state.running = false;
-      if (state.generation === runGeneration) state.activeId = undefined;
+      if (state.generation === runGeneration) {
+        state.running = false;
+        state.activeId = undefined;
+      }
     }
   });
   return {
