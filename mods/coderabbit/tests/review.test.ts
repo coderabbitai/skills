@@ -1230,7 +1230,7 @@ for (const surface of ["terminal", "desktop"]) {
         await clock.advance(1);
         await clock.settle();
         expect(JSON.stringify(await band.drawn())).toContain("Review again");
-        expect(JSON.stringify(await band.drawn())).toContain("uses your review allowance");
+        expect(JSON.stringify(await band.drawn())).not.toContain("uses your review allowance");
         await band.press({ key: "review-again" });
         await clock.settle();
         await clock.advance(1);

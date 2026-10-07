@@ -83,14 +83,6 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
             }),
           ],
         }),
-        ...(progress.finished && progress.canReviewAgain
-          ? [
-              Text({
-                dimColor: true,
-                children: ["Review again uses your review allowance."],
-              }),
-            ]
-          : []),
         ...(details
           ? [
               Text({
