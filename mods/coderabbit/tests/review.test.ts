@@ -76,7 +76,7 @@ test("registers the command without running a process", OPTIONS, async ($, on) =
   expect(registered.length).toBe(1);
   expect(registered.every((command) => command.immediate)).toBe(true);
   expect(registered[0].name).toBe("coderabbit-review");
-  expect(registered[0].argumentHint).toBe("[options]");
+  expect(registered[0].argumentHint).toBe("[--fresh | help | results]");
 });
 
 test("help discloses data transfer and does not run a review", OPTIONS, async ($) => {

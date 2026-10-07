@@ -38,7 +38,7 @@ export function register(on, options) {
     await $.command.register({
       name: "coderabbit-review",
       description: "Review your changes in the background.",
-      argumentHint: "[options]",
+      argumentHint: "[--fresh | help | results]",
       immediate: true,
     });
     // Completed cards can be reconstructed from the host's saved conversation.

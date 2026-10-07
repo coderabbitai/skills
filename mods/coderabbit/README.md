@@ -51,7 +51,8 @@ repository you want reviewed:
 /coderabbit-review help
 ```
 
-The composer shows only `[options]`. Help lists the advanced scopes and flags:
+The composer shows `[--fresh | help | results]`. Leave it blank to review current
+changes. Help lists the advanced scopes and flags:
 
 ```text
 /coderabbit-review uncommitted --include-untracked
