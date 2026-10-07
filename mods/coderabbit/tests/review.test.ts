@@ -815,7 +815,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
       expect(started.text).toContain("started in the background");
       expect(calls).toBe(0);
       const original = await $.ui.mount({ ...commandTarget(started.text), surface });
-      expect(JSON.stringify(await original.drawn())).toContain("Review started. Keep chatting");
+      expect(JSON.stringify(await original.drawn())).toContain("Reviewing in the background.");
       await clock.advance(1);
       expect(calls).toBe(1);
       expect(toasts.length).toBe(0);

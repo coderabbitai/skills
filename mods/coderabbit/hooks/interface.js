@@ -164,7 +164,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
               dimColor: true,
               children: [
                 getActiveId() === report.id
-                  ? "Review started. Keep chatting; results will appear here."
+                  ? "Reviewing in the background."
                   : "This review is no longer active; its result is unavailable in this conversation.",
               ],
             }),
