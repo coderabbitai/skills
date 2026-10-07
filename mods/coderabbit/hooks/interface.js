@@ -353,15 +353,14 @@ export function registerInterface(on, getProgress, getResult, getActiveId, resul
             ],
           });
         }),
-        Box({
-          marginTop: 1,
-          children: [
-            Text({
-              dimColor: true,
-              children: [report.rateLimit ? "No automatic retry" : "CodeRabbit made no changes"],
-            }),
-          ],
-        }),
+        ...(report.rateLimit
+          ? [
+              Box({
+                marginTop: 1,
+                children: [Text({ dimColor: true, children: ["No automatic retry"] })],
+              }),
+            ]
+          : []),
       ],
     });
   });
