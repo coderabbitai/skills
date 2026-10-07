@@ -35,7 +35,7 @@ export function register(on, options) {
     state.interactive = e.isInteractive;
     await $.command.register({
       name: "coderabbit-review",
-      description: "Review your changes in the background.",
+      description: "Review your changes with CodeRabbit in the background.",
       argumentHint: "[--fresh | help | results]",
       immediate: true,
     });
