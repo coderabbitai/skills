@@ -273,34 +273,31 @@ export function registerInterface(on, getProgress, getResult, getActiveId, resul
           : []),
         ...report.findings.map((finding, index) => {
           const id = e.requestId + ":" + index;
-          // Promote only a short, verbatim opening sentence or clause. The CLI
-          // agent stream has no title; never invent a diagnosis from its prose.
-          const lead =
-            /^(.{1,160}?)(?:\r?\n+|(?<=[.!?])\s+|\s+(?=so |before |because ))([\s\S]+)$/.exec(
-              finding.body,
-            );
-          const shortBody = !lead && finding.body.length <= 160;
-          const title = lead ? lead[1] : shortBody ? finding.body : finding.location;
-          const description = lead ? lead[2] : shortBody ? "" : finding.body;
+          const title = finding.title || "";
+          // The human comment often repeats its title as a leading Markdown heading.
+          // Remove only that exact duplicate; never split an instruction into a title.
+          const heading = "**" + title + "**";
+          const description =
+            title && finding.body.split(/\r?\n/, 1)[0] === heading
+              ? finding.body.slice(heading.length).trimStart()
+              : finding.body;
           const severity = finding.severity.toLowerCase();
           const prominent = ["critical", "major"].includes(severity);
           return Box({
             flexDirection: "column",
             marginTop: index === 0 ? 1 : 2,
             children: [
-              Text({ bold: true, children: [title] }),
+              ...(title ? [Text({ bold: true, children: [title] })] : []),
               Text({
                 children: [
                   Text({
                     ...(prominent ? { color: BRAND_ORANGE } : { dimColor: true }),
                     children: [severity.charAt(0).toUpperCase() + severity.slice(1)],
                   }),
-                  ...(title !== finding.location
-                    ? [Text({ dimColor: true, children: [" · " + finding.location] })]
-                    : []),
+                  Text({ dimColor: true, children: [" · " + finding.location] }),
                 ],
               }),
-              ...(description ? [Text({ children: [description] })] : []),
+              ...(description ? [Markdown({ text: description })] : []),
               Box({
                 flexDirection: "row",
                 flexWrap: "wrap",
@@ -331,7 +328,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, resul
                           " at " +
                           JSON.stringify(finding.location) +
                           ". Verify it against the current code. If valid, make the smallest appropriate change and run the relevant checks. If it no longer applies, explain why.\n\nCodeRabbit finding (reference):\n" +
-                          finding.body +
+                          (finding.codegenInstructions || finding.body) +
                           (finding.suggestions.length
                             ? "\n\nSuggested changes (reference):\n" +
                               finding.suggestions.join("\n\n")

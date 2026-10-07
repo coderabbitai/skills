@@ -44,9 +44,13 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
   execution with an explicitly synthetic offline CLI verified argument forwarding
   and no-fresh outcome handling without contacting a review service.
 - Claude Code 2.1.289: `claude plugin validate mods/coderabbit --strict` passed.
-- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 107 tests.
+- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 109 tests.
   Startup failures leave the next review available; delayed cleanup from an ended
   session cannot clear the running state, result, or timer of a newer review.
+- Human-readable title/comment/line fields render separately from agent fix
+  instructions on Terminal and Desktop. Older CLI payloads remain readable as
+  complete prose without inferred headings. These payloads were tested with
+  offline fixtures; richer cards require a CLI that emits the human fields.
 - A fresh CodeRabbit CLI 0.8.2 review of the public PR completed with two minor
   findings. Both were fixed; a fresh follow-up of those changes completed with
   zero findings. This is source review evidence, not a mod end-to-end service test.

@@ -132,27 +132,33 @@ export function reviewSummary(report) {
 function findingDetails(finding) {
   const severity = typeof finding.severity === "string" ? finding.severity : "Unspecified severity";
   const file = typeof finding.fileName === "string" ? finding.fileName : "File not supplied";
-  const bodies = [finding.codegenInstructions, finding.comment]
-    .filter((value) => typeof value === "string" && value.trim())
-    .map((value) => value.trim());
+  const title = typeof finding.title === "string" ? finding.title.trim() : "";
+  const comment = typeof finding.comment === "string" ? finding.comment.trim() : "";
+  let codegenInstructions =
+    typeof finding.codegenInstructions === "string" ? finding.codegenInstructions.trim() : "";
   let location = file;
-  const comments = bodies.map((body) => {
-    // Remove only the exact CLI wrapper, never arbitrary finding prose.
-    if (body.startsWith(REVIEW_PREAMBLE)) body = body.slice(REVIEW_PREAMBLE.length);
-    const prefix = "Review comment at @" + file + " at line ";
-    if (body.startsWith(prefix)) {
-      const match = /^([1-9]\d*):\r?\n/.exec(body.slice(prefix.length));
-      if (match) {
-        location = file + ":" + match[1];
-        body = body.slice(prefix.length + match[0].length);
-      }
+  // Older CLIs only supply the agent text. Strip its exact wrapper, not prose.
+  if (codegenInstructions.startsWith(REVIEW_PREAMBLE))
+    codegenInstructions = codegenInstructions.slice(REVIEW_PREAMBLE.length);
+  const prefix = "Review comment at @" + file + " at line ";
+  if (codegenInstructions.startsWith(prefix)) {
+    const match = /^([1-9]\d*):\r?\n/.exec(codegenInstructions.slice(prefix.length));
+    if (match) {
+      location = file + ":" + match[1];
+      codegenInstructions = codegenInstructions.slice(prefix.length + match[0].length);
     }
-    return body;
-  });
+  }
+  if (Number.isSafeInteger(finding.startLine) && finding.startLine > 0) {
+    location = file + ":" + finding.startLine;
+    if (Number.isSafeInteger(finding.endLine) && finding.endLine > finding.startLine)
+      location += "–" + finding.endLine;
+  }
   return {
     severity,
     location,
-    body: [...new Set(comments)].join("\n\n") || "No review comment supplied by the CLI.",
+    title,
+    body: comment || codegenInstructions || "No review comment supplied by the CLI.",
+    codegenInstructions,
     suggestions: Array.isArray(finding.suggestions)
       ? finding.suggestions.filter((value) => typeof value === "string" && value.trim())
       : [],

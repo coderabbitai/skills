@@ -143,6 +143,11 @@ verify them against the current files before applying a fix.
 
 ## Outcomes and recovery
 
+Finding cards use the CLI's human-readable title, explanation, and line range when
+supplied. Agent instructions stay behind **Fix with Claude**. Older CLI versions
+that omit the human fields show the complete instruction text with severity and
+location; the mod does not invent a title or split sentences to make one.
+
 - **Completed:** the CLI exited successfully with one completion event and a
   matching finding count. Zero findings means the completed review emitted none,
   not that the code is guaranteed defect-free.

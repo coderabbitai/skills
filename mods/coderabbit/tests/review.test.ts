@@ -602,21 +602,13 @@ test(
   },
 );
 
-for (const [body, heading, detail] of [
-  ["Correct the amount. Preserve zero values.", "Correct the amount.", "Preserve zero values."],
-  [
-    "Divide cents by 100 before formatting the dollar amount.",
-    "Divide cents by 100",
-    "before formatting the dollar amount.",
-  ],
-  [
-    "Keep the 1000 g boundary inclusive so the lower tier applies.",
-    "Keep the 1000 g boundary inclusive",
-    "so the lower tier applies.",
-  ],
+for (const body of [
+  "Correct the amount. Preserve zero values.",
+  "Divide cents by 100 before formatting the dollar amount.",
+  "Keep the 1000 g boundary inclusive so the lower tier applies.",
 ]) {
   test(
-    "finding headings preserve the original review and fix draft: " + heading,
+    "older CLI findings stay whole without invented headings: " + body,
     OPTIONS,
     async ($, on) => {
       stubProcess(
@@ -635,12 +627,58 @@ for (const [body, heading, detail] of [
       const answer = await $.command.run({ command: "coderabbit-review", args: "" });
       const row = await $.ui.mount(commandTarget(answer.text));
       const drawing = JSON.stringify(await row.drawn());
-      expect(drawing.split(heading).length).toBe(2);
-      expect(drawing.split(detail).length).toBe(2);
+      expect(drawing.split(body).length).toBe(2);
+      expect(JSON.parse(answer.text).findings[0].title).toBe("");
       expect(JSON.parse(answer.text).findings[0].body).toBe(body);
       await row.press({ key: "draft-0" });
       expect(drafts[0].text).toContain(body);
       expect(drafts[0].mode).toBe("append");
+    },
+  );
+}
+
+for (const surface of ["terminal", "desktop"]) {
+  test(
+    surface + " displays human review prose and keeps agent instructions for fixes",
+    OPTIONS,
+    async ($, on) => {
+      const title = "Divide cents by 100 to format dollars.";
+      const explanation = "500 cents currently formats as `$50.00` instead of `$5.00`.";
+      const diff = "```diff\n- cents / 10\n+ cents / 100\n```";
+      const instructions = "Update the dollar-formatting calculation before calling toFixed(2).";
+      stubProcess(
+        on,
+        output(
+          JSON.stringify({
+            ...finding,
+            fileName: "shipping.cjs",
+            title,
+            comment: "**" + title + "**\n\n" + explanation + "\n\n" + diff,
+            startLine: 7,
+            endLine: 8,
+            codegenInstructions: instructions,
+            suggestions: [],
+          }) +
+            "\n" +
+            complete("review_completed", 1),
+        ),
+      );
+      const drafts = [];
+      on("prompt.fill", ($, e) => {
+        drafts.push(e);
+        return { isFilled: true };
+      });
+      const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+      const row = await $.ui.mount({ ...commandTarget(answer.text), surface });
+      const drawing = JSON.stringify(await row.drawn());
+      expect(drawing.split(title).length).toBe(2);
+      expect(drawing).toContain(explanation);
+      expect(drawing).toContain(JSON.stringify(diff).slice(1, -1));
+      expect(drawing).toContain("shipping.cjs:7–8");
+      expect(drawing).not.toContain(instructions);
+      await row.press({ key: "draft-0" });
+      expect(drafts[0].text).toContain(instructions);
+      expect(drafts[0].text).not.toContain(explanation);
     },
   );
 }
