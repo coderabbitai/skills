@@ -47,6 +47,9 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
 - Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 107 tests.
   Startup failures leave the next review available; delayed cleanup from an ended
   session cannot clear the running state, result, or timer of a newer review.
+- A fresh CodeRabbit CLI 0.8.2 review of the public PR completed with two minor
+  findings. Both were fixed; a fresh follow-up of those changes completed with
+  zero findings. This is source review evidence, not a mod end-to-end service test.
 - Desktop embedded engine 2.1.289: package strict validation passed. The older
   interactive Desktop fixture observations below used 2.1.286; they are not
   claims that those runtime scenarios were repeated on 2.1.289.
@@ -82,13 +85,13 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
 
 ## Live portal validation
 
-The candidate subfolder passed all seven source checks on 2026-10-04 and was
-recognized as one mod, with all six listing links populated. The directory
-correctly limited installation to Claude Code. Local CLI execution, dynamic
-executable selection, and local-read/outbound-data capability require human
-policy review. The publisher name also requires ownership review against the
-existing CodeRabbit listing. These are review holds, not a technical validation
-failure or an approval.
+The candidate subfolder at `b37b2df` passed all seven source checks on 2026-10-07
+and was recognized as one mod. The portal reports five policy holds: local CLI
+execution, dynamic executable selection, local-read/outbound-data capability,
+conversation-read/outbound-data capability, and publisher ownership against the
+existing CodeRabbit listing. These require human policy review; source validation
+is not an approval. The mod reads saved review notes to restore cards; it does
+not forward conversation text to the CLI.
 
 Rechecked on 2026-10-07: the portal's compliance form still requires a declaration that no code executes
 outside declared MCP servers, including for a package it recognizes as a mod.
