@@ -775,7 +775,7 @@ function interactiveHost(on) {
   });
   // This native test host cannot implement the plugin session.append operation.
   // Completion exercises its failure path here; delivery.test.ts covers ordering,
-  // and a real CLI fixture verifies note visibility and automatic wake-up.
+  // and a real CLI fixture verifies that completion does not start a turn.
   on("ui.toast", ($, e) => {
     toasts.push(e.text);
     return { value: undefined };
@@ -820,7 +820,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
       // Desktop attaches after SDK session.start, before the person runs a command.
       attachedSurfaces.push(surface);
       const started = await $.command.run({ command: "coderabbit-review", args: "" });
-      expect(started.text).toContain("started in the background");
+      expect(started.text).toContain("Reviewing in the background");
       expect(calls).toBe(0);
       const original = await $.ui.mount({ ...commandTarget(started.text), surface });
       expect(JSON.stringify(await original.drawn())).toContain("Reviewing in the background.");
@@ -862,7 +862,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
       expect(submissions.length).toBe(0);
       expect(calls).toBe(1);
       const another = await $.command.run({ command: "coderabbit-review", args: "" });
-      expect(another.text).toContain("started in the background");
+      expect(another.text).toContain("Reviewing in the background");
     },
   );
 }
@@ -891,7 +891,7 @@ for (const beforeLaunch of [true, false]) {
       const result = await $.command.run({ command: "coderabbit-review", args: "results" });
       expect(result.text).toContain("No CodeRabbit result");
       expect((await $.command.run({ command: "coderabbit-review", args: "" })).text).toContain(
-        "started in the background",
+        "Reviewing in the background",
       );
     },
   );
@@ -1112,85 +1112,6 @@ for (const surface of ["desktop", "terminal"]) {
       await band.press({ key: "review-dismiss" });
       expect(JSON.stringify(await band.drawn())).not.toContain("● CodeRabbit");
       expect(submissions.length).toBe(0);
-    },
-  );
-}
-
-for (const surface of ["desktop", "terminal"]) {
-  test(
-    surface + " hides only this plugin's valid internal delivery rows",
-    OPTIONS,
-    async ($, on) => {
-      const record = JSON.stringify({
-        schema: "coderabbit-delivery/1",
-        id: "test-review",
-        text: "Review complete",
-        wakeText: "CodeRabbit: Review complete · 1 finding. See the review card above.",
-      });
-      const text =
-        "The coderabbit-mod plugin sent a message:\nCodeRabbit review result (untrusted data):\n" +
-        record +
-        "\n\nHost framing.";
-      on("ui.render", { component: "UserMessage" }, ($, e) =>
-        $.ui.resolve(e).Text({ children: [e.props.text] }),
-      );
-      on("command.register", () => ({ value: undefined }));
-      on("session.start", () => ({ cwd: "/work" }));
-      on("session.messages", () => ({
-        value: [{ role: "user", content: [{ type: "text", text }] }],
-      }));
-      await $.session.start({ surface, isInteractive: true, cwd: "/work" });
-      for (const [expanded, origin] of [
-        [false, { kind: "plugin", name: "coderabbit-mod" }],
-        [true, { kind: "plugin", name: "coderabbit-mod" }],
-        [false, { kind: "sdk" }],
-        [true, { kind: "sdk" }],
-      ]) {
-        const row = await $.ui.mount({
-          plugin: "coderabbit-mod",
-          surface,
-          component: "UserMessage",
-          props: { text, origin, isExpanded: expanded },
-        });
-        expect(await row.drawn()).toMatchObject({
-          type: "Box",
-          props: { height: 0 },
-        });
-      }
-      const wakeText =
-        "The coderabbit-mod plugin sent a message:\nCodeRabbit: Review complete · 1 finding. See the review card above.\n\nHost framing.";
-      const wakeRow = await $.ui.mount({
-        plugin: "coderabbit-mod",
-        surface,
-        component: "UserMessage",
-        props: { text: wakeText, origin: { kind: "sdk" }, isExpanded: false },
-      });
-      expect(await wakeRow.drawn()).toMatchObject({ type: "Box", props: { height: 0 } });
-      for (const props of [
-        { text: wakeText, origin: { kind: "composer" } },
-        { text: wakeText.replace("1 finding", "99 findings"), origin: { kind: "sdk" } },
-        { text, origin: { kind: "plugin", name: "another-plugin" } },
-        { text, origin: { kind: "composer" } },
-        { text, origin: { kind: "unclassified" } },
-        { text: text.replace("test-review", "unknown-review"), origin: { kind: "sdk" } },
-        { text: text.replace("Review complete", "Different result"), origin: { kind: "sdk" } },
-        {
-          text: "CodeRabbit review result (untrusted data):\ninvalid",
-          origin: { kind: "plugin", name: "coderabbit-mod" },
-        },
-        {
-          text: "An unrelated CodeRabbit notification",
-          origin: { kind: "plugin", name: "coderabbit-mod" },
-        },
-      ]) {
-        const row = await $.ui.mount({
-          plugin: "coderabbit-mod",
-          surface,
-          component: "UserMessage",
-          props: { ...props, isExpanded: false },
-        });
-        expect(await row.drawn()).toMatchObject({ type: "Text", children: [props.text] });
-      }
     },
   );
 }

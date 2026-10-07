@@ -21,7 +21,8 @@ package and must not be replaced or downgraded to publish this mod.
 Run CodeRabbit reviews from Claude Code with `/coderabbit-review`. Choose tracked,
 committed, or uncommitted changes, see when the review is running, and bring the
 original findings into your conversation while you keep chatting. Completion
-updates the review card, shows a toast, and wakes Claude with the result once idle. Requires the official CodeRabbit CLI
+updates the review card, shows a toast, and saves the result as context without
+starting a Claude turn. Requires the official CodeRabbit CLI
 and an authenticated account. Reviews start only when you invoke the command.
 
 Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.png`.
@@ -40,7 +41,7 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
   and no-fresh outcome handling without contacting a review service.
 - Claude Code 2.1.289: `claude plugin validate mods/coderabbit --strict` passed.
 - Current Desktop embedded engine 2.1.289: strict validation passed.
-- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 84 tests.
+- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 89 tests.
 - A real non-interactive Claude 2.1.289 session loaded the module and ran
   `/coderabbit-review --help` successfully.
 - CodeRabbit CLI 0.8.2 `review --help` exposes every review option used here.
@@ -56,16 +57,11 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
   one row, then one finding, the completion toast, and expandable scope/severity/
   reviewed-file details. No review service was called; the official CLI path was
   restored afterward.
-- Wake-on-completion was exercised in a real Claude Code 2.1.289 session with
-  a labeled offline process fixture: after the review finished, the plugin's
-  prompt started a model turn with no further user input. Claude identified the
-  synthetic finding and made no edits. Terminal and Desktop test surfaces cover
-  one submission per outcome, delayed/dropped/rejected delivery, session reset,
-  and restoring records wrapped in the host's plugin-message frame.
-- Desktop's actual transcript was checked after reloading the display hook:
-  existing internal delivery bubbles disappeared without empty bubbles, while
-  review cards and assistant replies remained. Tests cover plugin and Desktop
-  SDK provenance, known-result matching, expanded view, and unrelated user rows.
+- Completion now stores a model-only result note without submitting a prompt or
+  starting an assistant turn. The card, toast, and status band report the outcome.
+  Tests cover context storage, denial, errors, and session reset, with no prompt
+  submission even when storing the result succeeds. The obsolete wake-up and
+  submitted-message rendering paths were removed.
 - Tests use synthetic process responses. An authenticated end-to-end review
   against a development service has **not** been exercised. Do not describe
   the test suite as proof of service authentication or review quality.
@@ -88,7 +84,7 @@ This package cannot truthfully make that declaration. It remains unsubmitted.
 
 The CLI sends selected code and repository context to CodeRabbit. Findings enter
 the Claude conversation, and the CLI can save local review state. A background
-completion queues a normal Claude model turn, using the user's model allowance. The mod does
+completion saves model context without queuing a Claude turn. The mod does
 not read credentials or persist its own review files. Personal data may be
 present in selected code or metadata. The README discloses this path and links to
 CodeRabbit's Privacy Policy.
