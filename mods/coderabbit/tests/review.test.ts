@@ -76,6 +76,7 @@ test("registers the command without running a process", OPTIONS, async ($, on) =
   expect(registered.length).toBe(1);
   expect(registered.every((command) => command.immediate)).toBe(true);
   expect(registered[0].name).toBe("coderabbit-review");
+  expect(registered[0].argumentHint).toBe("[options]");
 });
 
 test("help discloses data transfer and does not run a review", OPTIONS, async ($) => {
@@ -1190,6 +1191,95 @@ for (const surface of ["desktop", "terminal"]) {
         });
         expect(await row.drawn()).toMatchObject({ type: "Text", children: [props.text] });
       }
+    },
+  );
+}
+
+for (const surface of ["terminal", "desktop"]) {
+  for (const scope of ["committed --base main", "all --include-untracked --fresh"]) {
+    test(
+      surface + " review again preserves scope and adds fresh once: " + scope,
+      OPTIONS,
+      async ($, on) => {
+        const clock = mock.clock(on);
+        const { toasts } = interactiveHost(on);
+        const calls = [];
+        mockProcess(on, ($, e) => {
+          calls.push(e.argv);
+          return {
+            value: output(
+              calls.length === 1
+                ? JSON.stringify({
+                    type: "complete",
+                    status: "review_completed",
+                    findings: 0,
+                    message: noFreshMessage,
+                  })
+                : complete(),
+            ),
+          };
+        });
+        on("session.surfaces", () => ({ value: [surface] }));
+        on("ui.render", { component: "AbovePrompt" }, ($, e) =>
+          $.ui.resolve(e).Text({ children: [] }),
+        );
+        await $.session.start({ surface, isInteractive: true, cwd: "/work" });
+        const band = await $.ui.mount(liveBand(surface));
+        const started = await $.command.run({ command: "coderabbit-review", args: scope });
+        const card = await $.ui.mount({ ...commandTarget(started.text), surface });
+        await clock.advance(1);
+        await clock.settle();
+        expect(JSON.stringify(await band.drawn())).toContain("Review again");
+        expect(JSON.stringify(await band.drawn())).toContain("uses your review allowance");
+        await band.press({ key: "review-again" });
+        await clock.settle();
+        await clock.advance(1);
+        await clock.settle();
+        expect(toasts).toEqual(["Review skipped", "Review complete · No findings"]);
+        expect(calls.length).toBe(2);
+        expect(calls[1]).toEqual(
+          calls[0].includes("--fresh") ? calls[0] : [...calls[0], "--fresh"],
+        );
+        expect(calls[1].filter((arg) => arg === "--fresh").length).toBe(1);
+        expect(JSON.stringify(await band.drawn())).not.toContain("Review again");
+        expect(JSON.stringify(await band.drawn())).toContain("No findings");
+        expect(JSON.stringify(await card.drawn())).toContain("No findings");
+        expect(JSON.stringify(await card.drawn())).not.toContain("Review skipped");
+      },
+    );
+  }
+  test(
+    surface + " view findings preserves results when the host cannot scroll",
+    OPTIONS,
+    async ($, on) => {
+      const clock = mock.clock(on);
+      const { toasts } = interactiveHost(on);
+      let calls = 0;
+      mockProcess(on, () => {
+        calls++;
+        return { value: output(JSON.stringify(finding) + "\n" + complete("review_completed", 1)) };
+      });
+      on("session.surfaces", () => ({ value: [surface] }));
+      on("ui.render", { component: "AbovePrompt" }, ($, e) =>
+        $.ui.resolve(e).Text({ children: [] }),
+      );
+      await $.session.start({ surface, isInteractive: true, cwd: "/work" });
+      const band = await $.ui.mount(liveBand(surface));
+      const started = await $.command.run({ command: "coderabbit-review", args: "" });
+      const card = await $.ui.mount({ ...commandTarget(started.text), surface });
+      await card.drawn();
+      await clock.advance(1);
+      await clock.settle();
+      expect(JSON.stringify(await band.drawn())).toContain("View findings");
+      expect(JSON.stringify(await band.drawn())).not.toContain("Review again");
+      await band.press({ key: "review-activity" });
+      await clock.settle();
+      expect(toasts).toEqual([
+        "Review complete · 1 finding",
+        "Could not open findings. Run /coderabbit-review results.",
+      ]);
+      expect(JSON.stringify(await card.drawn())).toContain("Check the nullable value.");
+      expect(calls).toBe(1);
     },
   );
 }

@@ -45,13 +45,18 @@ Run the following commands inside a session whose working directory is the
 repository you want reviewed:
 
 ```text
-/coderabbit-review --help
 /coderabbit-review
+/coderabbit-review --fresh
 /coderabbit-review results
+/coderabbit-review help
+```
+
+The composer shows only `[options]`. Help lists the advanced scopes and flags:
+
+```text
 /coderabbit-review uncommitted --include-untracked
 /coderabbit-review committed --base main
 /coderabbit-review all
-/coderabbit-review --fresh
 ```
 
 The default reviews staged changes and unstaged edits to tracked files; staged
@@ -68,10 +73,15 @@ The compact band above the prompt shows an orange CodeRabbit label, the current
 CLI phase, incoming findings marked “so far”, and elapsed time. Status events
 change the sentence as the CLI connects, prepares, maps code, summarizes, and
 writes findings. Heartbeats do not invent progress or change the phase.
-**Show activity** expands scope (including the base and an explicit fresh review),
-severity counts, elapsed time, and the last event time. The final
-outcome stays visible with **View details**; file counts appear only when the CLI
-supplies them on successful completion. The **×** dismisses the bar without
+**Activity** expands scope (including the base and an explicit fresh review),
+severity counts, and the last event time. **View findings** jumps to the completed
+review card when there are findings; other outcomes offer **Details**. In plain terminal mode, or if the
+host cannot reveal the card, `/coderabbit-review results` reopens the saved result.
+File counts appear only when the CLI supplies them on successful completion.
+When the CLI explicitly says no fresh analysis ran, **Review again** repeats the
+same scope and base with `--fresh`, using your review allowance. It refreshes the
+existing conversation card and never retries automatically. Other skips, failures,
+and rate limits do not offer this action. The **×** dismisses the bar without
 cancelling a review or its notification; a new review shows it again. Narrow
 surfaces use shorter control labels and hide the timer below 70 columns; the row
 can wrap when needed. Scope stays in the expanded details to keep the band compact.

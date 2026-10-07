@@ -2,7 +2,7 @@ import { reviewSummary } from "./review.js";
 
 const BRAND_ORANGE = "#FF570A";
 
-export function registerInterface(on, getProgress, getResult, getActiveId, isWakeText) {
+export function registerInterface(on, getProgress, getResult, getActiveId, isWakeText, resultRows) {
   const expanded = new Set();
 
   on("ui.render", { component: "AbovePrompt" }, async ($, e, next) => {
@@ -10,13 +10,13 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
     const progress = getProgress();
     if (!progress || progress.dismissed || e.props.hasSurvey) return rest;
     const { Box, Text, Button } = $.ui.resolve(e);
-    const wide = e.props.bodyColumns >= 100;
     const count = progress.findings
       ? progress.findings +
         (progress.findings === 1 ? " finding" : " findings") +
         (progress.finished ? (progress.success ? "" : " received") : " so far")
       : "";
     const details = expanded.has("activity");
+    const hasFindings = progress.finished && progress.success && progress.findings > 0;
     return Box({
       flexDirection: "column",
       marginTop: 1,
@@ -41,18 +41,29 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
             ...(e.props.bodyColumns >= 70
               ? [Text({ dimColor: true, children: [progress.time] })]
               : []),
+            ...(progress.finished && progress.canReviewAgain
+              ? [
+                  Button({
+                    key: "review-again",
+                    label: progress.retryRequested ? "Queued" : "Review again",
+                    onPress: () => expanded.delete("activity"),
+                  }),
+                ]
+              : []),
             Button({
               key: "review-activity",
-              label: details
-                ? "Hide"
-                : progress.finished
-                  ? wide
-                    ? "View details"
-                    : "Details"
-                  : wide
-                    ? "Show activity"
+              label: hasFindings
+                ? "View findings"
+                : details
+                  ? "Hide"
+                  : progress.finished
+                    ? "Details"
                     : "Activity",
-              onPress: () => {
+              onPress: async () => {
+                if (hasFindings) {
+                  await showFindings($, resultRows.get(progress.reviewId));
+                  return;
+                }
                 if (details) expanded.delete("activity");
                 else expanded.add("activity");
                 $.ui.invalidate("ui.render");
@@ -72,6 +83,14 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
             }),
           ],
         }),
+        ...(progress.finished && progress.canReviewAgain
+          ? [
+              Text({
+                dimColor: true,
+                children: ["Review again uses your review allowance."],
+              }),
+            ]
+          : []),
         ...(details
           ? [
               Text({
@@ -149,6 +168,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
       return next(e);
     }
     if (report?.schema === "coderabbit-pending/1") {
+      resultRows.set(report.id, e.requestId);
       const result = getResult(report.id);
       if (result === undefined) {
         const { Box, Text } = $.ui.resolve(e);
@@ -373,4 +393,19 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
       ],
     });
   });
+}
+
+// Kept separate so host scroll denial and failure can be checked without a
+// transcript window; the native test runner has no ui.scroll implementation.
+export async function showFindings($, requestId) {
+  if (!requestId) {
+    $.ui.toast("Run /coderabbit-review results to reopen the findings.");
+    return;
+  }
+  try {
+    const result = await $.ui.scroll({ to: { requestId }, block: "start" });
+    if (result.deny) $.ui.toast("Run /coderabbit-review results to reopen the findings.");
+  } catch {
+    $.ui.toast("Could not open findings. Run /coderabbit-review results.");
+  }
 }

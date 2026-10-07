@@ -54,6 +54,7 @@ export function finishProgress(progress, text) {
     progress.success = !!summary.success;
     progress.label = summary.label;
     progress.detail = summary.detail;
+    progress.canReviewAgain = !!summary.canReviewAgain;
     if (summary.success) progress.findings = summary.count;
   } catch {
     /* Process failures stay visibly incomplete. */

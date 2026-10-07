@@ -78,6 +78,7 @@ export function reviewSummary(report) {
     };
   if ((completed && noFresh) || report.headline.includes("skipped this review"))
     return {
+      canReviewAgain: noFresh,
       label: "Review skipped",
       heading: "Review skipped",
       detail: noFresh

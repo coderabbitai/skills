@@ -1,4 +1,5 @@
 import { expect, test } from "claude-code/testing";
+import { showFindings } from "../hooks/interface.js";
 import { deliverReview } from "../hooks/register.js";
 
 // The 2.1.289 test host cannot implement the plugin's session.append operation.
@@ -68,5 +69,28 @@ for (const outcome of [
       else expect(logs).toEqual([]);
     }
     release();
+  });
+}
+
+for (const outcome of ["shown", "denied", "failed", "missing"]) {
+  test("view findings scrolls to the existing card: " + outcome, async () => {
+    const scrolls = [];
+    const toasts = [];
+    const host = {
+      ui: {
+        scroll: async (args) => {
+          scrolls.push(args);
+          if (outcome === "failed") throw new Error("Unavailable");
+          return outcome === "denied" ? { deny: "No window" } : {};
+        },
+        toast: (text) => toasts.push(text),
+      },
+    };
+    await showFindings(host, outcome === "missing" ? undefined : "review-row");
+    expect(scrolls).toEqual(
+      outcome === "missing" ? [] : [{ to: { requestId: "review-row" }, block: "start" }],
+    );
+    expect(toasts.length).toBe(outcome === "shown" ? 0 : 1);
+    if (toasts.length) expect(toasts[0]).toContain("/coderabbit-review results");
   });
 }
