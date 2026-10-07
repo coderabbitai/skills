@@ -53,6 +53,7 @@ export function finishProgress(progress, text) {
     const summary = reviewSummary(JSON.parse(text));
     progress.success = !!summary.success;
     progress.label = summary.label;
+    progress.detail = summary.detail;
     if (summary.success) progress.findings = summary.count;
   } catch {
     /* Process failures stay visibly incomplete. */

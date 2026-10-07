@@ -132,7 +132,7 @@ verify them against the current files before applying a fix.
 - **Completed:** the CLI exited successfully with one completion event and a
   matching finding count. Zero findings means the completed review emitted none,
   not that the code is guaranteed defect-free.
-- **No new review:** the CLI explicitly skipped analysis, or returned its known
+- **Review skipped:** the CLI explicitly skipped analysis, or returned its known
   “No fresh detailed file review was performed in this run” completion notice.
   This is never presented as a fresh zero-finding review. The latter outcome
   explains how to request a fresh review of the same scope.

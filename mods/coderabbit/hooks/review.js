@@ -78,10 +78,10 @@ export function reviewSummary(report) {
     };
   if ((completed && noFresh) || report.headline.includes("skipped this review"))
     return {
-      label: "No new review",
-      heading: "No new review",
+      label: "Review skipped",
+      heading: "Review skipped",
       detail: noFresh
-        ? "No fresh analysis ran. To review this scope again, rerun your command with --fresh (requires CLI support)."
+        ? "No fresh analysis ran. Rerun this review with --fresh to analyze it again."
         : "The CLI skipped this review. No new analysis ran. View details for the reason.",
     };
   const partial = report.findings.length > 0;

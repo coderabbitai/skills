@@ -32,7 +32,7 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
   agents, or autofix workflow. One review command with a `results` action, live progress, conversation
   findings, and a draft-only handoff to Claude form the v0.1 scope.
 - The band, card, and toast share outcome wording. The CLI's known no-fresh-analysis
-  completion notice now yields “No new review”; partial failures keep received
+  completion notice now yields “Review skipped”; partial failures keep received
   findings visible without claiming completion. Diagnostics expand on demand.
 - `--fresh` is opt-in and preserves the selected scope. Its help was verified with
   the installed official CodeRabbit CLI 0.8.2. Real Claude Code 2.1.289 headless

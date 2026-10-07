@@ -156,7 +156,7 @@ const noFreshMessage =
 
 for (const surface of ["terminal", "desktop"]) {
   test(
-    surface + " shows no-new-review consistently in card, band and toast",
+    surface + " shows a skipped review consistently in card, band and toast",
     OPTIONS,
     async ($, on) => {
       const clock = mock.clock(on);
@@ -181,8 +181,15 @@ for (const surface of ["terminal", "desktop"]) {
       const row = await $.ui.mount({ ...commandTarget(start.text), surface });
       await clock.advance(1);
       await clock.settle();
-      expect(toasts[0]).toBe("● CodeRabbit  No new review");
-      expect(JSON.stringify(await band.drawn())).toContain("No new review");
+      expect(toasts[0]).toBe("Review skipped");
+      expect(JSON.stringify(await band.drawn())).toContain("Review skipped");
+      await band.press({ key: "review-activity" });
+      const activity = JSON.stringify(await band.drawn());
+      expect(activity).toContain("No fresh analysis ran");
+      expect(activity).toContain("--fresh");
+      expect(activity).not.toContain("Elapsed");
+      expect(activity).not.toContain("See the conversation");
+      expect(activity).not.toContain("No findings");
       const drawn = JSON.stringify(await row.drawn());
       expect(drawn).toContain("No fresh analysis ran");
       expect(drawn).not.toContain("Review complete");
@@ -217,7 +224,7 @@ test(
     const drawing = JSON.stringify(await row.drawn());
     expect(drawing).toContain("Review incomplete");
     expect(drawing).toContain("Check the nullable value.");
-    expect(drawing).not.toContain("No new review");
+    expect(drawing).not.toContain("Review skipped");
     expect(drawing).not.toContain("Connection closed");
     await row.press({ key: "review-diagnostics" });
     expect(JSON.stringify(await row.drawn())).toContain("Connection closed");
@@ -831,12 +838,11 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
       expect(logs.join("\n")).toContain("could not attach it for Claude");
       expect(submissions.length).toBe(0);
       expect(toasts[0]).toBe(
-        "● CodeRabbit  " +
-          (outcome === "completed"
-            ? "Review complete · 1 finding"
-            : outcome === "rate_limit"
-              ? "Review limit reached"
-              : "Review could not finish · /coderabbit-review results"),
+        outcome === "completed"
+          ? "Review complete · 1 finding"
+          : outcome === "rate_limit"
+            ? "Review limit reached"
+            : "Review could not finish · /coderabbit-review results",
       );
       expect(toasts.length).toBe(1);
       const result = await $.command.run({ command: "coderabbit-review", args: "results" });

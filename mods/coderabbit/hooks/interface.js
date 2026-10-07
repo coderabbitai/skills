@@ -79,8 +79,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
                 children: [
                   "Scope: " +
                     progress.scope +
-                    " · Elapsed " +
-                    progress.time +
+                    (e.props.bodyColumns < 70 ? " · Elapsed " + progress.time : "") +
                     (!progress.finished && Number.isInteger(progress.lastSignalSeconds)
                       ? " · Last update " +
                         Math.max(0, progress.elapsedSeconds - progress.lastSignalSeconds) +
@@ -96,12 +95,12 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
                         Object.entries(progress.severities)
                           .map(([severity, count]) => count + " " + severity)
                           .join(" · ")
-                      : "") +
-                    (progress.finished
-                      ? " · See the conversation for the result."
-                      : " · Keep chatting while the review runs."),
+                      : ""),
                 ],
               }),
+              ...(progress.finished && progress.detail
+                ? [Text({ children: [progress.detail] })]
+                : []),
             ]
           : []),
         rest,
@@ -349,9 +348,9 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
                       });
                       if (!result.isFilled)
                         $.ui.toast(
-                          "● CodeRabbit  Could not add the draft · try again when the prompt is available.",
+                          "Could not add the draft. Try again when the prompt is available.",
                         );
-                      else $.ui.toast("● CodeRabbit  Fix request added to your draft.");
+                      else $.ui.toast("Fix request added to your draft.");
                     },
                   }),
                 ],

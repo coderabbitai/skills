@@ -201,7 +201,8 @@ export function register(on, options) {
           const report = JSON.parse(result);
           notification = reviewSummary(report).heading;
         }
-        $.ui.toast("● CodeRabbit  " + notification, { timeoutMs: 8000 });
+        // Claude supplies the plugin attribution and notification chrome.
+        $.ui.toast(notification, { timeoutMs: 8000 });
         // Queue a plugin-attributed turn once Claude is idle. Do not await it:
         // accepting another review must not depend on the wake-up turn starting.
         const wakeText = "CodeRabbit: " + notification + ". See the review card above.";
