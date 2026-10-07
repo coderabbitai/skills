@@ -322,7 +322,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, resul
                     : []),
                   Button({
                     key: "draft-" + index,
-                    label: "Ask Claude to fix",
+                    label: "Fix with Claude",
                     onPress: async () => {
                       const result = await $.prompt.fill({
                         text:

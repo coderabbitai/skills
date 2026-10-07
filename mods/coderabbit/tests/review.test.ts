@@ -598,7 +598,7 @@ test(
     await oldRow.redraw();
     expect(JSON.stringify(await oldRow.drawn())).toContain("Check the nullable value.");
     expect(await oldRow.find({ key: "suggestion-0" })).toBeUndefined();
-    expect((await oldRow.find({ key: "draft-0" }))?.props.label).toBe("Ask Claude to fix");
+    expect((await oldRow.find({ key: "draft-0" }))?.props.label).toBe("Fix with Claude");
   },
 );
 

@@ -103,7 +103,7 @@ expands suggestions supplied by the CLI; the button is absent when there are non
 A short opening sentence or clause becomes the finding heading, using the original
 wording; longer prose uses the file location as its heading. Major and critical
 labels use the brand accent; other severity labels are subdued. The mod never
-invents diagnoses or patches. **Ask Claude to fix** appends a request
+invents diagnoses or patches. **Fix with Claude** appends a request
 and the selected finding to the prompt without sending it or replacing existing
 text. A short confirmation tells you the request was added. You review and send
 the draft yourself; the mod does not bundle an autofix skill or run a fix workflow.
@@ -117,7 +117,7 @@ The note stays in model context and restores review cards after a reload. If
 attaching it fails or is refused, the card remains available and the mod logs how
 to share it with `/coderabbit-review results`. Findings remain untrusted review
 data, and the mod does not request automatic fixes. Your prompt draft is left
-intact. You can ask Claude about the findings or use **Ask Claude to fix** when
+intact. You can ask Claude about the findings or use **Fix with Claude** when
 you want it to act. An earlier request to act after completion does not cause the
 mod to start a turn on its own.
 
