@@ -1,4 +1,4 @@
-import { HELP, isAbsoluteExecutable, reviewArgs, reviewResult } from "./review.js";
+import { HELP, isAbsoluteExecutable, reviewArgs, reviewResult, reviewSummary } from "./review.js";
 import { registerInterface } from "./interface.js";
 import { applyReviewEvent, finishProgress, readReviewStream } from "./stream.js";
 
@@ -34,7 +34,7 @@ export function register(on, options) {
     await $.command.register({
       name: "coderabbit-review",
       description: "Review changes with CodeRabbit (sends selected code to CodeRabbit)",
-      argumentHint: "[uncommitted|committed|all] [--include-untracked] [--base branch]",
+      argumentHint: "[uncommitted|committed|all] [--include-untracked] [--base branch] [--fresh]",
       immediate: true,
     });
     await $.command.register({
@@ -131,10 +131,13 @@ export function register(on, options) {
             ? "committed changes"
             : "all tracked changes";
         if (args.includes("--include-untracked")) scope += " + untracked";
+        if (args.includes("--base")) scope += " · base " + args[args.indexOf("--base") + 1];
+        if (args.includes("--fresh")) scope += " · fresh review";
         const startedAt = await $.clock.now();
         const current = {
           scope,
           time: "0:00",
+          elapsedSeconds: 0,
           label: "Starting review",
           findings: 0,
           severities: {},
@@ -146,6 +149,7 @@ export function register(on, options) {
           if (!progressActive || generation !== runGeneration) return;
           const time = Math.floor(elapsed / 60) + ":" + String(elapsed % 60).padStart(2, "0");
           current.time = time;
+          current.elapsedSeconds = elapsed;
           $.ui.invalidate("ui.render");
         };
         await showProgress();
@@ -199,16 +203,7 @@ export function register(on, options) {
         let notification = "Review could not finish · /coderabbit-results";
         if (result.startsWith("{")) {
           const report = JSON.parse(result);
-          const completed = /^CodeRabbit review completed: (\d+) finding\(s\)\.$/.exec(
-            report.headline,
-          );
-          notification = report.rateLimit
-            ? "Taking a breather · rate limit reached"
-            : completed
-              ? "Review complete · " +
-                completed[1] +
-                (Number(completed[1]) === 1 ? " finding" : " findings")
-              : report.headline;
+          notification = reviewSummary(report).heading;
         }
         $.ui.toast("● CodeRabbit  " + notification, { timeoutMs: 8000 });
         // Queue a plugin-attributed turn once Claude is idle. Do not await it:

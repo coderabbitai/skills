@@ -28,8 +28,19 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
 
 ## Validation recorded
 
+- 2026-10-07 candidate refinement: remains a standalone mod with no bundled skills,
+  agents, or autofix workflow. Two explicit commands, live progress, conversation
+  findings, and a draft-only handoff to Claude form the v0.1 scope.
+- The band, card, and toast share outcome wording. The CLI's known no-fresh-analysis
+  completion notice now yields “No new review”; partial failures keep received
+  findings visible without claiming completion. Diagnostics expand on demand.
+- `--fresh` is opt-in and preserves the selected scope. Its help was verified with
+  the installed official CodeRabbit CLI 0.8.2. Real Claude Code 2.1.289 headless
+  execution with an explicitly synthetic offline CLI verified argument forwarding
+  and no-fresh outcome handling without contacting a review service.
 - Claude Code 2.1.289: `claude plugin validate mods/coderabbit --strict` passed.
-- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 66 tests.
+- Current Desktop embedded engine 2.1.289: strict validation passed.
+- Claude Code 2.1.289: `claude plugin test mods/coderabbit` passed, 82 tests.
 - A real non-interactive Claude 2.1.289 session loaded the module and ran
   `/coderabbit-review --help` successfully.
 - CodeRabbit CLI 0.8.2 `review --help` exposes every review option used here.

@@ -1,14 +1,16 @@
+import { reviewSummary } from "./review.js";
+
 // Status names are protocol data; never display arbitrary event messages as UI commands.
 const LABELS = {
-  connecting_to_review_service: "Connecting to CodeRabbit",
+  connecting_to_review_service: "Connecting",
   setting_up: "Preparing review",
-  preparing_sandbox: "Preparing review environment",
-  building_code_graph: "Mapping code changes",
+  preparing_sandbox: "Preparing review",
+  building_code_graph: "Mapping changes",
   tools_completed: "Finishing analysis",
   summarizing: "Summarizing changes",
-  reviewing: "Writing review comments",
+  reviewing: "Reviewing changes",
   review_started: "Starting review",
-  review_completed: "Completing review",
+  review_completed: "Preparing results",
   review_skipped: "Checking review outcome",
   analyzing: "Analyzing changes",
   other: "Reviewing changes",
@@ -16,7 +18,7 @@ const LABELS = {
 
 export function applyReviewEvent(progress, event) {
   if (!event || typeof event !== "object") return;
-  progress.lastSignal = progress.time;
+  progress.lastSignalSeconds = progress.elapsedSeconds;
   if (
     event.type === "complete" &&
     Array.isArray(event.reviewedFiles) &&
@@ -36,9 +38,9 @@ export function applyReviewEvent(progress, event) {
     progress.errorType = event.errorType;
     progress.label =
       event.errorType === "rate_limit"
-        ? "Rate limit reached"
+        ? "Review limit reached"
         : event.errorType === "auth"
-          ? "Sign in to continue"
+          ? "Sign in to review"
           : "Review could not finish";
   }
   // A heartbeat proves liveness, not a new phase or a percentage completed.
@@ -48,27 +50,10 @@ export function finishProgress(progress, text) {
   progress.finished = true;
   progress.label = "Review could not finish";
   try {
-    const report = JSON.parse(text);
-    const completed = /^CodeRabbit review completed: (\d+) finding\(s\)\.$/.exec(report.headline);
-    if (completed) {
-      progress.success = true;
-      progress.label = Number(completed[1]) ? "Review complete" : "No findings reported";
-      progress.findings = Number(completed[1]);
-    } else if (report.rateLimit) {
-      const wait = report.rateLimit.waitTime.replace(/[\x00-\x1f\x7f]/g, "").slice(0, 40);
-      progress.label =
-        "Taking a breather" +
-        (wait && !/^0 minutes? and 0 seconds?$/i.test(wait) ? " · " + wait : " · rate limited");
-    } else if (report.headline.includes("skipped this review")) {
-      progress.label = "Skipped · no new analysis";
-    } else if (progress.errorType === "auth") {
-      progress.label = "Sign in to continue";
-    } else if (
-      report.headline.includes("incomplete") ||
-      report.headline.includes("unknown outcome")
-    ) {
-      progress.label = "Review incomplete";
-    }
+    const summary = reviewSummary(JSON.parse(text));
+    progress.success = !!summary.success;
+    progress.label = summary.label;
+    if (summary.success) progress.findings = summary.count;
   } catch {
     /* Process failures stay visibly incomplete. */
   }

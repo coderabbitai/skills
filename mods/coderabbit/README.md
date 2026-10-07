@@ -5,6 +5,12 @@ review, see its running status, and receive the original findings in the
 conversation. Reviews never start automatically after edits, and the mod never
 applies fixes.
 
+This is a standalone **mod**, not a skills or autofix bundle. Install it on its
+own for background reviews, live progress, and findings in your conversation.
+The separate CodeRabbit skills plugin is optional; it is not a dependency.
+If you use both, choose one review entry point for each run: they do not
+coordinate reviews with each other.
+
 ## Requirements and setup
 
 - Claude Code **2.1.289 or later**. Validated and tested with 2.1.289 on macOS.
@@ -45,6 +51,7 @@ repository you want reviewed:
 /coderabbit-review uncommitted --include-untracked
 /coderabbit-review committed --base main
 /coderabbit-review all
+/coderabbit-review --fresh
 ```
 
 The default reviews staged changes and unstaged edits to tracked files; staged
@@ -52,30 +59,37 @@ new files count as tracked. `all` includes committed and uncommitted tracked
 changes. Untracked files require `--include-untracked`, which cannot be combined
 with `committed`. `--base` takes one branch name without spaces or quotes.
 Unsupported options fail before any process starts.
+`--fresh` explicitly requests a new review without reusing the local checkpoint;
+it uses your review allowance and requires a CLI whose `review --help` lists the
+option. It is never added automatically. Keep the same scope and base arguments
+when repeating a review with `--fresh`.
 
 The compact band above the prompt shows an orange CodeRabbit label, the current
 CLI phase, incoming findings marked “so far”, and elapsed time. Status events
 change the sentence as the CLI connects, prepares, maps code, summarizes, and
-writes review comments. Heartbeats do not invent progress or change the phase.
-**Activity** expands scope, severity counts, and the last event time. The final
-outcome stays visible with **Details**; file counts appear only when the CLI
+writes findings. Heartbeats do not invent progress or change the phase.
+**Show activity** expands scope (including the base and an explicit fresh review),
+severity counts, elapsed time, and the last event time. The final
+outcome stays visible with **View details**; file counts appear only when the CLI
 supplies them on successful completion. The **×** dismisses the bar without
 cancelling a review or its notification; a new review shows it again. Narrow
-surfaces wrap the row.
+surfaces use shorter control labels and hide the timer below 70 columns; the row
+can wrap when needed. Scope stays in the expanded details to keep the band compact.
 
 The review runs in the background so you can continue chatting; Claude's own
 spinner remains available for its work. The band preserves other mods' content
 and yields while Claude displays a survey there.
 
 Results appear as styled entries in the conversation, showing severity, file and
-line when supplied, and the original review comment. **Show suggested change**
+line when supplied, and the original review comment. **View suggestion**
 expands suggestions supplied by the CLI; the button is absent when there are none.
 A short opening sentence or clause becomes the finding heading, using the original
 wording; longer prose uses the file location as its heading. Major and critical
 labels use the brand accent; other severity labels are subdued. The mod never
 invents diagnoses or patches. **Ask Claude to fix** appends a request
 and the selected finding to the prompt without sending it or replacing existing
-text. You review and send the draft yourself.
+text. A short confirmation tells you the request was added. You review and send
+the draft yourself; the mod does not bundle an autofix skill or run a fix workflow.
 
 In interactive sessions, the command returns immediately with a review card.
 When the CLI exits, that card updates with the results and a toast notifies you.
@@ -118,10 +132,14 @@ verify them against the current files before applying a fix.
 - **Completed:** the CLI exited successfully with one completion event and a
   matching finding count. Zero findings means the completed review emitted none,
   not that the code is guaranteed defect-free.
-- **Skipped:** the CLI performed no new analysis, including a review it skipped
-  because no selected changes needed reviewing.
+- **No new review:** the CLI explicitly skipped analysis, or returned its known
+  “No fresh detailed file review was performed in this run” completion notice.
+  This is never presented as a fresh zero-finding review. The latter outcome
+  explains how to request a fresh review of the same scope.
 - **Failed or incomplete:** a process error, missing completion, invalid output,
   count mismatch, or truncated process output leaves coverage unverified.
+  Findings present in returned output remain visible. Diagnostics are available under **View details**
+  instead of appearing as a raw error dump. Authentication errors show the sign-in command.
 
 The mod never automatically retries, installs software, starts login, requests
 usage credits, or widens the selected scope. On authentication errors run
@@ -129,9 +147,10 @@ usage credits, or widens the selected scope. On authentication errors run
 says its display was truncated, inspect the CLI's saved findings with
 `coderabbit review findings` in the same workspace.
 
-Rate limits appear as a compact “Taking a breather” card with the CLI-reported
-wait estimate. Expand **Limit details** for account requirements and review usage
-links. A rate-limited review remains incomplete; the mod never retries automatically.
+Rate limits show **Review limit reached** and the CLI-reported wait estimate, when
+available. Expand **View limit details** for account requirements and review usage
+links. Waiting alone may not resolve account requirements. A rate-limited review
+remains incomplete; the mod never retries automatically.
 
 ## Supported surfaces
 

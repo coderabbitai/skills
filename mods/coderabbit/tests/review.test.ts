@@ -90,6 +90,8 @@ for (const [args, expected] of [
   ["uncommitted --include-untracked", ["--uncommitted", "--include-untracked"]],
   ["committed --base feature/topic", ["--committed", "--base", "feature/topic"]],
   ["all", []],
+  ["--fresh", ["--uncommitted", "--fresh"]],
+  ["committed --base main --fresh", ["--committed", "--base", "main", "--fresh"]],
   ["all --include-untracked", ["--include-untracked"]],
 ]) {
   test("preserves scope: " + (args || "default"), OPTIONS, async ($, on) => {
@@ -108,6 +110,7 @@ for (const args of [
   "unknown",
   "all --base",
   "all --base --fresh",
+  "--fresh --fresh",
   "all --use-credits",
   "all --api-key secret",
   "all --base main --base other",
@@ -135,6 +138,109 @@ const finding = {
   codegenInstructions: "Check the nullable value.",
   suggestions: ["Keep existing behavior."],
 };
+
+const noFreshMessage =
+  "No fresh detailed file review was performed in this run. To review the selected changes again, rerun your command with --fresh.";
+
+for (const surface of ["terminal", "desktop"]) {
+  test(
+    surface + " shows no-new-review consistently in card, band and toast",
+    OPTIONS,
+    async ($, on) => {
+      const clock = mock.clock(on);
+      const { toasts } = interactiveHost(on);
+      mockProcess(on, () => ({
+        value: output(
+          JSON.stringify({
+            type: "complete",
+            status: "review_completed",
+            findings: 0,
+            message: noFreshMessage,
+          }),
+        ),
+      }));
+      on("session.surfaces", () => ({ value: [surface] }));
+      on("ui.render", { component: "AbovePrompt" }, ($, e) =>
+        $.ui.resolve(e).Text({ children: [] }),
+      );
+      await $.session.start({ surface, isInteractive: true, cwd: "/work" });
+      const band = await $.ui.mount(liveBand(surface));
+      const start = await $.command.run({ command: "coderabbit-review", args: "" });
+      const row = await $.ui.mount({ ...commandTarget(start.text), surface });
+      await clock.advance(1);
+      await clock.settle();
+      expect(toasts[0]).toBe("● CodeRabbit  No new review");
+      expect(JSON.stringify(await band.drawn())).toContain("No new review");
+      const drawn = JSON.stringify(await row.drawn());
+      expect(drawn).toContain("No fresh analysis ran");
+      expect(drawn).not.toContain("Review complete");
+      expect(drawn).not.toContain("CLI message:");
+      const report = await $.command.run({ command: "coderabbit-results", args: "" });
+      expect(messageText(report)).toContain("no new analysis");
+      expect(messageText(report)).not.toContain("review completed:");
+    },
+  );
+}
+
+test(
+  "a failure takes precedence over a no-fresh completion message and preserves partial findings",
+  OPTIONS,
+  async ($, on) => {
+    stubProcess(
+      on,
+      output(
+        JSON.stringify(finding) +
+          "\n" +
+          JSON.stringify({
+            type: "complete",
+            status: "review_completed",
+            findings: 1,
+            message: noFreshMessage,
+          }),
+        { exitCode: 1, stderr: "Connection closed" },
+      ),
+    );
+    const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+    const row = await $.ui.mount(commandTarget(answer.text));
+    const drawing = JSON.stringify(await row.drawn());
+    expect(drawing).toContain("Review incomplete");
+    expect(drawing).toContain("Check the nullable value.");
+    expect(drawing).not.toContain("No new review");
+    expect(drawing).not.toContain("Connection closed");
+    await row.press({ key: "review-diagnostics" });
+    expect(JSON.stringify(await row.drawn())).toContain("Connection closed");
+  },
+);
+
+test("finding prose cannot mark a completed review as skipped", OPTIONS, async ($, on) => {
+  stubProcess(
+    on,
+    output(
+      JSON.stringify({ ...finding, codegenInstructions: noFreshMessage }) +
+        "\n" +
+        complete("review_completed", 1),
+    ),
+  );
+  const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+  expect(messageText(answer)).toContain("review completed: 1 finding(s)");
+});
+
+test(
+  "authentication errors provide the next action without a raw error dump",
+  OPTIONS,
+  async ($, on) => {
+    stubProcess(
+      on,
+      output('{"type":"error","errorType":"auth","message":"Expired session"}\n', { exitCode: 1 }),
+    );
+    const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+    const row = await $.ui.mount(commandTarget(answer.text));
+    const drawing = JSON.stringify(await row.drawn());
+    expect(drawing).toContain("Sign in to review");
+    expect(drawing).toContain("coderabbit auth login");
+    expect(drawing).not.toContain("CLI errors");
+  },
+);
 
 test(
   "returns original finding severity and fix guidance as untrusted data",
@@ -320,7 +426,7 @@ for (const fails of [false, true]) {
       expect(messageText(answer)).toContain(fails ? "Coverage is unverified" : "review completed");
       expect(statuses.length).toBe(0);
       expect(JSON.stringify(await band.drawn())).toContain(
-        fails ? "Review could not finish" : "No findings reported",
+        fails ? "Review could not finish" : "Review complete · No findings",
       );
       expect(JSON.stringify(await band.drawn())).toContain("Other mod content");
       expect(await spinner.drawn()).toEqual(idleSpinner);
@@ -555,8 +661,8 @@ test(
     expect(report.notices).toEqual([]);
     const row = await $.ui.mount(commandTarget(answer.text));
     const before = JSON.stringify(await row.drawn());
-    expect(before).toContain("Taking a breather");
-    expect(before).toContain("Try again in 12 minutes.");
+    expect(before).toContain("Review limit reached");
+    expect(before).toContain("Try again in about 12 minutes.");
     expect(before).toContain("This review didn't complete");
     expect(before).toContain("No automatic retry");
     expect(before).not.toContain("CLI errors");
@@ -584,7 +690,9 @@ for (const waitTime of [undefined, "0 minutes and 0 seconds"]) {
     const row = await $.ui.mount(commandTarget(answer.text));
     const drawn = JSON.stringify(await row.drawn());
     expect(drawn).toContain("No reset estimate from the CLI.");
-    expect(drawn).toContain("An unrelated diagnostic");
+    expect(drawn).not.toContain("An unrelated diagnostic");
+    await row.press({ key: "review-diagnostics" });
+    expect(JSON.stringify(await row.drawn())).toContain("An unrelated diagnostic");
     await row.press({ key: "rate-limit-details" });
     expect(JSON.stringify(await row.drawn())).toContain("Rate limit exceeded");
   });
@@ -602,8 +710,10 @@ test(
     expect(JSON.parse(answer.text).rateLimit).toBeUndefined();
     const row = await $.ui.mount(commandTarget(answer.text));
     const drawn = JSON.stringify(await row.drawn());
-    expect(drawn).not.toContain("Taking a breather");
-    expect(drawn).toContain("CLI errors");
+    expect(drawn).not.toContain("Review limit reached");
+    expect(drawn).not.toContain("CLI errors");
+    await row.press({ key: "review-diagnostics" });
+    expect(JSON.stringify(await row.drawn())).toContain("CLI errors");
   },
 );
 
@@ -693,7 +803,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
       expect(started.text).toContain("started in the background");
       expect(calls).toBe(0);
       const original = await $.ui.mount({ ...commandTarget(started.text), surface });
-      expect(JSON.stringify(await original.drawn())).toContain("Reviewing in the background");
+      expect(JSON.stringify(await original.drawn())).toContain("Review started. Keep chatting");
       await clock.advance(1);
       expect(calls).toBe(1);
       expect(toasts.length).toBe(0);
@@ -713,7 +823,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
           (outcome === "completed"
             ? "Review complete · 1 finding"
             : outcome === "rate_limit"
-              ? "Taking a breather · rate limit reached"
+              ? "Review limit reached"
               : "Review could not finish · /coderabbit-results"),
       );
       expect(toasts.length).toBe(1);
@@ -725,7 +835,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
         target.props.command = "coderabbit-results";
         const row = await $.ui.mount(target);
         const expected =
-          outcome === "rate_limit" ? "Taking a breather" : "Review complete · 1 finding";
+          outcome === "rate_limit" ? "Review limit reached" : "Review complete · 1 finding";
         expect(JSON.stringify(await row.drawn())).toContain(expected);
         expect(JSON.stringify(await original.drawn())).toContain(expected);
       }
@@ -835,6 +945,37 @@ function liveBand(surface = "desktop", columns = 100) {
   };
 }
 
+test(
+  "a narrow band keeps scope and timing available in expanded activity",
+  OPTIONS,
+  async ($, on) => {
+    const clock = mock.clock(on);
+    interactiveHost(on);
+    on("session.surfaces", () => ({ value: ["terminal"] }));
+    on("ui.render", { component: "AbovePrompt" }, ($, e) => $.ui.resolve(e).Text({ children: [] }));
+    on("process.spawn", async function* () {
+      yield { stream: "stdout", text: '{"type":"status","status":"analyzing"}\n' };
+      await clock.sleep(5000);
+      yield { stream: "stdout", text: complete() };
+      return { value: { code: 0, signal: null } };
+    });
+    await $.session.start({ surface: "terminal", isInteractive: true, cwd: "/work" });
+    const band = await $.ui.mount(liveBand("terminal", 65));
+    await $.command.run({ command: "coderabbit-review", args: "committed --base main --fresh" });
+    await clock.advance(2001);
+    const compact = JSON.stringify(await band.drawn());
+    expect(compact).toContain("Analyzing changes");
+    expect(compact).not.toContain("committed changes");
+    expect(compact).not.toContain("0:02");
+    await band.press({ key: "review-activity" });
+    const expanded = JSON.stringify(await band.drawn());
+    expect(expanded).toContain("committed changes · base main · fresh review");
+    expect(expanded).toContain("Elapsed 0:02");
+    expect(expanded).toContain("Last update 2s ago");
+    await clock.advance(3000);
+  },
+);
+
 for (const surface of ["desktop", "terminal"]) {
   test(
     surface + " streams split NDJSON and counts findings without inventing progress",
@@ -863,10 +1004,10 @@ for (const surface of ["desktop", "terminal"]) {
       await clock.advance(1);
       expect(JSON.stringify(await band.drawn())).toContain("Starting review");
       await clock.advance(1000);
-      expect(JSON.stringify(await band.drawn())).toContain("Mapping code changes");
+      expect(JSON.stringify(await band.drawn())).toContain("Mapping changes");
       expect(JSON.stringify(await band.drawn())).toContain("1 finding so far");
       await clock.advance(1000);
-      expect(JSON.stringify(await band.drawn())).toContain("Mapping code changes");
+      expect(JSON.stringify(await band.drawn())).toContain("Mapping changes");
       await clock.advance(1000);
       expect(JSON.stringify(await band.drawn())).not.toContain("Review complete");
       await clock.advance(1000);
@@ -949,7 +1090,7 @@ for (const surface of ["desktop", "terminal"]) {
       expect(JSON.stringify(await band.drawn())).toContain("● CodeRabbit");
       expect(JSON.stringify(await band.drawn())).not.toContain("Scope:");
       await clock.advance(5000);
-      expect(JSON.stringify(await band.drawn())).toContain("No findings reported");
+      expect(JSON.stringify(await band.drawn())).toContain("Review complete · No findings");
       await band.press({ key: "review-dismiss" });
       expect(JSON.stringify(await band.drawn())).not.toContain("● CodeRabbit");
       expect(submissions.length).toBe(0);

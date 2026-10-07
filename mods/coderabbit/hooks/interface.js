@@ -1,3 +1,5 @@
+import { reviewSummary } from "./review.js";
+
 const BRAND_ORANGE = "#FF570A";
 
 export function registerInterface(on, getProgress, getResult, getActiveId, isWakeText) {
@@ -8,7 +10,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
     const progress = getProgress();
     if (!progress || progress.dismissed || e.props.hasSurvey) return rest;
     const { Box, Text, Button } = $.ui.resolve(e);
-    const wide = e.props.bodyColumns >= 85;
+    const wide = e.props.bodyColumns >= 100;
     const count = progress.findings
       ? progress.findings +
         (progress.findings === 1 ? " finding" : " findings") +
@@ -34,15 +36,22 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
               children: [
                 Text({ children: [progress.label] }),
                 ...(count ? [Text({ color: BRAND_ORANGE, children: ["· " + count] })] : []),
-                ...(wide && !count
-                  ? [Text({ dimColor: true, children: ["· " + progress.scope] })]
-                  : []),
               ],
             }),
-            Text({ dimColor: true, children: [progress.time] }),
+            ...(e.props.bodyColumns >= 70
+              ? [Text({ dimColor: true, children: [progress.time] })]
+              : []),
             Button({
               key: "review-activity",
-              label: details ? "Hide" : progress.finished ? "Details" : "Activity",
+              label: details
+                ? "Hide"
+                : progress.finished
+                  ? wide
+                    ? "View details"
+                    : "Details"
+                  : wide
+                    ? "Show activity"
+                    : "Activity",
               onPress: () => {
                 if (details) expanded.delete("activity");
                 else expanded.add("activity");
@@ -70,7 +79,13 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
                 children: [
                   "Scope: " +
                     progress.scope +
-                    (progress.lastSignal ? " · Last CLI event at " + progress.lastSignal : "") +
+                    " · Elapsed " +
+                    progress.time +
+                    (!progress.finished && Number.isInteger(progress.lastSignalSeconds)
+                      ? " · Last update " +
+                        Math.max(0, progress.elapsedSeconds - progress.lastSignalSeconds) +
+                        "s ago"
+                      : "") +
                     (progress.success && Number.isInteger(progress.reviewedFiles)
                       ? " · " +
                         progress.reviewedFiles +
@@ -152,7 +167,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
               dimColor: true,
               children: [
                 getActiveId() === report.id
-                  ? "Reviewing in the background · Claude will be notified"
+                  ? "Review started. Keep chatting; results will appear here."
                   : "This review is no longer active; its result is unavailable in this conversation.",
               ],
             }),
@@ -175,10 +190,8 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
       /[\x00-\x08\x0b-\x1f\x7f]/g,
       "",
     );
-    const heading = report.headline.replace(
-      /^CodeRabbit review completed: (\d+) finding\(s\)\.$/,
-      (_, count) => "Review complete · " + count + (count === "1" ? " finding" : " findings"),
-    );
+    const summary = reviewSummary(report);
+    const diagnosticId = e.requestId + ":diagnostics";
     return Box({
       flexDirection: "column",
       marginY: 1,
@@ -189,7 +202,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
           columnGap: 2,
           children: [
             Text({ color: BRAND_ORANGE, bold: true, children: ["● CodeRabbit"] }),
-            Text({ children: [report.rateLimit ? "Rate limit reached" : heading] }),
+            Text({ children: [summary.heading] }),
           ],
         }),
         ...(report.rateLimit
@@ -199,18 +212,17 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
                 marginTop: 1,
                 paddingLeft: 2,
                 children: [
-                  Text({ bold: true, children: ["Taking a breather"] }),
                   Text({
                     children: [
                       hasWait
-                        ? "Try again in " + waitTime + "."
+                        ? "Try again in about " + waitTime + "."
                         : "No reset estimate from the CLI.",
                     ],
                   }),
                   Text({
                     dimColor: true,
                     children: [
-                      "This review didn't complete. Check limit details for account requirements.",
+                      "This review didn't complete. Your account may also need attention; view limit details.",
                     ],
                   }),
                   Box({
@@ -218,7 +230,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
                     children: [
                       Button({
                         key: "rate-limit-details",
-                        label: expanded.has(limitId) ? "Hide limit details" : "Limit details",
+                        label: expanded.has(limitId) ? "Hide limit details" : "View limit details",
                         onPress: () => {
                           if (expanded.has(limitId)) expanded.delete(limitId);
                           else expanded.add(limitId);
@@ -239,7 +251,28 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
               }),
             ]
           : []),
-        ...report.notices.map((notice) => Text({ children: [notice] })),
+        ...(summary.detail ? [Text({ children: [summary.detail] })] : []),
+        ...(report.notices.length
+          ? [
+              Box({
+                marginTop: 1,
+                children: [
+                  Button({
+                    key: "review-diagnostics",
+                    label: expanded.has(diagnosticId) ? "Hide details" : "View details",
+                    onPress: () => {
+                      if (expanded.has(diagnosticId)) expanded.delete(diagnosticId);
+                      else expanded.add(diagnosticId);
+                      $.ui.invalidate("ui.render");
+                    },
+                  }),
+                ],
+              }),
+              ...(expanded.has(diagnosticId)
+                ? report.notices.map((notice) => Text({ children: [notice] }))
+                : []),
+            ]
+          : []),
         ...(report.truncated
           ? [
               Text({
@@ -291,9 +324,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
                     ? [
                         Button({
                           key: "suggestion-" + index,
-                          label: expanded.has(id)
-                            ? "Hide suggested change"
-                            : "Show suggested change",
+                          label: expanded.has(id) ? "Hide suggestion" : "View suggestion",
                           onPress: () => {
                             if (expanded.has(id)) expanded.delete(id);
                             else expanded.add(id);
@@ -323,6 +354,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
                         $.ui.toast(
                           "● CodeRabbit  Could not add the draft · try again when the prompt is available.",
                         );
+                      else $.ui.toast("● CodeRabbit  Fix request added to your draft.");
                     },
                   }),
                 ],
@@ -338,9 +370,7 @@ export function registerInterface(on, getProgress, getResult, getActiveId, isWak
           children: [
             Text({
               dimColor: true,
-              children: [
-                report.rateLimit ? "No changes made · No automatic retry" : "No changes made",
-              ],
+              children: [report.rateLimit ? "No automatic retry" : "CodeRabbit made no changes"],
             }),
           ],
         }),
