@@ -2,7 +2,7 @@
 
 All notable changes to this repository are documented in this file.
 
-## [1.2.0] - Unreleased
+## [1.5.0] - Unreleased
 
 ### Added
 
@@ -57,10 +57,10 @@ All notable changes to this repository are documented in this file.
   exclusively.
 - Reframed the README as the canonical home for CodeRabbit skills and plugin
   packaging across supported agents.
-- Aligned Claude Code and Cursor plugin versions with the planned `1.2.0`
+- Aligned Claude Code and Cursor plugin versions with the planned `1.5.0`
   release and Gemini CLI manifest.
 - Recorded tagged release archives as the live source for `coderabbit skills`;
-  publishing `v1.2.0` is still required to deliver these changes through the CLI.
+  publishing `v1.5.0` is still required to deliver these changes through the CLI.
 - Quoted Claude Code command frontmatter values so standard YAML parsers can
   validate them.
 
