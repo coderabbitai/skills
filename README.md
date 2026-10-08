@@ -5,8 +5,9 @@
 [![Agents](https://img.shields.io/badge/works_with-35%2B_agents-brightgreen)](#supported-agents)
 
 The canonical home for CodeRabbit's agent-native skills and plugin packaging.
-Use it to install AI-powered code review into 35+ coding agents, Gemini CLI,
-Antigravity CLI, Claude Code, Cursor, and other supported agent environments.
+Use it to install AI-powered code review and cloud Coding Agent workflows into
+35+ coding agents, Gemini CLI, Antigravity CLI, Claude Code, Cursor, and other
+supported agent environments.
 
 CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
@@ -144,9 +145,11 @@ What's wrong with my changes?
 Run a code review
 Review my PR
 Review the directory at ../my-service
+Check my CodeRabbit cloud task
+Hand this work off to CodeRabbit cloud
 ```
 
-The agent will automatically:
+For review requests, the agent will automatically:
 
 1. Check if CodeRabbit CLI is installed
 2. Run the review on your changes
@@ -245,13 +248,45 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - Applies fixes only after validating the issue and getting approval
 - Produces a single consolidated commit and posts a PR summary comment
 
+### [coderabbit-cloud](skills/coderabbit-cloud/SKILL.md)
+
+Operate CodeRabbit cloud Coding Agent tasks from a local agent session through
+the `coderabbit code` CLI.
+
+**Use when:**
+
+- Handing local work off to a cloud Coding Agent task
+- Starting, listing, inspecting, following, or messaging cloud tasks
+- Reviewing plans, pushing task changes, or controlling Autopilot
+- Importing a local skill into the cloud skill library
+- Installing or updating released CodeRabbit skills on the local machine
+
+**Categories covered:** Local skill installation and updates, cloud task
+lifecycle, handoff, task collaboration, delivery, Autopilot, cloud skill import
+
+**Triggers:** "hand off to CodeRabbit cloud", "start a cloud task", "check my
+CodeRabbit task", "push the cloud task", "import this skill", "update
+CodeRabbit skills"
+
+**Capabilities:**
+
+- Uses agent-mode CLI commands and interprets their structured records
+- Separates read-only operations from billed work and shared-state changes
+- Handles authentication, organization selection, questions, plans, delivery,
+  and task errors without duplicating work
+- Routes interactive-only actions to the CodeRabbit task view
+- Previews local skill installs and updates for approval while leaving official
+  marketplace plugins under marketplace control
+
 ## Plugin Components
 
 ### Claude Code
 
-- Skills: `code-review` and `autofix`. Run them as `/coderabbit:code-review`
-  and `/coderabbit:autofix`, or ask in plain language, such as "review my
-  changes" or "fix the CodeRabbit comments on this PR".
+- Skills: `code-review`, `autofix`, and `coderabbit-cloud`. Run them as
+  `/coderabbit:code-review`, `/coderabbit:autofix`, and
+  `/coderabbit:coderabbit-cloud`, or ask in plain language, such as "review my
+  changes", "fix the CodeRabbit comments on this PR", or "check my CodeRabbit
+  cloud task".
 - Subagents: `code-reviewer` runs a CodeRabbit review in its own context, and
   `autofix` collects and checks unresolved CodeRabbit review threads
   and returns a fix plan without editing anything. Mention them as
@@ -289,7 +324,7 @@ and chat doesn't run subagents.
 
 ## Data and Privacy
 
-The Claude plugin contains two skills and two subagents. It bundles no MCP
+The Claude plugin contains three skills and two subagents. It bundles no MCP
 servers, hooks, or executables.
 
 - **Local commands**: the `code-review` skill and the `code-reviewer` subagent
@@ -298,10 +333,17 @@ servers, hooks, or executables.
   on the current pull request and, when you approve, to create a pull request or
   post a summary comment. The `autofix` subagent only reads: it runs
   read-only `git` and `gh` commands and never edits, commits, pushes, or posts.
+  The `coderabbit-cloud` skill runs `coderabbit code` commands; some commands
+  create billed cloud work or change shared task state only after you request
+  that action. It can also run `coderabbit skills` to preview and, after
+  approval, write local skill directories; official marketplace plugins remain
+  managed by their marketplace.
 - **Data sent**: when you run a review, the CodeRabbit CLI sends the code
   changes under review and the repository context needed to review them to
   CodeRabbit's service. `autofix` exchanges pull request data with GitHub
-  through `gh`. The plugin sends nothing on its own.
+  through `gh`. `coderabbit-cloud` sends task instructions and relevant handoff
+  context to CodeRabbit only when you request those operations. The plugin
+  sends nothing on its own.
 - **Credentials**: the CodeRabbit CLI and `gh` handle their own login and store
   their own credentials. The plugin doesn't read or send credentials.
 - **Policy**: CodeRabbit's handling, retention, and sharing of review data is
