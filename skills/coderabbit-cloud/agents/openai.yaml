@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeRabbit Cloud"
+  short_description: "Manage CodeRabbit cloud Coding Agent tasks"
+  default_prompt: "Use $coderabbit-cloud to hand off, start, follow, or deliver a CodeRabbit cloud Coding Agent task with the coderabbit CLI."
