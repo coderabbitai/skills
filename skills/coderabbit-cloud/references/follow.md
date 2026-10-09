@@ -106,8 +106,10 @@ A `status` record with `status: "message_sent"`, `"steer_sent"`, or
 `"answer_sent"` means that the cloud agent received your send. The
 `message_sent` record has a `clientOperationId`.
 
-- After a send record, never send the same thing again. To keep following,
-  run the command without `-m`, `--steer`, or `--answer`.
+- After a send record, never send the same thing again unless the last record
+  is `message_dropped`. That error explicitly means the message was not
+  delivered, so send the same message once more. Otherwise, keep following by
+  running the command without `-m`, `--steer`, or `--answer`.
 - If no send record appeared, you can rerun the same command once only after
   these results: `authenticate`, `task_busy`, `task_stopping`, or
   `steer_not_delivered`. The CLI rejects these before the send, or the server
