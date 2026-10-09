@@ -259,14 +259,12 @@ the `coderabbit code` CLI.
 - Starting, listing, inspecting, following, or messaging cloud tasks
 - Reviewing plans, pushing task changes, or controlling Autopilot
 - Importing a local skill into the cloud skill library
-- Installing or updating released CodeRabbit skills on the local machine
 
-**Categories covered:** Local skill installation and updates, cloud task
-lifecycle, handoff, task collaboration, delivery, Autopilot, cloud skill import
+**Categories covered:** Cloud task lifecycle, handoff, task collaboration,
+delivery, Autopilot, cloud skill import
 
 **Triggers:** "hand off to CodeRabbit cloud", "start a cloud task", "check my
-CodeRabbit task", "push the cloud task", "import this skill", "update
-CodeRabbit skills"
+CodeRabbit task", "push the cloud task", "import this skill"
 
 **Capabilities:**
 
@@ -275,8 +273,6 @@ CodeRabbit skills"
 - Handles authentication, organization selection, questions, plans, delivery,
   and task errors without duplicating work
 - Routes interactive-only actions to the CodeRabbit task view
-- Previews local skill installs and updates for approval while leaving official
-  marketplace plugins under marketplace control
 
 ## Plugin Components
 
@@ -335,9 +331,7 @@ servers, hooks, or executables.
   read-only `git` and `gh` commands and never edits, commits, pushes, or posts.
   The `coderabbit-cloud` skill runs `coderabbit code` commands; some commands
   create billed cloud work or change shared task state only after you request
-  that action. It can also run `coderabbit skills` to preview and, after
-  approval, write local skill directories; official marketplace plugins remain
-  managed by their marketplace.
+  that action.
 - **Data sent**: when you run a review, the CodeRabbit CLI sends the code
   changes under review and the repository context needed to review them to
   CodeRabbit's service. `autofix` exchanges pull request data with GitHub

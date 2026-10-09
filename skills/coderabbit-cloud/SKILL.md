@@ -1,6 +1,6 @@
 ---
 name: coderabbit-cloud
-description: Drive the CodeRabbit cloud Coding Agent and manage CodeRabbit agent skills from a local coding-agent session with the `coderabbit` CLI. Use when the user wants to install or update CodeRabbit skills, hand off or continue local work in the cloud, start a cloud task, list or check cloud tasks, follow or message a task, ask a side question about a task, answer the cloud agent's question, stop a running turn, review or approve a plan, push a task's changes or open a stacked PR, turn Autopilot on or off, import a skill into the cloud skill library, or tell the user which slash command to type in the interactive `coderabbit code resume` view.
+description: Drive the CodeRabbit cloud Coding Agent from a local coding-agent session with the `coderabbit` CLI. Use when the user wants to hand off or continue local work in the cloud, start a cloud task, list or check cloud tasks, follow or message a task, ask a side question about a task, answer the cloud agent's question, stop a running turn, review or approve a plan, push a task's changes or open a stacked PR, turn Autopilot on or off, import a skill into the cloud skill library, or tell the user which slash command to type in the interactive `coderabbit code resume` view.
 ---
 
 # CodeRabbit Cloud
@@ -8,10 +8,6 @@ description: Drive the CodeRabbit cloud Coding Agent and manage CodeRabbit agent
 Use the `coderabbit code` commands to work with CodeRabbit cloud Coding Agent
 tasks for the user. These commands are for a local agent session. Do not use
 them inside a CodeRabbit cloud task.
-
-Use `coderabbit skills` to install or update released CodeRabbit agent skills
-on the local machine. This workflow does not require a cloud task. Read
-[references/install-update.md](references/install-update.md) before running it.
 
 The CLI cannot bring a cloud task into the local checkout. If the user asks
 for that, tell them that the CLI does not support it.
@@ -81,10 +77,8 @@ can be older than these instructions.
 | Class                                                                                  | Commands                                                                                                                                                                                                                                                                            |
 | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Read-only. Safe to rerun.                                                              | `ls`, `show`, `plan` without `--approve`, `autopilot status`, `resume --agent` without `-m`, `--steer`, or `--answer`                                                                                                                                                               |
-| Read-only local preview. Safe to rerun.                                                 | `coderabbit skills --agent`                                                                                                                                                                                                                                                        |
 | Creates billed cloud work. Run only on an explicit user request. Never run as a retry. | `new` (can start the organization's Coding Agent trial); `handoff` (each run creates another task); `ask` (each question is a billed side chat turn, and can start the trial); `autopilot on` and `autopilot resume` (check billing; with `--pr` they can create an Autopilot task) |
 | Changes shared state that others see. Run only on an explicit user request.            | `push` (commits to the task branch; `--stacked` opens a pull request); `plan --approve`; `autopilot off`; `cancel`; `resume -m`, `--steer`, or `--answer` (sends to the cloud agent); `skills import` (uploads files; use `--yes` only when the user asked for that exact upload)   |
-| Writes local skill directories. Run only after explicit approval of the exact preview. | `coderabbit skills --confirm <plan-hash>`                                                                                                                                                                                                                                          |
 
 Never do these things:
 
@@ -151,5 +145,4 @@ The last record is `action_required` with `action: "authenticate"`.
 | Ask a side question about a task, or a follow-up question                                                                                      | [references/ask.md](references/ask.md)                           |
 | Review or approve a plan, push changes, open a stacked PR, control Autopilot                                                                   | [references/deliver.md](references/deliver.md)                   |
 | Import a local skill into the cloud skill library                                                                                              | [references/skills-import.md](references/skills-import.md)       |
-| Install or update released CodeRabbit skills on the local machine                                                                               | [references/install-update.md](references/install-update.md)     |
 | Watch a task live, or an action with no `--agent` command (rename, mode, share, archive, pin, queue edits, implement a plan, schedules, files) | [references/interactive-view.md](references/interactive-view.md) |

@@ -6,9 +6,8 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
-- Added the `coderabbit-cloud` skill for installing or updating local
-  CodeRabbit skills and for starting, following, inspecting, and delivering
-  CodeRabbit cloud Coding Agent tasks through the `coderabbit` CLI.
+- Added the `coderabbit-cloud` skill for starting, following, inspecting, and
+  delivering CodeRabbit cloud Coding Agent tasks through the `coderabbit` CLI.
 - Added a Claude directory listing icon and a README "Data and Privacy"
   section that discloses what the plugin runs and sends.
 - Added the read-only `autofix` subagent, which collects and checks
