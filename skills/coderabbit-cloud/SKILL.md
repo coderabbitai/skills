@@ -77,7 +77,7 @@ can be older than these instructions.
 | Class                                                                                  | Commands                                                                                                                                                                                                                                                                            |
 | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Read-only. Safe to rerun.                                                              | `ls`, `show`, `plan` without `--approve`, `autopilot status`, `resume --agent` without `-m`, `--steer`, or `--answer`                                                                                                                                                               |
-| Creates billed cloud work. Run only on an explicit user request. Never run as a retry. | `new` (can start the organization's Coding Agent trial); `handoff` (each run creates another task); `ask` (each question is a billed side chat turn, and can start the trial); `autopilot on` and `autopilot resume` (check billing; with `--pr` they can create an Autopilot task) |
+| Creates billed cloud work. Run only on an explicit user request. Retry only in the documented safe cases where the first request is known not to have created work. | `new` (can start the organization's Coding Agent trial); `handoff` (each run creates another task); `ask` (each question is a billed side chat turn, and can start the trial); `autopilot on` and `autopilot resume` (check billing; with `--pr` they can create an Autopilot task) |
 | Changes shared state that others see. Run only on an explicit user request.            | `push` (commits to the task branch; `--stacked` opens a pull request); `plan --approve`; `autopilot off`; `cancel`; `resume -m`, `--steer`, or `--answer` (sends to the cloud agent); `skills import` (uploads files; use `--yes` only when the user asked for that exact upload)   |
 
 Never do these things:
@@ -87,10 +87,11 @@ Never do these things:
 - Implement a plan yourself, for example with a `-m` message. No `--agent`
   command implements a plan. The user runs `/implement` in the interactive
   view or implements it in the web app, and that work is billed.
-- Repeat a send after a `task_submitted`, `message_sent`, `steer_sent`,
-  `answer_sent`, or `question_sent` record.
-- Rerun `new` or `handoff`. The only exceptions are the `authenticate` and
-  `organization_required` rules in the references, when no task can exist.
+- Repeat a command after a commit-point record unless the CLI explicitly says
+  the operation was not delivered, such as `message_dropped` or
+  `steer_not_delivered`.
+- Rerun `new` or `handoff` outside the verified safe-retry cases in the
+  references. When task creation is uncertain, inspect and ask the user.
 
 ## Shared handling
 

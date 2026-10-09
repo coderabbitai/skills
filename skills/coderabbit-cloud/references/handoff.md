@@ -91,8 +91,13 @@ the remote branch moved, startup fails.
   rerun the handoff after the user selects an organization.
 - `error` with `status: "unsupported_auth"`: report the `message`. The user
   needs a CodeRabbit SaaS user login.
+- `error` with `status: "handoff_failed"`: if a `creating_task` record
+  appeared, a task can exist. Do not rerun; run
+  `coderabbit code ls --agent --repo .`, report what you find, and ask the
+  user. If no `creating_task` record appeared, no task was created. Fix the
+  reported cause and rerun the handoff once.
 - Any other `error`: report the `message` and keep the local files. Do not
-  rerun the command yourself. A new run creates another task.
+  rerun the command yourself. A new run can create another task.
 - Exit 130 or 143: never rerun. A task can exist if a `creating_task` record
   appeared. Run `coderabbit code ls --agent --repo .` and report what you
   find. New tasks can appear in the list late, so a task that is not in the

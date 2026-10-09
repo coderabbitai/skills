@@ -47,7 +47,8 @@ exist. Let the user decide.
 | `action_required`, `authenticate`                       | Log in (see [SKILL.md](../SKILL.md#login-required)). If a `task_submitted` record appeared, run `show <taskId> --agent`. Otherwise, run `ls --agent --repo .`. An absent task does not prove that creation failed. Rerun `new` only if the CLI explicitly confirms that the request was rejected before creating a task; otherwise report the uncertainty and ask the user. |
 | `error`, `billing_required`                             | The user must start a Coding Agent trial or set up billing in the web app. Stop.                                                                                                                                                                          |
 | `error`, `billing_unavailable` or `precondition_failed` | Report the `message`. Billing or the user's identity blocks the task. Stop.                                                                                                                                                                               |
-| `error`, `task_rejected`                                | Report the `message`. If the message asks you to push the branch, tell the user.                                                                                                                                                                          |
+| `error`, `task_rejected` with warning `branch_not_on_origin` | Tell the user the branch must be pushed. After they authorize the push, push it normally and retry `new` once.                                                                                                                                            |
+| `error`, `new_failed` before `task_submitted`           | The request may have reached CodeRabbit. Run `ls --agent --repo .` and use `show` for any plausible task before considering a retry. An absent list result is not proof; report the uncertainty and ask the user before running `new` again.                 |
 | `error`, `repository_not_resolved`                      | The checkout has no `origin`, or `origin` matches no repository of the organization. Report the `message`.                                                                                                                                                |
 | `error`, `operation_conflict`                           | CodeRabbit still processes the first request, so the task can exist. Do not rerun `new`. Run `ls --agent --repo .`, report what you find, and let the user decide.                                                                                        |
 | Any other `error`                                       | If a `task_submitted` record appeared, report the `taskId` and run `show <taskId> --agent`. Otherwise, report the `message`. Do not rerun `new`.                                                                                                          |
@@ -157,9 +158,8 @@ CLI does not know them. They are not billed minutes, and `null` is not 0.
   With a `steer_sent` record, or when the turn ended, ask the user before
   you send anything, including a `-m` message.
 - `steer_rejected`: report the reason.
-- `message_dropped`: the message left the queue before it ran, for example
-  because someone stopped the turn. A `message_sent` record appeared, so ask
-  the user before you send it again.
+- `message_dropped`: the message left the queue without being delivered, for
+  example because someone stopped the turn. Send the same message again once.
 - `task_stopping`: a stop is still finishing. Wait a few seconds, then rerun
   the same send once.
 - `task_busy`: without a send record, wait a few seconds and rerun once.
