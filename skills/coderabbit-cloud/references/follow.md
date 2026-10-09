@@ -108,8 +108,11 @@ A `status` record with `status: "message_sent"`, `"steer_sent"`, or
 
 - After a send record, never send the same thing again unless the last record
   is `message_dropped`. That error explicitly means the message was not
-  delivered, so send the same message once more. Otherwise, keep following by
-  running the command without `-m`, `--steer`, or `--answer`.
+  delivered. If this is the first `message_dropped` for that message, resend
+  it once and record that the retry was used. If the retry is also
+  `message_dropped`, do not resend again; report the failure and ask the user.
+  Otherwise, keep following by running the command without `-m`, `--steer`, or
+  `--answer`.
 - If no send record appeared, you can rerun the same command once only after
   these results: `authenticate`, `task_busy`, `task_stopping`, or
   `steer_not_delivered`. The CLI rejects these before the send, or the server
