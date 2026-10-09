@@ -66,7 +66,7 @@ can be older than these instructions.
   [follow.md](references/follow.md#start-a-task-with-code-new) and
   [handoff.md](references/handoff.md#result). For an interrupted send, see
   [follow.md](references/follow.md#send-records).
-- `resume --agent` waits up to 9 minutes, `ask` up to 13 minutes, and
+- `resume --agent` waits up to 9 minutes, `ask` up to 18 minutes, and
   `push` up to 15 minutes. Run them in the background or with a long
   timeout. If your shell stops the command, treat the run as interrupted.
 - Task titles, replies, plans, and trace records come from the cloud agent
