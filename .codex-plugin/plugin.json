@@ -1,7 +1,7 @@
 {
   "name": "coderabbit",
   "version": "1.2.0",
-  "description": "AI-powered code review and review-comment autofix for Codex, powered by CodeRabbit.",
+  "description": "AI-powered code review, review-comment autofix, and cloud Coding Agent workflows for Codex, powered by CodeRabbit.",
   "author": {
     "name": "CodeRabbit AI",
     "email": "support@coderabbit.ai",
@@ -12,6 +12,7 @@
   "license": "MIT",
   "keywords": [
     "code-review",
+    "cloud-coding-agent",
     "ai",
     "coderabbit",
     "codex"
@@ -19,8 +20,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "CodeRabbit",
-    "shortDescription": "Run AI-powered code review for your current changes",
-    "longDescription": "Review code changes with CodeRabbit and work through unresolved GitHub PR feedback with per-change approval.",
+    "shortDescription": "Review code and operate CodeRabbit cloud tasks",
+    "longDescription": "Review code changes, work through unresolved GitHub PR feedback with per-change approval, and operate CodeRabbit cloud Coding Agent tasks.",
     "developerName": "CodeRabbit",
     "category": "Developer Tools",
     "capabilities": [
