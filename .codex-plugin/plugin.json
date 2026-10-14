@@ -17,6 +17,11 @@
     "codex"
   ],
   "skills": "./skills/",
+  "extensions": {
+    "com.openai": {
+      "onboardingSkill": "./skills/setup/SKILL.md"
+    }
+  },
   "interface": {
     "displayName": "CodeRabbit",
     "shortDescription": "Run AI-powered code review for your current changes",

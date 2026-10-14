@@ -6,6 +6,9 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added a portable `setup` skill for CLI readiness, browser sign-in, and resuming
+  a requested first review. The Codex manifest declares it as the plugin's
+  onboarding skill; marketplace publication is still required.
 - Added a Claude directory listing icon and a README "Data and Privacy"
   section that discloses what the plugin runs and sends.
 - Added the read-only `autofix` subagent, which collects and checks

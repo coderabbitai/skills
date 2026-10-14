@@ -22,6 +22,11 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 
 ## Maintenance checklist
 
+- The shared `skills/setup` workflow is packaged for skills-compatible agents;
+  `.codex-plugin/plugin.json` additionally declares it as Codex onboarding.
+  This is source preparation, not evidence of a marketplace update. Keep the
+  OpenAI settings in the compatibility manifest while root `plugin.json` has no
+  `extensions.com.openai`: OpenAI uses that fallback, rather than merging the two.
 - When README install text changes, verify this table still matches the recommended paths.
 - When the release workflow or asset names change, update the tagged GitHub release archive row and its verification note.
 - When a new marketplace manifest is added, record whether it is only packaged in-repo or publicly published.
