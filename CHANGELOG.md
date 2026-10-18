@@ -66,6 +66,15 @@ All notable changes to this repository are documented in this file.
 - Quoted Claude Code command frontmatter values so standard YAML parsers can
   validate them.
 
+### Fixed
+
+- The `autofix` workflow now confirms each fix inside its review thread, so a
+  pull request on a repository with a required-thread-resolution ruleset is no
+  longer left blocked after the summary comment. Added Step 11 in
+  `skills/autofix/SKILL.md`, the matching thread-reply primitive in
+  `skills/autofix/github.md`, and the aligned `autofix` subagent and README
+  descriptions. The workflow still never resolves a thread itself.
+
 ## [1.1.1] - 2026-04-22
 
 ### Added
