@@ -234,7 +234,7 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - You want to apply suggested fixes from unresolved current CodeRabbit review threads
 - You want guided fixes with explicit approval for each change
 
-**Categories covered:** Review-thread extraction, issue prioritization, guarded fixes, consolidated commit and PR summary
+**Categories covered:** Review-thread extraction, issue prioritization, guarded fixes, consolidated commit, PR summary and in-thread fix confirmation
 
 **Triggers:** "coderabbit autofix", "fix coderabbit", "cr fix"
 
@@ -244,6 +244,9 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - Parses and prioritizes issues by severity
 - Applies fixes only after validating the issue and getting approval
 - Produces a single consolidated commit and posts a PR summary comment
+- Replies to each fixed review thread so the maintainer's bot can verify and
+  resolve it, instead of leaving the pull request blocked
+- Never resolves review threads itself
 
 ## Plugin Components
 
@@ -295,8 +298,9 @@ servers, hooks, or executables.
 - **Local commands**: the `code-review` skill and the `code-reviewer` subagent
   run the installed `coderabbit` CLI and read-only Git commands. The `autofix`
   skill uses the installed GitHub CLI (`gh`) to read CodeRabbit review threads
-  on the current pull request and, when you approve, to create a pull request or
-  post a summary comment. The `autofix` subagent only reads: it runs
+  on the current pull request and, when you approve, to create a pull request,
+  post a summary comment, or reply inside a review thread. The `autofix`
+  subagent only reads: it runs
   read-only `git` and `gh` commands and never edits, commits, pushes, or posts.
 - **Data sent**: when you run a review, the CodeRabbit CLI sends the code
   changes under review and the repository context needed to review them to
