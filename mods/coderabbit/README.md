@@ -222,6 +222,45 @@ The configured CLI performs the review's network and local storage operations.
 On background completion, `$.session.append` stores the result as model-only
 context in this conversation. No prompt is submitted and no model turn is started.
 
+### Directory review: execution and data flow
+
+The directory flags `$.process.spawn` in `hooks/register.js` because the executable
+is user-configured and the mod also reads conversation data. These capabilities
+require reviewer inspection; the following describes their actual use.
+
+- **Program and purpose:** `$.process.spawn({ argv: [options.cli_path, ...args] })`
+  starts the user's installed official CodeRabbit CLI to perform a requested code
+  review. `cli_path` is an absolute executable path from user or managed settings.
+  `reviewArgs` in `hooks/review.js` builds the remaining arguments; arbitrary
+  command text, conversation content, and findings are not passed as arguments.
+- **Complete command forms:** the default is
+  `/absolute/path/to/coderabbit review --agent --uncommitted`; `committed` uses
+  `/absolute/path/to/coderabbit review --agent --committed`; `all` uses
+  `/absolute/path/to/coderabbit review --agent`. The user can explicitly add
+  `--base <branch>` and `--fresh`, or `--include-untracked` for uncommitted/all
+  scope. Each flag and branch value is a separate argument, never shell text.
+  The path above represents the user's configured CLI, not a bundled executable.
+- **Local data and destination:** the CLI reads selected changes and relevant
+  repository context from the session's working directory and sends them to
+  CodeRabbit's review service using the existing CLI account. The mod receives
+  CLI output and returns findings to the current Claude conversation. It does
+  not pass conversation history or the prompt draft to the CLI, and has no
+  separate HTTP, telemetry, or upload endpoint.
+- **Conversation and draft access:** `$.session.messages({ as: "api" })` reads
+  the current conversation to restore saved `coderabbit-delivery/1` review cards.
+  Other messages are not forwarded to the CLI. `$.prompt.read()` checks whether
+  the draft is empty before preparing a fresh-review command. `$.prompt.fill()`
+  prepares that command or appends a selected finding's fix request for the user
+  to send. It does not submit the draft.
+- **Command hook:** the `command.run` hook is filtered to `coderabbit-review`.
+  It handles help and saved results without starting a program, or validates the
+  requested review scope before starting the CLI. It does not intercept other
+  commands or run reviews in response to edits or ordinary chat messages.
+
+The CLI's own network, credential, and storage behavior remains part of the
+review service described below. These disclosures do not claim that the CLI is
+sandboxed or that directory approval has been granted.
+
 ## Data and privacy
 
 Invoking the review command runs your configured CodeRabbit CLI in the session's
