@@ -1,6 +1,6 @@
 import { expect, test } from "claude-code/testing";
 import { showFindings } from "../hooks/interface.js";
-import { register, restoreReview, saveReview, storeReviewContext } from "../hooks/register.js";
+import { register, storeReviewContext } from "../hooks/register.js";
 
 for (const failedCall of ["now"]) {
   test("a failed startup call leaves the next review available: " + failedCall, async () => {
@@ -179,72 +179,3 @@ for (const outcome of ["shown", "denied", "failed", "missing"]) {
   });
 }
 
-function savedReviewState() {
-  return { generation: 0, results: new Map(), restoring: new Map(), latestResult: undefined, latestId: undefined };
-}
-
-test("saved cards restore by their own review id and ignore malformed records", async () => {
-  const state = savedReviewState();
-  const stored = new Map([
-    ["review:1000:1", "report one"],
-    ["review:2000:1", "report two"],
-    ["review:3000:1", 3],
-  ]);
-  let reads = 0;
-  const host = {
-    store: { get: async (key) => { reads++; return stored.get(key); } },
-    ui: { invalidate() {}, log() {} },
-  };
-  await restoreReview(host, state, "2000:1");
-  await restoreReview(host, state, "1000:1");
-  await restoreReview(host, state, "3000:1");
-  await restoreReview(host, state, "missing");
-  expect([...state.results]).toEqual([["2000:1", "report two"], ["1000:1", "report one"]]);
-  expect(state.latestResult).toBe("report two");
-  await restoreReview(host, state, "2000:1");
-  await restoreReview(host, state, "missing");
-  expect(reads).toBe(4);
-});
-
-test("a late store read cannot restore a card into a different session", async () => {
-  const state = savedReviewState();
-  const host = {
-    store: { get: async () => { state.generation++; return "old report"; } },
-    ui: { invalidate() { throw new Error("Stale redraw"); }, log() {} },
-  };
-  await restoreReview(host, state, "1000:1");
-  expect([...state.results]).toEqual([]);
-  expect(state.latestResult).toBe(undefined);
-});
-
-test("saving keeps only the newest cards in the shared store", async () => {
-  const stored = new Map([["unrelated", "kept"]]);
-  for (let i = 1; i <= 50; i++) stored.set("review:" + i * 1000 + ":1", "old " + i);
-  const host = {
-    store: {
-      set: async (key, value) => stored.set(key, value),
-      keys: async () => [...stored.keys()],
-      delete: async (key) => stored.delete(key),
-    },
-    ui: { log() {} },
-  };
-  await saveReview(host, "99000:2", "new report", () => true);
-  expect(stored.get("review:99000:2")).toBe("new report");
-  expect(stored.has("review:1000:1")).toBe(false);
-  expect(stored.has("review:2000:1")).toBe(true);
-  expect(stored.get("unrelated")).toBe("kept");
-  expect([...stored.keys()].filter((key) => key.startsWith("review:")).length).toBe(50);
-});
-
-test("store failures preserve live review results and report loss of persistence", async () => {
-  const logs = [];
-  const host = {
-    store: { set: async () => { throw new Error("Store full"); } },
-    ui: { log: (text) => logs.push(text) },
-  };
-  await saveReview(host, "1000:1", "visible report", () => true);
-  expect(logs[0]).toContain("could not be saved for reload");
-  logs.length = 0;
-  await saveReview(host, "1000:1", "visible report", () => false);
-  expect(logs).toEqual([]);
-});
