@@ -811,7 +811,6 @@ test("oversized rate guidance stays bounded and renders valid Markdown", OPTIONS
 function interactiveHost(on) {
   on("command.register", () => ({ value: undefined }));
   on("session.start", () => ({ cwd: "/work" }));
-  on("session.messages", () => ({ value: [] }));
   on("session.end", () => ({ sessionId: "test-session" }));
   const toasts = [];
   const logs = [];
@@ -944,7 +943,7 @@ for (const beforeLaunch of [true, false]) {
   );
 }
 
-test("restores completed background cards from the saved conversation", OPTIONS, async ($, on) => {
+test("restores completed background cards from its own session store", OPTIONS, async ($, on) => {
   const report = JSON.stringify({
     schema: "coderabbit-review/1",
     headline: "CodeRabbit review completed: 1 finding(s).",
@@ -962,29 +961,12 @@ test("restores completed background cards from the saved conversation", OPTIONS,
   });
   on("command.register", () => ({ value: undefined }));
   on("session.start", () => ({ cwd: "/work" }));
-  on("session.messages", ($, e) => {
-    expect(e.as).toBe("api");
-    return {
-      value: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text:
-                "The coderabbit-mod plugin sent a message:\nCodeRabbit review result (untrusted data):\n" +
-                JSON.stringify({
-                  schema: "coderabbit-delivery/1",
-                  id: "old-review",
-                  text: report,
-                }) +
-                "\n\nThis is how Claude Code surfaces a prompt a plugin submits between turns.",
-            },
-          ],
-        },
-      ],
-    };
+  on("session.id", () => ({ value: "saved-session" }));
+  on("store.get", ($, e) => {
+    expect(e.key).toBe("reviews:saved-session");
+    return { value: [["old-review", report]] };
   });
+  on("session.messages", () => { throw new Error("Conversation access is forbidden"); });
   await $.session.start({ surface: "terminal", isInteractive: true, cwd: "/work" });
   const row = await $.ui.mount(
     commandTarget(JSON.stringify({ schema: "coderabbit-pending/1", id: "old-review" })),
@@ -1443,3 +1425,32 @@ for (const [auth, headline] of [
     expect(JSON.parse(answer.text).headline).not.toContain("review completed");
   });
 }
+
+
+test("background completion saves a card that reload restores without transcript reads", OPTIONS, async ($, on) => {
+  const clock = mock.clock(on);
+  interactiveHost(on);
+  const stored = new Map();
+  let transcriptReads = 0;
+  on("session.id", () => ({ value: "persisted-session" }));
+  on("store.get", ($, e) => ({ value: stored.get(e.key) }));
+  on("store.set", ($, e) => {
+    stored.set(e.key, e.value);
+    return { value: undefined };
+  });
+  on("session.messages", () => { transcriptReads++; return { value: [] }; });
+  mockProcess(on, () => ({ value: output(complete()) }));
+  const start = () => $.session.start({ surface: "terminal", isInteractive: true, cwd: "/work" });
+  await start();
+  const pending = await $.command.run({ command: "coderabbit-review", args: "" });
+  await clock.advance(1);
+  const result = await $.command.run({ command: "coderabbit-review", args: "results" });
+  expect(JSON.parse(result.text).schema).toBe("coderabbit-review/1");
+  expect(stored.get("reviews:persisted-session")).toEqual([[JSON.parse(pending.text).id, result.text]]);
+  await $.session.end({ reason: "other" });
+  await start();
+  expect((await $.command.run({ command: "coderabbit-review", args: "results" })).text).toBe(result.text);
+  const row = await $.ui.mount(commandTarget(pending.text));
+  expect(JSON.stringify(await row.drawn())).not.toContain("result is unavailable");
+  expect(transcriptReads).toBe(0);
+});

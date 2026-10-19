@@ -1,11 +1,14 @@
 import { expect, test } from "claude-code/testing";
 import { showFindings } from "../hooks/interface.js";
-import { register, storeReviewContext } from "../hooks/register.js";
+import { register, restoreReviews, saveReviews, storeReviewContext } from "../hooks/register.js";
 
 for (const failedCall of ["surfaces", "now"]) {
   test("a failed startup call leaves the next review available: " + failedCall, async () => {
     const handlers = new Map();
-    register((event, filter, handler) => handlers.set(event, handler ?? filter), {
+    register((event, filter, handler) => {
+      handlers.set(event, handler ?? filter);
+      return { catch() {} };
+    }, {
       cli_path: "/official/coderabbit",
     });
     let fail = true;
@@ -32,7 +35,10 @@ for (const failedCall of ["surfaces", "now"]) {
 for (const interactive of [false, true]) {
   test("late review cleanup cannot change a new session: interactive=" + interactive, async () => {
     const handlers = new Map();
-    register((event, filter, handler) => handlers.set(event, handler ?? filter), {
+    register((event, filter, handler) => {
+      handlers.set(event, handler ?? filter);
+      return { catch() {} };
+    }, {
       cli_path: "/official/coderabbit",
     });
     let scheduled;
@@ -171,3 +177,63 @@ for (const outcome of ["shown", "denied", "failed", "missing"]) {
     if (toasts.length) expect(toasts[0]).toContain("/coderabbit-review results");
   });
 }
+
+function savedReviewState() {
+  return { generation: 0, results: new Map(), latestResult: undefined, storeKey: undefined };
+}
+
+test("saved review records are isolated by session and ignore malformed entries", async () => {
+  const state = savedReviewState();
+  const stored = new Map([
+    ["reviews:one", [["first", "report one"], null, ["bad", 3], ["last", "report two"]]],
+    ["reviews:two", [["other", "other report"]]],
+  ]);
+  let sessionId = "one";
+  const host = {
+    session: { id: async () => sessionId },
+    store: { get: async (key) => stored.get(key), set: async (key, value) => stored.set(key, value) },
+    ui: { invalidate() {}, log() {} },
+  };
+  await restoreReviews(host, state);
+  expect([...state.results]).toEqual([["first", "report one"], ["last", "report two"]]);
+  expect(state.latestResult).toBe("report two");
+  sessionId = "two";
+  state.generation++;
+  await restoreReviews(host, state);
+  expect([...state.results]).toEqual([["other", "other report"]]);
+  state.results.set("new", "new report");
+  await saveReviews(host, state.storeKey, state.results, () => true);
+  expect(stored.get("reviews:two")).toEqual([["other", "other report"], ["new", "new report"]]);
+  sessionId = "empty";
+  state.generation++;
+  await restoreReviews(host, state);
+  expect([...state.results]).toEqual([]);
+  expect(state.latestResult).toBe(undefined);
+});
+
+test("a late store read cannot restore results into a different session", async () => {
+  const state = savedReviewState();
+  const host = {
+    session: { id: async () => "old-session" },
+    store: { get: async () => { state.generation++; return [["old", "old report"]]; } },
+    ui: { invalidate() { throw new Error("Stale redraw"); }, log() {} },
+  };
+  await restoreReviews(host, state);
+  expect([...state.results]).toEqual([]);
+  expect(state.storeKey).toBe(undefined);
+});
+
+test("store failures preserve live review results and report loss of persistence", async () => {
+  const logs = [];
+  const results = new Map([["current", "visible report"]]);
+  const host = {
+    store: { set: async () => { throw new Error("Store full"); } },
+    ui: { log: (text) => logs.push(text) },
+  };
+  await saveReviews(host, "reviews:one", results, () => true);
+  expect(results.get("current")).toBe("visible report");
+  expect(logs[0]).toContain("could not be saved for reload");
+  logs.length = 0;
+  await saveReviews(host, "reviews:one", results, () => false);
+  expect(logs).toEqual([]);
+});
