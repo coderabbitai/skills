@@ -11,7 +11,6 @@ export function register(on, options) {
   const state = {
     running: false,
     interactive: false,
-    attached: new Set(),
     drawn: false,
     progress: undefined,
     latestResult: undefined,
@@ -26,16 +25,8 @@ export function register(on, options) {
   };
 
   // An app that draws for the session means a person can see a background review.
-  // Desktop starts through the SDK (isInteractive=false) and attaches its UI later.
-  on("session.attach", async ($, e, next) => {
-    state.attached.add(e.clientId);
-    return next(e);
-  });
-  on("session.detach", async ($, e, next) => {
-    state.attached.delete(e.clientId);
-    return next(e);
-  });
-  // Also catches an app attached before a reload; the terminal REPL is isInteractive.
+  // Desktop starts through the SDK (isInteractive=false) and draws the band once
+  // its prompt is up; the terminal REPL is already isInteractive.
   on("ui.render", { component: "AbovePrompt" }, async ($, e, next) => {
     if (e.surface !== "terminal") state.drawn = true;
     return next(e);
@@ -210,7 +201,7 @@ async function runCommand($, e, options, state) {
     }
   };
   // Only a session that no app has drawn for, such as a -p run, must wait.
-  const headless = !state.interactive && !state.drawn && state.attached.size === 0;
+  const headless = !state.interactive && !state.drawn;
   let reviewId;
   try {
     if (!headless) reviewId = String(await $.clock.now()) + ":" + ++state.serial;

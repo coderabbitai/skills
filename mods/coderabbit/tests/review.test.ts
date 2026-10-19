@@ -26,9 +26,8 @@ function messageText(answer) {
 
 const OPTIONS = { options: { cli_path: "/test/CodeRabbit CLI" } };
 
-// Desktop and other apps attach after session.start; the terminal raises nothing.
-const attach = ($, surface) =>
-  surface === "terminal" ? undefined : $.session.attach({ surface, clientId: surface + ":default" });
+// Desktop draws the band once its prompt is up, after its SDK session.start.
+const attach = ($, surface) => (surface === "terminal" ? undefined : $.ui.mount(liveBand(surface)));
 const complete = (status = "review_completed", findings = 0) =>
   JSON.stringify({ type: "complete", status, findings }) + "\n";
 const output = (stdout, extra = {}) => ({
@@ -175,7 +174,6 @@ for (const surface of ["terminal", "desktop"]) {
           }),
         ),
       }));
-      on("session.attach", ($, e) => ({ clientId: e.clientId }));
       on("ui.render", { component: "AbovePrompt" }, ($, e) =>
         $.ui.resolve(e).Text({ children: [] }),
       );
@@ -845,7 +843,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
     async ($, on) => {
       const clock = mock.clock(on);
       const { toasts, logs, submissions } = interactiveHost(on);
-      on("session.attach", ($, e) => ({ clientId: e.clientId }));
+      on("ui.render", { component: "AbovePrompt" }, ($, e) => $.ui.resolve(e).Text({ children: [] }));
       let calls = 0;
       mockProcess(on, async () => {
         calls++;
@@ -863,7 +861,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
         isInteractive: surface === "terminal",
         cwd: "/work",
       });
-      // Desktop attaches after SDK session.start, before the person runs a command.
+      // Desktop draws after SDK session.start, before the person runs a command.
       if (surface === "desktop") await attach($, surface);
       const started = await $.command.run({ command: "coderabbit-review", args: "" });
       expect(started.text).toContain("Reviewing in the background");
@@ -996,7 +994,6 @@ for (const surface of ["desktop", "terminal"]) {
     async ($, on) => {
       const clock = mock.clock(on);
       interactiveHost(on);
-      on("session.attach", ($, e) => ({ clientId: e.clientId }));
       on("ui.render", { component: "AbovePrompt" }, ($, e) =>
         $.ui.resolve(e).Text({ children: ["Host content"] }),
       );
@@ -1079,7 +1076,6 @@ for (const surface of ["desktop", "terminal"]) {
     async ($, on) => {
       const clock = mock.clock(on);
       const { submissions } = interactiveHost(on);
-      on("session.attach", ($, e) => ({ clientId: e.clientId }));
       on("ui.render", { component: "AbovePrompt" }, ($, e) =>
         $.ui.resolve(e).Text({ children: ["Other mod content"] }),
       );
@@ -1148,7 +1144,6 @@ for (const surface of ["terminal", "desktop"]) {
             ),
           };
         });
-        on("session.attach", ($, e) => ({ clientId: e.clientId }));
         on("ui.render", { component: "AbovePrompt" }, ($, e) =>
           $.ui.resolve(e).Text({ children: [] }),
         );
@@ -1207,7 +1202,6 @@ for (const surface of ["terminal", "desktop"]) {
         calls++;
         return { value: output(JSON.stringify(finding) + "\n" + complete("review_completed", 1)) };
       });
-      on("session.attach", ($, e) => ({ clientId: e.clientId }));
       on("ui.render", { component: "AbovePrompt" }, ($, e) =>
         $.ui.resolve(e).Text({ children: [] }),
       );
@@ -1291,7 +1285,6 @@ for (const surface of ["terminal", "desktop"]) {
           if (blocked === "error") throw new Error("Host unavailable");
           return { isShown: false };
         });
-        on("session.attach", ($, e) => ({ clientId: e.clientId }));
         on("ui.render", { component: "AbovePrompt" }, ($, e) =>
           $.ui.resolve(e).Text({ children: [] }),
         );
@@ -1343,7 +1336,6 @@ for (const surface of ["terminal", "desktop"]) {
     async ($, on) => {
       const clock = mock.clock(on);
       const { submissions } = interactiveHost(on);
-      on("session.attach", ($, e) => ({ clientId: e.clientId }));
       on("ui.render", { component: "AbovePrompt" }, ($, e) =>
         $.ui.resolve(e).Text({ children: [] }),
       );

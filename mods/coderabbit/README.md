@@ -183,7 +183,7 @@ This mod uses Claude Code's local process API in the terminal and in **Local
 Code sessions in Claude Desktop**. Both show the running band, update the
 conversation card, and notify on completion without holding the prompt.
 Desktop attaches its interface after its SDK session starts; the mod notes that
-attachment from the `session.attach` event or from Desktop drawing the band.
+attachment when Desktop asks the mod to draw the band above the prompt.
 Headless runs, which nothing draws for, still wait.
 
 Install the plugin for the folder opened in Desktop. When Desktop loads a local
@@ -277,13 +277,11 @@ searches no PATH, and installs nothing.
 - **`session.start`**: registers the `/coderabbit-review` command and runs no
   program. **`session.end`**: cancels a running review and clears session-local
   state, including on `/clear`, `/resume`, and `/branch`.
-- **`session.attach`** and **`session.detach`**: keep a count of the apps
-  drawing for the session, such as Desktop, so a review runs in the background
-  when someone can see its card and waits in a headless `-p` run. The client ids
-  stay in memory and are never stored, passed to the CLI, or sent anywhere.
 - **`ui.render`** on `AbovePrompt` and on `CommandOutput` rows of
-  `/coderabbit-review`: draws the progress band and review cards. A band drawn outside the terminal also counts as an
-  attached app. **`ui.press`**, filtered to the band's own
+  `/coderabbit-review`: draws the progress band and review cards. When an app
+  other than the terminal, such as Desktop, asks for the band, the mod notes
+  that someone can see a background review; a headless `-p` run, which nothing
+  draws for, waits for the result instead. **`ui.press`**, filtered to the band's own
   `review-again` button: suggests the fresh-review command.
 - The mod registers no `classic.*` hooks, no tools, and no agents, and does not
   rewrite settings, instructions, tool descriptions, prompts, or other hooks.

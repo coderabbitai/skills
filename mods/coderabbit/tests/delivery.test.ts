@@ -6,7 +6,8 @@ for (const failedCall of ["now"]) {
   test("a failed startup call leaves the next review available: " + failedCall, async () => {
     const handlers = new Map();
     register((event, filter, handler) => {
-      handlers.set(event, handler ?? filter);
+      const key = event + (filter?.component ? ":" + filter.component : "");
+      if (!handlers.has(key)) handlers.set(key, handler ?? filter);
       return { catch() {} };
     }, {
       cli_path: "/official/coderabbit",
@@ -26,7 +27,7 @@ for (const failedCall of ["now"]) {
         after: () => ({ cancel() {} }),
       },
     };
-    await handlers.get("session.attach")(host, { surface: "desktop", clientId: "desktop:default" }, async (e) => e);
+    await handlers.get("ui.render:AbovePrompt")(host, { surface: "desktop" }, async () => undefined);
     const command = () => handlers.get("command.run")(host, { args: "" });
     expect((await command()).text).toContain("could not finish");
     expect((await command()).text).toContain("Reviewing in the background");
