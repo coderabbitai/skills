@@ -2,7 +2,7 @@
   "name": "coderabbit",
   "displayName": "CodeRabbit",
   "version": "1.2.0",
-  "description": "AI-powered code review and review-comment autofix for Cursor, powered by CodeRabbit.",
+  "description": "AI-powered code review, review-comment autofix, and cloud Coding Agent workflows for Cursor, powered by CodeRabbit.",
   "author": {
     "name": "CodeRabbit AI",
     "email": "support@coderabbit.ai"
@@ -15,6 +15,7 @@
   "keywords": [
     "coderabbit",
     "code-review",
+    "cloud-coding-agent",
     "security",
     "github",
     "cursor"
@@ -22,6 +23,7 @@
   "category": "developer-tools",
   "tags": [
     "code-review",
+    "cloud-coding-agent",
     "security",
     "github",
     "developer-tools"

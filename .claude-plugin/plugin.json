@@ -2,7 +2,7 @@
   "name": "coderabbit",
   "displayName": "CodeRabbit",
   "version": "1.2.0",
-  "description": "AI-powered code review in Claude Code, powered by CodeRabbit",
+  "description": "AI-powered code review and cloud Coding Agent workflows in Claude Code, powered by CodeRabbit",
   "homepage": "https://docs.coderabbit.ai/cli/claude-code-integration",
   "author": {
     "name": "CodeRabbit",
@@ -14,6 +14,7 @@
   "keywords": [
     "code-review",
     "autofix",
+    "cloud-coding-agent",
     "ai",
     "coderabbit",
     "claude-code"
