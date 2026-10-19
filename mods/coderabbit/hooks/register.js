@@ -337,15 +337,18 @@ async function readReview($, state, id) {
     }
     $.ui.invalidate("ui.render");
   } catch {
-    if (state.generation === generation)
-      $.ui.log("Could not restore a saved CodeRabbit card from the plugin store.");
+    if (state.generation !== generation) return;
+    // Let a later draw retry once the store recovers.
+    state.restoring.delete(id);
+    $.ui.log("Could not restore a saved CodeRabbit card from the plugin store.");
   }
 }
 
 export async function saveReview($, id, result, isCurrent) {
   if (!isCurrent()) return;
+  const key = STORE_PREFIX + id;
   try {
-    await $.store.set(STORE_PREFIX + id, result);
+    await writeReview($, key, result);
   } catch {
     if (isCurrent())
       $.ui.log("CodeRabbit results are visible now, but could not be saved for reload. Use /coderabbit-review results before leaving this session.");
@@ -353,9 +356,30 @@ export async function saveReview($, id, result, isCurrent) {
   }
   // Keep only the newest saved cards so the shared store stays under its cap.
   try {
-    const saved = (await $.store.keys())
-      .filter((key) => key.startsWith(STORE_PREFIX))
-      .sort((a, b) => compareIds(b.slice(STORE_PREFIX.length), a.slice(STORE_PREFIX.length)));
-    for (const key of saved.slice(SAVED_LIMIT)) await $.store.delete(key);
+    for (const old of (await savedKeys($)).slice(SAVED_LIMIT)) await $.store.delete(old);
   } catch {}
+}
+
+// Saved card keys, newest first.
+async function savedKeys($) {
+  return (await $.store.keys())
+    .filter((key) => key.startsWith(STORE_PREFIX))
+    .sort((a, b) => compareIds(b.slice(STORE_PREFIX.length), a.slice(STORE_PREFIX.length)));
+}
+
+async function writeReview($, key, result) {
+  try {
+    await $.store.set(key, result);
+  } catch (error) {
+    // The shared store may be at its size cap: drop the oldest cards until it fits.
+    const oldest = (await savedKeys($)).filter((saved) => saved !== key).reverse();
+    for (const old of oldest) {
+      await $.store.delete(old);
+      try {
+        await $.store.set(key, result);
+        return;
+      } catch {}
+    }
+    throw error;
+  }
 }

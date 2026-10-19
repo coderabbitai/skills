@@ -255,11 +255,17 @@ searches no PATH, and installs nothing.
 
 ### What it reads and sends, and where
 
-- **Sent off the machine, by the CLI only:** the CodeRabbit CLI reads the
-  selected changes and the repository context it needs from the session's working
+- **Sent to CodeRabbit, by the CLI:** the CodeRabbit CLI reads the selected
+  changes and the repository context it needs from the session's working
   directory and sends them to CodeRabbit's review service with your existing CLI
-  login. That is the only way data leaves the machine. The mod itself makes no
-  HTTP calls, sends no telemetry, and calls no model.
+  login.
+- **Sent to Claude, by Claude Code:** the review result the mod adds to this
+  conversation, as the card and as a model-only note (`$.session.append`), is
+  part of the conversation. Claude Code sends it to Claude with your next
+  message, as it does the rest of the conversation.
+- **Nothing else:** the mod itself makes no HTTP calls, sends no telemetry, and
+  calls no model. The two routes above are the only ways review data leaves the
+  machine.
 - **Read by the mod:** the CLI's output, and the CodeRabbit records it saved in
   Claude's plugin store, one per review id. It calls no `$.session` method to
   read session facts: no session id, attached surfaces, conversation history,

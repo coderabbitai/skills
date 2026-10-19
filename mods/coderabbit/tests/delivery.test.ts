@@ -249,3 +249,53 @@ test("store failures preserve live review results and report loss of persistence
   await saveReview(host, "1000:1", "visible report", () => false);
   expect(logs).toEqual([]);
 });
+
+test("a failed card read can be retried after the store recovers", async () => {
+  const state = savedReviewState();
+  let fail = true;
+  const logs = [];
+  const host = {
+    store: {
+      get: async () => {
+        if (fail) throw new Error("Store unavailable");
+        return "report";
+      },
+    },
+    ui: { invalidate() {}, log: (text) => logs.push(text) },
+  };
+  await restoreReview(host, state, "1000:1");
+  expect(state.results.has("1000:1")).toBe(false);
+  expect(logs.length).toBe(1);
+  fail = false;
+  await restoreReview(host, state, "1000:1");
+  expect(state.results.get("1000:1")).toBe("report");
+});
+
+test("a save at the store's size cap drops the oldest cards and retries", async () => {
+  const stored = new Map([
+    ["review:1000:1", "oldest"],
+    ["review:2000:1", "older"],
+    ["review:3000:1", "newer"],
+    ["unrelated", "kept"],
+  ]);
+  const logs = [];
+  const host = {
+    store: {
+      set: async (key, value) => {
+        // Room for one more card only after two are gone.
+        if ([...stored.keys()].filter((k) => k.startsWith("review:")).length > 1) throw new Error("Store full");
+        stored.set(key, value);
+      },
+      keys: async () => [...stored.keys()],
+      delete: async (key) => stored.delete(key),
+    },
+    ui: { log: (text) => logs.push(text) },
+  };
+  await saveReview(host, "4000:1", "new report", () => true);
+  expect(stored.get("review:4000:1")).toBe("new report");
+  expect(stored.has("review:1000:1")).toBe(false);
+  expect(stored.has("review:2000:1")).toBe(false);
+  expect(stored.get("review:3000:1")).toBe("newer");
+  expect(stored.get("unrelated")).toBe("kept");
+  expect(logs).toEqual([]);
+});
