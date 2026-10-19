@@ -24,6 +24,12 @@ export function register(on, options) {
     resultRows: new Map(),
   };
 
+  // Restore only our command cards; the host supplies this row for rendering.
+  on("ui.render", { component: "CommandOutput", props: { command: "coderabbit-review" } }, async ($, e, next) => {
+    await loadReviews($, state);
+    return next(e);
+  });
+
   registerInterface(
     on,
     () => state.progress,
@@ -40,15 +46,9 @@ export function register(on, options) {
       argumentHint: "[--fresh | help | results]",
       immediate: true,
     });
-    await restoreReviews($, state);
+    await loadReviews($, state);
     return next(e);
   });
-
-  // session.start does not fire again for /clear, /resume, or /branch.
-  on("classic.SessionStart", { source: ["clear", "resume", "fork"] }, async ($, e, next) => {
-    await restoreReviews($, state);
-    return next(e);
-  }).catch(($, e, next) => next(e));
 
   on("session.end", async ($, e, next) => {
     state.generation++;
@@ -72,7 +72,12 @@ export function register(on, options) {
     return next(e);
   });
 
-  on("command.run", { command: "coderabbit-review" }, ($, e) => runCommand($, e, options, state));
+  on("command.run", { command: "coderabbit-review" }, async ($, e) => {
+    const generation = state.generation;
+    await loadReviews($, state);
+    if (generation !== state.generation) return { text: PROCESS_FAILURE };
+    return runCommand($, e, options, state);
+  });
 
   on("ui.press", { element: "review-again" }, async ($, e, next) => {
     if (e.plugin !== "coderabbit-mod" || e.component !== "AbovePrompt") return next(e);
@@ -328,4 +333,12 @@ export async function saveReviews($, key, results, isCurrent) {
     if (isCurrent())
       $.ui.log("CodeRabbit results are visible now, but could not be saved for reload. Use /coderabbit-review results before leaving this session.");
   }
+}
+
+function loadReviews($, state) {
+  if (state.restorationGeneration !== state.generation) {
+    state.restorationGeneration = state.generation;
+    state.restoration = restoreReviews($, state);
+  }
+  return state.restoration;
 }

@@ -21,6 +21,7 @@ for (const failedCall of ["surfaces", "now"]) {
     };
     const host = {
       session: { surfaces: async () => hostCall("surfaces", ["desktop"]) },
+      ui: { log() {}, invalidate() {} },
       clock: {
         now: async () => hostCall("now", 1000),
         after: () => ({ cancel() {} }),

@@ -214,11 +214,12 @@ The existing CodeRabbit skills plugin is a separate package with its own version
 ## Execution disclosure
 
 The `session.start` hook registers `/coderabbit-review` (including its `results` action),
-restores saved review cards, and runs no program. The `classic.SessionStart` hook
-is filtered to `clear`, `resume`, and `fork`: it restores only this session's
-CodeRabbit cards from the plugin store after `/clear`, `/resume`, or `/branch`.
-It passes the event unchanged to the next handler; it does not rewrite settings,
-instructions, tool descriptions, or other hooks. The review command schedules
+restores saved review cards, and runs no program. The `session.end` hook cancels
+pending work and clears session-local state, including when `/clear`, `/resume`,
+or `/branch` changes the session. The next CodeRabbit command or saved-card
+render loads that session's CodeRabbit records from the plugin store. The mod
+registers no `classic.*` hooks and does not rewrite settings, instructions, tool
+descriptions, or other hooks. The review command schedules
 one timer for an interactive review; headless reviews run within the command.
 Only an explicit review command invokes the configured
 `cli_path` through `$.process.spawn` as an argument vector, starting with
