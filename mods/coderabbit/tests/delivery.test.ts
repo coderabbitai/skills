@@ -271,22 +271,21 @@ test("a failed card read can be retried after the store recovers", async () => {
   expect(state.results.get("1000:1")).toBe("report");
 });
 
+// UTF-8 byte count with standard JavaScript only; the test runtime has no Buffer.
+const utf8Bytes = (text) => encodeURIComponent(text).replace(/%[0-9A-F]{2}/g, "x").length;
+
 function cappedStore(entries, failAlways = false) {
   const stored = new Map(entries);
-  const size = () => JSON.stringify(Object.fromEntries(stored)).length;
   return {
     stored,
     host: {
       store: {
         get: async (key) => stored.get(key),
         set: async (key, value) => {
-          const previous = stored.get(key);
-          stored.set(key, value);
-          if (failAlways || size() > 4 * 1024 * 1024) {
-            if (previous === undefined) stored.delete(key);
-            else stored.set(key, previous);
+          const next = new Map(stored).set(key, value);
+          if (failAlways || utf8Bytes(JSON.stringify(Object.fromEntries(next))) > 4 * 1024 * 1024)
             throw new Error("Store write rejected");
-          }
+          stored.set(key, value);
         },
         keys: async () => [...stored.keys()],
         delete: async (key) => stored.delete(key),
@@ -305,6 +304,20 @@ test("a save at the store's size cap drops only the oldest cards it needs to", a
     ["review:3000:1", "c".repeat(1.3 * MiB)],
   ]);
   await saveReview(host, "4000:1", "d".repeat(1.3 * MiB), () => true);
+  expect(stored.has("review:4000:1")).toBe(true);
+  expect(stored.has("review:1000:1")).toBe(false);
+  expect(stored.has("review:2000:1")).toBe(true);
+  expect(stored.has("review:3000:1")).toBe(true);
+});
+
+test("a save at the size cap counts multi-byte review text in bytes", async () => {
+  // 0.43 Mi CJK characters is about 1.29 MiB of UTF-8 per card.
+  const { stored, host } = cappedStore([
+    ["review:1000:1", "漢".repeat(0.43 * MiB)],
+    ["review:2000:1", "字".repeat(0.43 * MiB)],
+    ["review:3000:1", "語".repeat(0.43 * MiB)],
+  ]);
+  await saveReview(host, "4000:1", "文".repeat(0.43 * MiB), () => true);
   expect(stored.has("review:4000:1")).toBe(true);
   expect(stored.has("review:1000:1")).toBe(false);
   expect(stored.has("review:2000:1")).toBe(true);

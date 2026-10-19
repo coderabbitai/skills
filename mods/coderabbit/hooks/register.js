@@ -369,7 +369,17 @@ async function savedKeys($) {
 
 // The host rejects a write that would take the store past 4 MiB of JSON in all.
 const STORE_LIMIT = 4 * 1024 * 1024;
-const entrySize = (key, value) => JSON.stringify(key).length + JSON.stringify(value ?? null).length + 2;
+const entrySize = (key, value) => utf8Length(JSON.stringify(key)) + utf8Length(JSON.stringify(value ?? null)) + 2;
+
+// Bytes of UTF-8, so multi-byte review text is never under-counted.
+function utf8Length(text) {
+  let bytes = 0;
+  for (const char of text) {
+    const code = char.codePointAt(0);
+    bytes += code < 0x80 ? 1 : code < 0x800 ? 2 : code < 0x10000 ? 3 : 4;
+  }
+  return bytes;
+}
 
 async function writeReview($, key, result) {
   try {
