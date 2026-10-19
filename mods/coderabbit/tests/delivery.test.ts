@@ -337,6 +337,18 @@ test("a save at the size cap counts store records other than saved cards", async
   expect(stored.has("reviews:old-session")).toBe(true);
 });
 
+test("a save that freeing cards cannot fit keeps every saved card", async () => {
+  const { stored, host } = cappedStore([
+    ["reviews:old-session", "x".repeat(3.8 * MiB)],
+    ["review:1000:1", "a".repeat(0.1 * MiB)],
+  ]);
+  const logs = [];
+  host.ui.log = (text) => logs.push(text);
+  await saveReview(host, "4000:1", "d".repeat(0.3 * MiB), () => true);
+  expect([...stored.keys()]).toEqual(["reviews:old-session", "review:1000:1"]);
+  expect(logs[0]).toContain("could not be saved for reload");
+});
+
 test("a save that cannot succeed keeps every saved card", async () => {
   for (const [result, failAlways] of [["d".repeat(4.5 * MiB), false], ["small", true]]) {
     const { stored, host } = cappedStore([

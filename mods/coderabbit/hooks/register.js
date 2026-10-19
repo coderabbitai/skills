@@ -399,6 +399,9 @@ async function writeReview($, key, result) {
     }
     const saved = (await savedKeys($)).filter((other) => other !== key);
     if (total + needed <= STORE_LIMIT) throw error;
+    // Only saved cards can be freed; keep them all when even that would not make room.
+    const unfreeable = saved.reduce((rest, other) => rest - sizes.get(other), total);
+    if (unfreeable + needed > STORE_LIMIT) throw error;
     for (const old of saved.reverse()) {
       if (total + needed <= STORE_LIMIT) break;
       await $.store.delete(old);
