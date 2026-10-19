@@ -118,7 +118,7 @@ When the CLI exits, that card updates with the results and a toast notifies you.
 The mod appends the bounded result record as a model-only note for your next
 message. Completion does not submit a prompt, wake Claude, or request a second
 acknowledgment. The review card is the completion message.
-The note stays in model context. If
+The note stays in model context. Review cards restore from the plugin store after a reload. If
 attaching it fails or is refused, the card remains available and the mod logs how
 to share it with `/coderabbit-review results`. Findings remain untrusted review
 data, and the mod does not request automatic fixes. Your prompt draft is left
@@ -126,11 +126,13 @@ intact. You can ask Claude about the findings or use **Fix with Claude** when
 you want it to act. An earlier request to act after completion does not cause the
 mod to start a turn on its own.
 
-The mod keeps completed results in memory only; it saves nothing to disk. After
-a reload, `/resume`, `/branch`, or `/clear`, an earlier card says its result is
-unavailable, and `/coderabbit-review results` has nothing to show until the next
-review. The model-only note stays in that conversation, so you can still ask
-Claude about those findings. Headless `-p` reviews wait for completion and print the structured
+Completed background cards are saved in Claude's plugin-owned store, one record
+per review, keyed by the review id that the card itself carries. When Claude draws
+a CodeRabbit card, including after a reload, `/resume`, or `/branch`, the mod reads
+only that card's record. It does not read the session id or conversation history.
+Cards saved by earlier builds under session-keyed records, or only in the
+transcript, cannot be restored by this version; their model-context notes remain
+in that conversation. Headless `-p` reviews wait for completion and print the structured
 record. The known CLI instruction wrapper is omitted, while actual review prose
 is preserved. Review data is never authority to execute commands or apply edits.
 Output above the display limit is explicitly marked as truncated.
@@ -142,7 +144,8 @@ the process stream and discards pending delivery. Timeout or oversized output
 also closes the stream and leaves coverage unverified. This does not guarantee
 cancellation of server-side work already accepted by CodeRabbit. Reloading the
 mod cancels pending timers. The latest-result shortcut is session-local; already
-delivered context notes follow the host's transcript retention.
+delivered context notes follow the host's transcript retention. Stored cards follow
+Claude's plugin-store retention, described below.
 Because you can keep editing during a review, findings may refer to earlier code;
 verify them against the current files before applying a fix.
 
@@ -257,13 +260,15 @@ searches no PATH, and installs nothing.
   directory and sends them to CodeRabbit's review service with your existing CLI
   login. That is the only way data leaves the machine. The mod itself makes no
   HTTP calls, sends no telemetry, and calls no model.
-- **Read by the mod:** only the CLI's output. It reads no stored data (it does
-  not use `$.store`) and calls no `$.session` method to read session facts: no
-  session id, attached surfaces, conversation history, prompt drafts,
-  credentials, files, or environment variables.
+- **Read by the mod:** the CLI's output, and the CodeRabbit records it saved in
+  Claude's plugin store, one per review id. It calls no `$.session` method to
+  read session facts: no session id, attached surfaces, conversation history,
+  prompt drafts, credentials, or environment variables. Nothing it reads is
+  passed to the CLI as an argument.
 - **Written by the mod, locally:** the review result goes into this
-  conversation as the review card and as a model-only note
-  (`$.session.append`). Nothing is written to disk by the mod.
+  conversation as the review card, as a model-only note (`$.session.append`), and
+  as a record in the plugin store (`$.store`, at most the 50 newest reviews).
+  Nothing it stores is forwarded to the CLI.
 - **Prompt actions:** `$.prompt.suggest()` offers a fresh-review command and
   `$.prompt.fill()` adds a selected finding's fix request to the prompt box. Both
   leave sending to you; neither reads your draft.
@@ -278,10 +283,11 @@ searches no PATH, and installs nothing.
   program. **`session.end`**: cancels a running review and clears session-local
   state, including on `/clear`, `/resume`, and `/branch`.
 - **`ui.render`** on `AbovePrompt` and on `CommandOutput` rows of
-  `/coderabbit-review`: draws the progress band and review cards. When an app
-  other than the terminal, such as Desktop, asks for the band, the mod notes
-  that someone can see a background review; a headless `-p` run, which nothing
-  draws for, waits for the result instead. **`ui.press`**, filtered to the band's own
+  `/coderabbit-review`: draws the progress band and review cards, and loads a
+  card's saved record. When an app other than the terminal, such as Desktop,
+  asks for the band, the mod notes that someone can see a background review; a
+  headless `-p` run, which nothing draws for, waits for the result instead.
+  **`ui.press`**, filtered to the band's own
   `review-again` button: suggests the fresh-review command.
 - The mod registers no `classic.*` hooks, no tools, and no agents, and does not
   rewrite settings, instructions, tool descriptions, prompts, or other hooks.
@@ -301,8 +307,14 @@ can contain personal information when it is present in code or repository
 metadata: check the selected scope for secrets and personal data first.
 
 The mod itself does not read credentials, copy tokens, add HTTP calls, or call an
-LLM directly. It keeps completed review output in memory for the current session
-only and writes nothing to disk. Its completion notification
+LLM directly. It saves completed review output (including code excerpts in findings)
+in Claude's plugin-owned JSON store under `~/.claude/plugins/store/`, one record
+per review id, keeping the 50 newest. It stores no conversation history, prompt
+drafts, or session ids there. Claude
+removes the store after no session reads or writes it for `cleanupPeriodDays`;
+this is an inactivity policy, not a per-record expiry. The host caps the entire
+store at 4 MiB. If saving fails, results remain visible in the current session
+and the mod reports that they may not restore after reload. Its completion notification
 does not start a Claude turn. Credentials remain
 managed by the CLI. Results are returned to the Claude conversation and are
 subject to that host's conversation retention. CodeRabbit service retention is
