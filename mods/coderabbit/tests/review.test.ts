@@ -25,6 +25,10 @@ function messageText(answer) {
 }
 
 const OPTIONS = { options: { cli_path: "/test/CodeRabbit CLI" } };
+
+// Desktop and other apps attach after session.start; the terminal raises nothing.
+const attach = ($, surface) =>
+  surface === "terminal" ? undefined : $.session.attach({ surface, clientId: surface + ":default" });
 const complete = (status = "review_completed", findings = 0) =>
   JSON.stringify({ type: "complete", status, findings }) + "\n";
 const output = (stdout, extra = {}) => ({
@@ -49,7 +53,6 @@ function mockProcess(on, handler) {
 
 function stubProcess(on, result) {
   mock.clock(on);
-  on("session.surfaces", () => ({ value: [] }));
   const calls = [];
   const statuses = [];
   on("ui.status", ($, e) => {
@@ -172,10 +175,11 @@ for (const surface of ["terminal", "desktop"]) {
           }),
         ),
       }));
-      on("session.surfaces", () => ({ value: [surface] }));
+      on("session.attach", ($, e) => ({ clientId: e.clientId }));
       on("ui.render", { component: "AbovePrompt" }, ($, e) =>
         $.ui.resolve(e).Text({ children: [] }),
       );
+      await attach($, surface);
       await $.session.start({ surface, isInteractive: true, cwd: "/work" });
       const band = await $.ui.mount(liveBand(surface));
       const start = await $.command.run({ command: "coderabbit-review", args: "" });
@@ -326,7 +330,6 @@ test(
   OPTIONS,
   async ($, on) => {
     mock.clock(on);
-    on("session.surfaces", () => ({ value: [] }));
     let calls = 0;
     const statuses = [];
     on("ui.status", ($, e) => {
@@ -350,7 +353,6 @@ test(
 
 test("refuses an overlapping review without launching a second process", OPTIONS, async ($, on) => {
   mock.clock(on);
-  on("session.surfaces", () => ({ value: [] }));
   let finish;
   let started;
   let calls = 0;
@@ -382,7 +384,6 @@ for (const fails of [false, true]) {
     OPTIONS,
     async ($, on) => {
       const clock = mock.clock(on);
-      on("session.surfaces", () => ({ value: [] }));
       const statuses = [];
       on("ui.status", ($, e) => {
         statuses.push(e.text);
@@ -844,8 +845,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
     async ($, on) => {
       const clock = mock.clock(on);
       const { toasts, logs, submissions } = interactiveHost(on);
-      const attachedSurfaces = [];
-      on("session.surfaces", () => ({ value: attachedSurfaces }));
+      on("session.attach", ($, e) => ({ clientId: e.clientId }));
       let calls = 0;
       mockProcess(on, async () => {
         calls++;
@@ -864,7 +864,7 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
         cwd: "/work",
       });
       // Desktop attaches after SDK session.start, before the person runs a command.
-      attachedSurfaces.push(surface);
+      if (surface === "desktop") await attach($, surface);
       const started = await $.command.run({ command: "coderabbit-review", args: "" });
       expect(started.text).toContain("Reviewing in the background");
       expect(calls).toBe(0);
@@ -998,7 +998,6 @@ test(
   async ($, on) => {
     const clock = mock.clock(on);
     interactiveHost(on);
-    on("session.surfaces", () => ({ value: ["terminal"] }));
     on("ui.render", { component: "AbovePrompt" }, ($, e) => $.ui.resolve(e).Text({ children: [] }));
     on("process.spawn", async function* () {
       yield { stream: "stdout", text: '{"type":"status","status":"analyzing"}\n' };
@@ -1030,7 +1029,7 @@ for (const surface of ["desktop", "terminal"]) {
     async ($, on) => {
       const clock = mock.clock(on);
       interactiveHost(on);
-      on("session.surfaces", () => ({ value: [surface] }));
+      on("session.attach", ($, e) => ({ clientId: e.clientId }));
       on("ui.render", { component: "AbovePrompt" }, ($, e) =>
         $.ui.resolve(e).Text({ children: ["Host content"] }),
       );
@@ -1045,7 +1044,12 @@ for (const surface of ["desktop", "terminal"]) {
         await clock.sleep(1000);
         return { value: { code: 0, signal: null } };
       });
-      await $.session.start({ surface: null, isInteractive: false, cwd: "/work" });
+      await attach($, surface);
+      await $.session.start({
+        surface: surface === "terminal" ? "terminal" : null,
+        isInteractive: surface === "terminal",
+        cwd: "/work",
+      });
       const band = await $.ui.mount(liveBand(surface));
       await $.command.run({ command: "coderabbit-review", args: "" });
       await clock.advance(1);
@@ -1070,7 +1074,6 @@ test(
   { ...OPTIONS, timeoutMs: 15000 },
   async ($, on) => {
     const clock = mock.clock(on);
-    on("session.surfaces", () => ({ value: [] }));
     let closed = false;
     on("process.spawn", async function* () {
       try {
@@ -1095,7 +1098,6 @@ test(
   async ($, on) => {
     const { submissions } = interactiveHost(on);
     mock.clock(on);
-    on("session.surfaces", () => ({ value: [] }));
     mockProcess(on, () => ({ value: output(complete()) }));
     const result = await $.command.run({ command: "coderabbit-review", args: "" });
     expect(result.text).toContain("review completed");
@@ -1110,7 +1112,7 @@ for (const surface of ["desktop", "terminal"]) {
     async ($, on) => {
       const clock = mock.clock(on);
       const { submissions } = interactiveHost(on);
-      on("session.surfaces", () => ({ value: [surface] }));
+      on("session.attach", ($, e) => ({ clientId: e.clientId }));
       on("ui.render", { component: "AbovePrompt" }, ($, e) =>
         $.ui.resolve(e).Text({ children: ["Other mod content"] }),
       );
@@ -1118,6 +1120,7 @@ for (const surface of ["desktop", "terminal"]) {
         await clock.sleep(5000);
         return { value: output(complete()) };
       });
+      await attach($, surface);
       await $.session.start({ surface, isInteractive: true, cwd: "/work" });
       const band = await $.ui.mount(liveBand(surface));
       await $.command.run({ command: "coderabbit-review", args: "" });
@@ -1178,10 +1181,11 @@ for (const surface of ["terminal", "desktop"]) {
             ),
           };
         });
-        on("session.surfaces", () => ({ value: [surface] }));
+        on("session.attach", ($, e) => ({ clientId: e.clientId }));
         on("ui.render", { component: "AbovePrompt" }, ($, e) =>
           $.ui.resolve(e).Text({ children: [] }),
         );
+        await attach($, surface);
         await $.session.start({ surface, isInteractive: true, cwd: "/work" });
         const band = await $.ui.mount(liveBand(surface));
         const started = await $.command.run({ command: "coderabbit-review", args: scope });
@@ -1236,10 +1240,11 @@ for (const surface of ["terminal", "desktop"]) {
         calls++;
         return { value: output(JSON.stringify(finding) + "\n" + complete("review_completed", 1)) };
       });
-      on("session.surfaces", () => ({ value: [surface] }));
+      on("session.attach", ($, e) => ({ clientId: e.clientId }));
       on("ui.render", { component: "AbovePrompt" }, ($, e) =>
         $.ui.resolve(e).Text({ children: [] }),
       );
+      await attach($, surface);
       await $.session.start({ surface, isInteractive: true, cwd: "/work" });
       const band = await $.ui.mount(liveBand(surface));
       const started = await $.command.run({ command: "coderabbit-review", args: "" });
@@ -1319,7 +1324,7 @@ for (const surface of ["terminal", "desktop"]) {
           if (blocked === "error") throw new Error("Host unavailable");
           return { isShown: false };
         });
-        on("session.surfaces", () => ({ value: [surface] }));
+        on("session.attach", ($, e) => ({ clientId: e.clientId }));
         on("ui.render", { component: "AbovePrompt" }, ($, e) =>
           $.ui.resolve(e).Text({ children: [] }),
         );
@@ -1336,6 +1341,7 @@ for (const surface of ["terminal", "desktop"]) {
             ),
           };
         });
+        await attach($, surface);
         await $.session.start({ surface, isInteractive: true, cwd: "/work" });
         const band = await $.ui.mount(liveBand(surface));
         const started = await $.command.run({ command: "coderabbit-review", args: "" });
@@ -1370,7 +1376,7 @@ for (const surface of ["terminal", "desktop"]) {
     async ($, on) => {
       const clock = mock.clock(on);
       const { submissions } = interactiveHost(on);
-      on("session.surfaces", () => ({ value: [surface] }));
+      on("session.attach", ($, e) => ({ clientId: e.clientId }));
       on("ui.render", { component: "AbovePrompt" }, ($, e) =>
         $.ui.resolve(e).Text({ children: [] }),
       );
@@ -1395,6 +1401,7 @@ for (const surface of ["terminal", "desktop"]) {
         }
         return { value: { code: 0, signal: null } };
       });
+      await attach($, surface);
       await $.session.start({ surface, isInteractive: true, cwd: "/work" });
       const band = await $.ui.mount(liveBand(surface));
       const started = await $.command.run({ command: "coderabbit-review", args: "--fresh" });

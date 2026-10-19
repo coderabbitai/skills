@@ -2,7 +2,7 @@ import { expect, test } from "claude-code/testing";
 import { showFindings } from "../hooks/interface.js";
 import { register, restoreReview, saveReview, storeReviewContext } from "../hooks/register.js";
 
-for (const failedCall of ["surfaces", "now"]) {
+for (const failedCall of ["now"]) {
   test("a failed startup call leaves the next review available: " + failedCall, async () => {
     const handlers = new Map();
     register((event, filter, handler) => {
@@ -20,13 +20,13 @@ for (const failedCall of ["surfaces", "now"]) {
       return value;
     };
     const host = {
-      session: { surfaces: async () => hostCall("surfaces", ["desktop"]) },
       ui: { log() {}, invalidate() {} },
       clock: {
         now: async () => hostCall("now", 1000),
         after: () => ({ cancel() {} }),
       },
     };
+    await handlers.get("session.attach")(host, { surface: "desktop", clientId: "desktop:default" }, async (e) => e);
     const command = () => handlers.get("command.run")(host, { args: "" });
     expect((await command()).text).toContain("could not finish");
     expect((await command()).text).toContain("Reviewing in the background");
@@ -52,7 +52,7 @@ for (const interactive of [false, true]) {
     const timers = [];
     const host = {
       command: { register: async () => {} },
-      session: { surfaces: async () => [], messages: async () => [] },
+      session: { messages: async () => [] },
       clock: {
         now: async () => 1000,
         after: (ms, fn) => {

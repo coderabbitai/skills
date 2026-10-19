@@ -13,6 +13,8 @@ export function register(on, options) {
   const state = {
     running: false,
     interactive: false,
+    attached: new Set(),
+    drawn: false,
     progress: undefined,
     latestResult: undefined,
     generation: 0,
@@ -26,6 +28,22 @@ export function register(on, options) {
     results: new Map(),
     resultRows: new Map(),
   };
+
+  // An app that draws for the session means a person can see a background review.
+  // Desktop starts through the SDK (isInteractive=false) and attaches its UI later.
+  on("session.attach", async ($, e, next) => {
+    state.attached.add(e.clientId);
+    return next(e);
+  });
+  on("session.detach", async ($, e, next) => {
+    state.attached.delete(e.clientId);
+    return next(e);
+  });
+  // Also catches an app attached before a reload; the terminal REPL is isInteractive.
+  on("ui.render", { component: "AbovePrompt" }, async ($, e, next) => {
+    if (e.surface !== "terminal") state.drawn = true;
+    return next(e);
+  });
 
   // Restore only the card being drawn, by the review id its own row carries.
   on("ui.render", { component: "CommandOutput", props: { command: "coderabbit-review" } }, async ($, e, next) => {
@@ -204,12 +222,10 @@ async function runCommand($, e, options, state) {
       $.ui.invalidate("ui.render");
     }
   };
-  // Desktop starts through the SDK (isInteractive=false) and attaches its UI later.
-  // Check at command time; only a session without a prompt or attached UI must wait.
-  let headless;
+  // Only a session that no app has drawn for, such as a -p run, must wait.
+  const headless = !state.interactive && !state.drawn && state.attached.size === 0;
   let reviewId;
   try {
-    headless = !state.interactive && (await $.session.surfaces()).length === 0;
     if (!headless) reviewId = String(await $.clock.now()) + ":" + ++state.serial;
   } catch {
     if (state.generation === runGeneration) state.running = false;
