@@ -389,13 +389,15 @@ async function writeReview($, key, result) {
     // the oldest cards as the new one needs; otherwise keep every saved card.
     const needed = entrySize(key, result);
     if (needed + 2 > STORE_LIMIT) throw error;
-    const saved = (await savedKeys($)).filter((other) => other !== key);
+    // The cap covers the whole store, including records from earlier builds.
     const sizes = new Map();
     let total = 2;
-    for (const other of saved) {
+    for (const other of await $.store.keys()) {
+      if (other === key) continue;
       sizes.set(other, entrySize(other, await $.store.get(other)));
       total += sizes.get(other);
     }
+    const saved = (await savedKeys($)).filter((other) => other !== key);
     if (total + needed <= STORE_LIMIT) throw error;
     for (const old of saved.reverse()) {
       if (total + needed <= STORE_LIMIT) break;

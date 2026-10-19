@@ -324,6 +324,19 @@ test("a save at the size cap counts multi-byte review text in bytes", async () =
   expect(stored.has("review:3000:1")).toBe(true);
 });
 
+test("a save at the size cap counts store records other than saved cards", async () => {
+  const { stored, host } = cappedStore([
+    ["reviews:old-session", "x".repeat(1.3 * MiB)],
+    ["review:1000:1", "a".repeat(1.3 * MiB)],
+    ["review:2000:1", "b".repeat(1.3 * MiB)],
+  ]);
+  await saveReview(host, "4000:1", "d".repeat(1.3 * MiB), () => true);
+  expect(stored.has("review:4000:1")).toBe(true);
+  expect(stored.has("review:1000:1")).toBe(false);
+  expect(stored.has("review:2000:1")).toBe(true);
+  expect(stored.has("reviews:old-session")).toBe(true);
+});
+
 test("a save that cannot succeed keeps every saved card", async () => {
   for (const [result, failAlways] of [["d".repeat(4.5 * MiB), false], ["small", true]]) {
     const { stored, host } = cappedStore([
