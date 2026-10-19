@@ -83,22 +83,16 @@ export function register(on, options) {
     try {
       await next(e);
       if (state.progress !== current) return { element: e.element };
-      const draft = await $.prompt.read();
-      if (draft.text.trim()) {
-        $.ui.toast("Send or clear your draft, then choose Run fresh review.");
-        return { element: e.element };
-      }
-      const result = await $.prompt.fill({
+      const result = await $.prompt.suggest({
         text: "/coderabbit-review " + current.retryArgs,
-        mode: "append",
       });
       $.ui.toast(
-        result.isFilled
-          ? "Press Enter to start a fresh review."
-          : "Could not prepare the command. Try again when the prompt is available.",
+        result.isShown
+          ? "Accept the suggestion with Tab, then press Enter to start a fresh review."
+          : "Could not show the command. Try again with an empty prompt when Claude is idle.",
       );
     } catch {
-      $.ui.toast("Could not start the review. Run /coderabbit-review help.");
+      $.ui.toast("Could not suggest the command. Run /coderabbit-review help.");
     } finally {
       current.retryRequested = false;
       $.ui.invalidate("ui.render");

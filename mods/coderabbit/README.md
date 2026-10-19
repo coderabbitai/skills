@@ -87,11 +87,13 @@ severity counts, and the last event time. **View findings** jumps to the complet
 review card when there are findings; other outcomes offer **Details**. In plain terminal mode, or if the
 host cannot reveal the card, `/coderabbit-review results` reopens the saved result.
 File counts appear only when the CLI supplies them on successful completion.
-When the CLI explicitly says no fresh analysis ran, **Run fresh review…** prepares
-the same scope and base with `--fresh` in an empty prompt. Press Enter to start it,
-using your review allowance. Each run gets its own conversation card; the previous
-result stays intact. An existing draft is left untouched. Other skips, failures,
-and rate limits do not offer this action. The **×** dismisses the bar without
+When the CLI explicitly says no fresh analysis ran, **Run fresh review…** suggests
+the same scope and base with `--fresh` in an empty prompt. Accept the suggestion
+with Tab, then press Enter to start it, using your review allowance. Claude shows
+no suggestion while the prompt contains text, a turn is running, or no prompt is
+available. The mod does not read your draft. Each run gets its own conversation
+card; the previous result stays intact. An existing draft is left untouched.
+Other skips, failures, and rate limits do not offer this action. The **×** dismisses the bar without
 cancelling a review or its notification; a new review shows it again. Narrow
 surfaces use shorter control labels and hide the timer below 70 columns; the row
 can wrap when needed. Scope stays in the expanded details to keep the band compact.
@@ -212,7 +214,11 @@ The existing CodeRabbit skills plugin is a separate package with its own version
 ## Execution disclosure
 
 The `session.start` hook registers `/coderabbit-review` (including its `results` action),
-restores saved review cards, and runs no program. The review command schedules
+restores saved review cards, and runs no program. The `classic.SessionStart` hook
+is filtered to `clear`, `resume`, and `fork`: it restores only this session's
+CodeRabbit cards from the plugin store after `/clear`, `/resume`, or `/branch`.
+It passes the event unchanged to the next handler; it does not rewrite settings,
+instructions, tool descriptions, or other hooks. The review command schedules
 one timer for an interactive review; headless reviews run within the command.
 Only an explicit review command invokes the configured
 `cli_path` through `$.process.spawn` as an argument vector, starting with
@@ -249,13 +255,16 @@ require reviewer inspection; the following describes their actual use.
   CodeRabbit's review service using the existing CLI account. The mod receives
   CLI output and returns findings to the current Claude conversation. It does
   not pass conversation history or the prompt draft to the CLI, and has no
-  separate HTTP, telemetry, or upload endpoint.
-- **Saved cards and draft access:** `$.session.id()` selects this session's
-  CodeRabbit records in `$.store`; the mod never reads conversation history.
-  Stored results are not forwarded to the CLI. `$.prompt.read()` checks whether
-  the draft is empty before preparing a fresh-review command. `$.prompt.fill()`
-  prepares that command or appends a selected finding's fix request for the user
-  to send. It does not submit the draft.
+  separate HTTP, telemetry, or upload endpoint. Session IDs are used only to key
+  saved cards locally; attached-surface information only selects background or
+  headless behavior. Neither is passed to the CLI or sent to CodeRabbit.
+- **Saved cards and prompt actions:** `$.session.id()` selects this session's
+  CodeRabbit records in `$.store`; the mod never reads conversation history or
+  prompt drafts. Stored results are not forwarded to the CLI. `$.prompt.suggest()`
+  proposes a fresh-review command; Claude declines when the prompt is occupied
+  or a turn is running, without exposing draft text to the mod. `$.prompt.fill()`
+  appends a selected finding's fix request for the user to send. Neither action
+  submits a prompt or starts a review.
 - **Command hook:** the `command.run` hook is filtered to `coderabbit-review`.
   It handles help and saved results without starting a program, or validates the
   requested review scope before starting the CLI. It does not intercept other

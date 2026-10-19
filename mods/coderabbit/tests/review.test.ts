@@ -1148,16 +1148,19 @@ for (const surface of ["desktop", "terminal"]) {
 for (const surface of ["terminal", "desktop"]) {
   for (const scope of ["committed --base main", "all --include-untracked --fresh"]) {
     test(
-      surface + " fresh review draft preserves scope and creates a separate card: " + scope,
+      surface + " fresh review suggestion preserves scope and creates a separate card: " + scope,
       OPTIONS,
       async ($, on) => {
         const clock = mock.clock(on);
         const { toasts, submissions } = interactiveHost(on);
-        const drafts = [];
-        on("prompt.read", () => ({ value: { text: "", cursor: 0 } }));
-        on("prompt.fill", ($, e) => {
-          drafts.push(e);
-          return { isFilled: true };
+        const suggestions = [];
+        let reads = 0;
+        let fills = 0;
+        on("prompt.read", () => { reads++; return { value: { text: "private draft", cursor: 0 } }; });
+        on("prompt.fill", () => { fills++; return { isFilled: true }; });
+        on("prompt.suggest", ($, e) => {
+          suggestions.push(e);
+          return { isShown: true };
         });
         const calls = [];
         mockProcess(on, ($, e) => {
@@ -1190,11 +1193,12 @@ for (const surface of ["terminal", "desktop"]) {
         await band.press({ key: "review-again" });
         await clock.settle();
         expect(calls.length).toBe(1);
-        expect(drafts.length).toBe(1);
-        expect(drafts[0].mode).toBe("append");
+        expect(suggestions.length).toBe(1);
+        expect(reads).toBe(0);
+        expect(fills).toBe(0);
         const freshArgs = scope.includes("--fresh") ? scope : scope + " --fresh";
-        expect(drafts[0].text).toBe("/coderabbit-review " + freshArgs);
-        // The person sends the prepared command; the button never submits it.
+        expect(suggestions[0].text).toBe("/coderabbit-review " + freshArgs);
+        // The person accepts and sends the suggestion; the button never submits it.
         expect(submissions).toEqual([]);
         const fresh = await $.command.run({ command: "coderabbit-review", args: freshArgs });
         expect(JSON.parse(fresh.text).id).not.toBe(JSON.parse(started.text).id);
@@ -1205,7 +1209,7 @@ for (const surface of ["terminal", "desktop"]) {
         await clock.settle();
         expect(toasts).toEqual([
           "Review skipped",
-          "Press Enter to start a fresh review.",
+          "Accept the suggestion with Tab, then press Enter to start a fresh review.",
           "Review complete · No findings",
         ]);
         expect(calls.length).toBe(2);
@@ -1296,21 +1300,24 @@ for (const surface of ["terminal", "desktop"]) {
 }
 
 for (const surface of ["terminal", "desktop"]) {
-  for (const blocked of ["draft", "composer"]) {
+  for (const blocked of ["refused", "error"]) {
     test(
-      surface + " fresh review preserves an occupied or unavailable prompt: " + blocked,
+      surface + " fresh review leaves the prompt untouched when suggesting fails: " + blocked,
       OPTIONS,
       async ($, on) => {
         const clock = mock.clock(on);
         const { toasts, submissions } = interactiveHost(on);
-        const drafts = [];
+        const suggestions = [];
+        let reads = 0;
+        let fills = 0;
         let calls = 0;
-        on("prompt.read", () => ({
-          value: { text: blocked === "draft" ? "my unfinished message" : "", cursor: 0 },
-        }));
-        on("prompt.fill", ($, e) => {
-          drafts.push(e);
-          return { isFilled: false };
+        on("prompt.read", () => { reads++; return { value: { text: "private draft", cursor: 0 } }; });
+        on("prompt.fill", () => { fills++; return { isFilled: true }; });
+        on("prompt.suggest", ($, e) => {
+          suggestions.push(e);
+          if (suggestions.length > 1) return { isShown: true };
+          if (blocked === "error") throw new Error("Host unavailable");
+          return { isShown: false };
         });
         on("session.surfaces", () => ({ value: [surface] }));
         on("ui.render", { component: "AbovePrompt" }, ($, e) =>
@@ -1338,10 +1345,18 @@ for (const surface of ["terminal", "desktop"]) {
         await band.press({ key: "review-again" });
         expect(calls).toBe(1);
         expect(submissions).toEqual([]);
-        expect(drafts.length).toBe(blocked === "draft" ? 0 : 1);
+        expect(suggestions.length).toBe(1);
+        expect(reads).toBe(0);
+        expect(fills).toBe(0);
         expect(toasts.at(-1)).toContain(
-          blocked === "draft" ? "Send or clear your draft" : "Could not prepare the command",
+          blocked === "error" ? "Could not suggest the command" : "Could not show the command",
         );
+        // Refusal/failure must release the guard so the person can retry later.
+        await band.press({ key: "review-again" });
+        expect(suggestions.length).toBe(2);
+        expect(toasts.at(-1)).toContain("Accept the suggestion with Tab");
+        expect(calls).toBe(1);
+        expect(submissions).toEqual([]);
         expect(JSON.stringify(await card.drawn())).toContain("Review skipped");
       },
     );
