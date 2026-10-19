@@ -367,19 +367,31 @@ async function savedKeys($) {
     .sort((a, b) => compareIds(b.slice(STORE_PREFIX.length), a.slice(STORE_PREFIX.length)));
 }
 
+// The host rejects a write that would take the store past 4 MiB of JSON in all.
+const STORE_LIMIT = 4 * 1024 * 1024;
+const entrySize = (key, value) => JSON.stringify(key).length + JSON.stringify(value ?? null).length + 2;
+
 async function writeReview($, key, result) {
   try {
     await $.store.set(key, result);
   } catch (error) {
-    // The shared store may be at its size cap: drop the oldest cards until it fits.
-    const oldest = (await savedKeys($)).filter((saved) => saved !== key).reverse();
-    for (const old of oldest) {
-      await $.store.delete(old);
-      try {
-        await $.store.set(key, result);
-        return;
-      } catch {}
+    // Free space only when the size cap explains the failure, and only as many of
+    // the oldest cards as the new one needs; otherwise keep every saved card.
+    const needed = entrySize(key, result);
+    if (needed + 2 > STORE_LIMIT) throw error;
+    const saved = (await savedKeys($)).filter((other) => other !== key);
+    const sizes = new Map();
+    let total = 2;
+    for (const other of saved) {
+      sizes.set(other, entrySize(other, await $.store.get(other)));
+      total += sizes.get(other);
     }
-    throw error;
+    if (total + needed <= STORE_LIMIT) throw error;
+    for (const old of saved.reverse()) {
+      if (total + needed <= STORE_LIMIT) break;
+      await $.store.delete(old);
+      total -= sizes.get(old);
+    }
+    await $.store.set(key, result);
   }
 }

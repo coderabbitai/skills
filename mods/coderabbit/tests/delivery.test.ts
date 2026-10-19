@@ -271,31 +271,56 @@ test("a failed card read can be retried after the store recovers", async () => {
   expect(state.results.get("1000:1")).toBe("report");
 });
 
-test("a save at the store's size cap drops the oldest cards and retries", async () => {
-  const stored = new Map([
-    ["review:1000:1", "oldest"],
-    ["review:2000:1", "older"],
-    ["review:3000:1", "newer"],
-    ["unrelated", "kept"],
-  ]);
-  const logs = [];
-  const host = {
-    store: {
-      set: async (key, value) => {
-        // Room for one more card only after two are gone.
-        if ([...stored.keys()].filter((k) => k.startsWith("review:")).length > 1) throw new Error("Store full");
-        stored.set(key, value);
+function cappedStore(entries, failAlways = false) {
+  const stored = new Map(entries);
+  const size = () => JSON.stringify(Object.fromEntries(stored)).length;
+  return {
+    stored,
+    host: {
+      store: {
+        get: async (key) => stored.get(key),
+        set: async (key, value) => {
+          const previous = stored.get(key);
+          stored.set(key, value);
+          if (failAlways || size() > 4 * 1024 * 1024) {
+            if (previous === undefined) stored.delete(key);
+            else stored.set(key, previous);
+            throw new Error("Store write rejected");
+          }
+        },
+        keys: async () => [...stored.keys()],
+        delete: async (key) => stored.delete(key),
       },
-      keys: async () => [...stored.keys()],
-      delete: async (key) => stored.delete(key),
+      ui: { log() {} },
     },
-    ui: { log: (text) => logs.push(text) },
   };
-  await saveReview(host, "4000:1", "new report", () => true);
-  expect(stored.get("review:4000:1")).toBe("new report");
+}
+
+const MiB = 1024 * 1024;
+
+test("a save at the store's size cap drops only the oldest cards it needs to", async () => {
+  const { stored, host } = cappedStore([
+    ["review:1000:1", "a".repeat(1.3 * MiB)],
+    ["review:2000:1", "b".repeat(1.3 * MiB)],
+    ["review:3000:1", "c".repeat(1.3 * MiB)],
+  ]);
+  await saveReview(host, "4000:1", "d".repeat(1.3 * MiB), () => true);
+  expect(stored.has("review:4000:1")).toBe(true);
   expect(stored.has("review:1000:1")).toBe(false);
-  expect(stored.has("review:2000:1")).toBe(false);
-  expect(stored.get("review:3000:1")).toBe("newer");
-  expect(stored.get("unrelated")).toBe("kept");
-  expect(logs).toEqual([]);
+  expect(stored.has("review:2000:1")).toBe(true);
+  expect(stored.has("review:3000:1")).toBe(true);
+});
+
+test("a save that cannot succeed keeps every saved card", async () => {
+  for (const [result, failAlways] of [["d".repeat(4.5 * MiB), false], ["small", true]]) {
+    const { stored, host } = cappedStore([
+      ["review:1000:1", "a".repeat(1.3 * MiB)],
+      ["review:2000:1", "b".repeat(1.3 * MiB)],
+    ], failAlways);
+    const logs = [];
+    host.ui.log = (text) => logs.push(text);
+    await saveReview(host, "4000:1", result, () => true);
+    expect([...stored.keys()]).toEqual(["review:1000:1", "review:2000:1"]);
+    expect(logs[0]).toContain("could not be saved for reload");
+  }
 });
