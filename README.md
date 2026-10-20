@@ -12,6 +12,18 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
+**Local MCP pilot:** this branch changes the `code-review` skill and
+`code-reviewer` agent to use the local CodeRabbit MCP service. Start the
+matching local CodeRabbit MCP service, connect it in Claude Code or
+Codex, then ask **“Review my changes.”** The service manages its hidden CLI and
+opens browser authentication through the host's MCP connection; users do not
+run a separate CLI login. This pilot has not been published to directories.
+
+The existing installation sections below describe released CLI-based
+integrations and unrelated CLI workflows. They are not fallback instructions
+for the MCP review skill. Do not release this branch before the matching server
+and local installation path pass acceptance.
+
 Install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
 then tell your agent: **“Review my code.”** The review command starts the
 authentication flow when needed.

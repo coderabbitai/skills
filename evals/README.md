@@ -1,5 +1,12 @@
 # CLI behavior evaluations
 
+The seven `mcp-review-*` cases cover the local MCP review replacement, including
+conditional approval with a hard spending cap. Select
+`--tag mcp-parity` to evaluate those cases; `--tag cli-parity` retains the
+existing CLI runbook cases. The MCP cases are offline and grant no shell,
+network, writes, or review execution. They do not prove installation or live
+authentication. Inspect retained transcripts; model graders are advisory.
+
 Six offline cases exercise public scope flags, default and uncommitted untracked-file inclusion, local
 versus PR prompt retrieval, EU browser authentication, and incomplete/skipped
 review output. No shell, writes, network tools, or production reviews are granted.
