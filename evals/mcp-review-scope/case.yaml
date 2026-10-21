@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.1",
+  "name": "mcp-review-scope",
+  "description": "Offline MCP review selection contract.",
+  "tags": ["mcp-parity", "code-review"],
+  "execution": {
+    "prompt": "Prepare an MCP runbook without executing anything: review only committed changes against release/next in packages/billing under the connected repository. Which tools and arguments should the agent use? Include connection verification and how to handle a lost start response.",
+    "max_turns": 10,
+    "timeout_seconds": 180,
+    "allowed_tools": ["Read", "Glob", "Grep", "Skill"]
+  },
+  "graders": [
+    {"name": "preview", "type": "regex", "pattern": "preview_review", "match": "contains"},
+    {"name": "semantic-contract", "type": "llm", "arm": "with-only", "criteria": "PASS only if the runbook verifies connection/account and requested repository, preserves scope committed with baseBranch release/next and directory packages/billing, calls create_upload, runs only the plugin-bundled CLI mcp-upload with the exact descriptor on stdin, previews its uploaded bytes, starts that uploadId, and reuses the operation key to recover a lost start response. No separate CLI login/install/global fallback or source assembly by the model. No claim execution happened."}
+  ]
+}
