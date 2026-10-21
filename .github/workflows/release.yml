@@ -18,6 +18,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Refuse source-only publication of the bundled MCP pilot
+        run: |
+          if test -f scripts/assemble-plugin.py; then
+            echo "::error::This source contains the bundled MCP pilot. Use the manual assembly workflow for test packages; tagged publication stays blocked until complete native packages and hosted onboarding pass release acceptance."
+            exit 1
+          fi
+
       # Claude Code and Cursor keep a cached copy until the manifest version changes.
       - name: Check manifest versions match the tag
         env:
