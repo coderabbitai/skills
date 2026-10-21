@@ -38,9 +38,17 @@ Supply signed/notarized artifacts through the CLI release process where required
 The runtime launcher checks the shipped digest before execution; this detects
 corruption, not malicious replacement of both binary and manifest.
 
-The existing source-only release archive is unchanged. Publish the assembled
-plugin package only after the distribution channel's archive/import behavior is
-verified. In particular, a source-repository marketplace install must deliver
+Use **Actions → Assemble bundled MCP plugin pilot → Run workflow** to build
+a single-platform test artifact. Supply the exact CLI version, platform, native
+executable HTTPS URL, approved SHA-256, and verified MCP URL. The workflow
+validates inputs, verifies the downloaded artifact, and uploads a tar archive
+plus checksum for three days. It does not execute the downloaded binary or
+publish a release. Extract the tar archive before client installation; it
+preserves executable permissions. Run once per platform for separate pilots.
+
+Tagged source-only publication is blocked in the skills repository while this
+pilot is active. Codex directory publication remains a separate manual process.
+Publish the assembled plugin only after its archive/import behavior is verified. In particular, a source-repository marketplace install must deliver
 these assembled files; pointing it at this source branch is insufficient.
 
 ## Validate
