@@ -30,7 +30,8 @@ def copy_tree(source, destination):
 def assemble(source, client, artifact_manifest, endpoint, output):
     url = urlparse(endpoint)
     if (url.scheme != "https" or not url.hostname or url.username or url.password
-            or url.query or url.fragment or url.path != "/mcp"):
+            or url.query or url.fragment or not url.path.endswith("/mcp")
+            or any(character.isspace() for character in endpoint)):
         raise ValueError("Use the verified HTTPS MCP URL, ending in /mcp, without credentials, query, or fragment")
     if output.exists():
         raise ValueError("Output already exists; choose a new directory")

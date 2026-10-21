@@ -5,7 +5,9 @@ without these tools is not compatible; do not imitate missing tools or use the
 older local-daemon protocol.
 
 1. Call `create_upload` with `{selection: {...}}` containing the requested selection. It returns a descriptor:
-   `protocolVersion: 1`, `uploadUrl`, `uploadToken`, and `selection`. The selection
+   `protocolVersion: 1`, `uploadId`, `uploadUrl`, `uploadToken`, `selection`, and
+   `expiresIn`. Pass the complete descriptor unchanged; the collector validates
+   the upload identity and expiry fields. The selection
    includes `scope` and any requested `directory`, `baseBranch`, `baseCommit`,
    `includeUntracked`, or `light` values. Verify the returned selection preserves
    the user's request. Do not replace a returned endpoint or add credentials.

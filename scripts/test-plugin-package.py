@@ -36,9 +36,9 @@ class PackageTests(unittest.TestCase):
         return module.assemble(ROOT, CLIENT, self.manifest, endpoint, self.output)
 
     def test_native_bundle_manifest_and_spaces(self):
-        self.assemble()
+        self.assemble("https://fixture.invalid/cli/mcp/mcp")
         self.assertEqual(module.digest(self.output / "bin/darwin-arm64/coderabbit"), self.checksum)
-        self.assertEqual(json.loads((self.output / ".mcp.json").read_text())["mcpServers"]["coderabbit"]["url"], "https://fixture.invalid/mcp")
+        self.assertEqual(json.loads((self.output / ".mcp.json").read_text())["mcpServers"]["coderabbit"]["url"], "https://fixture.invalid/cli/mcp/mcp")
         meta = ".claude-plugin" if CLIENT == "claude" else ".codex-plugin"
         manifest = json.loads((self.output / meta / "plugin.json").read_text())
         setup = manifest["extensions"]["com.openai"]["onboardingSkill"] if CLIENT == "codex" else "./skills/setup/SKILL.md"
