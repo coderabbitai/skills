@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set up CodeRabbit"
+  short_description: "Connect CodeRabbit and get ready to review"
+  default_prompt: "Use $coderabbit:setup to connect CodeRabbit, then continue my requested review if there is one."

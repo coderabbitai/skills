@@ -1,17 +1,28 @@
 {
   "schema_version": "1.1",
   "name": "mcp-review-saved-prompts",
-  "description": "Offline saved local versus consolidated PR prompt retrieval.",
-  "tags": ["mcp-parity", "code-review"],
+  "description": "Offline unsupported-tool boundary for saved prompts.",
+  "tags": [
+    "mcp-parity",
+    "code-review"
+  ],
   "execution": {
-    "prompt": "Give an MCP runbook, not execution: fetch saved local fix prompts for packages/api, and fetch the consolidated prompt for https://github.com/example/widgets/pull/123. Do not start new reviews. What would missing prompts mean, and does a consolidated PR prompt select unresolved threads?",
+    "prompt": "The connected CodeRabbit service exposes connection_status, create_upload, preview_review, start_review, get_review, cancel_review only. Give a runbook without executing: fetch saved local fix prompts for packages/api and a consolidated GitHub PR prompt. Do not start new reviews. What should the agent do?",
     "max_turns": 10,
     "timeout_seconds": 180,
-    "allowed_tools": ["Read", "Glob", "Grep", "Skill"]
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
   },
   "graders": [
-    {"name": "saved-tool", "type": "regex", "pattern": "get_saved_review", "match": "contains"},
-    {"name": "pr-tool", "type": "regex", "pattern": "get_pr_prompt", "match": "contains"},
-    {"name": "semantic-contract", "type": "llm", "arm": "with-only", "criteria": "PASS only if saved mode prompts and directory packages/api are used for local data and get_pr_prompt reference is the full URL. No new review is started. Missing prompt does not mean clean or complete; consolidated prompt is not unresolved-thread selection."}
+    {
+      "name": "semantic-contract",
+      "type": "llm",
+      "arm": "with-only",
+      "criteria": "PASS only if it states these retrieval capabilities are unavailable on this server, does not invent tools or invoke CLI fallback, and does not start a review. Missing capability or prompts does not establish clean code."
+    }
   ]
 }

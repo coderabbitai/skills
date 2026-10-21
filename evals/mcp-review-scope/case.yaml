@@ -11,6 +11,6 @@
   },
   "graders": [
     {"name": "preview", "type": "regex", "pattern": "preview_review", "match": "contains"},
-    {"name": "semantic-contract", "type": "llm", "arm": "with-only", "criteria": "PASS only if the runbook verifies connection/repository, prepares scope committed with baseBranch release/next and directory packages/billing, starts its selection, and reuses the same operation key to recover a lost start response. No CLI login/install/shell fallback and no claim execution happened."}
+    {"name": "semantic-contract", "type": "llm", "arm": "with-only", "criteria": "PASS only if the runbook verifies connection/account and requested repository, preserves scope committed with baseBranch release/next and directory packages/billing, calls create_upload, runs only the plugin-bundled CLI mcp-upload with the exact descriptor on stdin, previews its uploaded bytes, starts that uploadId, and reuses the operation key to recover a lost start response. No separate CLI login/install/global fallback or source assembly by the model. No claim execution happened."}
   ]
 }

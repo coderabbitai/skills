@@ -1,6 +1,6 @@
 # CLI behavior evaluations
 
-The seven `mcp-review-*` cases cover the local MCP review replacement, including
+The seven `mcp-review-*` cases cover the bundled CLI and hosted MCP review workflow, including
 conditional approval with a hard spending cap. Select
 `--tag mcp-parity` to evaluate those cases; `--tag cli-parity` retains the
 existing CLI runbook cases. The MCP cases are offline and grant no shell,
