@@ -12,6 +12,18 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
+**Bundled MCP pilot:** this branch prepares a plugin that includes the native
+CodeRabbit CLI and a hosted MCP connection. The intended flow is **install the
+plugin → connect CodeRabbit once → “Review my changes.”** There is no separate
+CLI login or persistent local daemon. The CLI collects local changes and uploads
+them directly; MCP manages authorization, review jobs, and findings.
+
+This is not published. The source tree alone is not an installable bundle: the
+matching upload-capable CLI and verified hosted endpoint must be assembled using
+[the packaging instructions](packaging/README.md). Keep the released installation
+paths below separate from this pilot; they are not fallback instructions for the
+MCP review skill.
+
 Install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
 then tell your agent: **“Review my code.”** The review command starts the
 authentication flow when needed.
