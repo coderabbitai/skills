@@ -37,9 +37,10 @@ Run `"/absolute/path/to/coderabbit" auth status --agent` in the same approved
 context that will run the review. Proceed only after a successful, well-formed
 `authenticated: true`. On `false`, ask the user to run
 `"/absolute/path/to/coderabbit" auth login` in that environment's terminal; never
-start or elevate login automatically. Resume after the user confirms login and
-the status check succeeds. Failure or malformed output means unknown; report
-the error and stop. Abort any interactive login prompt from a review command.
+start or elevate login automatically. When explicitly asked to start login, use
+`"/absolute/path/to/coderabbit" auth login --agent` and share its sign-in URL.
+Resume after login completes and the status check succeeds. Failure or malformed
+output means unknown; report it and stop. Abort interactive login prompts from reviews.
 
 ## Recover a sandbox auth failure
 
@@ -48,6 +49,10 @@ failed, not that the host user is signed out. Older CLIs may emit an auth error
 or `authentication_failed` with `Failed to start server. Is port 0 in use?`.
 That callback message alone does not prove a port collision; an absent status
 field does not prove missing authentication.
+
+For a confirmed sandbox restriction, explain the recovery: approve command-scoped
+host execution or run the CLI in a terminal. An explanation request does not
+authorize running commands.
 
 If the original review ran in a local sandbox and failed during authentication
 before review work began, check `auth status --agent` through approved host

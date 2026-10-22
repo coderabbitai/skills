@@ -6,6 +6,9 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Use `auth login --agent` for requested agent-started login and surface CLI update notices.
+- Offer `--fresh` after reused reviews and explain recovery from confirmed sandbox restrictions.
+
 - Added a Claude directory listing icon and a README "Data and Privacy"
   section that discloses what the plugin runs and sends.
 - Added the read-only `autofix` subagent, which collects and checks
