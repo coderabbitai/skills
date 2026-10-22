@@ -27,6 +27,8 @@ change review policies, or enable recurring reviews as part of this flow.
 Resolve the official host-installed `coderabbit` using the user's normal shell,
 checking `~/.local/bin/coderabbit` if lookup fails. Validate its canonical target;
 reject repository, workspace, temporary, alias, or untrusted wrapper executables.
+The official npm package's launcher is supported when its provenance is verified;
+keep it intact so it can select its native binary and environment.
 Use the quoted trusted absolute path for every CLI command. Examples below use
 `"/absolute/path/to/coderabbit"` to stand for that verified path.
 

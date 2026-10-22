@@ -12,9 +12,11 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-Install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
-then tell your agent: **“Review my code.”** The review command starts the
-authentication flow when needed.
+With a package containing the setup skill, tell your agent: **“Set up CodeRabbit
+for local reviews.”** Setup checks the CLI and guides sign-in; then ask
+**“Review my code.”** For an older package without setup, install the CLI via
+the [CLI docs](https://docs.coderabbit.ai/cli) and run `coderabbit auth login`
+in your terminal before requesting a review.
 
 ## Installation
 
