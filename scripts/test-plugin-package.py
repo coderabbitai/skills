@@ -48,6 +48,14 @@ class PackageTests(unittest.TestCase):
         self.assertFalse((self.output / "hooks").exists())
         self.assertFalse((self.output / "scripts").exists())
 
+    def test_root_and_path_endpoints_are_preserved(self):
+        for endpoint in ("https://fixture.invalid", "https://fixture.invalid/", "https://fixture.invalid/mcp"):
+            with self.subTest(endpoint=endpoint):
+                self.assemble(endpoint)
+                configured = json.loads((self.output / ".mcp.json").read_text())["mcpServers"]["coderabbit"]["url"]
+                self.assertEqual(configured, endpoint)
+                shutil.rmtree(self.output)
+
     def test_bad_digest_has_no_partial_output(self):
         self.native.write_bytes(b"changed")
         with self.assertRaisesRegex(ValueError, "checksum mismatch"):
@@ -63,7 +71,7 @@ class PackageTests(unittest.TestCase):
             self.assemble()
 
     def test_endpoint_and_existing_output_fail_closed(self):
-        for endpoint in ("http://fixture.invalid/mcp", "https://user:password@fixture.invalid/mcp", "https://fixture.invalid/mcp?token=x"):
+        for endpoint in ("http://fixture.invalid/mcp", "https://user:password@fixture.invalid/mcp", "https://fixture.invalid/mcp?token=x", "https:///mcp", "https://fixture.invalid/#fragment", "https://fixture.invalid/ with-space"):
             with self.assertRaises(ValueError):
                 self.assemble(endpoint)
         self.output.mkdir()
