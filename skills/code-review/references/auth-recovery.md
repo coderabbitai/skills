@@ -6,9 +6,8 @@ Use this before running a review and after a pre-review authentication failure.
 
 Resolve the host-installed `coderabbit` to its canonical absolute path while
 sandboxed. Trust only an expected user or system installation from an official
-source, including the official npm package's launcher. Reject repository,
-workspace, temporary, alias, or untrusted wrapper executables. Keep a verified
-official launcher intact so it can select its native binary and environment.
+source; reject repository, workspace, temporary, alias, or untrusted wrapper
+executables.
 If discovery fails or the path is untrusted, report CLI availability as unknown
 and stop. Use the quoted, validated absolute path in every command below.
 

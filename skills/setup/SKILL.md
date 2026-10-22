@@ -27,17 +27,23 @@ change review policies, or enable recurring reviews as part of this flow.
 Resolve the official host-installed `coderabbit` using the user's normal shell,
 checking `~/.local/bin/coderabbit` if lookup fails. Validate its canonical target;
 reject repository, workspace, temporary, alias, or untrusted wrapper executables.
-The official npm package's launcher is supported when its provenance is verified;
-keep it intact so it can select its native binary and environment.
 Use the quoted trusted absolute path for every CLI command. Examples below use
 `"/absolute/path/to/coderabbit"` to stand for that verified path.
 
-Run `--version` and any needed `--help` in the sandbox. An npm launcher that
-cannot find Node, a signature error, or a killed process is an execution problem,
+Run `--version` and any needed `--help` in the sandbox. A missing runtime,
+a signature error, or a killed process is an execution problem,
 not evidence that the user is signed out. Explain the specific prerequisite.
 If the CLI is missing, use the [official installation guide](https://docs.coderabbit.ai/cli)
-and obtain installation authorization unless already given. Use a documented
-package manager or verified binary; do not pipe remote scripts to a shell.
+and obtain installation authorization unless already given. For a new macOS or
+Linux installation, use the official installer:
+
+```sh
+curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+```
+
+For Windows, follow the official guide's platform-specific instructions. Preserve
+the requested region: EU users should skip installer sign-in if it does not offer
+a region choice, then use explicit EU login below.
 Recheck availability after installation. Do not upgrade a working installation
 just to complete setup; check installed help before using an unfamiliar option.
 
