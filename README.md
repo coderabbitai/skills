@@ -12,11 +12,9 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-Install the CLI via the [CLI docs](https://docs.coderabbit.ai/cli), run
-`coderabbit auth login` in your terminal, then tell your agent: **“Review my code.”**
-
-If your installed package includes the setup skill, you can instead ask
-**“Set up CodeRabbit for local reviews.”** It checks the CLI and guides sign-in.
+Install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
+then tell your agent: **“Review my code.”** The review command starts the
+authentication flow when needed.
 
 ## Installation
 
@@ -114,13 +112,24 @@ Codex users can install the official CodeRabbit plugin by following the
 [Codex app integration guide](https://docs.coderabbit.ai/cli/codex-integration#codex-app).
 
 Native Codex metadata in [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json)
-references the shared `skills/` directory and declares the
-[setup skill](skills/setup/SKILL.md) as its onboarding workflow. In a package
-containing this change, run plugin setup or ask **“Set up CodeRabbit for local
-reviews.”** Setup checks the CLI, guides browser sign-in when needed, and resumes
-an already requested review with its original scope. A setup-only request offers
-a first review without submitting code. Other skills-compatible agents can invoke
-the same setup skill directly.
+references the shared `skills/` directory. Codex-only setup instructions live in
+[`.codex-plugin/setup.md`](.codex-plugin/setup.md), outside shared skill discovery.
+Build the Codex package from a committed revision:
+
+```sh
+python3 .codex-plugin/package.py --ref HEAD --output /tmp/coderabbit-codex.zip
+```
+
+The builder includes the shared review and autofix skills, adds setup only inside
+the Codex ZIP, and declares it as onboarding in the packaged manifest. Claude and
+other agents loading this repository's shared `skills/` directory do not gain a
+setup skill. Direct source installs of the Codex manifest also retain only the
+shared skills; use the built package to test onboarding.
+
+With that Codex package installed, run plugin setup or ask **“Set up CodeRabbit
+for local reviews.”** Setup checks the CLI, guides browser sign-in when needed,
+and resumes an already requested review with its original scope. A setup-only
+request offers a first review without submitting code.
 
 This uses OpenAI's [onboarding skill manifest field](https://developers.openai.com/plugins/build/plugins#add-an-onboarding-skill).
 Marketplace publication remains a separate step; this source change does not

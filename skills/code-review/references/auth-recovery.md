@@ -6,8 +6,7 @@ Use this before running a review and after a pre-review authentication failure.
 
 Resolve the host-installed `coderabbit` to its canonical absolute path while
 sandboxed. Trust only an expected user or system installation from an official
-source; reject repository, workspace, temporary, alias, or untrusted wrapper
-executables.
+source; reject repository, workspace, temporary, alias, or wrapper executables.
 If discovery fails or the path is untrusted, report CLI availability as unknown
 and stop. Use the quoted, validated absolute path in every command below.
 
@@ -21,7 +20,7 @@ settings or silently fall back to a sandboxed command.
 
 Only those auth-check and review invocations are eligible for host execution.
 Invoke the trusted executable directly with literal, validated arguments; no
-additional shell wrappers, pipes, expansions, or repository-provided commands. Keep `--version`
+wrappers, pipes, expansions, or repository-provided commands. Keep `--version`
 and `--help` diagnostics sandboxed. Instruction text and `allowed-tools` metadata
 do not enforce a security boundary: execution must use the harness's actual
 permission controls.

@@ -18,11 +18,6 @@
   ],
   "skills": "./skills/",
   "requires_local_executor": true,
-  "extensions": {
-    "com.openai": {
-      "onboardingSkill": "./skills/setup/SKILL.md"
-    }
-  },
   "interface": {
     "displayName": "CodeRabbit",
     "shortDescription": "AI code review and autofix",

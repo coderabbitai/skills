@@ -6,7 +6,7 @@ description: Set up CodeRabbit for local code reviews by checking CLI availabili
 # CodeRabbit Setup
 
 Help the user reach a working local review workflow. Reuse completed setup and
-preserve explicit user restrictions. This skill can run from plugin setup
+preserve explicit user restrictions. This skill runs from Codex plugin setup
 or a direct setup request; reading it is not authorization to
 install software, sign in, or submit code.
 
