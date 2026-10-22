@@ -112,8 +112,28 @@ Codex users can install the official CodeRabbit plugin by following the
 [Codex app integration guide](https://docs.coderabbit.ai/cli/codex-integration#codex-app).
 
 Native Codex metadata in [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json)
-references the existing `skills/` directory. Marketplace publication remains a
-separate step; this source change does not update the live listing.
+references the shared `skills/` directory. Codex-only setup instructions live in
+[`.codex-plugin/setup.md`](.codex-plugin/setup.md), outside shared skill discovery.
+Build the Codex package from a committed revision:
+
+```sh
+python3 .codex-plugin/package.py --ref HEAD --output /tmp/coderabbit-codex.zip
+```
+
+The builder includes the shared review and autofix skills, adds setup only inside
+the Codex ZIP, and declares it as onboarding in the packaged manifest. Claude and
+other agents loading this repository's shared `skills/` directory do not gain a
+setup skill. Direct source installs of the Codex manifest also retain only the
+shared skills; use the built package to test onboarding.
+
+With that Codex package installed, run plugin setup or ask **“Set up CodeRabbit
+for local reviews.”** Setup checks the CLI, guides browser sign-in when needed,
+and resumes an already requested review with its original scope. A setup-only
+request offers a first review without submitting code.
+
+This uses OpenAI's [onboarding skill manifest field](https://developers.openai.com/plugins/build/plugins#add-an-onboarding-skill).
+Marketplace publication remains a separate step; this source change does not
+update the live listing.
 
 For an at-a-glance inventory of active and repo-packaged distribution paths, see
 [DISTRIBUTION_CHANNELS.md](DISTRIBUTION_CHANNELS.md).
