@@ -68,8 +68,6 @@ jobs:
               url = urlparse(raw)
               if url.scheme != "https" or not url.hostname or url.username or url.password or url.query or url.fragment or any(c.isspace() for c in raw):
                   raise SystemExit(f"{key} must be a credential-free HTTPS URL")
-              if key == "MCP_URL" and not url.path.endswith("/mcp"):
-                  raise SystemExit("MCP_URL must end in /mcp")
           root = Path(os.environ["RUNNER_TEMP"])
           (root / "cli-artifacts.json").write_text(json.dumps({"version": version, "artifacts": [{"platform": platform, "path": str(root / "coderabbit-native"), "sha256": checksum}]}))
           PYCODE
