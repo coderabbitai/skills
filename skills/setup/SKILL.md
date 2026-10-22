@@ -6,8 +6,8 @@ description: Set up CodeRabbit for local code reviews by checking CLI availabili
 # CodeRabbit Setup
 
 Help the user reach a working local review workflow. Reuse completed setup and
-preserve explicit user restrictions. This skill can run from Codex plugin setup
-or a direct setup request in another agent; reading it is not authorization to
+preserve explicit user restrictions. This skill can run from plugin setup
+or a direct setup request; reading it is not authorization to
 install software, sign in, or submit code.
 
 ## Keep the user's task
@@ -30,7 +30,7 @@ reject repository, workspace, temporary, alias, or untrusted wrapper executables
 Use the quoted trusted absolute path for every CLI command. Examples below use
 `"/absolute/path/to/coderabbit"` to stand for that verified path.
 
-Run `--version` and any needed `--help` in the sandbox. A missing runtime,
+Run `--version` and any needed `--help` in the agent's normal execution context. A missing runtime,
 a signature error, or a killed process is an execution problem,
 not evidence that the user is signed out. Explain the specific prerequisite.
 If the CLI is missing, use the [official installation guide](https://docs.coderabbit.ai/cli)
@@ -51,8 +51,8 @@ just to complete setup; check installed help before using an unfamiliar option.
 
 In a local agent sandbox, use the harness's command-scoped host execution for
 the trusted CLI's `auth status --agent`, an authorized `auth login --agent`, and
-the requested review. In Codex this means `sandbox_permissions: require_escalated`
-when needed, with a command-specific justification. Use one direct CLI command;
+the requested review, using that agent's own permission controls and a
+command-specific justification. Use one direct CLI command;
 do not wrap it in a shell or change global permissions. If unavailable or denied,
 report the blocker. Host-native agents use their normal execution context.
 

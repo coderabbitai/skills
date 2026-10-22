@@ -33,7 +33,7 @@ CodeRabbit CLI must be installed from the official docs:
 
 <https://www.coderabbit.ai/cli>
 
-Prefer a package manager or a verified binary over piping a remote script to a shell.
+Follow the official guide's platform-specific installation instructions; reuse a working installation.
 
 Read and follow the canonical [authentication and recovery procedure](../skills/code-review/references/auth-recovery.md).
 Resolve a trusted canonical absolute CLI path, use approved command-scoped host
