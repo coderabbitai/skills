@@ -36,6 +36,8 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Documented `usage --agent` and authorized review retries with `--use-credits`.
+
 - The Claude plugin now ships the `code-review` and `autofix` skills and the
   `code-reviewer` and `autofix` subagents. It no longer includes the
   `/coderabbit:coderabbit-review` command, because skills supersede commands
