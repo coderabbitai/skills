@@ -8,6 +8,7 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 
 | Channel | Status | Source of truth | Notes |
 | --- | --- | --- | --- |
+| Bundled MCP local review pilot | Development; not published | `scripts/assemble-plugin.py`, `skills/code-review`, `skills/setup` | Packages a native collector and automatic post-hook for Claude Code and manual Codex desktop installation. Requires matching hosted review tools and explicit hook trust. Not eligible for the Codex public directory while hooks are required. |
 | Skills package (`npx skills add coderabbitai/skills`) | Live | `README.md`, `skills/` | Canonical multi-agent distribution path for 35+ skills-compatible agents. |
 | Tagged GitHub release archive (`coderabbit skills`) | Live; `v1.2.0` pending | `.github/workflows/release.yml`, [skills install docs](https://docs.coderabbit.ai/cli/skills) | CLI installs the latest published release after manifest and checksum verification. As of 2026-09-30, Latest is `v1.1.1`; publish `v1.2.0` to deliver the merged updates. |
 | Claude Code plugin marketplace | Live | `.claude-plugin/plugin.json`, `skills/`, `agents/` | Official marketplace source: `coderabbitai/skills`. Migration from the legacy `coderabbitai/claude-plugin` repository completed on 2026-05-01. |

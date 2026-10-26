@@ -72,7 +72,8 @@ def assemble(source, client, artifact_manifest, endpoint, output):
         seen.add(platform)
     manifest_directory = ".claude-plugin" if client == "claude" else ".codex-plugin"
     plugin_manifest = json.loads((source / manifest_directory / "plugin.json").read_text())
-    for skill in ("setup", "code-review" if client == "claude" else "coderabbit-review"):
+    review_skill = "code-review" if (source / "skills/code-review").is_dir() else "coderabbit-review"
+    for skill in ("setup", review_skill):
         if not (source / "skills" / skill / "SKILL.md").is_file():
             raise ValueError(f"Required plugin skill is missing: {skill}")
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -82,13 +83,34 @@ def assemble(source, client, artifact_manifest, endpoint, output):
         for name in ("skills", "assets") + (("agents",) if client == "claude" else ()):
             if (source / name).is_dir():
                 copy_tree(source / name, package / name)
+        if client == "codex" and review_skill == "code-review":
+            skill = package / "skills/code-review"
+            entry = skill / "SKILL.md"
+            entry.write_text(entry.read_text().replace("name: code-review\n", "name: coderabbit-review\n", 1))
+            skill.rename(package / "skills/coderabbit-review")
         (package / manifest_directory).mkdir()
         if client == "codex":
             plugin_manifest.setdefault("extensions", {}).setdefault("com.openai", {})["onboardingSkill"] = "./skills/setup/SKILL.md"
-            plugin_manifest["mcpServers"] = "./.mcp.json"
+            plugin_manifest["mcpServers"] = "./mcp.json"
+            plugin_manifest["hooks"] = "./hooks/hooks.json"
         (package / manifest_directory / "plugin.json").write_text(json.dumps(plugin_manifest, indent=2) + "\n")
-        (package / ".mcp.json").write_text(json.dumps({"mcpServers": {"coderabbit": {"type": "http", "url": endpoint}}}, indent=2) + "\n")
+        if client == "claude":
+            mcp = {"mcpServers": {"coderabbit": {"type": "http", "url": endpoint, "oauth": {"scopes": "connection review"}}}}
+            mcp_file = ".mcp.json"
+        else:
+            mcp = {"$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json", "mcpServers": {"coderabbit": {
+                "type": "streamable-http", "url": endpoint,
+                "extensions": {"com.openai": {"auth": {"type": "oauth", "client": {"mode": "dcr"}, "baseScopes": ["connection", "review"]}}},
+            }}}
+            mcp_file = "mcp.json"
+        (package / mcp_file).write_text(json.dumps(mcp, indent=2) + "\n")
+        (package / "hooks").mkdir()
+        (package / "hooks/hooks.json").write_text(json.dumps({"hooks": {"PostToolUse": [{
+            "matcher": "^mcp__(?:coderabbit|plugin_coderabbit_coderabbit)__start_code_review$",
+            "hooks": [{"type": "command", "command": '"${CLAUDE_PLUGIN_ROOT}/bin/coderabbit" mcp-hook', "timeout": 300}],
+        }]}}, indent=2) + "\n")
         (package / "bin").mkdir()
+        (package / "bin/mcp-url").write_text(endpoint + "\n")
         shutil.copyfile(source / "scripts" / "coderabbit", package / "bin" / "coderabbit")
         (package / "bin" / "coderabbit").chmod(0o755)
         inventory = []
@@ -105,6 +127,7 @@ def assemble(source, client, artifact_manifest, endpoint, output):
         for name in ("LICENSE",):
             if (source / name).is_file():
                 shutil.copyfile(source / name, package / name)
+        shutil.copyfile(source / "packaging/plugin-README.md", package / "README.md")
         package.rename(output)
     return {"package": str(output), "client": client, "cliVersion": version, "platforms": sorted(seen)}
 

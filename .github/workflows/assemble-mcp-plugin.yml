@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       cli_version:
-        description: Exact approved CLI version implementing mcp-upload
+        description: Exact approved CLI version implementing mcp-hook and mcp-upload
         required: true
         type: string
       platform:

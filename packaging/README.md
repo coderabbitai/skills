@@ -2,13 +2,21 @@
 
 This branch prepares **install plugin → connect CodeRabbit once → review local
 changes**. It requires the matching hosted MCP upload service and a CLI build
-that implements `mcp-upload`. It is not a published release. Installing the
+that implements `mcp-hook` and `mcp-upload`. It is not a published release. Installing the
 source tree directly does not supply the native CLI or hosted endpoint.
 
 The release operator assembles a complete package before installation. Users do
 not run this build step, install Node/Python, download a CLI, or perform a second
 CLI login. The installed plugin uses its own native executable and the host's
 normal execution/network permissions. Git must be available for local reviews.
+
+The package requests `connection review` OAuth scopes. After the host approves
+`start_code_review`, its trusted `PostToolUse` hook invokes the bundled collector
+with the returned, short-lived upload ticket. The agent calls only
+`start_code_review` and `get_code_review`; it does not run the collector or handle
+upload references. The collector never reads the host's OAuth credential store.
+The ticket may appear in the tool transcript, so it must authorize only that
+review's upload and expire promptly.
 
 ## Assemble
 
@@ -27,7 +35,8 @@ python3 scripts/assemble-plugin.py --client claude \
   --output /absolute/path/to/new-plugin-package
 ```
 
-For a Codex package use `--client codex` in the Codex plugin source directory.
+For a Codex package use `--client codex` in this source directory. The assembler
+generates the portable MCP configuration and renames the review skill for Codex.
 The endpoint must be the verified HTTPS MCP resource URL for the intended environment.
 Both root URLs and URLs with a path are preserved exactly;
 there is no default production endpoint. Do not put credentials in the URL.
@@ -48,7 +57,9 @@ publish a release. Extract the tar archive before client installation; it
 preserves executable permissions. Run once per platform for separate pilots.
 
 Tagged source-only publication is blocked in the skills repository while this
-pilot is active. Codex directory publication remains a separate manual process.
+pilot is active. Hook-containing Codex plugins currently require manual desktop
+installation and are not eligible for the public directory. See the
+[Codex packaging guidance](https://developers.openai.com/plugins/build/plugins).
 Publish the assembled plugin only after its archive/import behavior is verified. In particular, a source-repository marketplace install must deliver
 these assembled files; pointing it at this source branch is insufficient.
 
@@ -65,8 +76,10 @@ Before publication, unpack the real artifact under a path with spaces and verify
 - A clean machine with no global CodeRabbit CLI can run bundled `--version`.
 - The installed artifact digest matches the approved CLI build.
 - Both clients discover the packaged MCP connection and setup skill.
+- Both clients load the post-hook through their normal installation and trust flow.
 - One host browser sign-in connects CodeRabbit; no CLI login is requested.
-- A fixture review uploads once and preserves requested base, scope, and files.
+- A fixture review uploads automatically after an approved start and preserves
+  requested base, scope, and files; a denied start performs no upload.
 - Failed/revoked authentication, missing permissions, upload uncertainty, and
   paid continuation do not silently start another review or change scope.
 - The shipped platform matrix, code signature, executable permissions, package

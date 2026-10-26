@@ -10,7 +10,7 @@
     "allowed_tools": ["Read", "Glob", "Grep", "Skill"]
   },
   "graders": [
-    {"name": "preview", "type": "regex", "pattern": "preview_review", "match": "contains"},
-    {"name": "semantic-contract", "type": "llm", "arm": "with-only", "criteria": "PASS only if the runbook verifies connection/account and requested repository, preserves scope committed with baseBranch release/next and directory packages/billing, calls create_upload, runs only the plugin-bundled CLI mcp-upload with the exact descriptor on stdin, previews its uploaded bytes, starts that uploadId, and reuses the operation key to recover a lost start response. No separate CLI login/install/global fallback or source assembly by the model. No claim execution happened."}
+    {"name": "start", "type": "regex", "pattern": "start_code_review", "match": "contains"},
+    {"name": "semantic-contract", "type": "llm", "arm": "with-only", "criteria": "PASS only if the runbook verifies connection/account, preserves scope committed with base release/next and dir packages/billing, calls start_code_review once, and leaves collection/upload to the automatic post-hook. It uses the server's review_id for get_code_review. If the start response is lost, recover the ID from the host record if available; otherwise report uncertainty without automatic resubmission. No request ID invention, agent shell invocation, separate CLI login/install/global fallback, or source assembly by the model. No claim execution happened."}
   ]
 }

@@ -7,7 +7,7 @@
     "code-review"
   ],
   "execution": {
-    "prompt": "The connected CodeRabbit service exposes connection_status, create_upload, preview_review, start_review, get_review, cancel_review only. Give a runbook without executing: fetch saved local fix prompts for packages/api and a consolidated GitHub PR prompt. Do not start new reviews. What should the agent do?",
+    "prompt": "The connected CodeRabbit service exposes get_me, start_code_review and get_code_review only. Give a runbook without executing: fetch saved local fix prompts for packages/api and a consolidated GitHub PR prompt. No review ID is available. Do not start new reviews. What should the agent do?",
     "max_turns": 10,
     "timeout_seconds": 180,
     "allowed_tools": [

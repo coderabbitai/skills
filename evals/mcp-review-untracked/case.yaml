@@ -4,13 +4,13 @@
   "description": "Offline explicit untracked selection contract.",
   "tags": ["mcp-parity", "code-review"],
   "execution": {
-    "prompt": "Do not execute anything. For a CodeRabbit MCP review of only uncommitted work including a new untracked file, give the create_upload selection. Explain whether combining committed-only and untracked would be valid.",
+    "prompt": "Do not execute anything. For a CodeRabbit MCP review of only uncommitted work including a new untracked file, give the start_code_review selection. Explain whether combining committed-only and untracked would be valid.",
     "max_turns": 10,
     "timeout_seconds": 180,
     "allowed_tools": ["Read", "Glob", "Grep", "Skill"]
   },
   "graders": [
-    {"name": "untracked-selector", "type": "regex", "pattern": "includeUntracked", "match": "contains"},
-    {"name": "semantic-contract", "type": "llm", "arm": "with-only", "criteria": "PASS only if scope uncommitted plus includeUntracked true is proposed, covering staged and tracked unstaged plus nonignored untracked files. Reject committed plus untracked. No review execution claim or CLI fallback."}
+    {"name": "untracked-selector", "type": "regex", "pattern": "include_untracked", "match": "contains"},
+    {"name": "semantic-contract", "type": "llm", "arm": "with-only", "criteria": "PASS only if scope uncommitted plus include_untracked true is proposed, covering staged and tracked unstaged plus nonignored untracked files. Reject committed plus untracked. No review execution claim or CLI fallback."}
   ]
 }

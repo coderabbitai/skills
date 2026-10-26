@@ -5,7 +5,7 @@ PATH=/usr/bin:/bin:/usr/sbin:/sbin
 export PATH
 fail() { printf '%s\n' "CodeRabbit: $*" >&2; exit 1; }
 case "${1-}" in
-  mcp-upload|--version) ;;
+  mcp-upload|mcp-hook|--version) ;;
   *) fail 'This plugin runs uploads through MCP. Connect CodeRabbit in your app, then ask for a review.' ;;
 esac
 plugin_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
@@ -33,4 +33,11 @@ else
 fi
 actual=${actual%% *}
 [ "$actual" = "$expected" ] || fail 'The bundled CLI failed its integrity check. Reinstall the CodeRabbit plugin package.'
+if [ "${1-}" != "--version" ]; then
+  [ -f "$plugin_root/bin/mcp-url" ] && [ ! -L "$plugin_root/bin/mcp-url" ] ||
+    fail 'The installed plugin is missing its MCP endpoint. Reinstall the complete package.'
+  CODERABBIT_MCP_URL=$(cat "$plugin_root/bin/mcp-url")
+  CR_CLI_ALLOW_UNTRUSTED_HOST_URL=true
+  export CODERABBIT_MCP_URL CR_CLI_ALLOW_UNTRUSTED_HOST_URL
+fi
 exec "$binary" "$@"

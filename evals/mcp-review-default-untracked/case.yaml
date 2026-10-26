@@ -4,13 +4,13 @@
   "description": "Offline default scope must not silently narrow to uncommitted.",
   "tags": ["mcp-parity", "code-review"],
   "execution": {
-    "prompt": "Prepare only the CodeRabbit MCP create_upload arguments, without executing them. Review my changes, including untracked files. I have commits ahead of main, staged new files, and tracked unstaged edits. Do not narrow my request to only uncommitted work.",
+    "prompt": "Prepare only the CodeRabbit MCP start_code_review arguments, without executing them. Review my changes, including untracked files. I have commits ahead of main, staged new files, and tracked unstaged edits. Do not narrow my request to only uncommitted work.",
     "max_turns": 10,
     "timeout_seconds": 180,
     "allowed_tools": ["Read", "Glob", "Grep", "Skill"]
   },
   "graders": [
-    {"name": "untracked-selector", "type": "regex", "pattern": "includeUntracked", "match": "contains"},
-    {"name": "semantic-contract", "type": "llm", "arm": "with-only", "criteria": "PASS only if default scope is retained with includeUntracked true. Committed, staged, tracked unstaged and nonignored untracked are included; staged new files do not require the opt-in. Fail on uncommitted-only substitution."}
+    {"name": "untracked-selector", "type": "regex", "pattern": "include_untracked", "match": "contains"},
+    {"name": "semantic-contract", "type": "llm", "arm": "with-only", "criteria": "PASS only if all scope is retained with include_untracked true. Committed, staged, tracked unstaged and nonignored untracked are included; staged new files do not require the opt-in. Fail on uncommitted-only substitution."}
   ]
 }

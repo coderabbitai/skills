@@ -14,12 +14,16 @@ does not authorize uploading code or starting a review.
    `--version` to check the installed artifact. If the bundle is incomplete,
    unsupported, or corrupt, report the specific failure and reinstall through
    the app's plugin flow. Do not install a global CLI or a separate runtime.
-2. Discover CodeRabbit MCP tools and call `connection_status`. If unavailable
+2. Review and trust the plugin's post-hook through the host's hook controls.
+   This hook collects and uploads only after an approved `start_code_review` call.
+   Codex currently requires manual desktop installation for hook-containing plugins.
+3. Discover CodeRabbit MCP tools and call `get_me` or `connection_status`. If unavailable
    or signed out, use the app's CodeRabbit **Connect** or **Reconnect** action to
    open browser sign-in. Return to the app when it completes, refresh the tool
    connection if required, and verify status again. Never request a pasted code,
    inspect credentials, or run CLI authentication.
-3. Confirm the returned account and organization. If a review was already
+4. Confirm the returned account and organization, and that `start_code_review`
+   and `get_code_review` are available with review permission. If a review was already
    requested, resume the packaged code-review skill with the original directory,
    base, and scope. Otherwise say the plugin is ready and suggest “Review my
    changes.” Do not upload a repository just to test setup.
