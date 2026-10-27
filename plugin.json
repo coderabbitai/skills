@@ -1,4 +1,11 @@
 {
   "name": "coderabbit",
-  "description": "AI-powered code review and review-comment autofix, powered by CodeRabbit."
+  "displayName": "CodeRabbit",
+  "description": "AI-powered code review and review-comment autofix, powered by CodeRabbit.",
+  "version": "1.2.0",
+  "logo": "assets/logo.png",
+  "author": { "name": "CodeRabbit", "url": "https://coderabbit.ai" },
+  "homepage": "https://docs.coderabbit.ai/cli",
+  "repository": "https://github.com/coderabbitai/skills",
+  "license": "MIT"
 }
