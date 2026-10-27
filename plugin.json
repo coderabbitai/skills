@@ -1,4 +1,6 @@
 {
   "name": "coderabbit",
-  "description": "AI-powered code review and review-comment autofix, powered by CodeRabbit."
+  "displayName": "CodeRabbit",
+  "description": "AI-powered code review and review-comment autofix, powered by CodeRabbit.",
+  "version": "1.0.0"
 }
