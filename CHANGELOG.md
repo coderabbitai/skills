@@ -6,6 +6,10 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added the `review` skill (`skills/review/SKILL.md`), which provides the
+  `/coderabbit:review` command in Antigravity. Antigravity loads plugin commands
+  only as skills, so `commands/coderabbit/review.toml` (still used by Gemini
+  CLI) was never loaded there.
 - Added a Claude directory listing icon and a README "Data and Privacy"
   section that discloses what the plugin runs and sends.
 - Added the read-only `autofix` subagent, which collects and checks
