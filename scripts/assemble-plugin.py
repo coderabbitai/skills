@@ -10,6 +10,7 @@ import tempfile
 from urllib.parse import urlparse
 
 PLATFORMS = {"darwin-arm64", "darwin-x64", "linux-arm64", "linux-x64"}
+SCOPES = ["connection", "account:read", "usage:read", "pull_requests:read", "review"]
 
 
 def digest(path):
@@ -95,12 +96,12 @@ def assemble(source, client, artifact_manifest, endpoint, output):
             plugin_manifest["hooks"] = "./hooks/hooks.json"
         (package / manifest_directory / "plugin.json").write_text(json.dumps(plugin_manifest, indent=2) + "\n")
         if client == "claude":
-            mcp = {"mcpServers": {"coderabbit": {"type": "http", "url": endpoint, "oauth": {"scopes": "connection review"}}}}
+            mcp = {"mcpServers": {"coderabbit": {"type": "http", "url": endpoint, "oauth": {"scopes": " ".join(SCOPES)}}}}
             mcp_file = ".mcp.json"
         else:
             mcp = {"$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json", "mcpServers": {"coderabbit": {
                 "type": "streamable-http", "url": endpoint,
-                "extensions": {"com.openai": {"auth": {"type": "oauth", "client": {"mode": "dcr"}, "baseScopes": ["connection", "review"]}}},
+                "extensions": {"com.openai": {"auth": {"type": "oauth", "client": {"mode": "dcr"}, "baseScopes": SCOPES}}},
             }}}
             mcp_file = "mcp.json"
         (package / mcp_file).write_text(json.dumps(mcp, indent=2) + "\n")

@@ -56,7 +56,7 @@ class PackageTests(unittest.TestCase):
                 self.assemble(client=client)
                 config = json.loads((self.output / (".mcp.json" if client == "claude" else "mcp.json")).read_text())["mcpServers"]["coderabbit"]
                 scopes = config["oauth"]["scopes"].split() if client == "claude" else config["extensions"]["com.openai"]["auth"]["baseScopes"]
-                self.assertEqual(scopes, ["connection", "review"])
+                self.assertEqual(scopes, ["connection", "account:read", "usage:read", "pull_requests:read", "review"])
                 self.assertEqual((self.output / "bin/mcp-url").read_text().strip(), config["url"])
                 self.assertTrue((self.output / "hooks/hooks.json").is_file())
                 skill_name = "code-review" if client == "claude" else "coderabbit-review"
