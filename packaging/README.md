@@ -18,6 +18,11 @@ package is a hook-free fallback for channels where hooks are unavailable or
 unsuitable; its skill invokes the same CLI through permitted execution. Select
 one launcher before starting. Neither path reads the host OAuth store. The
 handoff may appear in the transcript, so it is scoped to one review and expires.
+The synchronous hook's 40-minute cancellation budget covers the bounded launch,
+execution and terminal-persistence windows; the old five-minute collector timeout
+would terminate a longer review. Qualify the installed host's actual timeout and
+output handling. See [Claude hooks](https://code.claude.com/docs/en/hooks) and
+[Codex hooks](https://learn.chatgpt.com/docs/hooks).
 The CLI delivers findings normally; MCP retrieves the same saved result when
 output is unavailable, incomplete or needed in a later session.
 

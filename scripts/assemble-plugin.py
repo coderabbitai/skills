@@ -114,7 +114,9 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
             (package / "hooks").mkdir()
             (package / "hooks/hooks.json").write_text(json.dumps({"hooks": {"PostToolUse": [{
                 "matcher": "^mcp__(?:coderabbit|plugin_coderabbit_coderabbit)__start_code_review$",
-                "hooks": [{"type": "command", "command": '"${CLAUDE_PLUGIN_ROOT}/bin/coderabbit" mcp-hook', "timeout": 300}],
+                # Allow the 5m launch window + 30m execution + terminal persistence/cleanup.
+                # This adapter now runs a whole review, not just source collection.
+                "hooks": [{"type": "command", "command": '"${CLAUDE_PLUGIN_ROOT}/bin/coderabbit" mcp-hook', "timeout": 2400}],
             }]}}, indent=2) + "\n")
         (package / "bin").mkdir()
         (package / "bin/mcp-url").write_text(endpoint + "\n")
