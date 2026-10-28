@@ -21,7 +21,8 @@ authentication flow when needed.
 ### 1. Install the CodeRabbit CLI
 
 Use the [CLI docs](https://docs.coderabbit.ai/cli) for the primary install path.
-They cover Homebrew, the install script, and CLI usage.
+They cover Homebrew, the install script, and CLI usage. Antigravity users on
+macOS and Linux can instead use the first-review setup described below.
 
 ### 2. Install the agent integration
 
@@ -105,6 +106,14 @@ agy plugin list
 
 The repository-root [`plugin.json`](plugin.json) manifest packages the skills,
 review command, and both subagents for Antigravity CLI's plugin discovery.
+
+On macOS and Linux, you can install this plugin before installing the CodeRabbit
+CLI. When you first request a review, Antigravity's main agent checks for a
+trusted CLI, installs it from the official installer if missing, and verifies
+it before continuing. Setup uses the app's normal execution permissions and
+requires `curl`, `unzip`, and a POSIX shell. Existing trusted installations are
+reused without upgrading. If you are signed out, sign in from your terminal
+when prompted; installation does not sign you in automatically.
 
 #### Codex App
 
