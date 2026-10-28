@@ -21,10 +21,12 @@ that the CLI is absent. Report that blocker rather than replacing it.
 For a missing CLI on macOS or Linux:
 
 Before downloading, check both `~/.local/bin/coderabbit` and `~/.local/bin/cr`
-with tests that also detect dangling symlinks (`test -e` or `test -L`). The
-installer replaces both paths, including an unrelated `cr` command. If either
-path exists, stop and report the collision; do not remove or overwrite it.
-Repeat this check immediately before executing the installer.
+with tests that also detect dangling symlinks (`test -e` or `test -L`). Also run
+`command -v cr` to detect an existing command elsewhere on PATH. The installer
+replaces both target paths and may prepend `~/.local/bin` to PATH, shadowing an
+unrelated `cr` command in new shells. If either target exists or `command -v cr`
+finds a command, stop and report the collision; do not remove or overwrite it.
+Repeat these checks immediately before executing the installer.
 
 1. Check that `curl`, `unzip`, and a POSIX shell are available. If the platform is
    unsupported or dependencies are missing, report the exact blocker and link
@@ -41,9 +43,10 @@ Repeat this check immediately before executing the installer.
    or cannot be completed, stop and report the blocker.
 4. Execute that same inspected file with `sh`, setting `CR_CLI_SKIP_LOGIN=1` and
    `CODERABBIT_INSTALL_DIR` to the user's `~/.local/bin`. Unset inherited
-   `CODERABBIT_DOWNLOAD_URL`, `CODERABBIT_VERSION`, `CODERABBIT_API_KEY`, and `CRS`
-   for this command without reading or printing their values. Use the stable
-   default release. Follow supported host approval controls; never bypass a
+   `CODERABBIT_DOWNLOAD_URL`, `CODERABBIT_VERSION`, `CODERABBIT_CHANNEL`,
+   `CODERABBIT_API_KEY`, and `CRS` for this command without reading or printing
+   their values. Use the stable default release. Follow supported host approval
+   controls; never bypass a
    denied permission or change sandbox settings.
 5. On any download, verification, or installation failure, stop and report the
    exact failure. Do not retry with verification disabled. Remove only the
