@@ -14,6 +14,11 @@ IDs, or perform a separate CLI login.
 
 ## Connect and select
 
+In Claude Code, use the plugin's `mcp__plugin_coderabbit_coderabbit__*` tools.
+If only a manually named CodeRabbit connection is available, follow the setup
+skill to resolve the duplicate before starting a review: its tools may work
+while the plugin's collector hook never runs.
+
 Confirm the account and organization through `get_me`, or `connection_status`
 when that is the available connection tool. For missing or expired authorization,
 use the host's CodeRabbit Connect or Reconnect browser flow. Never inspect stored
@@ -24,15 +29,15 @@ supported connection; do not override it in review arguments.
 
 Call `start_code_review` once with the requested options:
 
-| Request | Input |
-| --- | --- |
-| Review my changes | `scope: "all"` (default) |
-| Only committed changes | `scope: "committed"` |
-| Staged and tracked unstaged changes | `scope: "uncommitted"` |
-| Also include untracked files | `include_untracked: true` with all or uncommitted scope |
-| Compare against a branch or commit | `base` |
-| Review another directory | `dir` |
-| Focus the review | `instructions` |
+| Request                             | Input                                                   |
+| ----------------------------------- | ------------------------------------------------------- |
+| Review my changes                   | `scope: "all"` (default)                                |
+| Only committed changes              | `scope: "committed"`                                    |
+| Staged and tracked unstaged changes | `scope: "uncommitted"`                                  |
+| Also include untracked files        | `include_untracked: true` with all or uncommitted scope |
+| Compare against a branch or commit  | `base`                                                  |
+| Review another directory            | `dir`                                                   |
+| Focus the review                    | `instructions`                                          |
 
 Omit `dir` for the current workspace. Relative directories resolve against that
 workspace, not the plugin installation. Preserve the user's scope after errors;

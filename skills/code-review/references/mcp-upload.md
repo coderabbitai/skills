@@ -23,6 +23,13 @@ the agent must not recollect changed files under an uncertain existing review.
 ## Recovery
 
 - Missing review tools: the connected server is not compatible with this package.
+- Claude tool names outside `mcp__plugin_coderabbit_coderabbit__*`: check whether
+  a manually configured connection shadows the plugin's server at the same
+  endpoint. Follow the setup skill before starting a review; changing the
+  connection's name does not fix endpoint deduplication.
+- A review ticket for another endpoint is rejected before source collection.
+  Select the connection packaged with this collector; do not change the ticket
+  URL or broaden the hook matcher to make a mismatched connection work.
 - `awaiting_upload` after a hook failure: report the collector or hook failure.
   Do not claim a review started executing or create another review automatically.
 - Uncertain upload: fetch the existing review by its ID. Preserve uncertainty if
