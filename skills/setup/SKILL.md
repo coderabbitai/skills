@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Set up the CodeRabbit plugin's bundled collector and MCP browser sign-in, or recover a missing CodeRabbit connection without a separate CLI login.
+description: Set up the CodeRabbit plugin's bundled CLI, host-appropriate launcher and MCP browser sign-in without a separate CLI login.
 ---
 
 # Set up CodeRabbit
@@ -14,9 +14,13 @@ does not authorize uploading code or starting a review.
    `--version` to check the installed artifact. If the bundle is incomplete,
    unsupported, or corrupt, report the specific failure and reinstall through
    the app's plugin flow. Do not install a global CLI or a separate runtime.
-2. Review and trust the plugin's post-hook through the host's hook controls.
-   This hook collects and uploads only after an approved `start_code_review` call.
-   Codex currently requires manual desktop installation for hook-containing plugins.
+2. Read the installed `bin/launch-mode`. Prefer the post-tool hook when supported,
+   installed and trusted through the host's controls. It runs the normal CLI
+   review only after an approved `start_code_review` call. Hook-containing Codex
+   packages use the supported manual installation channel. A `direct` package is
+   the hook-free fallback for channels without hook support. Confirm permitted
+   local execution and network access before selecting direct execution; ensure
+   no hook will also launch. Do not bypass a denied execution or upload decision.
 3. In Claude Code, confirm `/mcp` shows the plugin-provided CodeRabbit server.
    A manually configured server at the same endpoint takes precedence, even with
    a different name, and can prevent the collector hook from matching. If the
@@ -36,13 +40,13 @@ does not authorize uploading code or starting a review.
    base, and scope. Otherwise say the plugin is ready and suggest “Review my
    changes.” Do not upload a repository just to test setup.
 
-The plugin needs permission to run its bundled collector and access the requested
-repository and upload endpoint. Use the host's normal permissions when needed;
+The plugin needs permission to run its bundled CLI and access the requested
+repository and review endpoint. Use the host's normal permissions when needed;
 do not change sandbox settings or route around a denied permission. A cloud or
 remote session uses its own available filesystem, not the user's laptop.
 
 If browser sign-in or reconnection fails, show the concrete error and the next
 supported app action. Do not claim a successful connection from a browser success
-page alone; verify it through `connection_status`.
+page alone; verify it through `get_me` or the available connection-status tool.
 
 Reference: [Claude MCP scope precedence](https://code.claude.com/docs/en/mcp#scope-hierarchy-and-precedence).

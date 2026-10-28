@@ -32,8 +32,8 @@ class PackageTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def assemble(self, endpoint="https://fixture.invalid/mcp", client=CLIENT):
-        return module.assemble(ROOT, client, self.manifest, endpoint, self.output)
+    def assemble(self, endpoint="https://fixture.invalid/mcp", client=CLIENT, launcher="hook"):
+        return module.assemble(ROOT, client, self.manifest, endpoint, self.output, launcher)
 
     def test_native_bundle_manifest_and_spaces(self):
         self.assemble("https://fixture.invalid/cli/mcp/mcp")
@@ -59,9 +59,29 @@ class PackageTests(unittest.TestCase):
                 self.assertEqual(scopes, ["connection", "account:read", "usage:read", "pull_requests:read", "review"])
                 self.assertEqual((self.output / "bin/mcp-url").read_text().strip(), config["url"])
                 self.assertTrue((self.output / "hooks/hooks.json").is_file())
+                self.assertEqual((self.output / "bin/launch-mode").read_text().strip(), "hook")
                 skill_name = "code-review" if client == "claude" else "coderabbit-review"
                 self.assertTrue((self.output / "skills" / skill_name / "SKILL.md").is_file())
                 shutil.rmtree(self.output)
+
+    def test_direct_channel_has_no_hook_and_preserves_review_skill(self):
+        for client in ("claude", "codex"):
+            with self.subTest(client=client):
+                result = self.assemble(client=client, launcher="direct")
+                self.assertEqual(result["launcher"], "direct")
+                self.assertFalse((self.output / "hooks").exists())
+                meta = ".claude-plugin" if client == "claude" else ".codex-plugin"
+                manifest = json.loads((self.output / meta / "plugin.json").read_text())
+                self.assertNotIn("hooks", manifest)
+                self.assertEqual((self.output / "bin/launch-mode").read_text().strip(), "direct")
+                skill = "code-review" if client == "claude" else "coderabbit-review"
+                self.assertIn("--mcp-stdin", (self.output / "skills" / skill / "SKILL.md").read_text())
+                shutil.rmtree(self.output)
+
+    def test_unknown_launcher_has_no_partial_output(self):
+        with self.assertRaisesRegex(ValueError, "Launcher"):
+            self.assemble(launcher="automatic")
+        self.assertFalse(self.output.exists())
 
     def test_root_and_path_endpoints_are_preserved(self):
         for endpoint in ("https://fixture.invalid", "https://fixture.invalid/", "https://fixture.invalid/mcp"):
@@ -130,6 +150,21 @@ class PackageTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("missing its MCP endpoint", result.stderr)
         self.assertEqual(result.stdout, "")
+
+    def test_direct_review_forwards_only_scoped_mode_and_literal_stdin(self):
+        launcher, _, _ = self.launcher_fixture()
+        handoff = '{"instructions":"literal $(command) and `text`"}\n'
+        args = ["review", "--agent", "--mcp-stdin", "--dir", str(self.root / "workspace spaces")]
+        result = subprocess.run([str(launcher), *args], input=handoff, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "\n".join(args) + "\n" + handoff)
+        for invalid in (["review"], ["review", "--agent"],
+                        ["review", "--agent", "--mcp-stdin", "--host-url", "https://other.invalid"],
+                        ["review", "--agent", "--mcp-stdin", "--dir"],
+                        ["review", "--agent", "--mcp-stdin", "--base", "main"]):
+            rejected = subprocess.run([str(launcher), *invalid], input=handoff, text=True, capture_output=True)
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertEqual(rejected.stdout, "")
 
     def test_launcher_rejects_corruption_missing_binary_and_other_commands(self):
         launcher, binary, checksum = self.launcher_fixture()

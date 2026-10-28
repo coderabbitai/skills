@@ -1,10 +1,18 @@
 name: Assemble bundled MCP plugin pilot
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/assemble-mcp-plugin.yml"
+      - "scripts/**"
+      - "skills/**"
+      - "packaging/**"
+      - ".claude-plugin/**"
+      - ".codex-plugin/**"
   workflow_dispatch:
     inputs:
       cli_version:
-        description: Exact approved CLI version implementing mcp-hook and mcp-upload
+        description: Exact approved CLI version implementing MCP-authorized review and mcp-hook
         required: true
         type: string
       platform:
@@ -28,12 +36,33 @@ on:
         description: Verified HTTPS MCP resource URL for this pilot
         required: true
         type: string
+      client:
+        description: Host plugin format
+        required: true
+        type: choice
+        default: claude
+        options: [claude, codex]
+      launcher:
+        description: Hook for supported trusted hosts; direct for the hook-free fallback channel
+        required: true
+        type: choice
+        default: hook
+        options: [hook, direct]
 
 permissions:
   contents: read
 
 jobs:
+  package-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check assembly and launcher contracts
+        run: python3 scripts/test-plugin-package.py
   assemble:
+    if: github.event_name == 'workflow_dispatch'
+    needs: package-contract
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -45,7 +74,8 @@ jobs:
       CLI_ARTIFACT_URL: ${{ inputs.artifact_url }}
       CLI_ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
       MCP_URL: ${{ inputs.mcp_url }}
-      PLUGIN_CLIENT: claude
+      PLUGIN_CLIENT: ${{ inputs.client }}
+      PLUGIN_LAUNCHER: ${{ inputs.launcher }}
     steps:
       - uses: actions/checkout@v4
       - name: Validate build inputs before downloading
@@ -79,9 +109,9 @@ jobs:
             --output "$RUNNER_TEMP/coderabbit-native" "$CLI_ARTIFACT_URL"
       - name: Validate and assemble the package
         run: |
-          python3 scripts/test-plugin-package.py
           python3 scripts/assemble-plugin.py \
             --client "$PLUGIN_CLIENT" \
+            --launcher "$PLUGIN_LAUNCHER" \
             --artifacts "$RUNNER_TEMP/cli-artifacts.json" \
             --mcp-url "$MCP_URL" \
             --output "$RUNNER_TEMP/coderabbit-plugin"
@@ -92,7 +122,7 @@ jobs:
           (cd "$RUNNER_TEMP" && sha256sum coderabbit-plugin.tar.gz > coderabbit-plugin.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: coderabbit-claude-${{ inputs.platform }}-pilot
+          name: coderabbit-${{ inputs.client }}-${{ inputs.launcher }}-${{ inputs.platform }}-pilot
           path: |
             ${{ runner.temp }}/coderabbit-plugin.tar.gz
             ${{ runner.temp }}/coderabbit-plugin.sha256

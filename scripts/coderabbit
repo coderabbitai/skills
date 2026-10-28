@@ -6,7 +6,15 @@ export PATH
 fail() { printf '%s\n' "CodeRabbit: $*" >&2; exit 1; }
 case "${1-}" in
   mcp-upload|mcp-hook|--version) ;;
-  *) fail 'This plugin runs uploads through MCP. Connect CodeRabbit in your app, then ask for a review.' ;;
+  review)
+    [ "${2-}" = "--agent" ] && [ "${3-}" = "--mcp-stdin" ] ||
+      fail 'Use the connected review skill: review --agent --mcp-stdin [--dir WORKSPACE].'
+    case "$#" in
+      3) ;;
+      5) [ "$4" = "--dir" ] && [ -n "$5" ] || fail 'Expected --dir WORKSPACE.' ;;
+      *) fail 'Review options come from the MCP handoff. Only --dir WORKSPACE is accepted locally.' ;;
+    esac ;;
+  *) fail 'Connect CodeRabbit in your app, then use the packaged review skill.' ;;
 esac
 plugin_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
 case "$(uname -s):$(uname -m)" in
@@ -37,7 +45,11 @@ if [ "${1-}" != "--version" ]; then
   [ -f "$plugin_root/bin/mcp-url" ] && [ ! -L "$plugin_root/bin/mcp-url" ] ||
     fail 'The installed plugin is missing its MCP endpoint. Reinstall the complete package.'
   CODERABBIT_MCP_URL=$(cat "$plugin_root/bin/mcp-url")
-  CR_CLI_ALLOW_UNTRUSTED_HOST_URL=true
-  export CODERABBIT_MCP_URL CR_CLI_ALLOW_UNTRUSTED_HOST_URL
+  export CODERABBIT_MCP_URL
+  case "$1" in
+    mcp-upload|mcp-hook)
+      CR_CLI_ALLOW_UNTRUSTED_HOST_URL=true
+      export CR_CLI_ALLOW_UNTRUSTED_HOST_URL ;;
+  esac
 fi
 exec "$binary" "$@"

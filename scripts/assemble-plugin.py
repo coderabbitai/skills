@@ -28,7 +28,9 @@ def copy_tree(source, destination):
     shutil.copytree(source, destination)
 
 
-def assemble(source, client, artifact_manifest, endpoint, output):
+def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook"):
+    if launcher not in {"hook", "direct"}:
+        raise ValueError("Launcher must be hook or direct")
     url = urlparse(endpoint)
     if (url.scheme != "https" or not url.hostname or url.username or url.password
             or url.query or url.fragment
@@ -93,7 +95,10 @@ def assemble(source, client, artifact_manifest, endpoint, output):
         if client == "codex":
             plugin_manifest.setdefault("extensions", {}).setdefault("com.openai", {})["onboardingSkill"] = "./skills/setup/SKILL.md"
             plugin_manifest["mcpServers"] = "./mcp.json"
-            plugin_manifest["hooks"] = "./hooks/hooks.json"
+            if launcher == "hook":
+                plugin_manifest["hooks"] = "./hooks/hooks.json"
+            else:
+                plugin_manifest.pop("hooks", None)
         (package / manifest_directory / "plugin.json").write_text(json.dumps(plugin_manifest, indent=2) + "\n")
         if client == "claude":
             mcp = {"mcpServers": {"coderabbit": {"type": "http", "url": endpoint, "oauth": {"scopes": " ".join(SCOPES)}}}}
@@ -105,13 +110,15 @@ def assemble(source, client, artifact_manifest, endpoint, output):
             }}}
             mcp_file = "mcp.json"
         (package / mcp_file).write_text(json.dumps(mcp, indent=2) + "\n")
-        (package / "hooks").mkdir()
-        (package / "hooks/hooks.json").write_text(json.dumps({"hooks": {"PostToolUse": [{
-            "matcher": "^mcp__(?:coderabbit|plugin_coderabbit_coderabbit)__start_code_review$",
-            "hooks": [{"type": "command", "command": '"${CLAUDE_PLUGIN_ROOT}/bin/coderabbit" mcp-hook', "timeout": 300}],
-        }]}}, indent=2) + "\n")
+        if launcher == "hook":
+            (package / "hooks").mkdir()
+            (package / "hooks/hooks.json").write_text(json.dumps({"hooks": {"PostToolUse": [{
+                "matcher": "^mcp__(?:coderabbit|plugin_coderabbit_coderabbit)__start_code_review$",
+                "hooks": [{"type": "command", "command": '"${CLAUDE_PLUGIN_ROOT}/bin/coderabbit" mcp-hook', "timeout": 300}],
+            }]}}, indent=2) + "\n")
         (package / "bin").mkdir()
         (package / "bin/mcp-url").write_text(endpoint + "\n")
+        (package / "bin/launch-mode").write_text(launcher + "\n")
         shutil.copyfile(source / "scripts" / "coderabbit", package / "bin" / "coderabbit")
         (package / "bin" / "coderabbit").chmod(0o755)
         inventory = []
@@ -130,7 +137,7 @@ def assemble(source, client, artifact_manifest, endpoint, output):
                 shutil.copyfile(source / name, package / name)
         shutil.copyfile(source / "packaging/plugin-README.md", package / "README.md")
         package.rename(output)
-    return {"package": str(output), "client": client, "cliVersion": version, "platforms": sorted(seen)}
+    return {"package": str(output), "client": client, "launcher": launcher, "cliVersion": version, "platforms": sorted(seen)}
 
 
 def main():
@@ -138,11 +145,13 @@ def main():
     parser.add_argument("--client", choices=["claude", "codex"], required=True)
     parser.add_argument("--artifacts", type=Path, required=True, help="Local artifact manifest with version, platform, path, sha256")
     parser.add_argument("--mcp-url", required=True, help="Verified HTTPS endpoint for this package")
+    parser.add_argument("--launcher", choices=["hook", "direct"], default="hook",
+                        help="Prefer hook on supported trusted hosts; direct is the hook-free channel fallback")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     source = Path(__file__).resolve().parent.parent
     try:
-        print(json.dumps(assemble(source, args.client, args.artifacts.resolve(), args.mcp_url, args.output.resolve())))
+        print(json.dumps(assemble(source, args.client, args.artifacts.resolve(), args.mcp_url, args.output.resolve(), args.launcher)))
     except (ValueError, OSError, KeyError, TypeError) as error:
         parser.exit(1, f"Cannot assemble CodeRabbit plugin: {error}\n")
 
