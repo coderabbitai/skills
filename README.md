@@ -112,10 +112,10 @@ On macOS and Linux, you can install this plugin before installing the CodeRabbit
 CLI. When you first request a review, Antigravity's main agent checks for a
 trusted CLI, installs it from the official installer if missing, and verifies
 it before continuing. Setup uses the app's normal execution permissions and
-requires `curl`, `unzip`, `git`, and a POSIX shell, plus `openssl` on Linux.
-Existing trusted installations are reused without upgrading. If you are signed
-out, sign in from your terminal when prompted; installation does not sign you
-in automatically.
+requires `curl`, `unzip`, `git`, and a POSIX shell, plus `openssl` on Linux and
+`shasum` or `sha256sum` on macOS. Existing trusted installations are reused
+without upgrading. If you are signed out, sign in from your terminal when
+prompted; installation does not sign you in automatically.
 
 #### Codex App
 
