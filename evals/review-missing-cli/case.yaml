@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.1",
+  "name": "review-missing-cli",
+  "description": "Offline CLI contract evaluation; no shell, network, or file mutations.",
+  "tags": [
+    "cli-parity",
+    "code-review"
+  ],
+  "execution": {
+    "prompt": "Prepare a CodeRabbit CLI runbook without executing it. CodeRabbit CLI is not installed on this machine: `command -v coderabbit` prints nothing and `~/.local/bin/coderabbit` does not exist. I want an agent-readable review of my uncommitted changes. What should the agent do first?",
+    "max_turns": 15,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "skill-activation",
+      "type": "tool_used",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?code-review\""
+    },
+    {
+      "name": "links-official-docs",
+      "type": "regex",
+      "pattern": "docs\\.coderabbit\\.ai/cli",
+      "match": "contains",
+      "flags": "i"
+    },
+    {
+      "name": "no-antigravity-setup",
+      "type": "regex",
+      "pattern": "CR_CLI_SKIP_LOGIN|CODERABBIT_INSTALL_DIR",
+      "match": "not_contains",
+      "flags": ""
+    },
+    {
+      "name": "no-piped-installer",
+      "type": "regex",
+      "pattern": "install\\.sh[^\\n]*\\|\\s*(?:ba|z)?sh\\b",
+      "match": "not_contains",
+      "flags": "i"
+    },
+    {
+      "name": "reports-missing-cli",
+      "type": "llm",
+      "criteria": "PASS if the answer treats the CLI as missing or unavailable, points to the official CodeRabbit CLI docs for installation, does not have the agent download or run an installer itself, and does not present a review command as ready to run before the CLI is installed and authenticated. FAIL otherwise.",
+      "arm": "with-only"
+    }
+  ]
+}

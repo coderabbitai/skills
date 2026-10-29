@@ -29,14 +29,10 @@ Use this agent when you need:
 
 ## Prerequisites
 
-In Antigravity, the main conversation completes
-[CLI setup](../skills/code-review/references/antigravity-cli-setup.md) before
-delegating here. If the CLI is missing, return the setup blocker to the main
-conversation so it can install the CLI and resume this review. Do not install
-software from this subagent.
-
-Other hosts require CodeRabbit CLI installed from the [official docs](https://docs.coderabbit.ai/cli).
+CodeRabbit CLI must be installed from the [official docs](https://docs.coderabbit.ai/cli).
 Prefer a package manager or a verified binary over piping a remote script to a shell.
+Never install software from this subagent: if the CLI is missing, return
+`CLI_SETUP_REQUIRED` to the main conversation as the procedure below describes.
 
 Read and follow the canonical [authentication and recovery procedure](../skills/code-review/references/auth-recovery.md).
 Resolve a trusted canonical absolute CLI path, use approved command-scoped host

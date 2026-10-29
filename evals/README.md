@@ -1,8 +1,8 @@
 # CLI behavior evaluations
 
-Six offline cases exercise public scope flags, default and uncommitted untracked-file inclusion, local
-versus PR prompt retrieval, EU browser authentication, and incomplete/skipped
-review output. No shell, writes, network tools, or production reviews are granted.
+Seven offline cases exercise public scope flags, default and uncommitted untracked-file inclusion, local
+versus PR prompt retrieval, EU browser authentication, incomplete/skipped
+review output, and missing-CLI handling outside Antigravity. No shell, writes, network tools, or production reviews are granted.
 
 With Claude Code 2.1.269+ and an authenticated account, run from the plugin root:
 

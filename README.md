@@ -105,15 +105,17 @@ agy plugin list
 ```
 
 The repository-root [`plugin.json`](plugin.json) manifest packages the skills,
-review command, and both subagents for Antigravity CLI's plugin discovery.
+review command, both subagents, and a CLI setup rule for Antigravity CLI's
+plugin discovery.
 
 On macOS and Linux, you can install this plugin before installing the CodeRabbit
 CLI. When you first request a review, Antigravity's main agent checks for a
 trusted CLI, installs it from the official installer if missing, and verifies
 it before continuing. Setup uses the app's normal execution permissions and
-requires `curl`, `unzip`, and a POSIX shell. Existing trusted installations are
-reused without upgrading. If you are signed out, sign in from your terminal
-when prompted; installation does not sign you in automatically.
+requires `curl`, `unzip`, `git`, and a POSIX shell, plus `openssl` on Linux.
+Existing trusted installations are reused without upgrading. If you are signed
+out, sign in from your terminal when prompted; installation does not sign you
+in automatically.
 
 #### Codex App
 
@@ -139,6 +141,7 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | `.codex-plugin/` | Codex metadata referencing the shared skills. |
 | `gemini-extension.json` | Gemini CLI extension manifest. |
 | `plugin.json` | Antigravity CLI plugin manifest. |
+| `rules/` | Antigravity-only plugin rules, including first-review CLI setup. |
 | `assets/` | Shared marketplace and brand assets. |
 | `DISTRIBUTION_CHANNELS.md` | Maintainer inventory of live, packaged, and in-development channels. |
 

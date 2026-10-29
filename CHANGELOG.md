@@ -25,11 +25,9 @@ All notable changes to this repository are documented in this file.
   including the `/coderabbit:review` command and existing portable skills.
 - Added native Antigravity CLI plugin packaging via the repository-root
   `plugin.json` manifest, with direct GitHub installation guidance.
-- Added first-review CLI setup for Antigravity on macOS and Linux. When the
-  CLI is missing, the main agent downloads, inspects, and runs the
-  official stable installer using normal host permissions. Existing
-  installations are reused, command collisions stop setup, and signed-out
-  users still complete terminal login themselves.
+- Added an Antigravity plugin rule that installs a missing CodeRabbit CLI on
+  macOS and Linux with the official installer before the first review; sign-in
+  stays with the user.
 - Documented CodeRabbit CLI `--dir <path>` support for directory-scoped
   reviews in the review skill and Claude Code review helpers.
 - Added `name` frontmatter to the Claude Code `code-reviewer` subagent.

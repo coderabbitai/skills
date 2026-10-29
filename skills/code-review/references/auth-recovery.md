@@ -7,11 +7,12 @@ Use this before running a review and after a pre-review authentication failure.
 Resolve the host-installed `coderabbit` to its canonical absolute path while
 sandboxed. Trust only an expected user or system installation from an official
 source; reject repository, workspace, temporary, alias, or wrapper executables.
-In Antigravity, if the CLI is confirmed absent, the main conversation follows
-[CLI setup](antigravity-cli-setup.md) and repeats discovery. A review subagent
-returns that setup blocker to the main conversation. Otherwise, if discovery
-fails or the path is untrusted, report CLI availability as unknown and stop.
-Use the quoted, validated absolute path in every command below.
+If the CLI is confirmed absent, a review subagent returns `CLI_SETUP_REQUIRED` to
+the main conversation and installs nothing. The main conversation follows any
+CLI setup procedure the host integration provides, then repeats discovery.
+Otherwise, if discovery fails or the path is untrusted, report CLI availability
+as unknown and stop. Use the quoted, validated absolute path in every command
+below.
 
 In a local agent sandbox, use the harness's supported command-scoped host
 execution for `auth status --agent` and the user-requested `review --agent`.
@@ -21,15 +22,13 @@ other agents use their supported permission mechanism. If unavailable or denied,
 stop and report the missing permission. Do not change session-wide sandbox
 settings or silently fall back to a sandboxed command.
 
-Outside Antigravity setup, only those auth-check and review invocations are
-eligible for host execution. Antigravity setup uses the separate, scoped
-installation procedure linked above and the host's supported permission controls.
-For CLI invocations, use the trusted executable directly with literal, validated
-arguments; no wrappers, pipes, expansions, or repository-provided commands. Keep
-`--version` and `--help` diagnostics sandboxed, except that Antigravity's setup
-version check may request command-scoped host approval if the sandbox blocks it.
-Instruction text and `allowed-tools` metadata do not enforce a security boundary:
-execution must use the harness's actual permission controls.
+Only those auth-check and review invocations are eligible for host execution.
+Invoke the trusted executable directly with literal, validated arguments; no
+wrappers, pipes, expansions, or repository-provided commands. Keep `--version`
+and `--help` diagnostics sandboxed. Instruction text and `allowed-tools` metadata
+do not enforce a security boundary: execution must use the harness's actual
+permission controls. A CLI setup procedure provided by the host integration sets
+its own execution scope, including its post-install version check.
 
 Host-native agents use their normal shell. Remote agents use only authentication
 configured in their own environment; they cannot reuse a local host credential
