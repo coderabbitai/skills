@@ -9,10 +9,12 @@ sandboxed. Trust only an expected user or system installation from an official
 source; reject repository, workspace, temporary, alias, or wrapper executables.
 If the CLI is confirmed absent, a review subagent returns `CLI_SETUP_REQUIRED` to
 the main conversation and installs nothing. The main conversation follows any
-CLI setup procedure the host integration provides, then repeats discovery.
-Otherwise, if discovery fails or the path is untrusted, report CLI availability
-as unknown and stop. Use the quoted, validated absolute path in every command
-below.
+CLI setup procedure the host integration provides, then repeats discovery. If
+the host provides none, tell the user to install the CLI from the
+[official docs](https://docs.coderabbit.ai/cli), stop, and repeat discovery
+after the user confirms installation. Otherwise, if discovery fails or the path
+is untrusted, report CLI availability as unknown and stop. Use the quoted,
+validated absolute path in every command below.
 
 In a local agent sandbox, use the harness's supported command-scoped host
 execution for `auth status --agent` and the user-requested `review --agent`.

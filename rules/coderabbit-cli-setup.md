@@ -58,7 +58,10 @@ On any other platform, report it and link the
    verification failure even though the installer exits successfully: report
    that the CLI was installed without a checksum check, do not describe it as
    verified, and do not continue to the review. Do not retry with verification
-   disabled. Remove only the private temporary files created for this install.
+   disabled. Remove the private temporary files created for this install. If
+   the installer already wrote `~/.local/bin/coderabbit` or `~/.local/bin/cr`,
+   remove them too: steps 2 and 5 confirmed neither existed before, and a later
+   discovery must not reuse an unverified CLI.
 8. Resolve `~/.local/bin/coderabbit` to a trusted canonical absolute path and run
    its `--version`. If the sandbox blocks this check, request normal
    command-scoped host approval for that exact version command; stop if denied
