@@ -27,8 +27,9 @@ All notable changes to this repository are documented in this file.
   `plugin.json` manifest, with direct GitHub installation guidance.
 - Added an Antigravity plugin rule that installs a missing CodeRabbit CLI on
   supported Linux setups after inspecting the official installer; sign-in stays
-  with the user. On macOS, the current installer fails the required verification
-  check, so users must install the CLI manually before review.
+  with the user. On macOS, the current installer continues when checksum
+  verification is unavailable, so setup stops before execution and users must
+  install the CLI manually before review.
 - Documented CodeRabbit CLI `--dir <path>` support for directory-scoped
   reviews in the review skill and Claude Code review helpers.
 - Added `name` frontmatter to the Claude Code `code-reviewer` subagent.

@@ -27,14 +27,14 @@
     {
       "name": "eu-agent-login",
       "type": "regex",
-      "pattern": "^(?=(?:[^'\"\\r\\n]|(?<=\\w)'|(?<!\\w)'[^'\\r\\n]*'|\"[^\"\\r\\n]*\")*?(?<![^\\s`])(?:(?:/(?:[^\\s'\"`/]+/)*)?(?:coderabbit|cr)|'(?:[^'\\r\\n]*/)?(?:coderabbit|cr)'|\"(?:[^\"\\r\\n]*/)?(?:coderabbit|cr)\")\\s+auth\\s+login\\b)(?=[^\\n]*--agent\\b)(?=[^\\n]*--region\\s+eu\\b)[^\\n]+$",
+      "pattern": "^(?=(?:[^'\"\\r\\n]|(?<=\\w)'|(?<!\\w)'[^'\\r\\n]*'|\"[^\"\\r\\n]*\")*?(?<![^\\s`])(?:(?:/(?:[^\\s'\"`/]+/)*)?(?:coderabbit|cr)|'(?:[^'\\r\\n]*/)?(?:coderabbit|cr)'|\"(?:[^\"\\r\\n]*/)?(?:coderabbit|cr)\")[ \\t]+auth[ \\t]+login(?=[ \\t\\r\\n;&|`]|$)(?=[^\\r\\n;&|`]*(?<!\\S)--agent(?=[ \\t\\r\\n;&|`]|$))(?=[^\\r\\n;&|`]*(?<!\\S)--region[ \\t]+eu(?=[ \\t\\r\\n;&|`]|$)))[^\\n]+$",
       "match": "contains",
       "flags": "mi"
     },
     {
       "name": "review-saved-region",
       "type": "regex",
-      "pattern": "^(?=(?:[^'\"\\r\\n]|(?<=\\w)'|(?<!\\w)'[^'\\r\\n]*'|\"[^\"\\r\\n]*\")*?(?<![^\\s`])(?:(?:/(?:[^\\s'\"`/]+/)*)?(?:coderabbit|cr)|'(?:[^'\\r\\n]*/)?(?:coderabbit|cr)'|\"(?:[^\"\\r\\n]*/)?(?:coderabbit|cr)\")\\s+review\\b)(?=[^\\n]*--committed\\b)(?=[^\\n]*--agent\\b)(?![^\\n]*--region\\b)[^\\n]+$",
+      "pattern": "^(?=(?:[^'\"\\r\\n]|(?<=\\w)'|(?<!\\w)'[^'\\r\\n]*'|\"[^\"\\r\\n]*\")*?(?<![^\\s`])(?:(?:/(?:[^\\s'\"`/]+/)*)?(?:coderabbit|cr)|'(?:[^'\\r\\n]*/)?(?:coderabbit|cr)'|\"(?:[^\"\\r\\n]*/)?(?:coderabbit|cr)\")[ \\t]+review(?=[ \\t\\r\\n;&|`]|$)(?=[^\\r\\n;&|`]*(?<!\\S)--committed(?=[ \\t\\r\\n;&|`]|$))(?=[^\\r\\n;&|`]*(?<!\\S)--agent(?=[ \\t\\r\\n;&|`]|$))(?![^\\r\\n;&|`]*(?<!\\S)--region(?=[ \\t=\\r\\n;&|`]|$)))[^\\n]+$",
       "match": "contains",
       "flags": "mi"
     }

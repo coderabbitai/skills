@@ -155,6 +155,74 @@ class EuAuthCommandTests(unittest.TestCase):
             with self.subTest(example=example):
                 self.assertEqual(bool(pattern.search(example)), expected)
 
+    def test_flags_stay_in_the_selected_command_segment(self):
+        """Keep flags within their command across shell and Markdown boundaries."""
+        for separator in (";", "&&", "&", "||", "|", "\n", "`"):
+            examples = (
+                (self.login, "coderabbit auth login --agent", "echo --region eu", False),
+                (self.login, "coderabbit auth login --region eu", "echo --agent", False),
+                (self.review, "coderabbit review --committed", "echo --agent", False),
+                (self.review, "coderabbit review --agent", "echo --committed", False),
+                (
+                    self.review,
+                    "coderabbit review --committed --agent",
+                    "echo --region eu",
+                    True,
+                ),
+                (
+                    self.login,
+                    "coderabbit auth login --agent --region eu",
+                    "echo status",
+                    True,
+                ),
+            )
+            for pattern, command, following, expected in examples:
+                for spacing in ("", " "):
+                    example = command + spacing + separator + spacing + following
+                    with self.subTest(example=example):
+                        self.assertEqual(bool(pattern.search(example)), expected)
+
+    def test_prefix_flags_do_not_satisfy_command_requirements(self):
+        """Ignore flags in prose or commands before the selected command."""
+        examples = (
+            (self.login, "--region eu: coderabbit auth login --agent", False),
+            (self.login, "--agent: coderabbit auth login --region eu", False),
+            (self.login, "--agent --region eu: coderabbit auth login", False),
+            (self.review, "--agent: coderabbit review --committed", False),
+            (self.review, "--committed: coderabbit review --agent", False),
+            (
+                self.review,
+                "--region eu belongs to login; coderabbit review --committed --agent",
+                True,
+            ),
+        )
+        for pattern, example, expected in examples:
+            with self.subTest(example=example):
+                self.assertEqual(bool(pattern.search(example)), expected)
+
+    def test_command_and_flag_tokens_match_exactly(self):
+        """Reject flag and value prefixes, other subcommands, and split command names."""
+        examples = (
+            (self.login, "coderabbit auth login --agent --region eu-west"),
+            (self.login, "coderabbit auth login --agent --region eu_other"),
+            (self.login, "coderabbit auth login --agent --region eu.example"),
+            (self.login, "coderabbit auth login --agent --region eu/other"),
+            (self.login, "coderabbit auth login --agent-other --region eu"),
+            (self.login, "coderabbit auth login prefix--agent --region eu"),
+            (self.login, "coderabbit auth login --agent --regional eu"),
+            (self.login, "coderabbit auth login-other --agent --region eu"),
+            (self.login, "coderabbit\n auth login --agent --region eu"),
+            (self.login, "coderabbit auth\n login --agent --region eu"),
+            (self.review, "coderabbit review --committed-other --agent"),
+            (self.review, "coderabbit review --committed --agent-other"),
+            (self.review, "coderabbit review prefix--agent --committed"),
+            (self.review, "coderabbit review --committed --agent --region=eu"),
+            (self.review, "coderabbit review-other --committed --agent"),
+        )
+        for pattern, example in examples:
+            with self.subTest(example=example):
+                self.assertNotRegex(example, pattern)
+
 
 if __name__ == "__main__":
     unittest.main()
