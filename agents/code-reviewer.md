@@ -32,7 +32,8 @@ Use this agent when you need:
 CodeRabbit CLI must be installed from the [official docs](https://docs.coderabbit.ai/cli).
 Prefer a package manager or a verified binary over piping a remote script to a shell.
 Never install software from this subagent: if the CLI is missing, return
-`CLI_SETUP_REQUIRED` to the main conversation as the procedure below describes.
+`CLI_SETUP_REQUIRED` to the main conversation. When running in Antigravity, the
+main conversation follows the [CLI setup rule](../rules/coderabbit-cli-setup.md).
 
 Read and follow the canonical [authentication and recovery procedure](../skills/code-review/references/auth-recovery.md).
 Resolve a trusted canonical absolute CLI path, use approved command-scoped host

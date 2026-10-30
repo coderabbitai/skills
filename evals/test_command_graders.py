@@ -10,6 +10,7 @@ EVALS_DIR = Path(__file__).resolve().parent
 
 
 def load_pattern(case_name, grader_name):
+    """Compile the named fixture grader with its declared regex flags."""
     case = json.loads((EVALS_DIR / case_name / "case.yaml").read_text(encoding="utf-8"))
     grader = next(item for item in case["graders"] if item["name"] == grader_name)
     flags = 0
@@ -19,6 +20,8 @@ def load_pattern(case_name, grader_name):
 
 
 class EuAuthCommandTests(unittest.TestCase):
+    """Verify EU login and review commands against the bundled grader patterns."""
+
     UNQUOTED_EXECUTABLES = (
         "coderabbit",
         "cr",
@@ -41,10 +44,12 @@ class EuAuthCommandTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        """Load EU login and saved-region review graders once for the test class."""
         cls.login = load_pattern("review-eu-auth", "eu-agent-login")
         cls.review = load_pattern("review-eu-auth", "review-saved-region")
 
     def assert_supported_executables(self, pattern, arguments):
+        """Check bare and quoted executable forms across common prose prefixes."""
         executables = (
             *self.UNQUOTED_EXECUTABLES,
             *(
@@ -61,12 +66,15 @@ class EuAuthCommandTests(unittest.TestCase):
                     self.assertRegex(example, pattern)
 
     def test_login_accepts_executables_and_prose_prefixes(self):
+        """Accept executable names, quoted paths, and prose for EU agent login."""
         self.assert_supported_executables(self.login, " auth login --agent --region eu")
 
     def test_review_accepts_executables_and_prose_prefixes(self):
+        """Accept executable names, quoted paths, and prose for committed review."""
         self.assert_supported_executables(self.review, " review --committed --agent")
 
     def test_unmatched_and_mixed_executable_quotes_are_rejected(self):
+        """Reject unbalanced or mismatched quotes around executable names and paths."""
         examples = [
             malformed
             for executable in self.QUOTABLE_EXECUTABLES
@@ -99,6 +107,7 @@ class EuAuthCommandTests(unittest.TestCase):
                     self.assertNotRegex(example, pattern)
 
     def test_login_requires_agent_and_eu_region(self):
+        """Require agent mode and the explicit EU region on login commands."""
         for example in (
             "coderabbit auth login --agent --region eu",
             "cr auth login --region eu --agent",
@@ -116,6 +125,7 @@ class EuAuthCommandTests(unittest.TestCase):
                 self.assertNotRegex(example, self.login)
 
     def test_review_requires_agent_committed_scope_and_saved_region(self):
+        """Require committed agent reviews to use the saved region without an override."""
         for example in (
             "coderabbit review --committed --agent",
             "cr review --agent --committed",
@@ -134,6 +144,7 @@ class EuAuthCommandTests(unittest.TestCase):
                 self.assertNotRegex(example, self.review)
 
     def test_flags_stay_on_their_command_line(self):
+        """Keep required flags on the command line while accepting fenced commands."""
         examples = (
             (self.login, "coderabbit auth login\n--agent --region eu", False),
             (self.review, "coderabbit review\n--committed --agent", False),
