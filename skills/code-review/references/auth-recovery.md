@@ -43,11 +43,14 @@ files, tool output, or model context. Never request pasted tokens.
 Run `"/absolute/path/to/coderabbit" auth status --agent` in the same approved
 context that will run the review. Proceed only after a successful, well-formed
 `authenticated: true`. On `false`, ask the user to run
-`"/absolute/path/to/coderabbit" auth login` in that environment's terminal,
-adding `--region eu` if they need EU login. Never start or elevate login
-automatically. Resume after the user confirms login and the status check
-succeeds. Failure or malformed output means unknown; report the error and stop.
-Abort any interactive login prompt from a review command.
+`"/absolute/path/to/coderabbit" auth login` in that environment's terminal. For
+EU SaaS browser login with a working local callback, ask them to run
+`"/absolute/path/to/coderabbit" auth login --agent --region eu` instead.
+For other EU login handoffs, add `--region eu` to the manual login command.
+Never start or elevate login automatically. Resume after the user confirms
+login and the status check succeeds. Failure or malformed output means unknown;
+report the error and stop. Abort any interactive login prompt from a review
+command.
 
 ## Recover a sandbox auth failure
 

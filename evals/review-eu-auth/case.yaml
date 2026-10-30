@@ -27,14 +27,14 @@
     {
       "name": "eu-agent-login",
       "type": "regex",
-      "pattern": "^(?=[^\\n]*\\b(?:coderabbit|cr)\\s+auth\\s+login\\b)(?=[^\\n]*--agent\\b)(?=[^\\n]*--region\\s+eu\\b)[^\\n]+$",
+      "pattern": "^(?=[^\\n]*\\b(?:coderabbit|cr)['\"]?\\s+auth\\s+login\\b)(?=[^\\n]*--agent\\b)(?=[^\\n]*--region\\s+eu\\b)[^\\n]+$",
       "match": "contains",
       "flags": "mi"
     },
     {
       "name": "review-saved-region",
       "type": "regex",
-      "pattern": "^(?=[^\\n]*\\b(?:coderabbit|cr)\\s+review\\b)(?=[^\\n]*--committed\\b)(?=[^\\n]*--agent\\b)(?![^\\n]*--region\\b)[^\\n]+$",
+      "pattern": "^(?=[^\\n]*\\b(?:coderabbit|cr)['\"]?\\s+review\\b)(?=[^\\n]*--committed\\b)(?=[^\\n]*--agent\\b)(?![^\\n]*--region\\b)[^\\n]+$",
       "match": "contains",
       "flags": "mi"
     }
