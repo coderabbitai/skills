@@ -26,17 +26,15 @@
     },
     {
       "name": "eu-agent-login",
-      "type": "regex",
-      "pattern": "^(?=(?:[^'\"\\r\\n]|(?<=\\w)'|(?<!\\w)'[^'\\r\\n]*'|\"[^\"\\r\\n]*\")*?(?<![^\\s`])(?:(?:/(?:[^\\s'\"`/]+/)*)?(?:coderabbit|cr)|'(?:[^'\\r\\n]*/)?(?:coderabbit|cr)'|\"(?:[^\"\\r\\n]*/)?(?:coderabbit|cr)\")[ \\t]+auth[ \\t]+login(?=[ \\t\\r\\n;&|`]|$)(?=[^\\r\\n;&|`]*(?<!\\S)--agent(?=[ \\t\\r\\n;&|`]|$))(?=[^\\r\\n;&|`]*(?<!\\S)--region[ \\t]+eu(?=[ \\t\\r\\n;&|`]|$)))[^\\n]+$",
-      "match": "contains",
-      "flags": "mi"
+      "type": "llm",
+      "criteria": "PASS only if the runbook recommends CodeRabbit SaaS browser login via auth login with active --agent and an unambiguous region value exactly eu, without API-key or self-hosted authentication. Accept coderabbit, cr, or a canonical absolute path to that executable, including well-formed quoted paths. Judge actual shell argument tokens: individually quoted options, --region=eu, and line continuations are allowed. Flags appearing only in comments, prose, another command, or a single unrelated argument value do not count. Reject malformed quoting, partial flags or values such as --agent-other or eu-west, and conflicting region selections. FAIL otherwise.",
+      "arm": "both"
     },
     {
       "name": "review-saved-region",
-      "type": "regex",
-      "pattern": "^(?=(?:[^'\"\\r\\n]|(?<=\\w)'|(?<!\\w)'[^'\\r\\n]*'|\"[^\"\\r\\n]*\")*?(?<![^\\s`])(?:(?:/(?:[^\\s'\"`/]+/)*)?(?:coderabbit|cr)|'(?:[^'\\r\\n]*/)?(?:coderabbit|cr)'|\"(?:[^\"\\r\\n]*/)?(?:coderabbit|cr)\")[ \\t]+review(?=[ \\t\\r\\n;&|`]|$)(?=[^\\r\\n;&|`]*(?<!\\S)--committed(?=[ \\t\\r\\n;&|`]|$))(?=[^\\r\\n;&|`]*(?<!\\S)--agent(?=[ \\t\\r\\n;&|`]|$))(?![^\\r\\n;&|`]*(?<!\\S)--region(?=[ \\t=\\r\\n;&|`]|$)))[^\\n]+$",
-      "match": "contains",
-      "flags": "mi"
+      "type": "llm",
+      "criteria": "PASS only if the runbook recommends a CodeRabbit review with active --committed and --agent options, no conflicting scope options, and no active --region override, preserving the saved login region. Accept coderabbit, cr, or a canonical absolute path to that executable with well-formed quoting, using either the review subcommand or a valid default review invocation. Judge actual shell argument tokens, allowing individually quoted options, supported equals-form options, and line continuations. Ignore flag text in comments, prose, another command, or a single unrelated argument value. A commented region option is allowed; an active review --region or --region=... is not. Reject malformed quoting and partial flags such as --committed-other. FAIL otherwise.",
+      "arm": "both"
     }
   ]
 }
