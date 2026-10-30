@@ -4,6 +4,14 @@ Seven offline cases exercise public scope flags, default and uncommitted untrack
 versus PR prompt retrieval, EU browser authentication, incomplete/skipped
 review output, and missing-CLI handling outside Antigravity. No shell, writes, network tools, or production reviews are granted.
 
+Run the command-grader regression tests without credentials or model calls:
+
+```sh
+python3 -B -m unittest discover -s evals -p 'test_*.py'
+```
+
+These tests match command examples as text; they do not execute them.
+
 With Claude Code 2.1.269+ and an authenticated account, run from the plugin root:
 
 ```sh
