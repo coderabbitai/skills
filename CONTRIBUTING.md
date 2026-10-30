@@ -19,6 +19,8 @@ form, not through a public issue.
   remain behaviorally aligned with the corresponding canonical skill.
 - `.claude-plugin/`, `.cursor-plugin/`, `gemini-extension.json`, and
   `plugin.json` describe host-specific packaging.
+- `rules/` contains Antigravity-only plugin rules. Keep host-specific workflows
+  there instead of branching on the host inside shared skills or agents.
 - `DISTRIBUTION_CHANNELS.md` records which channels are live, packaged, or still
   in development.
 

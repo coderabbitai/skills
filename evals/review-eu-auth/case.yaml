@@ -26,17 +26,15 @@
     },
     {
       "name": "eu-agent-login",
-      "type": "regex",
-      "pattern": "^(?=[^\\n]*\\b(?:coderabbit|cr)\\s+auth\\s+login\\b)(?=[^\\n]*--agent\\b)(?=[^\\n]*--region\\s+eu\\b)[^\\n]+$",
-      "match": "contains",
-      "flags": "mi"
+      "type": "llm",
+      "criteria": "PASS only if the runbook hands CodeRabbit SaaS browser login to the user in their terminal via auth login with active --agent and an unambiguous region value exactly eu, without API-key or self-hosted authentication. Reject instructions for the agent to start or elevate login automatically. Require direct invocation of the quoted, validated canonical absolute CodeRabbit executable without wrappers, pipes, or shell expansions; reject bare coderabbit and cr invocations. In this offline runbook, a quoted absolute-path placeholder is acceptable if the runbook requires resolving and validating the actual trusted path before execution. Judge actual shell argument tokens: individually quoted options, --region=eu, and line continuations are allowed. Flags appearing only in comments, prose, another command, or a single unrelated argument value do not count. Reject malformed quoting, partial flags or values such as --agent-other or eu-west, and conflicting region selections. FAIL otherwise.",
+      "arm": "both"
     },
     {
       "name": "review-saved-region",
-      "type": "regex",
-      "pattern": "^(?=[^\\n]*\\b(?:coderabbit|cr)\\s+review\\b)(?=[^\\n]*--committed\\b)(?=[^\\n]*--agent\\b)(?![^\\n]*--region\\b)[^\\n]+$",
-      "match": "contains",
-      "flags": "mi"
+      "type": "llm",
+      "criteria": "PASS only if the runbook recommends a CodeRabbit review with active --committed and --agent options, no conflicting scope options, and no active --region override, preserving the saved login region without API-key or self-hosted authentication. Reject any recommendation to pass credentials through arguments or environment variables, including active --api-key and --api-key=... options. Require direct invocation of the quoted, validated canonical absolute CodeRabbit executable without wrappers, pipes, or shell expansions, using either the review subcommand or a valid default review invocation; reject bare coderabbit and cr invocations. In this offline runbook, a quoted absolute-path placeholder is acceptable if the runbook requires resolving and validating the actual trusted path before execution. Judge actual shell argument tokens, allowing individually quoted options, supported equals-form options, and line continuations. Ignore flag text in comments, prose, another command, or a single unrelated argument value. A commented region option is allowed; an active review --region or --region=... is not. Reject malformed quoting and partial flags such as --committed-other. FAIL otherwise.",
+      "arm": "both"
     }
   ]
 }

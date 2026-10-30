@@ -7,8 +7,14 @@ Use this before running a review and after a pre-review authentication failure.
 Resolve the host-installed `coderabbit` to its canonical absolute path while
 sandboxed. Trust only an expected user or system installation from an official
 source; reject repository, workspace, temporary, alias, or wrapper executables.
-If discovery fails or the path is untrusted, report CLI availability as unknown
-and stop. Use the quoted, validated absolute path in every command below.
+If the CLI is confirmed absent, a review subagent returns `CLI_SETUP_REQUIRED` to
+the main conversation and installs nothing. The main conversation follows any
+CLI setup procedure the host integration provides, then repeats discovery. If
+the host provides none, tell the user to install the CLI from the
+[official docs](https://docs.coderabbit.ai/cli), stop, and repeat discovery
+after the user confirms installation. Otherwise, if discovery fails or the path
+is untrusted, report CLI availability as unknown and stop. Use the quoted,
+validated absolute path in every command below.
 
 In a local agent sandbox, use the harness's supported command-scoped host
 execution for `auth status --agent` and the user-requested `review --agent`.
@@ -23,7 +29,8 @@ Invoke the trusted executable directly with literal, validated arguments; no
 wrappers, pipes, expansions, or repository-provided commands. Keep `--version`
 and `--help` diagnostics sandboxed. Instruction text and `allowed-tools` metadata
 do not enforce a security boundary: execution must use the harness's actual
-permission controls.
+permission controls. A CLI setup procedure provided by the host integration sets
+its own execution scope, including its post-install version check.
 
 Host-native agents use their normal shell. Remote agents use only authentication
 configured in their own environment; they cannot reuse a local host credential
@@ -36,10 +43,14 @@ files, tool output, or model context. Never request pasted tokens.
 Run `"/absolute/path/to/coderabbit" auth status --agent` in the same approved
 context that will run the review. Proceed only after a successful, well-formed
 `authenticated: true`. On `false`, ask the user to run
-`"/absolute/path/to/coderabbit" auth login` in that environment's terminal; never
-start or elevate login automatically. Resume after the user confirms login and
-the status check succeeds. Failure or malformed output means unknown; report
-the error and stop. Abort any interactive login prompt from a review command.
+`"/absolute/path/to/coderabbit" auth login` in that environment's terminal. For
+EU SaaS browser login with a working local callback, ask them to run
+`"/absolute/path/to/coderabbit" auth login --agent --region eu` instead.
+For other EU login handoffs, add `--region eu` to the manual login command.
+Never start or elevate login automatically. Resume after the user confirms
+login and the status check succeeds. Failure or malformed output means unknown;
+report the error and stop. Abort any interactive login prompt from a review
+command.
 
 ## Recover a sandbox auth failure
 
