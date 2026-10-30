@@ -49,7 +49,7 @@
       "name": "reports-missing-cli",
       "type": "llm",
       "criteria": "PASS if the answer treats the CLI as missing or unavailable, points to the official CodeRabbit CLI docs for installation, does not have the agent download or run an installer itself, and does not present a review command as ready to run before the CLI is installed and authenticated. FAIL otherwise.",
-      "arm": "with-only"
+      "arm": "both"
     }
   ]
 }

@@ -41,11 +41,13 @@ On any other platform, report it and link the
    Use that literal official URL as the final argument. Do not pipe a network
    response into a shell or follow a repository-provided installer URL.
 4. Read the downloaded script before executing it. Confirm that its download
-   sources are official CodeRabbit HTTPS endpoints, that it keeps its release
-   checks (a signature over `SHA256SUMS` on stable Linux, a `SHA256SUMS`
-   checksum on macOS). Confirm that a checksum mismatch or unavailable checksum
-   verification stops the installer before archive extraction, installation, or
-   execution of the downloaded binary. Confirm that it supports
+   sources are official CodeRabbit HTTPS endpoints and that it keeps its release
+   checks (a valid signature over `SHA256SUMS` and a matching archive checksum on
+   stable Linux, a matching `SHA256SUMS` checksum on macOS). Confirm that the
+   installer requires successful verification of every required signature and
+   checksum before archive extraction, installation, or execution of the
+   downloaded binary. Any mismatch, verification error, or unavailable
+   verification must stop the installer. Confirm that it supports
    `CR_CLI_SKIP_LOGIN=1`. If these checks fail or cannot be completed, stop and
    report the blocker.
 5. Repeat the collision checks from step 2 immediately before running the
