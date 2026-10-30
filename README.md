@@ -22,7 +22,7 @@ authentication flow when needed.
 
 Use the [CLI docs](https://docs.coderabbit.ai/cli) for the primary install path.
 They cover Homebrew, the install script, and CLI usage. Antigravity users on
-macOS and Linux can instead use the first-review setup described below.
+supported Linux setups can instead use the first-review setup described below.
 
 ### 2. Install the agent integration
 
