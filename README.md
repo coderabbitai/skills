@@ -95,16 +95,19 @@ This native extension is separate from the generic skills-installer path above.
 
 #### Antigravity CLI Plugin
 
-Antigravity CLI users can install the native plugin directly from this
-repository:
+The native Antigravity plugin lives in
+[`coderabbitai/antigravity-plugin`](https://github.com/coderabbitai/antigravity-plugin),
+which adapts the skills in this repository from a pinned commit. Install it
+from GitHub:
 
 ```bash
-agy plugin install https://github.com/coderabbitai/skills
+agy plugin install https://github.com/coderabbitai/antigravity-plugin
 agy plugin list
 ```
 
-The repository-root [`plugin.json`](plugin.json) manifest packages the skills,
-review command, and both subagents for Antigravity CLI's plugin discovery.
+The repository-root [`plugin.json`](plugin.json) stays only while the
+Antigravity Marketplace listing still installs from this repository. Make new
+Antigravity packaging changes in `coderabbitai/antigravity-plugin`.
 
 #### Codex App
 
@@ -129,7 +132,7 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | `.cursor-plugin/` | Cursor marketplace metadata. |
 | `.codex-plugin/` | Codex metadata referencing the shared skills. |
 | `gemini-extension.json` | Gemini CLI extension manifest. |
-| `plugin.json` | Antigravity CLI plugin manifest. |
+| `plugin.json` | Legacy Antigravity CLI manifest, kept until the Marketplace listing moves to `coderabbitai/antigravity-plugin`. |
 | `assets/` | Shared marketplace and brand assets. |
 | `DISTRIBUTION_CHANNELS.md` | Maintainer inventory of live, packaged, and in-development channels. |
 
@@ -275,10 +278,10 @@ and chat doesn't run subagents.
 
 ### Antigravity CLI
 
-- Native plugin manifest: `plugin.json`
-- Skills source: `skills/`
-- Review command: `/coderabbit:review` from `commands/coderabbit/review.toml` (converted to a skill during installation)
-- Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
+- Native plugin: [`coderabbitai/antigravity-plugin`](https://github.com/coderabbitai/antigravity-plugin), adapted from `skills/` at a pinned commit
+- Legacy manifest in this repository: `plugin.json`, kept until the Marketplace listing moves
+- Legacy review command: `/coderabbit:review` from `commands/coderabbit/review.toml` (converted to a skill during installation)
+- Legacy subagents: `agents/code-reviewer.md`, `agents/autofix.md`
 
 ### Gemini CLI
 
