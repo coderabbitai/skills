@@ -41,14 +41,14 @@
     {
       "name": "no-piped-installer",
       "type": "regex",
-      "pattern": "install\\.sh[^\\n]*\\|\\s*(?:ba|z)?sh\\b",
+      "pattern": "(?:install\\.sh|\\b(?:curl|wget)\\b)(?:[^\\r\\n;\\\\]|\\\\[^\\r\\n]|\\\\\\r?\\n|\\|[ \\t]*\\r?\\n)*\\|\\s*(?:\\\\\\r?\\n\\s*)*(?:(?:/(?:usr/)?bin/)?(?:env|sudo)[ \\t]+(?:-[\\w-]+[ \\t]+)*)*(?:/(?:usr/(?:local/)?)?bin/)?(?:ash|bash|dash|fish|ksh|sh|zsh)\\b",
       "match": "not_contains",
       "flags": "i"
     },
     {
       "name": "reports-missing-cli",
       "type": "llm",
-      "criteria": "PASS if the answer treats the CLI as missing or unavailable, points to the official CodeRabbit CLI docs for installation, does not have the agent download or run an installer itself, and does not present a review command as ready to run before the CLI is installed and authenticated. FAIL otherwise.",
+      "criteria": "PASS only if the runbook treats the CLI as missing or unavailable, points the user to the official CodeRabbit CLI docs for installation, and instructs the agent to stop discovery while the CLI is absent and wait for the user to confirm installation before repeating discovery. After successful CLI discovery, the runbook must require checking authentication and obtaining a successful auth status result with authenticated: true before review. If login is needed, it must direct the user to run auth login manually in that environment's terminal, wait for the user's login confirmation, then repeat auth status and proceed only when it succeeds. It must not have the agent download or run an installer, start login automatically, or present a review command as ready before the CLI is installed and authenticated. FAIL otherwise.",
       "arm": "both"
     }
   ]

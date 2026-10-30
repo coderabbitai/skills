@@ -22,8 +22,9 @@ rather than replacing it.
 
 ## Install on macOS or Linux
 
-On any other platform, report it and link the
-[official CLI setup guide](https://docs.coderabbit.ai/cli).
+On any other platform, report it, link the
+[official CLI setup guide](https://docs.coderabbit.ai/cli), and stop before the
+steps below.
 
 1. Check that `curl`, `unzip`, `git`, and a POSIX shell are available, plus
    `openssl` on Linux and `shasum` or `sha256sum` on macOS. If any is missing,
