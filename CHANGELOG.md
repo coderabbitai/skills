@@ -34,6 +34,10 @@ All notable changes to this repository are documented in this file.
 ### Changed
 
 - Documented `usage --agent` and authorized review retries with `--use-credits`.
+- Moved Antigravity plugin packaging to
+  [`coderabbitai/antigravity-plugin`](https://github.com/coderabbitai/antigravity-plugin).
+  The repository-root `plugin.json` remains while the Antigravity Marketplace
+  listing still installs from this repository.
 
 - The Claude plugin now ships the `code-review` and `autofix` skills and the
   `code-reviewer` and `autofix` subagents. It no longer includes the
