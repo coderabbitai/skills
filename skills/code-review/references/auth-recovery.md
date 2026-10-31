@@ -54,19 +54,15 @@ files, tool output, or model context. Never request pasted tokens.
 
 ## Confirmed missing CLI
 
-When the user confirms the CLI is not installed on macOS/Linux, give these commands
+When the user confirms the CLI is not installed on macOS/Linux, give this command
 to run in their own terminal; do not install from the review skill or subagent:
 
 ```sh
-installer_dir="$(mktemp -d)" &&
-curl -q --fail --silent --show-error --proto '=https' --tlsv1.2 \
-  --output "$installer_dir/install.sh" https://cli.coderabbit.ai/install.sh
+curl -fsSL https://cli.coderabbit.ai/install.sh | sh
 ```
 
-After a successful download, ask the user to inspect that file before running
-`sh "$installer_dir/install.sh"` in the same terminal. Link the
-[official installation instructions](https://docs.coderabbit.ai/cli) for
-verification. For other platforms, give that link instead of the shell commands.
+For other platforms, link the
+[official installation instructions](https://docs.coderabbit.ai/cli) instead.
 Stop until the user confirms installation, then repeat discovery and the auth
 check; installation does not establish login.
 
