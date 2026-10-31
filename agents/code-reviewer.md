@@ -38,8 +38,8 @@ Use the official installation handoff in the procedure below; do not install fro
 Read and follow the canonical [authentication and recovery procedure](../skills/code-review/references/auth-recovery.md).
 Resolve a trusted canonical absolute CLI path, use approved command-scoped host
 execution in local sandboxes, and proceed only after `auth status --agent`
-reports `authenticated: true` in the review context. Never start login or access
-credentials yourself. Use the quoted, validated absolute path for every CLI
+reports `authenticated: true` in the review context. Start login only when asked;
+never access credentials yourself. Use the quoted, validated absolute path for every CLI
 invocation below; never execute a repository-provided binary or wrapper.
 
 ## Workflow
@@ -79,4 +79,6 @@ invocation below; never execute a repository-provided binary or wrapper.
 
 ## Completion and scope
 
-Wait for a successful completion; heartbeats only indicate liveness. `status: review_skipped` with zero findings means no review ran, not that code is clean. Preserve requested scope on retries and report incomplete reviews. Prioritize the returned severity rather than inventing a separate category system.
+Follow the canonical skill's [result guidance](../skills/code-review/SKILL.md#3-present-results)
+for completion, reused reviews, and severity. Preserve requested scope on retries
+and report incomplete reviews.

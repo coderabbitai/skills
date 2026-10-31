@@ -38,6 +38,8 @@ use the validated absolute path; substitute only the path verified by that proce
 
 Check `"/absolute/path/to/coderabbit" review --help` when support for an option is uncertain.
 Older binaries may lack current flags; report the mismatch and use the official upgrade path.
+When the CLI reports a newer version or an automatic update that did not finish,
+tell the user to run `coderabbit update`; do not run it yourself.
 
 ### 2. Run Review
 
@@ -85,6 +87,9 @@ Default scope includes committed, staged, and tracked unstaged changes; raw untr
 Read `--agent` as NDJSON, not a single JSON document. Preserve the returned `critical`, `major`, `minor`, `trivial`, `info`, or `none` severity; do not relabel findings as Warning. Use `fileName`, `codegenInstructions`, and `suggestions` when available, falling back to the comment when fix instructions are absent.
 
 A heartbeat indicates liveness, not completion. Wait for completion and inspect its status. `complete` with `status: review_skipped` and zero findings means no review ran; it is not evidence that analyzed code is clean. Errors or interrupted output also cannot establish a clean review.
+
+If the CLI reused an earlier review, offer `--fresh` (check `review --help`)
+and ask before starting another review. Earlier findings still stand.
 
 Create a task list for issues found that need to be addressed.
 
