@@ -33,8 +33,8 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
-- Added Antigravity CLI recovery for sandbox-hidden installations, using a
-  session-only executable read grant and the existing approved host review flow.
+- Clarified bounded CLI discovery, manual curl installation, and execution-context
+  selection in the shared review guidance, with scoped Antigravity CLI sandbox recovery.
 - Documented `usage --agent` and authorized review retries with `--use-credits`.
 
 - The Claude plugin now ships the `code-review` and `autofix` skills and the
