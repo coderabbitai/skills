@@ -124,7 +124,7 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | --- | --- |
 | `skills/` | Portable CodeRabbit skills for agents that support `SKILL.md`. |
 | `.claude-plugin/` | Claude Code plugin marketplace metadata. |
-| `commands/` | Native review commands for Gemini CLI and Antigravity CLI. |
+| `commands/` | Native `/coderabbit:review` command for Gemini CLI. Antigravity loads the same command from `skills/review/`. |
 | `agents/` | `code-reviewer` and `autofix` subagents shipped to Claude Code, Gemini CLI, and Antigravity CLI. |
 | `.cursor-plugin/` | Cursor marketplace metadata. |
 | `.codex-plugin/` | Codex metadata referencing the shared skills. |
@@ -281,7 +281,7 @@ It keeps diagnostics sandboxed and retains per-command host approval for auth an
 
 - Native plugin manifest: `plugin.json`
 - Skills source: `skills/`
-- Review command: `/coderabbit:review` from `commands/coderabbit/review.toml` (converted to a skill during installation)
+- Review command: `/coderabbit:review` from `skills/review/SKILL.md` (Antigravity loads plugin commands as skills, namespaced as `<plugin>:<skill>`)
 - Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
 
 ### Gemini CLI
