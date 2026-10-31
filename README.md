@@ -276,7 +276,7 @@ and chat doesn't run subagents.
 ### Antigravity CLI
 
 For sandboxed CLI sessions that cannot find or execute an installed CodeRabbit
-CLI, follow the [scoped executable-access recovery](skills/code-review/references/auth-recovery.md#antigravity-cli-installed-executable-blocked-by-the-sandbox).
+CLI, follow the [scoped executable-access recovery](skills/code-review/references/antigravity-sandbox.md).
 It keeps diagnostics sandboxed and retains per-command host approval for auth and review.
 
 - Native plugin manifest: `plugin.json`
