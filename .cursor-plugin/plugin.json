@@ -1,7 +1,7 @@
 {
   "name": "coderabbit",
   "displayName": "CodeRabbit",
-  "version": "1.2.0",
+  "version": "1.5.0",
   "description": "AI-powered code review and review-comment autofix for Cursor, powered by CodeRabbit.",
   "author": {
     "name": "CodeRabbit AI",

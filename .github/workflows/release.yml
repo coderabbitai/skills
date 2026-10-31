@@ -18,17 +18,29 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Claude Code and Cursor keep a cached copy until the manifest version changes.
-      - name: Check manifest versions match the tag
+      # Keep native manifests and shared skill metadata on the repository release tag.
+      - name: Check integration versions match the tag
         env:
           TAG_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
           status=0
-          for f in .claude-plugin/plugin.json .cursor-plugin/plugin.json gemini-extension.json; do
+          for f in .claude-plugin/plugin.json .cursor-plugin/plugin.json .codex-plugin/plugin.json gemini-extension.json; do
             v=$(jq -r .version "$f")
             if [ "$v" != "${TAG_NAME#v}" ]; then
               echo "::error file=$f::version $v does not match tag $TAG_NAME"
+              status=1
+            fi
+          done
+          for f in skills/*/SKILL.md; do
+            v=$(awk '
+              /^---$/ { if (++boundary == 2) exit; next }
+              boundary == 1 && /^metadata:$/ { metadata = 1; next }
+              boundary == 1 && /^[^[:space:]]/ { metadata = 0 }
+              boundary == 1 && metadata && /^  version:/ { gsub(/"/, "", $2); print $2 }
+            ' "$f")
+            if [ "$v" != "${TAG_NAME#v}" ]; then
+              echo "::error file=$f::metadata.version $v does not match tag $TAG_NAME"
               status=1
             fi
           done

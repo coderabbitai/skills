@@ -1,6 +1,6 @@
 # CodeRabbit Skills and Plugins
 
-![Version](https://img.shields.io/badge/version-1.2.0--unreleased-blue)
+![Version](https://img.shields.io/badge/version-1.5.0--unreleased-blue)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Agents](https://img.shields.io/badge/works_with-35%2B_agents-brightgreen)](#supported-agents)
 
@@ -79,7 +79,7 @@ For the current recommended setup, see the
 
 #### Gemini CLI Extension (pre-release)
 
-Until `v1.2.0` is published as the Latest release, Gemini CLI users can install
+Until `v1.5.0` is published as the Latest release, Gemini CLI users can install
 the native extension from `main`:
 
 ```bash
@@ -87,7 +87,7 @@ gemini extensions install https://github.com/coderabbitai/skills --ref main
 gemini extensions list
 ```
 
-After `v1.2.0` is published, the `--ref main` option can be omitted.
+After `v1.5.0` is published, the `--ref main` option can be omitted.
 
 The repository-root [`gemini-extension.json`](gemini-extension.json) packages
 the portable skills, `/coderabbit:review` command, and both subagents.
