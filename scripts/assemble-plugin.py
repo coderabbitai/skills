@@ -58,7 +58,10 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
             raise ValueError("Artifact platform is unsupported or duplicated")
         if not isinstance(checksum, str) or not re.fullmatch(r"[a-f0-9]{64}", checksum):
             raise ValueError("Every artifact needs an exact lowercase SHA-256")
-        path = Path(artifact["path"]).expanduser()
+        try:
+            path = Path(artifact["path"]).expanduser()
+        except RuntimeError as error:
+            raise ValueError(f"Invalid artifact path: {error}") from error
         if not path.is_absolute():
             path = artifact_manifest.parent / path
         if not path.is_file() or path.is_symlink() or digest(path) != checksum:

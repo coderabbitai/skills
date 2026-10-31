@@ -2,6 +2,7 @@
 """Offline packaging boundary tests; synthetic native headers are never executed."""
 import hashlib
 import importlib.util
+from io import StringIO
 import json
 from pathlib import Path
 import platform
@@ -9,6 +10,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parent.parent
 spec = importlib.util.spec_from_file_location("assemble_plugin", ROOT / "scripts/assemble-plugin.py")
@@ -112,6 +114,24 @@ class PackageTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "artifact must be a JSON object"):
                     self.assemble()
                 self.assertFalse(self.output.exists())
+
+    def test_unresolved_artifact_user_reports_clean_error_without_partial_output(self):
+        manifest = json.loads(self.manifest.read_text())
+        manifest["artifacts"][0]["path"] = "~missing-artifact-user/native"
+        self.manifest.write_text(json.dumps(manifest))
+        stderr = StringIO()
+        argv = ["assemble-plugin.py", "--client", CLIENT,
+                "--artifacts", str(self.manifest), "--mcp-url", "https://fixture.invalid/mcp",
+                "--output", str(self.output)]
+        with patch("sys.argv", argv), patch("sys.stderr", stderr), patch.object(
+            Path, "expanduser", side_effect=RuntimeError("Could not determine home directory.")
+        ):
+            with self.assertRaises(SystemExit) as raised:
+                module.main()
+        self.assertEqual(raised.exception.code, 1)
+        self.assertEqual(stderr.getvalue(),
+                         "Cannot assemble CodeRabbit plugin: Invalid artifact path: Could not determine home directory.\n")
+        self.assertFalse(self.output.exists())
 
     def test_unknown_launcher_has_no_partial_output(self):
         with self.assertRaisesRegex(ValueError, "Launcher"):
