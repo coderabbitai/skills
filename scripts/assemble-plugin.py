@@ -39,6 +39,8 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
     if output.exists():
         raise ValueError("Output already exists; choose a new directory")
     manifest = json.loads(artifact_manifest.read_text())
+    if not isinstance(manifest, dict):
+        raise ValueError("Artifact manifest must be a JSON object")
     version = manifest.get("version", "")
     artifacts = manifest.get("artifacts", [])
     if not isinstance(version, str) or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?", version):
@@ -48,6 +50,8 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
     checked = []
     seen = set()
     for artifact in artifacts:
+        if not isinstance(artifact, dict):
+            raise ValueError("Each artifact must be a JSON object")
         platform = artifact.get("platform")
         checksum = artifact.get("sha256", "")
         if platform not in PLATFORMS or platform in seen:
@@ -76,9 +80,14 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
     manifest_directory = ".claude-plugin" if client == "claude" else ".codex-plugin"
     plugin_manifest = json.loads((source / manifest_directory / "plugin.json").read_text())
     review_skill = "code-review" if (source / "skills/code-review").is_dir() else "coderabbit-review"
+    pilot = source / "packaging/mcp"
     for skill in ("setup", review_skill):
-        if not (source / "skills" / skill / "SKILL.md").is_file():
-            raise ValueError(f"Required plugin skill is missing: {skill}")
+        template_skill = "code-review" if skill == review_skill else skill
+        if not (pilot / "skills" / template_skill / "SKILL.md").is_file():
+            raise ValueError(f"Required MCP plugin skill is missing: {skill}")
+    pilot_agent = pilot / "agents/code-reviewer.md"
+    if client == "claude" and (not pilot_agent.is_file() or pilot_agent.is_symlink()):
+        raise ValueError("Required MCP review agent is missing")
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix=".coderabbit-package-", dir=output.parent) as staging:
         package = Path(staging) / "coderabbit"
@@ -86,6 +95,17 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         for name in ("skills", "assets") + (("agents",) if client == "claude" else ()):
             if (source / name).is_dir():
                 copy_tree(source / name, package / name)
+        # Shared installations retain the released CLI workflow. Only a complete
+        # assembled pilot receives the MCP-specific review and setup instructions.
+        for skill in ("setup", review_skill):
+            destination = package / "skills" / skill
+            if destination.exists():
+                shutil.rmtree(destination)
+            template_skill = "code-review" if skill == review_skill else skill
+            copy_tree(pilot / "skills" / template_skill, destination)
+        if client == "claude":
+            (package / "agents").mkdir(exist_ok=True)
+            shutil.copyfile(pilot_agent, package / "agents/code-reviewer.md")
         if client == "codex" and review_skill == "code-review":
             skill = package / "skills/code-review"
             entry = skill / "SKILL.md"

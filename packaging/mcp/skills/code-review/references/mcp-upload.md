@@ -19,12 +19,12 @@ circumvent a denied execution or source-upload decision.
 
 For direct execution, resolve the installed `bin/coderabbit` as an absolute path.
 Run `review --agent --mcp-stdin --dir <absolute workspace root>`. Send only the
-returned `handoff` object as JSON on stdin, unchanged. Prefer a process tool that
-accepts stdin directly. If the host only accepts shell commands, use a quoted
-heredoc with a delimiter verified absent as a complete line in the serialized
-JSON. Quote executable/workspace paths. Never interpolate instructions or the
+returned `handoff` object as JSON on stdin, unchanged. Use a process tool that
+accepts stdin separately from its command arguments. Quote executable/workspace
+paths. Never interpolate instructions or the
 credential into executable shell text, command-line flags, environment variables
-or persistent files. If safe stdin delivery is unavailable, report the limit.
+or persistent files, including a shell heredoc. If safe stdin delivery is
+unavailable, report the limit.
 
 The handoff is a bearer capability and may be visible in the host transcript;
 stdin is not a secret vault. Do not echo it, include it in the user-facing result,

@@ -36,8 +36,9 @@ does not authorize uploading code or starting a review.
    inspect credentials, or run CLI authentication.
 5. Confirm the returned account and organization, and that `start_code_review`
    and `get_code_review` are available with review permission. If a review was already
-   requested, resume the packaged code-review skill with the original directory,
-   base, and scope. Otherwise say the plugin is ready and suggest “Review my
+   requested, resume the packaged code-review skill with every original option,
+   including directory, base, scope, `include_untracked`, and `instructions`.
+   Otherwise say the plugin is ready and suggest “Review my
    changes.” Do not upload a repository just to test setup.
 
 The plugin needs permission to run its bundled CLI and access the requested

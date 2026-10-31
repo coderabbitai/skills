@@ -6,6 +6,8 @@ conditional approval with a hard spending cap. Select
 existing CLI runbook cases. The MCP cases are offline and grant no shell,
 network, writes, or review execution. They do not prove installation or live
 authentication. Inspect retained transcripts; model graders are advisory.
+Evaluate MCP cases against an assembled pilot with the templates from
+`packaging/mcp`; the shared source skill continues to use the released CLI.
 
 Six offline cases exercise public scope flags, default and uncommitted untracked-file inclusion, local
 versus PR prompt retrieval, EU browser authentication, and incomplete/skipped

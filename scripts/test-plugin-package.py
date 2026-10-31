@@ -78,6 +78,41 @@ class PackageTests(unittest.TestCase):
                 self.assertIn("--mcp-stdin", (self.output / "skills" / skill / "SKILL.md").read_text())
                 shutil.rmtree(self.output)
 
+    def test_pilot_instructions_do_not_replace_shared_cli_consumers(self):
+        shared_paths = [ROOT / "skills/code-review/SKILL.md", ROOT / "agents/code-reviewer.md"]
+        shared = {path: path.read_bytes() for path in shared_paths}
+        for content in shared.values():
+            self.assertIn(b"review --agent", content)
+            self.assertNotIn(b"start_code_review", content)
+        for client in ("claude", "codex"):
+            for launcher in ("hook", "direct"):
+                with self.subTest(client=client, launcher=launcher):
+                    self.assemble(client=client, launcher=launcher)
+                    skill_name = "code-review" if client == "claude" else "coderabbit-review"
+                    skill = self.output / "skills" / skill_name
+                    self.assertIn("start_code_review", (skill / "SKILL.md").read_text())
+                    self.assertTrue((skill / "references/mcp-upload.md").is_file())
+                    self.assertFalse((skill / "references/auth-recovery.md").exists())
+                    self.assertTrue((self.output / "skills/setup/SKILL.md").is_file())
+                    if client == "claude":
+                        self.assertIn("start_code_review", (self.output / "agents/code-reviewer.md").read_text())
+                    self.assertEqual({path: path.read_bytes() for path in shared_paths}, shared)
+                    shutil.rmtree(self.output)
+
+    def test_nonobject_manifest_or_artifact_has_no_partial_package(self):
+        for root in (None, [], "manifest", 1):
+            with self.subTest(root=root):
+                self.manifest.write_text(json.dumps(root))
+                with self.assertRaisesRegex(ValueError, "manifest must be a JSON object"):
+                    self.assemble()
+                self.assertFalse(self.output.exists())
+        for entry in (None, [], "artifact", 1):
+            with self.subTest(entry=entry):
+                self.manifest.write_text(json.dumps({"version": "0.9.0", "artifacts": [entry]}))
+                with self.assertRaisesRegex(ValueError, "artifact must be a JSON object"):
+                    self.assemble()
+                self.assertFalse(self.output.exists())
+
     def test_unknown_launcher_has_no_partial_output(self):
         with self.assertRaisesRegex(ValueError, "Launcher"):
             self.assemble(launcher="automatic")
