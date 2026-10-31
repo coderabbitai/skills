@@ -15,9 +15,10 @@ documentation below instead of constructing a permission rule. Keep the prompt l
 give the original review scope separately for the user to supply in the new
 session. Do not change permissions or relaunch the agent yourself.
 
-Before offering this version-tested command, check that `agy --help` lists
-`--settings` and `--prompt-interactive`. Both are present in CLI 1.4.12's built-in
-help; if either is unavailable, stop and link the host documentation below.
+Ask the user to run `agy --help` in their host terminal before using the command
+below and confirm it lists `--settings` and `--prompt-interactive`. Both are
+present in CLI 1.4.12's built-in help; if either is unavailable, stop and link
+the host documentation below. Do not try to elevate these diagnostics yourself.
 
 ```sh
 agy --sandbox \
@@ -38,9 +39,10 @@ credential directories to the allowlist or interpret an auth-file `EPERM` as sig
 
 Use an interactive session for first-time permissions. A headless permission
 denial can exit 0 with no result; require actual review completion, not just the
-agent process exit code. If a different skill copy loads, inspect `agy plugin
-list --json` in the same sandbox and the reported skill path before retrying;
-do not delete user skills. If the recovery command fails, report and stop.
+agent process exit code. If a different skill copy loads, ask the user to run
+`agy plugin list --json` in their host terminal and compare it with the reported
+skill path before retrying; do not delete user skills. If the recovery command
+fails, report and stop.
 
 See Antigravity's [CLI flag reference](https://antigravity.google/docs/cli/reference/),
 [sandbox permissions](https://antigravity.google/docs/sandbox?tab=cli),
