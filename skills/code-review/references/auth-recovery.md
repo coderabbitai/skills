@@ -4,32 +4,71 @@ Use this before running a review and after a pre-review authentication failure.
 
 ## Execution boundary
 
-Resolve the host-installed `coderabbit` to its canonical absolute path while
-sandboxed. Trust only an expected user or system installation from an official
-source; reject repository, workspace, temporary, alias, or wrapper executables.
+Resolve `coderabbit` to its canonical absolute path in the agent's execution
+environment; keep discovery sandboxed when using a local sandbox. Check PATH
+once and, on macOS/Linux, the official curl installer's default
+`~/.local/bin/coderabbit`. Use path and permission metadata for discovery, not
+reads of the binary's contents. Do not search the whole filesystem. Trust only an
+expected user or system installation from an official source; reject repository,
+workspace, temporary, alias, or wrapper executables. If the installation's source
+is uncertain, ask the user to confirm it; do not infer trust from location alone.
+
 If discovery fails or the path is untrusted, report CLI availability as unknown
+and stop; preserve the error rather than recommending reinstallation. A failed
+PATH lookup or an inaccessible path does not prove the CLI is missing. If the
+user provides another candidate installation path, canonicalize it and repeat
+the same metadata and trust checks before continuing; stop if validation fails.
+Only when the host is identified as Antigravity CLI with its terminal sandbox
+enabled and discovery or a needed version/help check is denied, read
+[Antigravity CLI sandbox recovery](antigravity-sandbox.md). Use the installation
+handoff only when the user confirms the CLI is not installed.
+Reuse the validated path within this task; repeat discovery after installation
+changes or once after an executable-launch error. If unchanged, report the error
 and stop. Use the quoted, validated absolute path in every command below.
+
+Choose the execution context **before the first auth or review invocation**.
+Host-native or full-access agents use their normal shell. Remote agents use only
+authentication configured in their own environment; they cannot reuse a local
+host credential store.
 
 In a local agent sandbox, use the harness's supported command-scoped host
 execution for `auth status --agent` and the user-requested `review --agent`.
 Request normal approval with a command-specific justification. In Codex modes
 exposing `sandbox_permissions`, use `require_escalated` on that exact call;
 other agents use their supported permission mechanism. If unavailable or denied,
-stop and report the missing permission. Do not change session-wide sandbox
-settings or silently fall back to a sandboxed command.
+stop and report the missing permission. Do not first run auth or review in the
+sandbox as a permission probe. Do not change session-wide sandbox settings or
+silently fall back to a sandboxed command.
 
 Only those auth-check and review invocations are eligible for host execution.
 Invoke the trusted executable directly with literal, validated arguments; no
 wrappers, pipes, expansions, or repository-provided commands. Keep `--version`
-and `--help` diagnostics sandboxed. Instruction text and `allowed-tools` metadata
-do not enforce a security boundary: execution must use the harness's actual
-permission controls.
+and `--help` diagnostics sandboxed when using a local sandbox, and run them only
+when needed to check support for the requested invocation. Instruction text and
+`allowed-tools` metadata do not enforce a security boundary: execution must use
+the harness's actual permission controls.
 
-Host-native agents use their normal shell. Remote agents use only authentication
-configured in their own environment; they cannot reuse a local host credential
-store. Let the trusted CLI access its own credentials. Never retrieve, expose,
+Let the trusted CLI access its own credentials. Never retrieve, expose,
 copy, store, hash, or pass credentials through arguments, environment variables,
 files, tool output, or model context. Never request pasted tokens.
+
+## Confirmed missing CLI
+
+When the user confirms the CLI is not installed on macOS/Linux, give this command
+to run in their own terminal; do not install from the review skill or subagent:
+
+```sh
+curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+```
+
+If the installer offers browser sign-in before asking for a region, EU users
+should skip it and later run `"/absolute/path/to/coderabbit" auth login --region eu`
+with the validated installed path in their own terminal.
+
+For other platforms, link the
+[official installation instructions](https://docs.coderabbit.ai/cli) instead.
+Stop until the user confirms installation, then repeat discovery and the auth
+check; installation does not establish login.
 
 ## Before review
 
