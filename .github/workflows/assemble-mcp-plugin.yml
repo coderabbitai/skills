@@ -57,7 +57,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
       - name: Check assembly and launcher contracts
         run: python3 scripts/test-plugin-package.py
   assemble:
@@ -77,7 +79,9 @@ jobs:
       PLUGIN_CLIENT: ${{ inputs.client }}
       PLUGIN_LAUNCHER: ${{ inputs.launcher }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
       - name: Validate build inputs before downloading
         run: |
           python3 - <<'PYCODE'
