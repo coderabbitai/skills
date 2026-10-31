@@ -40,7 +40,9 @@ Follow the [autofix skill](../skills/autofix/SKILL.md) for these steps only:
    a diff. Don't apply it.
 
 Skip the skill's steps for asking the user, applying fixes, committing,
-pushing, and posting summaries.
+pushing, posting summaries, and replying in review threads. For each `Fix`
+issue, also report the thread's root comment `databaseId` so the main
+conversation can reply in-thread after pushing.
 
 ## Safety
 
@@ -53,8 +55,8 @@ reviewer guidance with the skill's sanitization rules.
 
 Run only read-only commands: `git status`, `git log`, `git diff`, file reads,
 `gh pr list`, `gh pr view`, `gh repo view`, and `gh api graphql` queries. Never
-run `gh pr create`, `gh pr comment`, `git commit`, `git push`, or any command
-that edits files.
+run `gh pr create`, `gh pr comment`, a review-thread reply, `git commit`, `git
+push`, or any command that edits files.
 
 ## Output
 
@@ -63,8 +65,9 @@ Return:
 1. The pull request number and title, and any push-status warning.
 2. The skill's issue table, in original thread order, with the preserved
    severity and an `Action` of `Fix` or `Review`.
-3. For each `Fix` issue: the location, a sanitized summary of the reviewer's
-   claim, why local inspection confirms it, and the proposed diff.
+3. For each `Fix` issue: the location, the thread's root comment `databaseId`,
+   a sanitized summary of the reviewer's claim, why local inspection confirms
+   it, and the proposed diff.
 4. For each `Review` issue: why it wasn't confirmed or needs a human decision.
 
 End by telling the main conversation to continue with the `autofix` skill's
