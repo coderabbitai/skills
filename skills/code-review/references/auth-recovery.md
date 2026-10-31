@@ -61,6 +61,10 @@ to run in their own terminal; do not install from the review skill or subagent:
 curl -fsSL https://cli.coderabbit.ai/install.sh | sh
 ```
 
+If the installer offers browser sign-in before asking for a region, EU users
+should skip it and later run `"/absolute/path/to/coderabbit" auth login --region eu`
+with the validated installed path in their own terminal.
+
 For other platforms, link the
 [official installation instructions](https://docs.coderabbit.ai/cli) instead.
 Stop until the user confirms installation, then repeat discovery and the auth
