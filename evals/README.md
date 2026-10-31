@@ -1,11 +1,12 @@
 # CLI behavior evaluations
 
-The seven `mcp-review-*` cases cover the bundled CLI and hosted MCP review workflow, including
-conditional approval with a hard spending cap. Select
+The seven `mcp-review-*` cases evaluate agent guidance and authorization decisions,
+including a user-stated spending-cap condition, not a backend-enforced cap. Select
 `--tag mcp-parity` to evaluate those cases; `--tag cli-parity` retains the
 existing CLI runbook cases. The MCP cases are offline and grant no shell,
-network, writes, or review execution. They do not prove installation or live
-authentication. Inspect retained transcripts; model graders are advisory.
+network, writes, or review execution. They do not test binary launch, artifact
+integrity, CLI/MCP result parity, installation or live authentication. Inspect
+retained transcripts; model graders are advisory.
 Evaluate MCP cases against an assembled pilot with the templates from
 `packaging/mcp`; the shared source skill continues to use the released CLI.
 
