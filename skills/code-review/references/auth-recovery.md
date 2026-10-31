@@ -8,7 +8,10 @@ Resolve the host-installed `coderabbit` to its canonical absolute path while
 sandboxed. Trust only an expected user or system installation from an official
 source; reject repository, workspace, temporary, alias, or wrapper executables.
 If discovery fails or the path is untrusted, report CLI availability as unknown
-and stop. Use the quoted, validated absolute path in every command below.
+and stop. For Antigravity CLI permission failures, offer the recovery below. A permission denial or
+failed PATH lookup does not prove the CLI is missing. Preserve the error instead
+of recommending reinstallation. Use the quoted, validated absolute path in every
+command below.
 
 In a local agent sandbox, use the harness's supported command-scoped host
 execution for `auth status --agent` and the user-requested `review --agent`.
@@ -30,6 +33,41 @@ configured in their own environment; they cannot reuse a local host credential
 store. Let the trusted CLI access its own credentials. Never retrieve, expose,
 copy, store, hash, or pass credentials through arguments, environment variables,
 files, tool output, or model context. Never request pasted tokens.
+
+## Antigravity CLI: installed executable blocked by the sandbox
+
+If PATH discovery fails, check the official curl installer's default
+`~/.local/bin/coderabbit` using read-only file access before declaring availability
+unknown. Apply the same trusted-path checks above; do not search the whole
+filesystem or treat an inaccessible file as absent. If installation is confirmed
+missing, direct the user to the [official curl installation instructions](https://docs.coderabbit.ai/cli).
+
+When discovery or version/help is denied, hand the following command to the user
+to run from their repository in a new terminal session. Replace the placeholder
+with the trusted executable's canonical absolute path and preserve the user's
+original review scope in the prompt. Do not change permissions or relaunch the
+agent yourself.
+
+```sh
+agy --sandbox \
+  --settings '{"agentMode":"","toolPermission":"proceed-in-sandbox","permissions":{"allow":["read_file(/absolute/path/to/coderabbit)"]}}' \
+  --prompt-interactive 'Use the CodeRabbit code-review skill to review my changes. Keep version/help sandboxed and use the normal per-command approval flow for authentication and review.'
+```
+
+Tested with Antigravity CLI 1.4.12 and curl-installed CodeRabbit CLI 0.9.1 on
+macOS arm64: the exact executable read grant allows sandboxed version/help.
+`--settings` is session-only; existing permissions may still apply. This does
+not grant credential-store, network, or review-state access. Continue with the
+approved host auth/review procedure below; do not add credential directories to
+the allowlist or interpret an auth-file `EPERM` as signed out.
+
+Use an interactive session for first-time permissions. A headless permission
+denial can exit 0 with no result; require actual review completion, not just the
+agent process exit code. If a different skill copy loads, inspect `agy plugin
+list --json` and the reported skill path before retrying; do not delete user skills.
+
+See Antigravity's [sandbox permissions](https://antigravity.google/docs/sandbox?tab=cli)
+and [headless permission behavior](https://antigravity.google/docs/cli/headless/).
 
 ## Before review
 
