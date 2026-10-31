@@ -1,0 +1,240 @@
+#!/usr/bin/env python3
+"""Offline packaging boundary tests; synthetic native headers are never executed."""
+import hashlib
+import importlib.util
+from io import StringIO
+import json
+from pathlib import Path
+import platform
+import shutil
+import subprocess
+import tempfile
+import unittest
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parent.parent
+spec = importlib.util.spec_from_file_location("assemble_plugin", ROOT / "scripts/assemble-plugin.py")
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+CLIENT = "claude" if (ROOT / ".claude-plugin").is_dir() else "codex"
+
+
+class PackageTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="plugin package spaces ")
+        self.root = Path(self.temp.name)
+        self.native = self.root / "native fixture"
+        self.native.write_bytes(b"\xcf\xfa\xed\xfe\x0c\x00\x00\x01" + bytes(64))
+        self.checksum = hashlib.sha256(self.native.read_bytes()).hexdigest()
+        self.manifest = self.root / "artifacts.json"
+        self.manifest.write_text(json.dumps({"version": "0.9.0", "artifacts": [{
+            "platform": "darwin-arm64", "path": str(self.native), "sha256": self.checksum}]}))
+        self.output = self.root / "installed package"
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def assemble(self, endpoint="https://fixture.invalid/mcp", client=CLIENT, launcher="hook"):
+        return module.assemble(ROOT, client, self.manifest, endpoint, self.output, launcher)
+
+    def test_native_bundle_manifest_and_spaces(self):
+        self.assemble("https://fixture.invalid/cli/mcp/mcp")
+        self.assertEqual(module.digest(self.output / "bin/darwin-arm64/coderabbit"), self.checksum)
+        self.assertEqual(json.loads((self.output / ".mcp.json").read_text())["mcpServers"]["coderabbit"]["url"], "https://fixture.invalid/cli/mcp/mcp")
+        meta = ".claude-plugin" if CLIENT == "claude" else ".codex-plugin"
+        manifest = json.loads((self.output / meta / "plugin.json").read_text())
+        setup = manifest["extensions"]["com.openai"]["onboardingSkill"] if CLIENT == "codex" else "./skills/setup/SKILL.md"
+        self.assertTrue((self.output / setup).is_file())
+        inventory = (self.output / "bin/manifest.json").read_text()
+        self.assertNotIn(str(self.root), inventory)
+        hook = json.loads((self.output / "hooks/hooks.json").read_text())["hooks"]
+        self.assertEqual(list(hook), ["PostToolUse"])
+        self.assertEqual(hook["PostToolUse"][0]["hooks"][0]["command"], '"${CLAUDE_PLUGIN_ROOT}/bin/coderabbit" mcp-hook')
+        self.assertFalse((self.output / "scripts").exists())
+
+    def test_both_hosts_request_review_scope_and_bundle_automatic_hook(self):
+        for client in ("claude", "codex"):
+            with self.subTest(client=client):
+                self.assemble(client=client)
+                config = json.loads((self.output / (".mcp.json" if client == "claude" else "mcp.json")).read_text())["mcpServers"]["coderabbit"]
+                scopes = config["oauth"]["scopes"].split() if client == "claude" else config["extensions"]["com.openai"]["auth"]["baseScopes"]
+                self.assertEqual(scopes, ["connection", "account:read", "usage:read", "pull_requests:read", "review"])
+                self.assertEqual((self.output / "bin/mcp-url").read_text().strip(), config["url"])
+                self.assertTrue((self.output / "hooks/hooks.json").is_file())
+                self.assertEqual((self.output / "bin/launch-mode").read_text().strip(), "hook")
+                skill_name = "code-review" if client == "claude" else "coderabbit-review"
+                self.assertTrue((self.output / "skills" / skill_name / "SKILL.md").is_file())
+                shutil.rmtree(self.output)
+
+    def test_direct_channel_has_no_hook_and_preserves_review_skill(self):
+        for client in ("claude", "codex"):
+            with self.subTest(client=client):
+                result = self.assemble(client=client, launcher="direct")
+                self.assertEqual(result["launcher"], "direct")
+                self.assertFalse((self.output / "hooks").exists())
+                meta = ".claude-plugin" if client == "claude" else ".codex-plugin"
+                manifest = json.loads((self.output / meta / "plugin.json").read_text())
+                self.assertNotIn("hooks", manifest)
+                self.assertEqual((self.output / "bin/launch-mode").read_text().strip(), "direct")
+                skill = "code-review" if client == "claude" else "coderabbit-review"
+                self.assertIn("--mcp-stdin", (self.output / "skills" / skill / "SKILL.md").read_text())
+                shutil.rmtree(self.output)
+
+    def test_pilot_instructions_do_not_replace_shared_cli_consumers(self):
+        shared_paths = [ROOT / "skills/code-review/SKILL.md", ROOT / "agents/code-reviewer.md"]
+        shared = {path: path.read_bytes() for path in shared_paths}
+        for content in shared.values():
+            self.assertIn(b"review --agent", content)
+            self.assertNotIn(b"start_code_review", content)
+        for client in ("claude", "codex"):
+            for launcher in ("hook", "direct"):
+                with self.subTest(client=client, launcher=launcher):
+                    self.assemble(client=client, launcher=launcher)
+                    skill_name = "code-review" if client == "claude" else "coderabbit-review"
+                    skill = self.output / "skills" / skill_name
+                    self.assertIn("start_code_review", (skill / "SKILL.md").read_text())
+                    self.assertTrue((skill / "references/mcp-upload.md").is_file())
+                    self.assertFalse((skill / "references/auth-recovery.md").exists())
+                    self.assertTrue((self.output / "skills/setup/SKILL.md").is_file())
+                    if client == "claude":
+                        self.assertIn("start_code_review", (self.output / "agents/code-reviewer.md").read_text())
+                    self.assertEqual({path: path.read_bytes() for path in shared_paths}, shared)
+                    shutil.rmtree(self.output)
+
+    def test_nonobject_manifest_or_artifact_has_no_partial_package(self):
+        for root in (None, [], "manifest", 1):
+            with self.subTest(root=root):
+                self.manifest.write_text(json.dumps(root))
+                with self.assertRaisesRegex(ValueError, "manifest must be a JSON object"):
+                    self.assemble()
+                self.assertFalse(self.output.exists())
+        for entry in (None, [], "artifact", 1):
+            with self.subTest(entry=entry):
+                self.manifest.write_text(json.dumps({"version": "0.9.0", "artifacts": [entry]}))
+                with self.assertRaisesRegex(ValueError, "artifact must be a JSON object"):
+                    self.assemble()
+                self.assertFalse(self.output.exists())
+
+    def test_unresolved_artifact_user_reports_clean_error_without_partial_output(self):
+        manifest = json.loads(self.manifest.read_text())
+        manifest["artifacts"][0]["path"] = "~missing-artifact-user/native"
+        self.manifest.write_text(json.dumps(manifest))
+        stderr = StringIO()
+        argv = ["assemble-plugin.py", "--client", CLIENT,
+                "--artifacts", str(self.manifest), "--mcp-url", "https://fixture.invalid/mcp",
+                "--output", str(self.output)]
+        with patch("sys.argv", argv), patch("sys.stderr", stderr), patch.object(
+            Path, "expanduser", side_effect=RuntimeError("Could not determine home directory.")
+        ):
+            with self.assertRaises(SystemExit) as raised:
+                module.main()
+        self.assertEqual(raised.exception.code, 1)
+        self.assertEqual(stderr.getvalue(),
+                         "Cannot assemble CodeRabbit plugin: Invalid artifact path: Could not determine home directory.\n")
+        self.assertFalse(self.output.exists())
+
+    def test_unknown_launcher_has_no_partial_output(self):
+        with self.assertRaisesRegex(ValueError, "Launcher"):
+            self.assemble(launcher="automatic")
+        self.assertFalse(self.output.exists())
+
+    def test_root_and_path_endpoints_are_preserved(self):
+        for endpoint in ("https://fixture.invalid", "https://fixture.invalid/", "https://fixture.invalid/mcp"):
+            with self.subTest(endpoint=endpoint):
+                self.assemble(endpoint)
+                configured = json.loads((self.output / ".mcp.json").read_text())["mcpServers"]["coderabbit"]["url"]
+                self.assertEqual(configured, endpoint)
+                shutil.rmtree(self.output)
+
+    def test_bad_digest_has_no_partial_output(self):
+        self.native.write_bytes(b"changed")
+        with self.assertRaisesRegex(ValueError, "checksum mismatch"):
+            self.assemble()
+        self.assertFalse(self.output.exists())
+
+    def test_rejects_runtime_dependent_script_even_with_valid_hash(self):
+        self.native.write_text("#!/bin/sh\nexit 0\n")
+        manifest = json.loads(self.manifest.read_text())
+        manifest["artifacts"][0]["sha256"] = module.digest(self.native)
+        self.manifest.write_text(json.dumps(manifest))
+        with self.assertRaisesRegex(ValueError, "native"):
+            self.assemble()
+
+    def test_endpoint_and_existing_output_fail_closed(self):
+        for endpoint in ("http://fixture.invalid/mcp", "https://user:password@fixture.invalid/mcp", "https://fixture.invalid/mcp?token=x", "https:///mcp", "https://fixture.invalid/#fragment", "https://fixture.invalid/ with-space"):
+            with self.assertRaises(ValueError):
+                self.assemble(endpoint)
+        self.output.mkdir()
+        with self.assertRaisesRegex(ValueError, "already exists"):
+            self.assemble()
+
+    def launcher_fixture(self):
+        directory = self.root / "launcher package/bin"
+        directory.mkdir(parents=True)
+        launcher = directory / "coderabbit"
+        shutil.copyfile(ROOT / "scripts/coderabbit", launcher)
+        launcher.chmod(0o755)
+        system = {"Darwin": "darwin", "Linux": "linux"}.get(platform.system())
+        arch = {"arm64": "arm64", "aarch64": "arm64", "x86_64": "x64"}.get(platform.machine())
+        if not system or not arch:
+            self.skipTest("Launcher supports macOS and Linux")
+        target = directory / f"{system}-{arch}"
+        target.mkdir()
+        binary = target / "coderabbit"
+        # Deliberately a test double for launcher forwarding, never a release artifact.
+        binary.write_text('#!/bin/sh\nprintf "%s\\n" "$@"\ncat\n')
+        binary.chmod(0o755)
+        checksum = target / "coderabbit.sha256"
+        checksum.write_text(module.digest(binary) + "\n")
+        (directory / "mcp-url").write_text("https://fixture.invalid/mcp\n")
+        return launcher, binary, checksum
+
+    def test_launcher_forwards_stdin_and_spaces_without_global_cli(self):
+        launcher, _, _ = self.launcher_fixture()
+        descriptor = '{"directory":"space and $name and `literal`"}\n'
+        for command in ("mcp-upload", "mcp-hook"):
+            with self.subTest(command=command):
+                result = subprocess.run([str(launcher), command], input=descriptor, text=True, capture_output=True, env={"PATH": "/nonexistent"})
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, command + "\n" + descriptor)
+
+    def test_missing_endpoint_prevents_collector_execution(self):
+        launcher, _, _ = self.launcher_fixture()
+        (launcher.parent / "mcp-url").unlink()
+        result = subprocess.run([str(launcher), "mcp-hook"], input="{}", capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("missing its MCP endpoint", result.stderr)
+        self.assertEqual(result.stdout, "")
+
+    def test_direct_review_forwards_only_scoped_mode_and_literal_stdin(self):
+        launcher, _, _ = self.launcher_fixture()
+        handoff = '{"instructions":"literal $(command) and `text`"}\n'
+        args = ["review", "--agent", "--mcp-stdin", "--dir", str(self.root / "workspace spaces")]
+        result = subprocess.run([str(launcher), *args], input=handoff, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "\n".join(args) + "\n" + handoff)
+        for invalid in (["review"], ["review", "--agent"],
+                        ["review", "--agent", "--mcp-stdin", "--host-url", "https://other.invalid"],
+                        ["review", "--agent", "--mcp-stdin", "--dir"],
+                        ["review", "--agent", "--mcp-stdin", "--base", "main"]):
+            rejected = subprocess.run([str(launcher), *invalid], input=handoff, text=True, capture_output=True)
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertEqual(rejected.stdout, "")
+
+    def test_launcher_rejects_corruption_missing_binary_and_other_commands(self):
+        launcher, binary, checksum = self.launcher_fixture()
+        checksum.write_text("0" * 64 + "\n")
+        result = subprocess.run([str(launcher), "--version"], capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("integrity check", result.stderr)
+        binary.unlink()
+        result = subprocess.run([str(launcher), "--version"], capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("does not contain", result.stderr)
+        result = subprocess.run([str(launcher), "auth", "login"], capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn("mcp-upload\n", result.stdout)
+
+
+if __name__ == "__main__":
+    unittest.main()

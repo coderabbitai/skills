@@ -1,0 +1,55 @@
+#!/bin/sh
+# Run only the CLI shipped with this plugin. Never install or use a global CLI.
+set -eu
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+export PATH
+fail() { printf '%s\n' "CodeRabbit: $*" >&2; exit 1; }
+case "${1-}" in
+  mcp-upload|mcp-hook|--version) ;;
+  review)
+    [ "${2-}" = "--agent" ] && [ "${3-}" = "--mcp-stdin" ] ||
+      fail 'Use the connected review skill: review --agent --mcp-stdin [--dir WORKSPACE].'
+    case "$#" in
+      3) ;;
+      5) [ "$4" = "--dir" ] && [ -n "$5" ] || fail 'Expected --dir WORKSPACE.' ;;
+      *) fail 'Review options come from the MCP handoff. Only --dir WORKSPACE is accepted locally.' ;;
+    esac ;;
+  *) fail 'Connect CodeRabbit in your app, then use the packaged review skill.' ;;
+esac
+plugin_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
+case "$(uname -s):$(uname -m)" in
+  Darwin:arm64) platform=darwin-arm64 ;;
+  Darwin:x86_64) platform=darwin-x64 ;;
+  Linux:aarch64|Linux:arm64) platform=linux-arm64 ;;
+  Linux:x86_64) platform=linux-x64 ;;
+  *) fail 'This operating system or processor is not supported by the installed plugin.' ;;
+esac
+binary="$plugin_root/bin/$platform/coderabbit"
+checksum="$plugin_root/bin/$platform/coderabbit.sha256"
+[ -f "$binary" ] && [ ! -L "$binary" ] && [ -f "$checksum" ] && [ ! -L "$checksum" ] ||
+  fail "This plugin does not contain the $platform CLI. Install the complete CodeRabbit plugin package."
+[ -x "$binary" ] || fail 'The bundled CLI is not executable. Reinstall the CodeRabbit plugin package.'
+expected=$(cat "$checksum")
+case "$expected" in *[!a-f0-9]*|'') fail 'The bundled CLI checksum is invalid. Reinstall the plugin.' ;; esac
+[ "${#expected}" -eq 64 ] || fail 'The bundled CLI checksum is invalid. Reinstall the plugin.'
+if command -v shasum >/dev/null 2>&1; then
+  actual=$(shasum -a 256 "$binary")
+elif command -v sha256sum >/dev/null 2>&1; then
+  actual=$(sha256sum "$binary")
+else
+  fail 'A system SHA-256 utility is required to verify the bundled CLI.'
+fi
+actual=${actual%% *}
+[ "$actual" = "$expected" ] || fail 'The bundled CLI failed its integrity check. Reinstall the CodeRabbit plugin package.'
+if [ "${1-}" != "--version" ]; then
+  [ -f "$plugin_root/bin/mcp-url" ] && [ ! -L "$plugin_root/bin/mcp-url" ] ||
+    fail 'The installed plugin is missing its MCP endpoint. Reinstall the complete package.'
+  CODERABBIT_MCP_URL=$(cat "$plugin_root/bin/mcp-url")
+  export CODERABBIT_MCP_URL
+  case "$1" in
+    mcp-upload|mcp-hook)
+      CR_CLI_ALLOW_UNTRUSTED_HOST_URL=true
+      export CR_CLI_ALLOW_UNTRUSTED_HOST_URL ;;
+  esac
+fi
+exec "$binary" "$@"

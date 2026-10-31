@@ -1,0 +1,134 @@
+name: Assemble bundled MCP plugin pilot
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/assemble-mcp-plugin.yml"
+      - "scripts/**"
+      - "skills/**"
+      - "packaging/**"
+      - ".claude-plugin/**"
+      - ".codex-plugin/**"
+  workflow_dispatch:
+    inputs:
+      cli_version:
+        description: Exact approved CLI version implementing MCP-authorized review and mcp-hook
+        required: true
+        type: string
+      platform:
+        description: Native artifact platform (this produces one platform only)
+        required: true
+        type: choice
+        options:
+          - darwin-arm64
+          - darwin-x64
+          - linux-arm64
+          - linux-x64
+      artifact_url:
+        description: HTTPS URL of the approved native executable (not an archive)
+        required: true
+        type: string
+      artifact_sha256:
+        description: Approved lowercase SHA-256 of that executable
+        required: true
+        type: string
+      mcp_url:
+        description: Verified HTTPS MCP resource URL for this pilot
+        required: true
+        type: string
+      client:
+        description: Host plugin format
+        required: true
+        type: choice
+        default: claude
+        options: [claude, codex]
+      launcher:
+        description: Hook for supported trusted hosts; direct for the hook-free fallback channel
+        required: true
+        type: choice
+        default: hook
+        options: [hook, direct]
+
+permissions:
+  contents: read
+
+jobs:
+  package-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Check assembly and launcher contracts
+        run: python3 scripts/test-plugin-package.py
+  assemble:
+    if: github.event_name == 'workflow_dispatch'
+    needs: package-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: .
+    env:
+      CLI_VERSION: ${{ inputs.cli_version }}
+      CLI_PLATFORM: ${{ inputs.platform }}
+      CLI_ARTIFACT_URL: ${{ inputs.artifact_url }}
+      CLI_ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+      MCP_URL: ${{ inputs.mcp_url }}
+      PLUGIN_CLIENT: ${{ inputs.client }}
+      PLUGIN_LAUNCHER: ${{ inputs.launcher }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Validate build inputs before downloading
+        run: |
+          python3 - <<'PYCODE'
+          import json, os, re
+          from pathlib import Path
+          from urllib.parse import urlparse
+          version = os.environ["CLI_VERSION"]
+          checksum = os.environ["CLI_ARTIFACT_SHA256"]
+          platform = os.environ["CLI_PLATFORM"]
+          if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?", version):
+              raise SystemExit("An exact CLI version is required")
+          if not re.fullmatch(r"[a-f0-9]{64}", checksum):
+              raise SystemExit("An approved lowercase SHA-256 is required")
+          if platform not in {"darwin-arm64", "darwin-x64", "linux-arm64", "linux-x64"}:
+              raise SystemExit("Unsupported native platform")
+          for key in ("CLI_ARTIFACT_URL", "MCP_URL"):
+              raw = os.environ[key]
+              url = urlparse(raw)
+              if url.scheme != "https" or not url.hostname or url.username or url.password or url.query or url.fragment or any(c.isspace() for c in raw):
+                  raise SystemExit(f"{key} must be a credential-free HTTPS URL")
+          root = Path(os.environ["RUNNER_TEMP"])
+          (root / "cli-artifacts.json").write_text(json.dumps({"version": version, "artifacts": [{"platform": platform, "path": str(root / "coderabbit-native"), "sha256": checksum}]}))
+          PYCODE
+      - name: Download the pinned native artifact without executing it
+        run: |
+          curl --fail --silent --show-error --location \
+            --proto '=https' --proto-redir '=https' \
+            --connect-timeout 30 --max-time 600 --max-filesize 524288000 \
+            --output "$RUNNER_TEMP/coderabbit-native" "$CLI_ARTIFACT_URL"
+      - name: Validate and assemble the package
+        run: |
+          python3 scripts/assemble-plugin.py \
+            --client "$PLUGIN_CLIENT" \
+            --launcher "$PLUGIN_LAUNCHER" \
+            --artifacts "$RUNNER_TEMP/cli-artifacts.json" \
+            --mcp-url "$MCP_URL" \
+            --output "$RUNNER_TEMP/coderabbit-plugin"
+      # tar preserves executable modes that upload-artifact itself normalizes.
+      - name: Archive the complete package and checksum
+        run: |
+          tar -czf "$RUNNER_TEMP/coderabbit-plugin.tar.gz" -C "$RUNNER_TEMP" coderabbit-plugin
+          (cd "$RUNNER_TEMP" && sha256sum coderabbit-plugin.tar.gz > coderabbit-plugin.sha256)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: coderabbit-${{ inputs.client }}-${{ inputs.launcher }}-${{ inputs.platform }}-pilot
+          path: |
+            ${{ runner.temp }}/coderabbit-plugin.tar.gz
+            ${{ runner.temp }}/coderabbit-plugin.sha256
+          if-no-files-found: error
+          retention-days: 3
