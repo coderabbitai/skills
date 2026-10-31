@@ -100,11 +100,13 @@ repository:
 
 ```bash
 agy plugin install https://github.com/coderabbitai/skills
-agy plugin list
+agy plugin list --json
 ```
 
-The repository-root [`plugin.json`](plugin.json) manifest packages the skills,
-review command, and both subagents for Antigravity CLI's plugin discovery.
+The repository-root [`plugin.json`](plugin.json) manifest packages the
+`code-review` and `autofix` skills and both subagents. Use `/skills` in
+Antigravity to inspect the available skills. The Gemini CLI command file
+`commands/coderabbit/review.toml` is not loaded by the native Antigravity plugin.
 
 #### Codex App
 
@@ -124,7 +126,7 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | --- | --- |
 | `skills/` | Portable CodeRabbit skills for agents that support `SKILL.md`. |
 | `.claude-plugin/` | Claude Code plugin marketplace metadata. |
-| `commands/` | Native review commands for Gemini CLI and Antigravity CLI. |
+| `commands/` | Native review command for Gemini CLI. |
 | `agents/` | `code-reviewer` and `autofix` subagents shipped to Claude Code, Gemini CLI, and Antigravity CLI. |
 | `.cursor-plugin/` | Cursor marketplace metadata. |
 | `.codex-plugin/` | Codex metadata referencing the shared skills. |
@@ -281,7 +283,7 @@ It keeps diagnostics sandboxed and retains per-command host approval for auth an
 
 - Native plugin manifest: `plugin.json`
 - Skills source: `skills/`
-- Review command: `/coderabbit:review` from `commands/coderabbit/review.toml` (converted to a skill during installation)
+- Skills: `code-review` and `autofix` (inspect with `/skills`)
 - Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
 
 ### Gemini CLI
@@ -322,7 +324,8 @@ servers, hooks, or executables.
 - [Vercel Skills CLI](https://github.com/vercel-labs/skills)
 - [Agent Skills Specification](https://agentskills.io/specification)
 - [Gemini CLI Extension Documentation](https://geminicli.com/docs/extensions/reference/)
-- [Antigravity CLI Plugin Documentation](https://antigravity.google/docs/cli-plugins)
+- [Antigravity Plugin Documentation](https://antigravity.google/docs/plugins?tab=cli)
+- [Antigravity Skill Documentation](https://antigravity.google/docs/skills?tab=cli)
 
 ## License
 

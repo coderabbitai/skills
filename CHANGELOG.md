@@ -41,12 +41,12 @@ All notable changes to this repository are documented in this file.
 - The Claude plugin now ships the `code-review` and `autofix` skills and the
   `code-reviewer` and `autofix` subagents. It no longer includes the
   `/coderabbit:coderabbit-review` command, because skills supersede commands
-  in Claude; run `/coderabbit:code-review` instead. Gemini CLI and Antigravity
-  CLI keep their review commands.
+  in Claude; run `/coderabbit:code-review` instead. Gemini CLI keeps its
+  `/coderabbit:review` command; Antigravity loads the existing `code-review` skill.
 - Removed the duplicate Markdown review command `commands/coderabbit-review.md`.
-  Antigravity CLI and Gemini CLI both use `/coderabbit:review` from
-  `commands/coderabbit/review.toml`, and the Claude manifest no longer needs a
-  `commands` key to hide it.
+  Gemini CLI uses `/coderabbit:review` from `commands/coderabbit/review.toml`;
+  the native Antigravity plugin does not load `commands/`. The Claude manifest
+  no longer needs a `commands` key to hide it.
 - Rewrote the `code-reviewer` subagent description so Claude knows when to
   delegate to it.
 - Hardened review authentication with trusted CLI paths, command-scoped host
