@@ -32,11 +32,15 @@ matching MCP-authorized CLI and verified hosted endpoint must be assembled using
 paths below separate from this pilot; they are not fallback instructions for the
 MCP review skill.
 
-Install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
+**Released CLI integration:** install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
 then tell your agent: **“Review my code.”** The review command starts the
 authentication flow when needed.
 
 ## Installation
+
+These are the released CLI integration paths. For the separate unpublished MCP
+pilot, use [package assembly and installation](packaging/README.md), connect
+through MCP browser sign-in, and trust the post-tool hook when using that variant.
 
 ### 1. Install the CodeRabbit CLI
 
@@ -267,6 +271,12 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 
 ## Plugin Components
 
+The components below describe the released CLI integration. The unpublished MCP
+pilot instead overlays its review/setup skills and review agent during assembly,
+bundles a verified native CLI and hosted MCP connection, and includes a post-tool
+hook when that launcher variant is selected. Hook execution requires host trust;
+the direct variant requires permitted local execution with separate stdin.
+
 ### Claude Code
 
 - Skills: `code-review` and `autofix`. Run them as `/coderabbit:code-review`
@@ -313,7 +323,7 @@ It keeps diagnostics sandboxed and retains per-command host approval for auth an
 
 ## Data and Privacy
 
-The Claude plugin contains two skills and two subagents. It bundles no MCP
+The released Claude plugin contains two skills and two subagents. It bundles no MCP
 servers, hooks, or executables.
 
 - **Local commands**: the `code-review` skill and the `code-reviewer` subagent
@@ -331,6 +341,13 @@ servers, hooks, or executables.
 - **Policy**: CodeRabbit's handling, retention, and sharing of review data is
   described in the [CodeRabbit Privacy Policy](https://www.coderabbit.ai/privacy-policy).
   Contact <support@coderabbit.ai> with questions.
+
+The unpublished MCP pilot uses connector browser sign-in instead of a separate
+CLI login. Connector OAuth credentials remain with the host; the bundled CLI
+receives one scoped review handoff through stdin and sends the selected changes
+and review context to CodeRabbit. MCP can retrieve the same saved findings.
+Provider credentials remain server-side. A trusted hook or permitted direct
+launcher starts the bundled executable; neither requires a persistent daemon.
 
 ## Resources
 
