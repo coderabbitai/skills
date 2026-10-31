@@ -15,7 +15,10 @@ is uncertain, ask the user to confirm it; do not infer trust from location alone
 
 If discovery fails or the path is untrusted, report CLI availability as unknown
 and stop; preserve the error rather than recommending reinstallation. A failed
-PATH lookup or an inaccessible path does not prove the CLI is missing. Only when the host is identified as Antigravity CLI with its terminal sandbox
+PATH lookup or an inaccessible path does not prove the CLI is missing. If the
+user provides another candidate installation path, canonicalize it and repeat
+the same metadata and trust checks before continuing; stop if validation fails.
+Only when the host is identified as Antigravity CLI with its terminal sandbox
 enabled and discovery or a needed version/help check is denied, read
 [Antigravity CLI sandbox recovery](antigravity-sandbox.md). Use the installation
 handoff only when the user confirms the CLI is not installed.
