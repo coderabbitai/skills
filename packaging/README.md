@@ -75,9 +75,10 @@ publish a release. Extract the tar archive before client installation; it
 preserves executable permissions. Run once per platform for separate pilots.
 
 Tagged source-only publication is blocked in the skills repository while this
-pilot is active. Hook-containing Codex plugins currently require manual desktop
-installation and are not eligible for the public directory. See the
-[Codex packaging guidance](https://developers.openai.com/plugins/build/plugins).
+pilot is active. This pilot uses local marketplace installation for its assembled
+Codex package. Bundled hooks require the host's trust approval and packaged
+scripts; qualify each intended distribution channel separately. See the
+[Codex bundled-hook guidance](https://developers.openai.com/plugins/build/plugins#bundled-hooks).
 Publish the assembled plugin only after its archive/import behavior is verified. In particular, a source-repository marketplace install must deliver
 these assembled files; pointing it at this source branch is insufficient.
 
