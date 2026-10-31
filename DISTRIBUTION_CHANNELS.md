@@ -22,6 +22,11 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 
 ## Maintenance checklist
 
+- Codex onboarding source lives in `.codex-plugin/setup.md`, not shared `skills/`.
+  Build its submission ZIP with `python3 .codex-plugin/package.py --ref HEAD
+  --output /tmp/coderabbit-codex.zip`. The builder adds `skills/setup/SKILL.md`
+  and its onboarding declaration only to that package. Other agents retain the
+  shared review and autofix skills. Source changes do not update the live listing.
 - When README install text changes, verify this table still matches the recommended paths.
 - When the release workflow or asset names change, update the tagged GitHub release archive row and its verification note.
 - When a new marketplace manifest is added, record whether it is only packaged in-repo or publicly published.

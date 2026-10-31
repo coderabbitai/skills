@@ -6,6 +6,12 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added a Codex-only package builder and setup workflow for CLI readiness,
+  browser sign-in, and resuming a requested first review. Setup is included only
+  in the built Codex package; shared skill discovery is unchanged. Marketplace
+  publication is still required.
+- Prepared Codex listing metadata for desktop execution with a submission-sized
+  subtitle and composer icon.
 - Added a Claude directory listing icon and a README "Data and Privacy"
   section that discloses what the plugin runs and sends.
 - Added the read-only `autofix` subagent, which collects and checks

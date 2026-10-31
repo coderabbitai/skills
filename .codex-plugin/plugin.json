@@ -17,9 +17,10 @@
     "codex"
   ],
   "skills": "./skills/",
+  "requires_local_executor": true,
   "interface": {
     "displayName": "CodeRabbit",
-    "shortDescription": "Run AI-powered code review for your current changes",
+    "shortDescription": "AI code review and autofix",
     "longDescription": "Review code changes with CodeRabbit and work through unresolved GitHub PR feedback with per-change approval.",
     "developerName": "CodeRabbit",
     "category": "Developer Tools",
@@ -31,7 +32,7 @@
     "privacyPolicyURL": "https://www.coderabbit.ai/privacy-policy",
     "termsOfServiceURL": "https://www.coderabbit.ai/terms-of-service",
     "brandColor": "#FF570A",
-    "composerIcon": "./assets/coderabbit-small.png",
+    "composerIcon": "./assets/logo.png",
     "logo": "./assets/logo.png",
     "defaultPrompt": [
       "Review my current changes and provide feedback"
