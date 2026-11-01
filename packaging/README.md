@@ -48,7 +48,11 @@ python3 scripts/assemble-plugin.py --client claude \
 ```
 
 For a Codex package use `--client codex` in this source directory. The assembler
-generates the portable MCP configuration and renames the review skill for Codex.
+uses Codex's supported `.codex-plugin/plugin.json` compatibility manifest,
+generates portable root `mcp.json`, and renames the review skill for Codex. This
+is an assembled local-marketplace pilot, not a portable root-manifest submission
+to the universal directory. Codex supports `CLAUDE_PLUGIN_ROOT` in plugin hooks
+as a compatibility alias; both client packages use that supported variable.
 The default `--launcher hook` includes the trusted post-tool integration. Use
 `--launcher direct` for the hook-free fallback channel; it omits hook registration
 and records that selection in `bin/launch-mode`. Neither package may bypass a
