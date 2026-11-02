@@ -4,11 +4,14 @@ import hashlib
 import importlib.util
 from io import StringIO
 import json
+import os
 from pathlib import Path
 import platform
+import queue
 import shutil
 import subprocess
 import tempfile
+import threading
 import unittest
 from unittest.mock import patch
 
@@ -68,13 +71,14 @@ class PackageTests(unittest.TestCase):
                 root = "CLAUDE_PLUGIN_ROOT" if client == "claude" else "PLUGIN_ROOT"
                 self.assertEqual(hook["command"], '"${' + root + '}/bin/coderabbit" mcp-hook')
                 if client == "codex":
-                    portable = json.loads((self.output / "plugin.json").read_text())
-                    self.assertEqual(portable["$schema"], "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json")
-                    overlay = portable["extensions"]["com.openai"]
+                    # A root portable manifest wins over this compatibility entry
+                    # and makes the shipped native loader skip bundled hooks.
+                    self.assertFalse((self.output / "plugin.json").exists())
+                    compat = json.loads((self.output / ".codex-plugin/plugin.json").read_text())
+                    overlay = compat["extensions"]["com.openai"]
                     self.assertTrue((self.output / overlay["onboardingSkill"]).is_file())
-                    self.assertEqual(overlay["hooks"], "./hooks/hooks.json")
-                    self.assertNotIn("interface", portable)
-                    self.assertTrue((self.output / overlay["interface"]["logo"]).is_file())
+                    self.assertEqual(compat["hooks"], "./hooks/hooks.json")
+                    self.assertTrue((self.output / compat["interface"]["logo"]).is_file())
                 self.assertEqual((self.output / "bin/launch-mode").read_text().strip(), "hook")
                 skill_name = "code-review" if client == "claude" else "coderabbit-review"
                 self.assertTrue((self.output / "skills" / skill_name / "SKILL.md").is_file())
@@ -91,11 +95,73 @@ class PackageTests(unittest.TestCase):
                 self.assertNotIn("hooks", manifest)
                 if client == "codex":
                     portable = json.loads((self.output / "plugin.json").read_text())
+                    self.assertEqual(portable["$schema"], "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json")
                     self.assertNotIn("hooks", portable["extensions"]["com.openai"])
                 self.assertEqual((self.output / "bin/launch-mode").read_text().strip(), "direct")
                 skill = "code-review" if client == "claude" else "coderabbit-review"
                 self.assertIn("--mcp-stdin", (self.output / "skills" / skill / "SKILL.md").read_text())
                 shutil.rmtree(self.output)
+
+    @unittest.skipUnless(os.environ.get("CODEX_TEST_BIN"), "Set CODEX_TEST_BIN for native loader validation")
+    def test_codex_native_hook_discovery(self):
+        """Read assembled packages through Codex without installing or executing them."""
+        executable = Path(os.environ["CODEX_TEST_BIN"])
+        self.assertTrue(executable.is_absolute() and executable.is_file())
+        for launcher in ("hook", "direct"):
+            with self.subTest(launcher=launcher):
+                self.assemble(client="codex", launcher=launcher)
+                marketplace = self.root / "marketplace"
+                (marketplace / ".claude-plugin").mkdir(parents=True, exist_ok=True)
+                manifest = marketplace / ".claude-plugin/marketplace.json"
+                shutil.move(self.output, marketplace / "plugin")
+                manifest.write_text(json.dumps({"name": "native-package-check",
+                    "owner": {"name": "CodeRabbit"},
+                    "plugins": [{"name": "coderabbit", "source": "./plugin"}]}))
+                profile = self.root / "codex-profile"
+                profile.mkdir(exist_ok=True)
+                process = subprocess.Popen([str(executable), "app-server", "--stdio"],
+                    stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                    text=True, env={**os.environ, "CODEX_HOME": str(profile)})
+                responses = queue.Queue()
+                def read_responses():
+                    for line in process.stdout:
+                        responses.put(line)
+                    responses.put(None)
+                reader = threading.Thread(target=read_responses, daemon=True)
+                reader.start()
+                def request(request_id, method, params):
+                    process.stdin.write(json.dumps({"id": request_id, "method": method, "params": params}) + "\n")
+                    process.stdin.flush()
+                    for _ in range(50):
+                        line = responses.get(timeout=15)
+                        self.assertIsNotNone(line, "Codex app-server exited before completing the loader check")
+                        response = json.loads(line)
+                        if response.get("id") == request_id:
+                            self.assertNotIn("error", response)
+                            return response["result"]
+                    self.fail("Native loader did not return the requested response")
+                try:
+                    request(1, "initialize", {"clientInfo": {"name": "coderabbit-package-test", "version": "1"},
+                        "capabilities": {"experimentalApi": True}})
+                    process.stdin.write(json.dumps({"method": "initialized", "params": {}}) + "\n")
+                    process.stdin.flush()
+                    plugin = request(2, "plugin/read", {"marketplacePath": str(manifest),
+                        "pluginName": "coderabbit"})["plugin"]
+                    self.assertEqual(plugin["mcpServers"], ["coderabbit"])
+                    self.assertEqual({skill["name"] for skill in plugin["skills"]},
+                        {"coderabbit:setup", "coderabbit:coderabbit-review", "coderabbit:autofix"})
+                    self.assertEqual([hook["eventName"] for hook in plugin["hooks"]],
+                        ["postToolUse"] if launcher == "hook" else [])
+                finally:
+                    process.stdin.close()
+                    try:
+                        process.wait(timeout=3)
+                    except subprocess.TimeoutExpired:
+                        process.terminate()
+                        process.wait(timeout=3)
+                    reader.join(timeout=3)
+                    process.stdout.close()
+                    shutil.rmtree(marketplace / "plugin")
 
     def test_pilot_instructions_do_not_replace_shared_cli_consumers(self):
         shared_paths = [ROOT / "skills/code-review/SKILL.md", ROOT / "agents/code-reviewer.md"]

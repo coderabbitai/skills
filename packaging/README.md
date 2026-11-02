@@ -56,11 +56,12 @@ python3 scripts/assemble-plugin.py --client claude \
   --output /absolute/path/to/new-plugin-package
 ```
 
-For a Codex package use `--client codex` in this source directory. The assembler
-generates portable root `plugin.json` and `mcp.json`, retains the
-`.codex-plugin/plugin.json` compatibility manifest, and renames the review skill
-for Codex. OpenAI presentation, onboarding and hook settings live under
-`extensions.com.openai` in the root manifest. This remains an assembled
+For a Codex package use `--client codex` in this source directory. Hook packages
+use `.codex-plugin/plugin.json` and `mcp.json`, with the review skill renamed for
+Codex. Do not add a root portable `plugin.json` to a hook package: it takes
+precedence, and the current native loader skips hooks for that format. Direct
+packages also emit the portable root manifest with OpenAI presentation and
+onboarding under `extensions.com.openai`. This remains an assembled
 local-marketplace pilot, not a universal-directory submission. Claude hooks use
 `CLAUDE_PLUGIN_ROOT`; Codex hooks use its native `PLUGIN_ROOT` variable.
 The default `--launcher hook` includes the trusted post-tool integration. Use
@@ -101,6 +102,11 @@ these assembled files; pointing it at this source branch is insufficient.
 ```sh
 python3 scripts/test-plugin-package.py
 ```
+
+To also check connector, skill and hook discovery through an installed Codex
+binary, run the same suite with `CODEX_TEST_BIN=/absolute/path/to/codex`.
+This reads both package variants through the native loader using temporary
+profiles; it does not install plugins, grant trust, authenticate or start reviews.
 
 The tests use synthetic native headers for assembly and a shell test double for
 launcher forwarding. They do not establish real CLI execution or authentication.

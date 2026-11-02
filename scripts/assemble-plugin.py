@@ -123,13 +123,13 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
             else:
                 plugin_manifest.pop("hooks", None)
         (package / manifest_directory / "plugin.json").write_text(json.dumps(plugin_manifest, indent=2) + "\n")
-        if client == "codex":
+        # A portable root manifest takes precedence over the compatibility
+        # manifest, but the shipped Codex loader skips hooks for that format.
+        if client == "codex" and launcher == "direct":
             portable = {key: value for key, value in plugin_manifest.items()
                         if key not in {"interface", "skills", "mcpServers", "hooks", "extensions"}}
             openai = dict(plugin_manifest["extensions"]["com.openai"])
             openai["interface"] = plugin_manifest["interface"]
-            if launcher == "hook":
-                openai["hooks"] = "./hooks/hooks.json"
             portable["$schema"] = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
             portable["extensions"] = {"com.openai": openai}
             (package / "plugin.json").write_text(json.dumps(portable, indent=2) + "\n")
