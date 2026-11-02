@@ -137,9 +137,10 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
             mcp = {"mcpServers": {"coderabbit": {"type": "http", "url": endpoint, "oauth": {"scopes": " ".join(SCOPES)}}}}
             mcp_file = ".mcp.json"
         else:
+            # The shipped Codex loader rejects transport-level auth extensions.
+            # It discovers OAuth scopes from the verified server's metadata.
             mcp = {"$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json", "mcpServers": {"coderabbit": {
                 "type": "streamable-http", "url": endpoint,
-                "extensions": {"com.openai": {"auth": {"type": "oauth", "client": {"mode": "dcr"}, "baseScopes": SCOPES}}},
             }}}
             mcp_file = "mcp.json"
         (package / mcp_file).write_text(json.dumps(mcp, indent=2) + "\n")

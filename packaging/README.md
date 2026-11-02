@@ -14,8 +14,12 @@ not run this build step, install Node/Python, download a CLI, or perform a secon
 CLI login. The installed plugin uses its own native executable and the host's
 normal execution/network permissions. Git must be available for local reviews.
 
-The package requests `connection account:read usage:read pull_requests:read review`
-OAuth scopes. After the host approves `start_code_review`, its trusted
+Claude packages request `connection account:read usage:read pull_requests:read review`
+OAuth scopes explicitly. Codex discovers OAuth and scopes from the server's
+metadata; the verified endpoint must advertise those scopes, including `review`.
+The shipped Codex loader rejects server-level `extensions` in portable `mcp.json`,
+so do not add authentication fields there. Confirm the granted scopes in the
+native browser sign-in flow before qualification. After the host approves `start_code_review`, its trusted
 `PostToolUse` hook runs the bundled CLI's normal review using the returned
 one-review handoff. Prefer this automatic path on supported hosts. The `direct`
 package is a hook-free fallback for channels where hooks are unavailable or

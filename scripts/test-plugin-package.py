@@ -52,13 +52,16 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(hook["PostToolUse"][0]["hooks"][0]["command"], '"${CLAUDE_PLUGIN_ROOT}/bin/coderabbit" mcp-hook')
         self.assertFalse((self.output / "scripts").exists())
 
-    def test_both_hosts_request_review_scope_and_bundle_automatic_hook(self):
+    def test_both_hosts_bundle_connection_and_automatic_hook(self):
         for client in ("claude", "codex"):
             with self.subTest(client=client):
                 self.assemble(client=client)
                 config = json.loads((self.output / (".mcp.json" if client == "claude" else "mcp.json")).read_text())["mcpServers"]["coderabbit"]
-                scopes = config["oauth"]["scopes"].split() if client == "claude" else config["extensions"]["com.openai"]["auth"]["baseScopes"]
-                self.assertEqual(scopes, ["connection", "account:read", "usage:read", "pull_requests:read", "review"])
+                if client == "claude":
+                    self.assertEqual(config["oauth"]["scopes"].split(), ["connection", "account:read", "usage:read", "pull_requests:read", "review"])
+                else:
+                    # Unknown transport fields make shipped Codex drop the server.
+                    self.assertEqual(set(config), {"type", "url"})
                 self.assertEqual((self.output / "bin/mcp-url").read_text().strip(), config["url"])
                 self.assertTrue((self.output / "hooks/hooks.json").is_file())
                 hook = json.loads((self.output / "hooks/hooks.json").read_text())["hooks"]["PostToolUse"][0]["hooks"][0]
