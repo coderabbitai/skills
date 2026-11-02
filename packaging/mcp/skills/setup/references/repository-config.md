@@ -52,7 +52,9 @@ content, and do not turn setup into an exhaustive schema questionnaire.
 ## Preview, then save
 
 Write the complete proposal to a temporary file outside the repository. The CLI
-owns validation and the final repository write:
+owns validation and the final repository write. Protocol-v2 `config apply`
+validates YAML against the live schema in both dry-run and save modes; a schema
+or validation failure returns `ok: false` without writing configuration:
 
 ```sh
 <bundled-cli> config apply <proposal.yaml> --agent --dry-run --base <baseHash>
