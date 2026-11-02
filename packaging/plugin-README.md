@@ -13,6 +13,8 @@ organization so the seven MCP tools can use the same connection.
 
 Install this assembled package and run setup to select its supported launcher
 and connect CodeRabbit. Trust the hook using your app's controls when present.
+Setup can also help tailor review settings and path instructions to your
+repository, showing the proposed configuration changes before saving them.
 Then ask “Review my changes.” Git is required. Hook-containing Codex packages
 use the supported manual installation channel;
 the hosted connector alone cannot collect files from your laptop. This pilot

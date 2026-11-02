@@ -1,12 +1,20 @@
 ---
 name: setup
-description: Use when installing or connecting the CodeRabbit plugin, or recovering a missing or expired MCP connection. Set up the bundled CLI, host-appropriate launcher and MCP browser sign-in without a separate CLI login.
+description: Use when setting up CodeRabbit, connecting the plugin, tailoring repository review settings or path instructions, or recovering an expired MCP connection. Guide setup with the bundled CLI and MCP browser sign-in without a separate CLI login.
 ---
 
 # Set up CodeRabbit
 
-Help the user reach **connected and ready to review** in this app. Setup alone
-does not authorize uploading code or starting a review.
+Help the user reach **connected and ready to review**, with optional review
+settings tailored to their repository. Setup alone does not authorize uploading
+code or starting a review.
+
+For a configuration-only request, read
+[references/repository-config.md](references/repository-config.md) and use the
+bundled CLI; local configuration does not require MCP sign-in. For general setup,
+make the connection ready below, then offer repository configuration once. Keep
+existing suitable settings and avoid delaying an already-requested review with
+optional configuration.
 
 1. Resolve the bundled `bin/coderabbit` from this plugin. In Claude Code, use
    `"${CLAUDE_PLUGIN_ROOT}/bin/coderabbit"`. In Codex, resolve `../../bin/coderabbit`
@@ -38,8 +46,11 @@ does not authorize uploading code or starting a review.
    and `get_code_review` are available with review permission. If a review was already
    requested, resume the packaged code-review skill with every original option,
    including directory, base, scope, `include_untracked`, and `instructions`.
-   Otherwise say the plugin is ready and suggest “Review my
-   changes.” Do not upload a repository just to test setup.
+   Otherwise confirm the connection is ready and offer to tailor review settings
+   for this repository, or start with “Review my changes.” When the user wants
+   configuration help, read
+   [references/repository-config.md](references/repository-config.md). Do not
+   upload a repository just to test setup.
 
 The plugin needs permission to run its bundled CLI and access the requested
 repository and review endpoint. Use the host's normal permissions when needed;

@@ -223,6 +223,18 @@ class PackageTests(unittest.TestCase):
         self.assertIn("missing its MCP endpoint", result.stderr)
         self.assertEqual(result.stdout, "")
 
+    def test_local_config_preserves_arguments_without_mcp_endpoint(self):
+        launcher, _, _ = self.launcher_fixture()
+        (launcher.parent / "mcp-url").unlink()
+        proposal = str(self.root / "proposal with spaces.yaml")
+        for args in (["config", "--agent"],
+                     ["config", "apply", proposal, "--agent", "--dry-run", "--base", "none"]):
+            with self.subTest(args=args):
+                result = subprocess.run([str(launcher), *args], input="", text=True,
+                                        capture_output=True, env={"PATH": "/nonexistent"})
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, "\n".join(args) + "\n")
+
     def test_direct_review_forwards_only_scoped_mode_and_literal_stdin(self):
         launcher, _, _ = self.launcher_fixture()
         handoff = '{"instructions":"literal $(command) and `text`"}\n'

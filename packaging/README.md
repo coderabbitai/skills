@@ -9,6 +9,11 @@ Shared `skills/code-review` and `agents/code-reviewer.md` retain the released CL
 workflow. The assembler replaces them with the MCP templates in `packaging/mcp`
 and adds its setup skill only inside the complete pilot package.
 
+Setup can also offer repository-specific review settings and path instructions
+through the bundled CLI's configuration protocol v2. Configuration is optional,
+uses local inspection without sign-in, and previews a validated proposal before
+an approved save. A schema or validation failure leaves the file unchanged.
+
 The release operator assembles a complete package before installation. Users do
 not run this build step, install Node/Python, download a CLI, or perform a second
 CLI login. The installed plugin uses its own native executable and the host's
