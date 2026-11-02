@@ -123,6 +123,16 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
             else:
                 plugin_manifest.pop("hooks", None)
         (package / manifest_directory / "plugin.json").write_text(json.dumps(plugin_manifest, indent=2) + "\n")
+        if client == "codex":
+            portable = {key: value for key, value in plugin_manifest.items()
+                        if key not in {"interface", "skills", "mcpServers", "hooks", "extensions"}}
+            openai = dict(plugin_manifest["extensions"]["com.openai"])
+            openai["interface"] = plugin_manifest["interface"]
+            if launcher == "hook":
+                openai["hooks"] = "./hooks/hooks.json"
+            portable["$schema"] = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
+            portable["extensions"] = {"com.openai": openai}
+            (package / "plugin.json").write_text(json.dumps(portable, indent=2) + "\n")
         if client == "claude":
             mcp = {"mcpServers": {"coderabbit": {"type": "http", "url": endpoint, "oauth": {"scopes": " ".join(SCOPES)}}}}
             mcp_file = ".mcp.json"
@@ -135,11 +145,12 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         (package / mcp_file).write_text(json.dumps(mcp, indent=2) + "\n")
         if launcher == "hook":
             (package / "hooks").mkdir()
+            plugin_root = "CLAUDE_PLUGIN_ROOT" if client == "claude" else "PLUGIN_ROOT"
             (package / "hooks/hooks.json").write_text(json.dumps({"hooks": {"PostToolUse": [{
                 "matcher": "^mcp__(?:coderabbit|plugin_coderabbit_coderabbit)__start_code_review$",
                 # Allow the 5m launch window + 30m execution + terminal persistence/cleanup.
                 # This adapter now runs a whole review, not just source collection.
-                "hooks": [{"type": "command", "command": '"${CLAUDE_PLUGIN_ROOT}/bin/coderabbit" mcp-hook', "timeout": 2400}],
+                "hooks": [{"type": "command", "command": '"${' + plugin_root + '}/bin/coderabbit" mcp-hook', "timeout": 2400}],
             }]}}, indent=2) + "\n")
         (package / "bin").mkdir()
         (package / "bin/mcp-url").write_text(endpoint + "\n")

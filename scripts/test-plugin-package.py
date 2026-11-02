@@ -61,6 +61,17 @@ class PackageTests(unittest.TestCase):
                 self.assertEqual(scopes, ["connection", "account:read", "usage:read", "pull_requests:read", "review"])
                 self.assertEqual((self.output / "bin/mcp-url").read_text().strip(), config["url"])
                 self.assertTrue((self.output / "hooks/hooks.json").is_file())
+                hook = json.loads((self.output / "hooks/hooks.json").read_text())["hooks"]["PostToolUse"][0]["hooks"][0]
+                root = "CLAUDE_PLUGIN_ROOT" if client == "claude" else "PLUGIN_ROOT"
+                self.assertEqual(hook["command"], '"${' + root + '}/bin/coderabbit" mcp-hook')
+                if client == "codex":
+                    portable = json.loads((self.output / "plugin.json").read_text())
+                    self.assertEqual(portable["$schema"], "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json")
+                    overlay = portable["extensions"]["com.openai"]
+                    self.assertTrue((self.output / overlay["onboardingSkill"]).is_file())
+                    self.assertEqual(overlay["hooks"], "./hooks/hooks.json")
+                    self.assertNotIn("interface", portable)
+                    self.assertTrue((self.output / overlay["interface"]["logo"]).is_file())
                 self.assertEqual((self.output / "bin/launch-mode").read_text().strip(), "hook")
                 skill_name = "code-review" if client == "claude" else "coderabbit-review"
                 self.assertTrue((self.output / "skills" / skill_name / "SKILL.md").is_file())
@@ -75,6 +86,9 @@ class PackageTests(unittest.TestCase):
                 meta = ".claude-plugin" if client == "claude" else ".codex-plugin"
                 manifest = json.loads((self.output / meta / "plugin.json").read_text())
                 self.assertNotIn("hooks", manifest)
+                if client == "codex":
+                    portable = json.loads((self.output / "plugin.json").read_text())
+                    self.assertNotIn("hooks", portable["extensions"]["com.openai"])
                 self.assertEqual((self.output / "bin/launch-mode").read_text().strip(), "direct")
                 skill = "code-review" if client == "claude" else "coderabbit-review"
                 self.assertIn("--mcp-stdin", (self.output / "skills" / skill / "SKILL.md").read_text())
