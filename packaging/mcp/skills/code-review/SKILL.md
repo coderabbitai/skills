@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Run CodeRabbit reviews of local changes through its connected MCP service, interpret findings, and support authorized fix and review cycles.
+description: Use when the user asks for code review, PR feedback, or an authorized fix and review cycle with CodeRabbit. Review local changes through the connected MCP service and bundled CLI, then interpret the findings.
 metadata:
   version: "0.5.0"
 ---

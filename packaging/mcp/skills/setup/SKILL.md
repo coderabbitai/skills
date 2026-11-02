@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Set up the CodeRabbit plugin's bundled CLI, host-appropriate launcher and MCP browser sign-in without a separate CLI login.
+description: Use when installing or connecting the CodeRabbit plugin, or recovering a missing or expired MCP connection. Set up the bundled CLI, host-appropriate launcher and MCP browser sign-in without a separate CLI login.
 ---
 
 # Set up CodeRabbit
