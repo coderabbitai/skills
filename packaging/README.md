@@ -1,5 +1,9 @@
 # Bundled CLI pilot package
 
+For the connector-only team kit, use [pilot/README.md](../pilot/README.md).
+The instructions below are a separate maintainer-only plugin experiment; they
+are not part of the connector installation.
+
 This branch prepares **install plugin → connect CodeRabbit once → review local
 changes**. It requires the matching hosted MCP control service and a CLI build
 that implements `review --agent --mcp-stdin` and `mcp-hook`. It is not a published release. Installing the
