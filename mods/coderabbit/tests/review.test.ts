@@ -290,6 +290,26 @@ for (const [name, result, expected] of [
   ["stderr truncated", output(complete(), { isStderrTruncated: true }), "incomplete"],
   ["nonzero exit", output(complete(), { exitCode: 1 }), "failed"],
   [
+    "known unreviewed paths with zero exit",
+    output(JSON.stringify({
+      type: "complete",
+      status: "review_completed",
+      findings: 0,
+      unreviewedFiles: [{ filename: "src/missing.ts", reason: "review_failed" }],
+    }) + "\n"),
+    "incomplete",
+  ],
+  [
+    "count-only unreviewed files with zero exit",
+    output(JSON.stringify({
+      type: "complete",
+      status: "review_completed",
+      findings: 0,
+      unreviewedFileCount: 1,
+    }) + "\n"),
+    "incomplete",
+  ],
+  [
     "auth error",
     output('{"type":"error","errorType":"auth","message":"Please log in"}\n'),
     "failed",
@@ -305,8 +325,74 @@ for (const [name, result, expected] of [
     const answer = await $.command.run({ command: "coderabbit-review", args: "" });
     expect(messageText(answer)).toContain(expected);
     expect(messageText(answer)).not.toContain("review completed:");
+    if (name === "count-only unreviewed files with zero exit") {
+      expect(
+        JSON.parse(answer.text).notices.some((notice) => /\b1\b.*paths unavailable/.test(notice)),
+      ).toBe(true);
+    }
     expect(calls.length).toBe(1);
   });
+}
+
+for (const variant of ["small", "large", "oversized-first-path"]) {
+  test(
+    "preserves known unreviewed paths without losing findings (" + variant + ")",
+    OPTIONS,
+    async ($, on) => {
+      const largeFirst = variant === "oversized-first-path";
+      const unreviewedFiles = [
+        ...(largeFirst
+          ? [{
+              filename: "src/" + Array(30).fill("component-".repeat(9)).join("/") + "/missing.ts",
+              reason: "review_failed",
+            }]
+          : []),
+        { filename: "src/\u009b2J\u001b]0;title\u0007.ts", reason: "review_failed" },
+        { filename: "data/generated.json", reason: "diff_too_large" },
+        ...(variant === "large"
+          ? Array.from({ length: 1000 }, (_, i) => ({
+              filename: "src/features/" + i + "/generated-component.ts",
+              reason: "review_failed",
+            }))
+          : []),
+      ];
+      const { calls } = stubProcess(
+        on,
+        output(
+          JSON.stringify(
+            largeFirst ? { ...finding, comment: "x".repeat(21000) } : finding,
+          ) +
+            "\n" +
+            JSON.stringify({
+              type: "complete",
+              status: "review_completed",
+              findings: 1,
+              unreviewedFileCount: unreviewedFiles.length,
+              unreviewedFiles,
+            }) +
+            "\n",
+          { exitCode: 1 },
+        ),
+      );
+      const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+      const report = JSON.parse(answer.text);
+      const notices = report.notices.join("\n");
+      expect(report.headline).toContain("failed; coverage is unverified");
+      expect(notices).toContain('"src/\\u009b2J\\u001b]0;title\\u0007.ts"');
+      expect(notices).toContain("File review did not complete.");
+      expect(notices).toContain('"data/generated.json"');
+      expect(notices).toContain("Diff could not fit within the review context.");
+      expect(notices).not.toMatch(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/);
+      expect(report.findings.length).toBe(1);
+      expect(report.findings[0].body).toBe(
+        largeFirst ? "x".repeat(21000) : "Check the nullable value.",
+      );
+      expect(report.truncated).toBe(variant !== "small");
+      if (variant !== "small") expect(notices).toContain("omitted by display limit");
+      expect(answer.text.length <= 24000).toBe(true);
+      expect(calls.length).toBe(1);
+    },
+  );
 }
 
 test("bounds displayed findings and explicitly reports truncation", OPTIONS, async ($, on) => {
