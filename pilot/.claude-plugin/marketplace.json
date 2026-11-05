@@ -1,8 +1,0 @@
-{
-  "name": "coderabbit-mcp-team-pilot",
-  "metadata": { "description": "Pinned Apple Silicon CodeRabbit MCP pilot" },
-  "owner": { "name": "CodeRabbit" },
-  "plugins": [
-    { "name": "coderabbit", "source": "./claude-plugin" }
-  ]
-}

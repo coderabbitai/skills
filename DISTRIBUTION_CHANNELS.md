@@ -8,7 +8,7 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 
 | Channel | Status | Source of truth | Notes |
 | --- | --- | --- | --- |
-| Bundled MCP local review pilot | Opt-in Apple Silicon pilot; no marketplace release | `pilot/README.md`, `scripts/assemble-plugin.py`, `packaging/mcp` | Branch kit prepares the pinned native CLI for Claude Code and local Codex installation. Requires browser consent and native hook trust. Fresh teammate onboarding remains under qualification. |
+| Hosted MCP connector pilot | Opt-in connector; no plugin install | `pilot/README.md`, `pilot/install.sh` | Registers the hosted HTTP MCP in Claude Code (including desktop Code sessions) or Codex. Claude Chat/Cowork uses account connector settings separately. No native CLI, skills or hooks are installed; local source collection is not included. |
 | Skills package (`npx skills add coderabbitai/skills`) | Live | `README.md`, `skills/` | Canonical multi-agent distribution path for 35+ skills-compatible agents. |
 | Tagged GitHub release archive (`coderabbit skills`) | Live; `v1.2.0` pending | `.github/workflows/release.yml`, [skills install docs](https://docs.coderabbit.ai/cli/skills) | CLI installs the latest published release after manifest and checksum verification. As of 2026-09-30, Latest is `v1.1.1`; publish `v1.2.0` to deliver the merged updates. |
 | Claude Code plugin marketplace | Live | `.claude-plugin/plugin.json`, `skills/`, `agents/` | Official marketplace source: `coderabbitai/skills`. Migration from the legacy `coderabbitai/claude-plugin` repository completed on 2026-05-01. |

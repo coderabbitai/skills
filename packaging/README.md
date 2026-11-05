@@ -1,7 +1,8 @@
 # Bundled CLI pilot package
 
-For the prepared Apple Silicon team kit, use [pilot/README.md](../pilot/README.md).
-The instructions below are for maintainers assembling other candidates.
+For the connector-only team kit, use [pilot/README.md](../pilot/README.md).
+The instructions below are a separate maintainer-only plugin experiment; they
+are not part of the connector installation.
 
 This branch prepares **install plugin → connect CodeRabbit once → review local
 changes**. It requires the matching hosted MCP control service and a CLI build

@@ -1,55 +1,50 @@
-# CodeRabbit MCP pilot
+# CodeRabbit MCP connector pilot
 
-**Give your Claude Code or Codex agent this page and say:**
+Give your agent this page and say:
 
-> Install this CodeRabbit MCP pilot for the client I'm using. Follow the agent installation steps. Don't start a review; I'll complete sign-in and test it myself.
+> Install CodeRabbit as a standalone MCP connector for this client. No plugin, skills, hooks or CLI bundle. Verify it appears in my client's connector list. Leave browser consent to me and do not start a review.
 
-For **macOS Apple Silicon**, **Claude Code or Codex CLI**, and the **coderabbitai** organization. Git and the chosen client must already be installed. This is an opt-in pilot, not the released marketplace plugin.
+Server URL: **`https://mcp.coderabbit.ai/`**. Pilot organization: **coderabbitai**.
 
-## Agent installation
+## Agent setup
 
-1. Identify the current client and check `uname -s` / `uname -m`. Stop on unsupported platforms. Install only the requested client; ask which one if the host is unclear.
-2. Clone this exact branch into a permanent directory. If the destination exists, inspect its origin, branch and working tree; do not overwrite unrelated or dirty files. Use a new directory if necessary.
+1. Identify the actual surface: Claude desktop **Code tab / Claude Code CLI**, Claude **Chat / Cowork**, or Codex. Use the matching route below. Do not install this repository as a plugin.
+2. Check for an existing CodeRabbit MCP entry or plugin. Preserve unrelated integrations. When migrating from this kit's earlier plugin, uninstall `coderabbit@coderabbit-mcp-team-pilot` with the client's native plugin manager and remove its marketplace. Do not install both routes or overwrite an existing MCP entry.
+3. Register the connector, then open a fresh session. Confirm the standalone CodeRabbit entry is visible. Registration, authentication and working tools are separate checks; report which passed.
+4. Let the user complete browser sign-in and choose **coderabbitai**. Confirm identity/org through a read-only account tool after consent. Do not inspect credential stores, ask for pasted tokens, bypass permissions or start a review as a setup check.
 
-   ```sh
-   git clone --depth 1 --branch nehal/mcp-team-pilot https://github.com/coderabbitai/skills.git "$HOME/.local/share/coderabbit-mcp-pilot"
-   cd "$HOME/.local/share/coderabbit-mcp-pilot"
-   ```
+### Claude desktop Code tab or Claude Code CLI
 
-3. Read `pilot/install.sh` and `pilot/prepare.sh`, then run **one** command for the chosen client:
+Run with the installed Claude Code CLI:
 
-   ```sh
-   ./pilot/install.sh claude
-   # OR
-   ./pilot/install.sh codex
-   ```
+```sh
+claude mcp add --transport http --scope user coderabbit https://mcp.coderabbit.ai/
+```
 
-   The installer downloads the pinned CLI, verifies archive and executable SHA-256, and registers the local marketplace/plugin in that client's user profile. No global CodeRabbit CLI, Python, Node or separate CLI login is required. Keep the checkout in place. Do not substitute a floating nightly or install the repository root as the MCP plugin.
-4. Verify installation with the client's `plugin list` command. Report the installed plugin and request a **fresh client session** in the user's repository. Do not claim that installation proves authentication or launch a review as a setup check.
-5. In the fresh session, use the installed CodeRabbit setup skill. Complete browser consent and select **coderabbitai**; confirm the returned identity/org. The user approves native folder/hook trust. Codex's `/hooks` should show one trusted CodeRabbit PostToolUse hook. Do not bypass trust, inspect OAuth stores or ask for pasted tokens. Repository configuration is optional.
+The desktop **Code tab** shares this user MCP configuration. Open a fresh local Code session and check its **Connectors** panel; select CodeRabbit to authenticate. In the terminal client use `/mcp`. Existing sessions may need to be restarted to reload their server list.
 
-Use only one active CodeRabbit plugin. If another copy is enabled, identify it and use the client's native controls to disable that copy. If a manual MCP connection hides Claude's plugin, temporarily Disable the duplicate for this repository in `/mcp`, preserve it, and restart. Never remove unrelated connections or change global permission policy.
+### Claude Chat, Cowork or an account-wide connector
 
-## Test when you're ready
+Use **Settings / Customize → Connectors → Add custom connector** with name **CodeRabbit** and the server URL above, then connect. On Team/Enterprise, an authorized organization owner/admin must first add it through **Organization settings → Connectors**. If Add is disabled, report that requirement; do not substitute a plugin or claim a local CLI registration added an account connector.
 
-Ask:
+### Codex
 
-> Review my uncommitted changes. Review only; do not edit files.
+```sh
+codex mcp add coderabbit --url https://mcp.coderabbit.ai/
+```
 
-This sends the selected code to CodeRabbit and may consume review usage/credits. Expect one review start and one bundled hook, then findings. Keep the review ID. To recover missing output or read it in a fresh session:
+Complete native browser sign-in when offered, or run `codex mcp login coderabbit`. Start a fresh session and check `/mcp`.
 
-> Recover the saved CodeRabbit review REVIEW_ID. Follow next_offset until null. Do not start a new review or upload source.
+### Script for agents
 
-Failed, skipped or incomplete analysis is not a clean review. Do not submit another review just to recover missing output.
+The two CLI routes are also available as `./pilot/install.sh claude` or `./pilot/install.sh codex`. Read the script first. Clone branch `nehal/mcp-team-pilot` from `https://github.com/coderabbitai/skills.git` into an unused directory; preserve existing or dirty checkouts. The script refuses an existing `coderabbit` entry and registers only the chosen client. It does not perform account-wide Claude UI setup.
 
-## Limits and feedback
+## What this connector provides
 
-- Pinned CLI: `0.9.2-nightly.main.20261102.268.1`; MCP: `https://mcp.coderabbit.ai/`. Review/recovery passed in Codex `0.166.0-alpha.5.1` and Claude Code `2.1.318` on November 4. This kit's agent installation is a new path; fresh teammate acceptance remains part of the pilot.
-- Other platforms, organizations and sign-in methods are not qualified. The binary is ad-hoc signed. If macOS blocks it, stop and report the error; do not bypass system protections.
-- Browser logout, session rotation or an organization change can require native Connect/Reconnect. Never perform a second CLI login.
-- Report client/version, failed step, sanitized error and review ID in the internal pilot discussion. No tokens, authorization URLs or private source.
-- To leave: `claude plugin uninstall --scope user coderabbit@coderabbit-mcp-team-pilot` or `codex plugin remove coderabbit@coderabbit-mcp-team-pilot`, then restart. Re-enable any original connection you temporarily disabled.
+Hosted tools for authorized account/usage/PR data and saved review retrieval, subject to granted scopes. This kit installs **no plugin, skills, hooks, native CLI or nightly binary**. A remote MCP connection alone cannot collect your local source; automatic local reviews are not included. Do not start a local review unless a separately supported local execution path is available and the user requests it.
 
-For a session-only Claude trial instead of persistent installation, run `pilot/prepare.sh`, then launch `pilot/start-claude.sh` from your repository using its absolute path.
+For the first test, ask for your CodeRabbit identity and organization only. Report the client/version, failed step and sanitized error if it fails. Never share tokens, authorization URLs or private source.
 
-Host references: [Codex packaging](https://developers.openai.com/plugins/build/plugins), [Claude plugins](https://code.claude.com/docs/en/plugins), [Claude MCP controls](https://code.claude.com/docs/en/mcp).
+Remove with `claude mcp remove --scope user coderabbit` or `codex mcp remove coderabbit`; account connectors are disconnected in Claude's connector settings.
+
+References: [Claude desktop shared configuration](https://code.claude.com/docs/en/desktop#shared-configuration), [Claude MCP](https://code.claude.com/docs/en/mcp), [Claude account connectors](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp).

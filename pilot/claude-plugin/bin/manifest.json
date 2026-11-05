@@ -1,9 +1,0 @@
-{
-  "version": "0.9.2-nightly.main.20261102.268.1",
-  "artifacts": [
-    {
-      "platform": "darwin-arm64",
-      "sha256": "2f9663d6cf3ebef80da0a0c36a26d0010dba02ae87e19b8162446966a01c2470"
-    }
-  ]
-}
