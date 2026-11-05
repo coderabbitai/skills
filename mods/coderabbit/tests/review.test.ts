@@ -325,6 +325,11 @@ for (const [name, result, expected] of [
     const answer = await $.command.run({ command: "coderabbit-review", args: "" });
     expect(messageText(answer)).toContain(expected);
     expect(messageText(answer)).not.toContain("review completed:");
+    if (name === "count-only unreviewed files with zero exit") {
+      expect(
+        JSON.parse(answer.text).notices.some((notice) => /\b1\b.*paths unavailable/.test(notice)),
+      ).toBe(true);
+    }
     expect(calls.length).toBe(1);
   });
 }

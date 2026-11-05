@@ -282,12 +282,17 @@ export function reviewResult(result) {
       if (report.rateLimit) report.rateLimit = shorten(report.rateLimit);
     }
   }
-  if (unreviewedFiles.length) {
+  if (
+    unreviewedFiles.length ||
+    (typeof complete?.unreviewedFileCount === "number" && complete.unreviewedFileCount > 0)
+  ) {
     // Use the remaining display budget for whole path records, without
     // displacing findings or diagnostics already retained in the report.
     let length = JSON.stringify(report).length;
     const summaryIndex = report.notices.length;
-    const summary = inventorySummary(unreviewedFiles.length);
+    const summary = unreviewedFiles.length
+      ? inventorySummary(unreviewedFiles.length)
+      : "Unreviewed files: " + complete.unreviewedFileCount + " (paths unavailable).";
     const summaryGrowth = JSON.stringify(summary).length + (summaryIndex ? 1 : 0);
     if (length + summaryGrowth > 24000) {
       report.truncated = true;
@@ -312,7 +317,7 @@ export function reviewResult(result) {
       retained++;
     }
     const omitted = unreviewedFiles.length - retained;
-    report.notices[summaryIndex] = inventorySummary(omitted);
+    if (unreviewedFiles.length) report.notices[summaryIndex] = inventorySummary(omitted);
     if (omitted) report.truncated = true;
   }
   return JSON.stringify(report);
