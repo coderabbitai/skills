@@ -63,6 +63,8 @@ jobs:
           persist-credentials: false
       - name: Check connector installation boundaries
         run: python3 scripts/test-mcp-connector-install.py
+      - name: Check Claude review handoff boundaries
+        run: python3 scripts/test-claude-review-bridge.py
       - name: Check assembly and launcher contracts
         run: python3 scripts/test-plugin-package.py
   assemble:
