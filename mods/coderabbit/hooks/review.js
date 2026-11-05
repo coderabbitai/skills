@@ -172,6 +172,11 @@ function shorten(value) {
   return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, shorten(item)]));
 }
 
+/**
+ * Build the saved card/context report from CLI NDJSON without claiming complete
+ * coverage for known unreviewed work. Fit whole path notices into the existing
+ * 24,000-character record budget after retaining findings and diagnostics.
+ */
 export function reviewResult(result) {
   const findings = [];
   const errors = [];
@@ -229,6 +234,7 @@ export function reviewResult(result) {
     headline = "CodeRabbit review completed: " + findings.length + " finding(s).";
   else headline = "CodeRabbit returned an unknown outcome; coverage is unverified.";
 
+  /** Reserve the largest omitted count so the final summary can only shrink. */
   const inventorySummary = (omitted) =>
     "Unreviewed files: " +
     unreviewedFiles.length +
