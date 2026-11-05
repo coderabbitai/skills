@@ -1,0 +1,3 @@
+# Downloaded by prepare.sh; never commit native binaries.
+/claude-plugin/bin/darwin-arm64/coderabbit
+/codex-marketplace/plugins/coderabbit/bin/darwin-arm64/coderabbit

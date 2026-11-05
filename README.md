@@ -12,6 +12,8 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
+**Team MCP pilot (Apple Silicon):** [prepare and connect Codex or Claude Code](pilot/README.md).
+
 **Bundled MCP pilot:** this branch prepares a plugin that includes the native
 CodeRabbit CLI and a hosted MCP connection. The intended flow is **install the
 plugin → connect CodeRabbit once → “Review my changes.”** There is no separate

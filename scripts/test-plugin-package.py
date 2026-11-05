@@ -107,16 +107,20 @@ class PackageTests(unittest.TestCase):
         """Read assembled packages through Codex without installing or executing them."""
         executable = Path(os.environ["CODEX_TEST_BIN"])
         self.assertTrue(executable.is_absolute() and executable.is_file())
-        for launcher in ("hook", "direct"):
+        for launcher in ("hook", "direct", "team-pilot"):
             with self.subTest(launcher=launcher):
-                self.assemble(client="codex", launcher=launcher)
-                marketplace = self.root / "marketplace"
-                (marketplace / ".claude-plugin").mkdir(parents=True, exist_ok=True)
-                manifest = marketplace / ".claude-plugin/marketplace.json"
-                shutil.move(self.output, marketplace / "plugin")
-                manifest.write_text(json.dumps({"name": "native-package-check",
-                    "owner": {"name": "CodeRabbit"},
-                    "plugins": [{"name": "coderabbit", "source": "./plugin"}]}))
+                marketplace = self.root / ("marketplace-" + launcher)
+                if launcher == "team-pilot":
+                    shutil.copytree(ROOT / "pilot/codex-marketplace", marketplace)
+                    manifest = marketplace / ".agents/plugins/marketplace.json"
+                else:
+                    self.assemble(client="codex", launcher=launcher)
+                    (marketplace / ".claude-plugin").mkdir(parents=True)
+                    manifest = marketplace / ".claude-plugin/marketplace.json"
+                    shutil.move(self.output, marketplace / "plugin")
+                    manifest.write_text(json.dumps({"name": "native-package-check",
+                        "owner": {"name": "CodeRabbit"},
+                        "plugins": [{"name": "coderabbit", "source": "./plugin"}]}))
                 profile = self.root / "codex-profile"
                 profile.mkdir(exist_ok=True)
                 process = subprocess.Popen([str(executable), "app-server", "--stdio"],
@@ -151,7 +155,7 @@ class PackageTests(unittest.TestCase):
                     self.assertEqual({skill["name"] for skill in plugin["skills"]},
                         {"coderabbit:setup", "coderabbit:coderabbit-review", "coderabbit:autofix"})
                     self.assertEqual([hook["eventName"] for hook in plugin["hooks"]],
-                        ["postToolUse"] if launcher == "hook" else [])
+                        [] if launcher == "direct" else ["postToolUse"])
                 finally:
                     process.stdin.close()
                     try:
@@ -161,7 +165,7 @@ class PackageTests(unittest.TestCase):
                         process.wait(timeout=3)
                     reader.join(timeout=3)
                     process.stdout.close()
-                    shutil.rmtree(marketplace / "plugin")
+                    shutil.rmtree(marketplace)
 
     def test_pilot_instructions_do_not_replace_shared_cli_consumers(self):
         shared_paths = [ROOT / "skills/code-review/SKILL.md", ROOT / "agents/code-reviewer.md"]
@@ -183,6 +187,33 @@ class PackageTests(unittest.TestCase):
                         self.assertIn("start_code_review", (self.output / "agents/code-reviewer.md").read_text())
                     self.assertEqual({path: path.read_bytes() for path in shared_paths}, shared)
                     shutil.rmtree(self.output)
+
+    def test_team_pilot_snapshot_matches_assembler(self):
+        """Keep the cloneable pilot aligned with canonical skills and launchers."""
+        ignored = {"bin/darwin-arm64/coderabbit", "bin/darwin-arm64/coderabbit.sha256",
+                   "bin/manifest.json"}
+        inventories = []
+        for client, relative in (("claude", "pilot/claude-plugin"),
+                                 ("codex", "pilot/codex-marketplace/plugins/coderabbit")):
+            with self.subTest(client=client):
+                self.assemble(client=client, endpoint="https://mcp.coderabbit.ai/")
+                snapshot = ROOT / relative
+                def files(directory):
+                    return {p.relative_to(directory).as_posix(): p.read_bytes()
+                            for p in directory.rglob("*") if p.is_file()
+                            and p.relative_to(directory).as_posix() not in ignored}
+                self.assertEqual(files(self.output), files(snapshot))
+                inventory = json.loads((snapshot / "bin/manifest.json").read_text())
+                artifact = inventory["artifacts"][0]
+                self.assertEqual(artifact["platform"], "darwin-arm64")
+                self.assertEqual((snapshot / "bin/darwin-arm64/coderabbit.sha256").read_text().strip(),
+                                 artifact["sha256"])
+                inventories.append(inventory)
+                shutil.rmtree(self.output)
+        self.assertEqual(inventories[0], inventories[1])
+        preparation = (ROOT / "pilot/prepare.sh").read_text()
+        self.assertIn(inventories[0]["version"], preparation)
+        self.assertIn(inventories[0]["artifacts"][0]["sha256"], preparation)
 
     def test_nonobject_manifest_or_artifact_has_no_partial_package(self):
         for root in (None, [], "manifest", 1):

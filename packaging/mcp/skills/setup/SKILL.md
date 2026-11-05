@@ -32,11 +32,12 @@ optional configuration.
 3. In Claude Code, confirm `/mcp` shows the plugin-provided CodeRabbit server.
    A manually configured server at the same endpoint takes precedence, even with
    a different name, and can prevent the collector hook from matching. If the
-   plugin server is hidden, identify the duplicate's scope and remove that
-   duplicate through `claude mcp remove --scope <scope> <name>` within the user's
-   setup authorization. Preserve connections to other endpoints. Restart Claude
-   Code and verify the plugin server is active; renaming the duplicate does not
-   fix endpoint deduplication. Do not widen the hook to arbitrary MCP servers.
+   plugin server is hidden, identify the duplicate and use `/mcp` to temporarily
+   Disable it for this repository through the user's native controls. Preserve
+   the saved connection and connections to other endpoints. Restart Claude Code
+   and verify the plugin server is active. Re-enable the original entry when
+   returning to the previous setup. Renaming the duplicate does not fix endpoint
+   deduplication. Do not widen the hook to arbitrary MCP servers.
 4. Discover CodeRabbit MCP tools and call `get_me` or `connection_status`. If unavailable
    or signed out, use the app's CodeRabbit **Connect** or **Reconnect** action to
    open browser sign-in. Return to the app when it completes, refresh the tool

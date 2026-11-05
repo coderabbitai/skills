@@ -7,6 +7,7 @@ on:
       - "scripts/**"
       - "skills/**"
       - "packaging/**"
+      - "pilot/**"
       - ".claude-plugin/**"
       - ".codex-plugin/**"
   workflow_dispatch:
