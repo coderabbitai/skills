@@ -220,6 +220,13 @@ export function reviewResult(result) {
     headline = "CodeRabbit review completed: " + findings.length + " finding(s).";
   else headline = "CodeRabbit returned an unknown outcome; coverage is unverified.";
 
+  const unreviewedFiles = Array.isArray(complete?.unreviewedFiles)
+    ? complete.unreviewedFiles.filter((file) => typeof file?.filename === "string")
+    : [];
+  const inventorySummary = (omitted) =>
+    "Unreviewed files: " +
+    unreviewedFiles.length +
+    (omitted ? " (" + omitted + " omitted by display limit)." : ".");
   const notices = [];
   if (typeof complete?.message === "string" && complete.message !== "Review completed")
     notices.push("CLI message: " + complete.message);
@@ -262,6 +269,39 @@ export function reviewResult(result) {
       report.notices = shorten(report.notices);
       if (report.rateLimit) report.rateLimit = shorten(report.rateLimit);
     }
+  }
+  if (unreviewedFiles.length) {
+    // Use the remaining display budget for whole path records, without
+    // displacing findings or diagnostics already retained in the report.
+    let length = JSON.stringify(report).length;
+    const summaryIndex = report.notices.length;
+    const summary = inventorySummary(unreviewedFiles.length);
+    const summaryGrowth = JSON.stringify(summary).length + (summaryIndex ? 1 : 0);
+    if (length + summaryGrowth > 24000) {
+      report.truncated = true;
+      return JSON.stringify(report);
+    }
+    report.notices.push(summary);
+    length += summaryGrowth;
+    let retained = 0;
+    for (const file of unreviewedFiles) {
+      const path = JSON.stringify(file.filename).replace(/[\u007f-\u009f]/g, (char) =>
+        "\\u" + char.charCodeAt(0).toString(16).padStart(4, "0"),
+      );
+      const reason =
+        file.reason === "diff_too_large"
+          ? "Diff could not fit within the review context."
+          : "File review did not complete.";
+      const notice = path + ": " + reason;
+      const growth = JSON.stringify(notice).length + 1;
+      if (length + growth > 24000) break;
+      report.notices.push(notice);
+      length += growth;
+      retained++;
+    }
+    const omitted = unreviewedFiles.length - retained;
+    report.notices[summaryIndex] = inventorySummary(omitted);
+    if (omitted) report.truncated = true;
   }
   return JSON.stringify(report);
 }

@@ -309,6 +309,56 @@ for (const [name, result, expected] of [
   });
 }
 
+for (const bounded of [false, true]) {
+  test(
+    "preserves known unreviewed paths without losing findings (bounded=" + bounded + ")",
+    OPTIONS,
+    async ($, on) => {
+      const unreviewedFiles = [
+        { filename: "src/\u009b2J\u001b]0;title\u0007.ts", reason: "review_failed" },
+        { filename: "data/generated.json", reason: "diff_too_large" },
+        ...(bounded
+          ? Array.from({ length: 1000 }, (_, i) => ({
+              filename: "src/features/" + i + "/generated-component.ts",
+              reason: "review_failed",
+            }))
+          : []),
+      ];
+      const { calls } = stubProcess(
+        on,
+        output(
+          JSON.stringify(finding) +
+            "\n" +
+            JSON.stringify({
+              type: "complete",
+              status: "review_completed",
+              findings: 1,
+              unreviewedFileCount: unreviewedFiles.length,
+              unreviewedFiles,
+            }) +
+            "\n",
+          { exitCode: 1 },
+        ),
+      );
+      const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+      const report = JSON.parse(answer.text);
+      const notices = report.notices.join("\n");
+      expect(report.headline).toContain("failed; coverage is unverified");
+      expect(notices).toContain('"src/\\u009b2J\\u001b]0;title\\u0007.ts"');
+      expect(notices).toContain("File review did not complete.");
+      expect(notices).toContain('"data/generated.json"');
+      expect(notices).toContain("Diff could not fit within the review context.");
+      expect(notices).not.toMatch(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/);
+      expect(report.findings.length).toBe(1);
+      expect(report.findings[0].body).toBe("Check the nullable value.");
+      expect(report.truncated).toBe(bounded);
+      if (bounded) expect(notices).toContain("omitted by display limit");
+      expect(answer.text.length <= 24000).toBe(true);
+      expect(calls.length).toBe(1);
+    },
+  );
+}
+
 test("bounds displayed findings and explicitly reports truncation", OPTIONS, async ($, on) => {
   stubProcess(
     on,
