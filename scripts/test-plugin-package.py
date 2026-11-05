@@ -215,6 +215,43 @@ class PackageTests(unittest.TestCase):
         self.assertIn(inventories[0]["version"], preparation)
         self.assertIn(inventories[0]["artifacts"][0]["sha256"], preparation)
 
+    def test_team_installer_uses_only_selected_native_manager(self):
+        kit = self.root / "kit with spaces"
+        kit.mkdir()
+        shutil.copy2(ROOT / "pilot/install.sh", kit / "install.sh")
+        prepare = kit / "prepare.sh"
+        prepare.write_text('#!/bin/sh\nprintf "prepare\\n" >> "$PILOT_TEST_LOG"\n')
+        prepare.chmod(0o755)
+        bin_dir = self.root / "clients"
+        bin_dir.mkdir()
+        for client in ("claude", "codex"):
+            executable = bin_dir / client
+            executable.write_text('#!/bin/sh\nprintf "%s\\n" "$0" "$@" >> "$PILOT_TEST_LOG"\n')
+            executable.chmod(0o755)
+        log = self.root / "calls"
+        env = {**os.environ, "PATH": str(bin_dir) + os.pathsep + os.environ.get("PATH", ""),
+               "PILOT_TEST_LOG": str(log)}
+        for client in ("claude", "codex"):
+            with self.subTest(client=client):
+                log.write_text("")
+                result = subprocess.run([str(kit / "install.sh"), client], env=env,
+                                        text=True, capture_output=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                calls = log.read_text().splitlines()
+                chosen = str(bin_dir / client)
+                marketplace = str((kit if client == "claude" else kit / "codex-marketplace").resolve())
+                expected = [chosen, "plugin", "--help", "prepare", chosen, "plugin", "marketplace", "add"]
+                if client == "claude": expected += ["--scope", "user"]
+                expected += [marketplace, chosen, "plugin", "install" if client == "claude" else "add"]
+                if client == "claude": expected += ["--scope", "user"]
+                expected += ["coderabbit@coderabbit-mcp-team-pilot"]
+                self.assertEqual(calls, expected)
+        log.write_text("")
+        result = subprocess.run([str(kit / "install.sh"), "unsupported"], env=env,
+                                text=True, capture_output=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(log.read_text(), "")
+
     def test_nonobject_manifest_or_artifact_has_no_partial_package(self):
         for root in (None, [], "manifest", 1):
             with self.subTest(root=root):
