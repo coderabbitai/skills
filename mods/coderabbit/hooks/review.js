@@ -201,6 +201,9 @@ export function reviewResult(result) {
     Number.isInteger(complete.findings) &&
     complete.findings >= 0 &&
     complete.findings === findings.length;
+  const unreviewedFiles = Array.isArray(complete?.unreviewedFiles)
+    ? complete.unreviewedFiles.filter((file) => typeof file?.filename === "string")
+    : [];
   let headline;
   if (result.exitCode !== 0 || errors.length)
     headline = errors.some((error) => error.errorType === "auth")
@@ -216,13 +219,16 @@ export function reviewResult(result) {
       complete.message.startsWith(NO_FRESH_REVIEW))
   )
     headline = "CodeRabbit skipped this review; no new analysis was performed.";
+  else if (
+    complete.status === "review_completed" &&
+    (unreviewedFiles.length || complete.unreviewedFileCount > 0)
+  )
+    headline =
+      "CodeRabbit review incomplete: " + findings.length + " finding(s); some files were not reviewed.";
   else if (complete.status === "review_completed")
     headline = "CodeRabbit review completed: " + findings.length + " finding(s).";
   else headline = "CodeRabbit returned an unknown outcome; coverage is unverified.";
 
-  const unreviewedFiles = Array.isArray(complete?.unreviewedFiles)
-    ? complete.unreviewedFiles.filter((file) => typeof file?.filename === "string")
-    : [];
   const inventorySummary = (omitted) =>
     "Unreviewed files: " +
     unreviewedFiles.length +
@@ -294,7 +300,7 @@ export function reviewResult(result) {
           : "File review did not complete.";
       const notice = path + ": " + reason;
       const growth = JSON.stringify(notice).length + 1;
-      if (length + growth > 24000) break;
+      if (length + growth > 24000) continue;
       report.notices.push(notice);
       length += growth;
       retained++;
