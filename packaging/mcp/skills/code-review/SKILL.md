@@ -34,8 +34,11 @@ setup skill. Read `launchMode` in the installed package's `cli.json`. When it sa
 verify the host supports and trusts that hook. When it says `direct`, or the hook
 is unavailable or unsuitable, use direct execution only after confirming it is
 permitted and no hook will also launch. Check access to the workspace and network.
-A denied launch or upload is not permission to switch adapters. With no allowed
-launcher, explain the limitation before reserving a review.
+For direct execution, also confirm the process interface can supply stdin
+separately from command arguments, as described in
+[launch and recovery](references/mcp-upload.md). With no safe stdin delivery or
+allowed launcher, explain the limitation before reserving a review. A denied
+launch or upload is not permission to switch adapters.
 
 Call `start_code_review` once with the requested options:
 

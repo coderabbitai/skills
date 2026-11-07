@@ -31,8 +31,11 @@ optional configuration.
    review only after an approved `start_code_review` call. Hook-containing Codex
    packages use the supported manual installation channel. A `direct` package is
    the hook-free fallback for channels without hook support. Confirm permitted
-   local execution and network access before selecting direct execution; ensure
-   no hook will also launch. Do not bypass a denied execution or upload decision.
+   local execution, network access and a process interface that can supply stdin
+   separately from command arguments before selecting direct execution. Ensure
+   no hook will also launch. If safe stdin delivery is unavailable, report that
+   local review is unavailable; do not reserve a review. Do not bypass a denied
+   execution or upload decision.
 3. In Claude Code, check the active server in `/mcp` against this package's
    `.mcp.json` URL. A manually configured connection at the same endpoint can
    hide the plugin connection. Keep an existing matching connection if its tool
