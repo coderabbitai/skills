@@ -124,6 +124,13 @@ from the same publisher organization. Account and PR tools can run remotely;
 local code collection still requires a compatible CLI in an execution-capable
 host. Chat-only surfaces must not promise local file access.
 
+Claude's [manifest reference](https://code.claude.com/docs/en/plugins/manifest-reference#standard-layout)
+also says packages with a `bin/` directory are not installed in Claude Chat or
+Cowork. Qualify local execution separately from remote account/PR access. If a
+future package prepares a pinned CLI during setup, use the host's persistent
+plugin data directory for that dependency, not the versioned plugin root; this
+is a delivery design to implement and validate, not a capability of this pilot.
+
 For Codex, use its [current packaging requirements](https://developers.openai.com/plugins/build/plugins)
 and qualify the actual target loader. The compatibility manifest workaround in
 this pilot records tested client behavior; it is not a permanent claim that
