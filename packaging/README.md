@@ -119,7 +119,13 @@ these assembled files; pointing it at this source branch is insufficient.
 Assemble with `--client codex` first, or extract a complete Codex package. Put
 that assembled folder in a local marketplace using the
 [official OpenAI marketplace format](https://developers.openai.com/plugins/build/plugins).
-Use a new marketplace folder so the copy does not nest inside an old package:
+Use a new marketplace folder so the copy does not nest inside an old package.
+
+If `coderabbit-local-pilot` is already registered from a different folder, remove
+only that pilot registration with
+`codex plugin marketplace remove coderabbit-local-pilot` before adding the new
+folder. Alternatively, update the package in its existing marketplace folder.
+Keep the published marketplace and unrelated registrations.
 
 ```sh
 package="/absolute/path/to/new-plugin-package"
@@ -141,8 +147,8 @@ JSON
 codex plugin marketplace add "$marketplace"
 ```
 
-In the desktop app's Plugins Directory, select **CodeRabbit local pilot** and
-install `coderabbit`. A CLI with `plugin add` can instead run
+Restart the desktop app. In its Plugins Directory, select **CodeRabbit local
+pilot** and install `coderabbit`. A CLI with `plugin add` can instead run
 `codex plugin add coderabbit@coderabbit-local-pilot`. Start a fresh session in
 the intended Git repository, run CodeRabbit setup, and review/trust any hook
 through native controls. Installation alone does not grant hook trust. Keep one
