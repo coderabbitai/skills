@@ -9,7 +9,7 @@ You do not need a global CLI or a second CodeRabbit login.
 
 The connection requests account, usage, pull-request read access, and review
 permission together. Browser consent shows these permissions for the selected
-organization so the seven MCP tools can use the same connection.
+organization so the available MCP tools can use the same connection.
 
 Install this assembled package and run setup to select its supported launcher
 and connect CodeRabbit. Trust the hook using your app's controls when present.
