@@ -89,13 +89,45 @@ plus checksum for three days. It does not execute the downloaded binary or
 publish a release. Extract the tar archive before client installation; it
 preserves executable permissions. Run once per platform for separate pilots.
 
-Tagged source-only publication is blocked in the skills repository while this
-pilot is active. This pilot uses local marketplace installation for its assembled
+Tagged releases continue to distribute the shared standalone CLI skills. The
+presence of the pilot assembler does not change those skills or block their
+release; the MCP overlay exists only in the assembler's output. A tagged source
+archive is not an assembled MCP plugin. This pilot uses local marketplace installation for its assembled
 Codex package. Bundled hooks require the host's trust approval and packaged
 scripts; qualify each intended distribution channel separately. See the
 [Codex bundled-hook guidance](https://developers.openai.com/plugins/build/plugins#bundled-hooks).
 Publish the assembled plugin only after its archive/import behavior is verified. In particular, a source-repository marketplace install must deliver
 these assembled files; pointing it at this source branch is insufficient.
+
+## Public directory submission
+
+The native bundle is a manual-channel pilot. It is not a Claude directory
+submission artifact: the [current directory checklist](https://claude.com/docs/plugins/pre-submission-checklist)
+requires every plugin file to be under 5 MiB, while native CLI executables exceed
+that limit. The local Claude validator checks only a subset of directory rules;
+even `--strict --profile directory` passing does not establish portal acceptance.
+Public packaging must resolve CLI delivery before it can claim the same smooth
+MCP-authorized local review flow. Do not remove the CLI or present connector
+registration alone as a working local review.
+
+Keep the existing `coderabbit` plugin name and update the existing listing.
+[Delisting](https://claude.com/docs/plugins/submit#withdraw-or-delist-a-plugin)
+stops updates and may remove existing users' copies. The official Claude Code
+marketplace and Claude's directory are separate channels: an official-marketplace
+entry pinned to a Git SHA needs its catalog reference updated; a directory
+submission follows its configured branch or tag after review and publication.
+Neither changes merely because this repository merges.
+
+Submit the hosted server separately as an [MCP connector](https://claude.com/docs/connectors/building/submission),
+even when a plugin references it. Preserve the same endpoint when pairing the two
+from the same publisher organization. Account and PR tools can run remotely;
+local code collection still requires a compatible CLI in an execution-capable
+host. Chat-only surfaces must not promise local file access.
+
+For Codex, use its [current packaging requirements](https://developers.openai.com/plugins/build/plugins)
+and qualify the actual target loader. The compatibility manifest workaround in
+this pilot records tested client behavior; it is not a permanent claim that
+portable manifests cannot load hooks. Hook trust remains a native user decision.
 
 ## Validate
 
