@@ -155,7 +155,10 @@ Claude's Bash tool, so an implicit switch between cache and hook environment
 would prepare one directory and launch from another; this package avoids that.
 
 For Codex, use its [current packaging requirements](https://developers.openai.com/plugins/build/plugins)
-and qualify the actual target loader. The compatibility manifest workaround in
+and qualify the actual target loader. OpenAI's public directory does not accept
+plugins containing lifecycle hooks; hook packages are for manual desktop installs.
+The `direct` package omits hooks, but directory acceptance and permitted local
+execution still require qualification on the intended surface. The compatibility manifest workaround in
 this pilot records tested client behavior; it is not a permanent claim that
 portable manifests cannot load hooks. Hook trust remains a native user decision.
 
