@@ -185,6 +185,10 @@ Prepare the assembled plugin at that same path on a separate distribution
 branch, preserve the canonical standalone source, and obtain publication
 approval before switching the listing's tracked branch or tag. Changing that
 reference starts a new scan; the last published version stays live meanwhile.
+After the new version passes, select **Publish** or **Publish update** in the
+portal and follow its review/publish setting. Changing the reference and
+passing its scan do not complete that publication step. Later updates follow
+the configured publication setting.
 
 Submit the hosted server separately as an [MCP connector](https://claude.com/docs/connectors/building/submission),
 even when a plugin references it. Preserve the same endpoint when pairing the two
