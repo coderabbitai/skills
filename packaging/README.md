@@ -177,7 +177,14 @@ stops updates and may remove existing users' copies. The official Claude Code
 marketplace and Claude's directory are separate channels: an official-marketplace
 entry pinned to a Git SHA needs its catalog reference updated; a directory
 submission follows its configured branch or tag after review and publication.
-Neither changes merely because this repository merges.
+Merging to a directory's tracked branch can trigger a scan and automatic
+publication when enabled. Check the tracked source and publish settings before
+merging; an unchanged official-marketplace pin does not protect the directory.
+The directory's repository and plugin folder cannot change after submission.
+Prepare the assembled plugin at that same path on a separate distribution
+branch, preserve the canonical standalone source, and obtain publication
+approval before switching the listing's tracked branch or tag. Changing that
+reference starts a new scan; the last published version stays live meanwhile.
 
 Submit the hosted server separately as an [MCP connector](https://claude.com/docs/connectors/building/submission),
 even when a plugin references it. Preserve the same endpoint when pairing the two

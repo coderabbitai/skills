@@ -79,8 +79,8 @@ In Claude Code, install the plugin from the official marketplace:
 /plugin install coderabbit@claude-plugins-official
 ```
 
-A listing in the Claude directory is in review. Once it's published, you'll
-also be able to add CodeRabbit from **Customize > Plugins > Discover** in
+CodeRabbit is also listed in the Claude directory. Add it from
+**Customize > Plugins > Discover** in
 claude.ai or the Claude desktop app, and it will sync to Claude Code sessions
 where you're signed in with the same claude.ai account. If you install from
 both places, Claude Code loads the marketplace copy.
