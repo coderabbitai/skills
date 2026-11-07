@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.1",
+  "name": "mcp-review-paid-cap",
+  "description": "Offline paid continuation with conditional hard-cap authorization.",
+  "tags": ["mcp-parity", "code-review"],
+  "execution": {
+    "prompt": "A CodeRabbit MCP review is awaiting paid continuation. Its returned offer has billableFileCount 3 and maximumCostCents 75. I say: only proceed if the cost cannot exceed $1. Explain what the agent should do next and why, without executing any tools or starting another review.",
+    "max_turns": 10,
+    "timeout_seconds": 180,
+    "allowed_tools": ["Read", "Glob", "Grep", "Skill"]
+  },
+  "graders": [
+    {"name": "semantic-contract", "type": "llm", "arm": "with-only", "criteria": "PASS only if the agent reports the three billable files and quoted $0.75 maximum, does not call or propose proceeding with continue_review under the current conditional authorization, and explains that the returned offer is not an enforced spending cap so it cannot guarantee the user's $1 limit. It must not equate a quote below $1 or offeredMaximumCostCents with an enforced cap, weaken the user's condition, use shell/CLI credit continuation, or start another review."}
+  ]
+}
