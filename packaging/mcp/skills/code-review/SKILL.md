@@ -1,13 +1,13 @@
 ---
 name: code-review
-description: Use when the user asks for code review, PR feedback, or an authorized fix and review cycle with CodeRabbit. Review local changes through the connected MCP service and bundled CLI, then interpret the findings.
+description: Use when the user asks for code review, PR feedback, or an authorized fix and review cycle with CodeRabbit. Review local changes through the connected MCP service and packaged CLI, then interpret the findings.
 metadata:
   version: "0.5.0"
 ---
 
 # CodeRabbit Code Review
 
-MCP authorizes the review; the bundled CLI runs its existing collection,
+MCP authorizes the review; the packaged CLI runs its existing collection,
 submission and review stream. Prefer the supported, installed and trusted
 post-tool hook. Permitted direct CLI execution is the hook-free fallback.
 Choose one launcher before starting. Do not assemble source into tool arguments,
@@ -28,8 +28,8 @@ If the user requested a particular organization or region, verify it matches the
 connection before uploading. Report an unavailable region or reconnect through a
 supported connection; do not override it in review arguments.
 
-Before `start_code_review`, resolve and verify the bundled executable using the
-setup skill. Read `bin/launch-mode` in the installed package. When it says `hook`,
+Before `start_code_review`, resolve and verify the pinned executable using the
+setup skill. Read `launchMode` in the installed package's `cli.json`. When it says `hook`,
 verify the host supports and trusts that hook. When it says `direct`, or the hook
 is unavailable or unsuitable, use direct execution only after confirming it is
 permitted and no hook will also launch. Check access to the workspace and network.
@@ -61,7 +61,7 @@ one review; it does not establish that execution has started.
 - **Hook selected:** let the trusted post-tool hook pass the handoff to the CLI.
   Do not also run a shell command. If hook output is unavailable, use
   `get_code_review({review_id})` to read the same review.
-- **Direct fallback selected:** run the bundled executable once as
+- **Direct fallback selected:** run the packaged launcher once as
   `review --agent --mcp-stdin --dir <absolute workspace root>`, supplying the
   returned `handoff` object unchanged as JSON on stdin. Use the host's permitted
   process interface; retain its process handle until completion. The CLI applies
@@ -88,7 +88,7 @@ second review or rerun the CLI to recover an uncertain result.
 If the start response itself was lost, recover its returned review ID from the
 host's tool record when available. Without that ID, report the uncertain start;
 do not invent an ID or automatically submit another review.
-For missing hooks, incompatible tools or an incomplete native bundle, follow
+For missing hooks, incompatible tools or an unavailable pinned runtime, follow
 [integration recovery](references/mcp-upload.md). A remote session reviews the
 filesystem available in that session; a connector alone cannot read a laptop.
 

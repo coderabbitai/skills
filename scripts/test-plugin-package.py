@@ -8,11 +8,13 @@ import os
 from pathlib import Path
 import platform
 import queue
+import shlex
 import shutil
 import subprocess
 import tempfile
 import threading
 import unittest
+import zipfile
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -30,15 +32,55 @@ class PackageTests(unittest.TestCase):
         self.native.write_bytes(b"\xcf\xfa\xed\xfe\x0c\x00\x00\x01" + bytes(64))
         self.checksum = hashlib.sha256(self.native.read_bytes()).hexdigest()
         self.manifest = self.root / "artifacts.json"
-        self.manifest.write_text(json.dumps({"version": "0.9.0", "artifacts": [{
+        self.manifest.write_text(json.dumps({"version": "0.9.0", "plugin_version": "1.3.0-mcp.1", "artifacts": [{
             "platform": "darwin-arm64", "path": str(self.native), "sha256": self.checksum}]}))
         self.output = self.root / "installed package"
 
     def tearDown(self):
         self.temp.cleanup()
 
-    def assemble(self, endpoint="https://fixture.invalid/mcp", client=CLIENT, launcher="hook"):
-        return module.assemble(ROOT, client, self.manifest, endpoint, self.output, launcher)
+    def assemble(self, endpoint="https://fixture.invalid/mcp", client=CLIENT, launcher="hook", delivery="bundled"):
+        return module.assemble(ROOT, client, self.manifest, endpoint, self.output, launcher, delivery)
+
+    def test_download_packages_omit_native_files_without_changing_shared_cli(self):
+        manifest = json.loads(self.manifest.read_text())
+        manifest["artifacts"][0]["archive_sha256"] = "a" * 64
+        self.manifest.write_text(json.dumps(manifest))
+        shared = (ROOT / "skills/code-review/SKILL.md").read_bytes()
+        for client in ("claude", "codex"):
+            for launcher in ("hook", "direct"):
+                with self.subTest(client=client, launcher=launcher):
+                    self.assemble(client=client, launcher=launcher, delivery="download")
+                    config = json.loads((self.output / "cli.json").read_text())
+                    self.assertEqual(config["launcher"], "./scripts/coderabbit")
+                    self.assertEqual(config["launchMode"], launcher)
+                    metadata = ".claude-plugin" if client == "claude" else ".codex-plugin"
+                    self.assertEqual(json.loads((self.output / metadata / "plugin.json").read_text())["version"], "1.3.0-mcp.1")
+                    self.assertFalse((self.output / "bin").exists())
+                    for path in self.output.rglob("*"):
+                        if path.is_file():
+                            self.assertLess(path.stat().st_size, 5 * 1024 * 1024)
+                            self.assertNotEqual(path.read_bytes(), self.native.read_bytes())
+                    self.assertEqual((self.output / "runtime/darwin-arm64.url").read_text(),
+                                     "https://cli.coderabbit.ai/releases/0.9.0/coderabbit-darwin-arm64.zip\n")
+                    self.assertEqual((ROOT / "skills/code-review/SKILL.md").read_bytes(), shared)
+                    if launcher == "hook":
+                        hook = json.loads((self.output / "hooks/hooks.json").read_text())
+                        command = hook["hooks"]["PostToolUse"][0]["hooks"][0]["command"]
+                        self.assertIn("/scripts/coderabbit", command)
+                    shutil.rmtree(self.output)
+
+    def test_download_package_requires_archive_and_plugin_version_pins(self):
+        with self.assertRaisesRegex(ValueError, "archive SHA-256"):
+            self.assemble(delivery="download")
+        self.assertFalse(self.output.exists())
+        manifest = json.loads(self.manifest.read_text())
+        manifest["artifacts"][0]["archive_sha256"] = "a" * 64
+        del manifest["plugin_version"]
+        self.manifest.write_text(json.dumps(manifest))
+        with self.assertRaisesRegex(ValueError, "explicit plugin_version"):
+            self.assemble(delivery="download")
+        self.assertFalse(self.output.exists())
 
     def test_native_bundle_manifest_and_spaces(self):
         self.assemble("https://fixture.invalid/cli/mcp/mcp")
@@ -107,9 +149,13 @@ class PackageTests(unittest.TestCase):
         """Read assembled packages through Codex without installing or executing them."""
         executable = Path(os.environ["CODEX_TEST_BIN"])
         self.assertTrue(executable.is_absolute() and executable.is_file())
-        for launcher in ("hook", "direct"):
-            with self.subTest(launcher=launcher):
-                self.assemble(client="codex", launcher=launcher)
+        artifacts = json.loads(self.manifest.read_text())
+        artifacts["artifacts"][0]["archive_sha256"] = "a" * 64
+        self.manifest.write_text(json.dumps(artifacts))
+        for launcher, delivery in ((mode, delivery) for delivery in ("bundled", "download")
+                                   for mode in ("hook", "direct")):
+            with self.subTest(launcher=launcher, delivery=delivery):
+                self.assemble(client="codex", launcher=launcher, delivery=delivery)
                 marketplace = self.root / "marketplace"
                 (marketplace / ".claude-plugin").mkdir(parents=True, exist_ok=True)
                 manifest = marketplace / ".claude-plugin/marketplace.json"
@@ -271,6 +317,113 @@ class PackageTests(unittest.TestCase):
         checksum.write_text(module.digest(binary) + "\n")
         (directory / "mcp-url").write_text("https://fixture.invalid/mcp\n")
         return launcher, binary, checksum
+
+    def runtime_fixture(self, native=None):
+        # The shell executable is a forwarding test double, not a release CLI.
+        root = self.root / "download package"
+        (root / "scripts").mkdir(parents=True)
+        (root / "runtime").mkdir()
+        launcher = root / "scripts/coderabbit"
+        shutil.copyfile(ROOT / "scripts/coderabbit-runtime", launcher)
+        launcher.chmod(0o755)
+        system = {"Darwin": "darwin", "Linux": "linux"}.get(platform.system())
+        arch = {"arm64": "arm64", "aarch64": "arm64", "x86_64": "x64"}.get(platform.machine())
+        if not system or not arch:
+            self.skipTest("Runtime adapter supports macOS and Linux")
+        target = f"{system}-{arch}"
+        if native is None:
+            native = b'#!/bin/sh\nprintf "%s\\n" "$@"\ncat\n'
+        archive = self.root / "native.zip"
+        with zipfile.ZipFile(archive, "w") as zipped:
+            zipped.writestr("coderabbit", native)
+        metadata = root / "runtime"
+        (metadata / "version").write_text("0.9.0\n")
+        (metadata / "mcp-url").write_text("https://fixture.invalid/mcp\n")
+        (metadata / f"{target}.sha256").write_text(hashlib.sha256(native).hexdigest() + "\n")
+        (metadata / f"{target}.archive.sha256").write_text(module.digest(archive) + "\n")
+        (metadata / f"{target}.url").write_text(f"https://cli.coderabbit.ai/releases/0.9.0/coderabbit-{target}.zip\n")
+        mocks = self.root / "mock tools"
+        mocks.mkdir()
+        # Change only tool resolution in this copied adapter to keep the
+        # installer offline. Production always uses system curl/hash tools.
+        launcher.write_text(launcher.read_text().replace(
+            "PATH=/usr/bin:/bin:/usr/sbin:/sbin",
+            "PATH=" + shlex.quote(str(mocks) + ":/usr/bin:/bin"), 1))
+        curl = mocks / "curl"
+        curl.write_text('#!/bin/sh\nprintf "download\\n" >> "$CODERABBIT_TEST_CURL_LOG"\n'
+                        'while [ "$#" -gt 0 ]; do\n'
+                        '  if [ "$1" = --output ]; then output=$2; shift; fi\n'
+                        '  shift\ndone\ncp "$CODERABBIT_TEST_ARCHIVE" "$output"\n')
+        curl.chmod(0o755)
+        global_cli = mocks / "coderabbit"
+        global_cli.write_text('#!/bin/sh\necho unexpected-global-cli\nexit 99\n')
+        global_cli.chmod(0o755)
+        log = self.root / "downloads.log"
+        env = {**os.environ, "PATH": str(mocks) + ":/usr/bin:/bin",
+               "CODERABBIT_TEST_ARCHIVE": str(archive), "CODERABBIT_TEST_CURL_LOG": str(log)}
+        data = self.root / "persistent data"
+        binary = data / "0.9.0" / target / "coderabbit"
+        def run(*args, stdin=""):
+            return subprocess.run([str(launcher), "--data-dir", str(data), *args],
+                                  input=stdin, text=True, capture_output=True, env=env, timeout=10)
+        return run, binary, metadata, target, log
+
+    def test_preparation_installs_pinned_runtime_reuses_cache_and_forwards_stdin(self):
+        run, binary, _, _, log = self.runtime_fixture()
+        first = run("--prepare")
+        self.assertEqual(first.returncode, 0, first.stderr)
+        self.assertTrue(binary.is_file())
+        self.assertEqual(first.stdout, "--version\n")
+        self.assertEqual(run("--prepare").returncode, 0)
+        self.assertEqual(log.read_text(), "download\n")
+        handoff = '{"instructions":"literal $(command) and `text`"}\n'
+        result = run("mcp-hook", stdin=handoff)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "mcp-hook\n" + handoff)
+        self.assertEqual(log.read_text(), "download\n")
+
+    def test_review_does_not_prepare_missing_corrupt_runtime_or_use_global_cli(self):
+        run, binary, _, _, log = self.runtime_fixture()
+        missing = run("mcp-hook", stdin="{}")
+        self.assertNotEqual(missing.returncode, 0)
+        self.assertFalse(log.exists())
+        self.assertEqual(missing.stdout, "")
+        self.assertEqual(run("--prepare").returncode, 0)
+        binary.write_text("corrupt")
+        failed = run("review", "--agent", "--mcp-stdin", stdin="{}")
+        self.assertNotEqual(failed.returncode, 0)
+        self.assertEqual(failed.stdout, "")
+        self.assertEqual(log.read_text(), "download\n")
+        self.assertNotEqual(run("auth", "login").returncode, 0)
+        self.assertNotEqual(run("review", "--agent", "--mcp-stdin", "--host-url", "https://other.invalid").returncode, 0)
+
+    def test_bad_archive_or_native_hash_never_installs_candidate(self):
+        run, binary, metadata, target, _ = self.runtime_fixture()
+        archive_hash = metadata / f"{target}.archive.sha256"
+        original = archive_hash.read_text()
+        archive_hash.write_text("0" * 64 + "\n")
+        rejected = run("--prepare")
+        self.assertNotEqual(rejected.returncode, 0)
+        self.assertEqual(rejected.stdout, "")
+        self.assertFalse(binary.exists())
+        self.assertEqual(list(binary.parent.glob(".prepare.*")), [])
+        archive_hash.write_text(original)
+        (metadata / f"{target}.sha256").write_text("0" * 64 + "\n")
+        rejected = run("--prepare")
+        self.assertNotEqual(rejected.returncode, 0)
+        self.assertEqual(rejected.stdout, "")
+        self.assertFalse(binary.exists())
+        self.assertEqual(list(binary.parent.glob(".prepare.*")), [])
+
+    def test_matching_hash_without_mcp_support_does_not_install(self):
+        run, binary, _, _, _ = self.runtime_fixture(
+            b'#!/bin/sh\nif [ "$1" = mcp-hook ]; then exit 1; fi\necho 0.9.2\n')
+        rejected = run("--prepare")
+        self.assertNotEqual(rejected.returncode, 0)
+        self.assertIn("does not support MCP review", rejected.stderr)
+        self.assertEqual(rejected.stdout, "")
+        self.assertFalse(binary.exists())
+        self.assertEqual(list(binary.parent.glob(".prepare.*")), [])
 
     def test_launcher_forwards_stdin_and_spaces_without_global_cli(self):
         launcher, _, _ = self.launcher_fixture()

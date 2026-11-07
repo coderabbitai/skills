@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Use when setting up CodeRabbit, connecting the plugin, tailoring repository review settings or path instructions, or recovering an expired MCP connection. Guide setup with the bundled CLI and MCP browser sign-in without a separate CLI login.
+description: Use when setting up CodeRabbit, connecting the plugin, tailoring repository review settings or path instructions, or recovering an expired MCP connection. Guide setup with the packaged CLI and MCP browser sign-in without a separate CLI login.
 ---
 
 # Set up CodeRabbit
@@ -11,18 +11,22 @@ code or starting a review.
 
 For a configuration-only request, read
 [references/repository-config.md](references/repository-config.md) and use the
-bundled CLI; local configuration does not require MCP sign-in. For general setup,
+packaged CLI; local configuration does not require MCP sign-in. For general setup,
 make the connection ready below, then offer repository configuration once. Keep
 existing suitable settings and avoid delaying an already-requested review with
 optional configuration.
 
-1. Resolve the bundled `bin/coderabbit` from this plugin. In Claude Code, use
-   `"${CLAUDE_PLUGIN_ROOT}/bin/coderabbit"`. In Codex, resolve `../../bin/coderabbit`
-   relative to this loaded skill's directory and use the absolute path. Run
-   `--version` to check the installed artifact. If the bundle is incomplete,
-   unsupported, or corrupt, report the specific failure and reinstall through
-   the app's plugin flow. Do not install a global CLI or a separate runtime.
-2. Read the installed `bin/launch-mode`. Prefer the post-tool hook when supported,
+1. Read this plugin's `cli.json`. Resolve its `launcher` relative to the plugin
+   root, keep it inside that root, and quote its absolute path. In Claude Code,
+   the root is `${CLAUDE_PLUGIN_ROOT}`; in Codex it is two directories above this
+   loaded skill. For `delivery: download`, follow
+   [runtime preparation](references/runtime-install.md) before using the CLI.
+   For `delivery: bundled`, run `--version` directly. If local execution is
+   unavailable, connect the remote account/PR tools but report that local
+   reviews and local configuration are unavailable; do not reserve a review.
+   A missing or corrupt bundled executable requires reinstalling the complete
+   package. Neither delivery mode installs a global CLI or needs a CLI login.
+2. Read `launchMode` in `cli.json`. Prefer the post-tool hook when supported,
    installed and trusted through the host's controls. It runs the normal CLI
    review only after an approved `start_code_review` call. Hook-containing Codex
    packages use the supported manual installation channel. A `direct` package is
@@ -52,7 +56,7 @@ optional configuration.
    [references/repository-config.md](references/repository-config.md). Do not
    upload a repository just to test setup.
 
-The plugin needs permission to run its bundled CLI and access the requested
+The plugin needs permission to prepare and run its pinned CLI and access the requested
 repository and review endpoint. Use the host's normal permissions when needed;
 do not change sandbox settings or route around a denied permission. A cloud or
 remote session uses its own available filesystem, not the user's laptop.

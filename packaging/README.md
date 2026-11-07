@@ -1,4 +1,4 @@
-# Bundled CLI pilot package
+# MCP-authorized CLI plugin packages
 
 This branch prepares **install plugin → connect CodeRabbit once → review local
 changes**. It requires the matching hosted MCP control service and a CLI build
@@ -10,13 +10,15 @@ workflow. The assembler replaces them with the MCP templates in `packaging/mcp`
 and adds its setup skill only inside the complete pilot package.
 
 Setup can also offer repository-specific review settings and path instructions
-through the bundled CLI's configuration protocol v2. Configuration is optional,
+through the pinned CLI's configuration protocol v2. Configuration is optional,
 uses local inspection without sign-in, and previews a validated proposal before
 an approved save. A schema or validation failure leaves the file unchanged.
 
 The release operator assembles a complete package before installation. Users do
-not run this build step, install Node/Python, download a CLI, or perform a second
-CLI login. The installed plugin uses its own native executable and the host's
+not run this build step, install Node/Python, or perform a second CLI login.
+The `bundled` variant includes native bytes for manual installation. The
+`download` variant prepares a pinned native dependency during explicit setup.
+The installed plugin uses that verified executable and the host's
 normal execution/network permissions. Git must be available for local reviews.
 
 Claude packages request `connection account:read usage:read pull_requests:read review`
@@ -25,7 +27,7 @@ metadata; the verified endpoint must advertise those scopes, including `review`.
 The shipped Codex loader rejects server-level `extensions` in portable `mcp.json`,
 so do not add authentication fields there. Confirm the granted scopes in the
 native browser sign-in flow before qualification. After the host approves `start_code_review`, its trusted
-`PostToolUse` hook runs the bundled CLI's normal review using the returned
+`PostToolUse` hook runs the pinned CLI's normal review using the returned
 one-review handoff. Prefer this automatic path on supported hosts. The `direct`
 package is a hook-free fallback for channels where hooks are unavailable or
 unsuitable; its skill invokes the same CLI through permitted execution. Select
@@ -47,10 +49,22 @@ contains `platform` (`darwin-arm64`, `darwin-x64`, `linux-arm64`, or `linux-x64`
 all supported platforms in the distribution artifact. A single-platform package
 is useful for a bounded local acceptance test, not a universal release.
 
+For `--delivery download`, also include `archive_sha256` for each platform's
+official ZIP. The assembler validates the local native artifact as before but
+emits only the launcher and checksum metadata; it derives the versioned URL
+under `https://cli.coderabbit.ai/releases/` (`nightly/` for nightly pins). Obtain
+both hashes from approved CLI release artifacts. No mutable `latest` URL is
+shipped. Public release signing/provenance is still a release-operator gate.
+Set top-level `plugin_version` explicitly for this delivery mode, independently
+of the CLI `version`, and increment it for each published plugin update. Hosts
+cache by plugin version; changed source with the same version is not an upgrade.
+The shared source manifests and standalone release version remain unchanged.
+
 Run:
 
 ```sh
 python3 scripts/assemble-plugin.py --client claude \
+  --delivery download \
   --artifacts /absolute/path/to/approved-artifacts.json \
   --mcp-url "$VERIFIED_CODERABBIT_MCP_URL" \
   --output /absolute/path/to/new-plugin-package
@@ -66,7 +80,7 @@ local-marketplace pilot, not a universal-directory submission. Claude hooks use
 `CLAUDE_PLUGIN_ROOT`; Codex hooks use its native `PLUGIN_ROOT` variable.
 The default `--launcher hook` includes the trusted post-tool integration. Use
 `--launcher direct` for the hook-free fallback channel; it omits hook registration
-and records that selection in `bin/launch-mode`. Neither package may bypass a
+and records that selection and the executable path in `cli.json`. Neither package may bypass a
 host's execution or upload permissions. Both require a native CLI whose compiled
 Reviewer origin matches the intended environment; the MCP URL does not override
 that trust anchor. Dev2 URLs belong only in dedicated preview artifacts.
@@ -82,8 +96,9 @@ The runtime launcher checks the shipped digest before execution; this detects
 corruption, not malicious replacement of both binary and manifest.
 
 Use **Actions → Assemble bundled MCP plugin pilot → Run workflow** to build
-a single-platform test artifact. Select the client and launcher. Supply the exact CLI version, platform, native
-executable HTTPS URL, approved SHA-256, and verified MCP URL. The workflow
+a single-platform test artifact. Select the client, launcher and delivery mode.
+Supply the exact CLI version, platform, native executable HTTPS URL, approved
+SHA-256, official ZIP SHA-256 for download delivery, and verified MCP URL. The workflow
 validates inputs, verifies the downloaded artifact, and uploads a tar archive
 plus checksum for three days. It does not execute the downloaded binary or
 publish a release. Extract the tar archive before client installation; it
@@ -106,9 +121,14 @@ submission artifact: the [current directory checklist](https://claude.com/docs/p
 requires every plugin file to be under 5 MiB, while native CLI executables exceed
 that limit. The local Claude validator checks only a subset of directory rules;
 even `--strict --profile directory` passing does not establish portal acceptance.
-Public packaging must resolve CLI delivery before it can claim the same smooth
-MCP-authorized local review flow. Do not remove the CLI or present connector
-registration alone as a working local review.
+The `download` variant addresses this packaging limit by shipping readable
+scripts and pin metadata, with no compiled files or `bin/` directory. Explicit
+setup downloads to a versioned user cache outside the plugin, verifies both
+hashes, and checks the version. Hooks never download. Read
+[runtime preparation](mcp/skills/setup/references/runtime-install.md) for storage
+and permission behavior. This does not establish portal acceptance, all-platform
+runtime qualification, or approval to publish an unqualified CLI build. Do not
+present connector registration alone as a working local review.
 
 Keep the existing `coderabbit` plugin name and update the existing listing.
 [Delisting](https://claude.com/docs/plugins/submit#withdraw-or-delist-a-plugin)
@@ -126,10 +146,13 @@ host. Chat-only surfaces must not promise local file access.
 
 Claude's [manifest reference](https://code.claude.com/docs/en/plugins/manifest-reference#standard-layout)
 also says packages with a `bin/` directory are not installed in Claude Chat or
-Cowork. Qualify local execution separately from remote account/PR access. If a
-future package prepares a pinned CLI during setup, use the host's persistent
-plugin data directory for that dependency, not the versioned plugin root; this
-is a delivery design to implement and validate, not a capability of this pilot.
+Cowork. Qualify local execution separately from remote account/PR access.
+Download packages keep the runtime outside the versioned plugin root, using the
+same user cache for both hosts and for setup/hook execution. Their launcher can
+also accept an explicit persistent `--data-dir`, but setup and the registered
+hook must use the same location. Host plugin-data variables are not exported to
+Claude's Bash tool, so an implicit switch between cache and hook environment
+would prepare one directory and launch from another; this package avoids that.
 
 For Codex, use its [current packaging requirements](https://developers.openai.com/plugins/build/plugins)
 and qualify the actual target loader. The compatibility manifest workaround in

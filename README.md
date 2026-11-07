@@ -12,10 +12,10 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-**Bundled MCP pilot:** this branch prepares a plugin that includes the native
-CodeRabbit CLI and a hosted MCP connection. The intended flow is **install the
+**MCP review pilot:** this branch prepares a plugin with a pinned native
+CodeRabbit CLI dependency and a hosted MCP connection. The intended flow is **install the
 plugin → connect CodeRabbit once → “Review my changes.”** There is no separate
-CLI login or persistent local daemon. MCP authorizes one review; the bundled CLI
+CLI login or persistent local daemon. MCP authorizes one review; the pinned CLI
 runs its existing collection, submission and review stream. Prefer a supported,
 installed and trusted post-tool hook, with permitted direct CLI execution as the
 hook-free fallback. Use complete CLI findings when visible; `get_code_review`
@@ -26,8 +26,9 @@ hosts. Hook trust is a separate setup step. A hook-free variant serves channels
 without hook support; both require allowed local execution and network access.
 A hosted connector alone cannot collect local files.
 
-This is not published. The source tree alone is not an installable bundle: the
-matching MCP-authorized CLI and verified hosted endpoint must be assembled using
+This is not published. The source tree alone is not an installable MCP package:
+choose bundled native files for a manual pilot or a small package that prepares
+the pinned CLI during setup, with a verified hosted endpoint, using
 [the packaging instructions](packaging/README.md). Keep the released installation
 paths below separate from this pilot; they are not fallback instructions for the
 MCP review skill.

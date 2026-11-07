@@ -1,7 +1,7 @@
 # Tailor reviews to this repository
 
-Use this when the user wants help configuring CodeRabbit. Reuse the bundled
-`bin/coderabbit` resolved by the setup skill for every command below; do not use
+Use this when the user wants help configuring CodeRabbit. Reuse the packaged
+launcher resolved by the setup skill for every command below; do not use
 a global CLI, a separate login, or another downloaded executable.
 
 ## Discover and recommend
@@ -9,7 +9,7 @@ a global CLI, a separate login, or another downloaded executable.
 Work in the user's intended Git repository and run:
 
 ```sh
-<bundled-cli> config --agent
+<packaged-cli> config --agent
 ```
 
 Require `ok: true`, `protocolVersion: 2`, `operation: inspect` and `writable: true`.
@@ -30,7 +30,7 @@ settled choices and unrelated configuration. For a quick baseline, use the CLI's
 proposal generator:
 
 ```sh
-<bundled-cli> config --agent --generate
+<packaged-cli> config --agent --generate
 ```
 
 Require a successful protocol-v2 `operation: generate` result before using its
@@ -57,7 +57,7 @@ validates YAML against the live schema in both dry-run and save modes; a schema
 or validation failure returns `ok: false` without writing configuration:
 
 ```sh
-<bundled-cli> config apply <proposal.yaml> --agent --dry-run --base <baseHash>
+<packaged-cli> config apply <proposal.yaml> --agent --dry-run --base <baseHash>
 ```
 
 Require a successful protocol-v2 result. If unchanged, confirm the inspected hash
@@ -65,7 +65,7 @@ is still the same and report that the existing settings are suitable. Otherwise
 show the exact diff and reasons, then obtain approval for that proposal before:
 
 ```sh
-<bundled-cli> config apply <proposal.yaml> --agent --yes --base <baseHash>
+<packaged-cli> config apply <proposal.yaml> --agent --yes --base <baseHash>
 ```
 
 If the base changed, inspect and preview a fresh proposal instead of bypassing

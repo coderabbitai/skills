@@ -1,7 +1,7 @@
 # Launch and recovery
 
 The host keeps connector OAuth. `start_code_review` returns a server-generated
-review ID and a short-lived, provider-free handoff. The bundled CLI uses that
+review ID and a short-lived, provider-free handoff. The pinned CLI uses that
 authority for its existing collection, submission and review stream. It never
 reads the host's OAuth store or needs a second login. Source goes to Reviewer;
 MCP retrieves the same saved findings when local delivery is unavailable.
@@ -13,11 +13,11 @@ The hook consumes the approved start result automatically. A pre-hook must not
 upload ahead of approval. Installation alone does not grant hook trust.
 
 Use permitted direct CLI execution when the hook is unavailable or unsuitable.
-The package's `bin/launch-mode` identifies its configured adapter. Do not run a
+The package's `cli.json` identifies its launcher and configured adapter. Do not run a
 direct command while an enabled hook may also launch. Do not switch adapters to
 circumvent a denied execution or source-upload decision.
 
-For direct execution, resolve the installed `bin/coderabbit` as an absolute path.
+For direct execution, resolve the `launcher` in `cli.json` under the installed plugin root as an absolute path.
 Run `review --agent --mcp-stdin --dir <absolute workspace root>`. Send only the
 returned `handoff` object as JSON on stdin, unchanged. Use a process tool that
 accepts stdin separately from its command arguments. Quote executable/workspace
@@ -55,8 +55,9 @@ partial, skipped, failed and expired reviews never establish clean code.
 - Expired/revoked authorization: use the host's Connect or Reconnect browser flow.
 - Lost start response: recover its ID from the host tool record if available;
   otherwise report the uncertain start without inventing an ID or resubmitting.
-- Missing/corrupt executable: reinstall the complete package. No global CLI,
-  separate runtime or CLI login fallback.
+- Missing/corrupt executable: follow setup for the installed delivery mode.
+  No global CLI or CLI login fallback; never prepare or relaunch to recover an
+  uncertain review.
 
 A remote session reviews its own checkout. Connector authorization does not grant
 access to a laptop or override the host's execution and network permissions.

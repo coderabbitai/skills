@@ -8,7 +8,7 @@ description: Runs a CodeRabbit MCP review of local code changes and returns find
 Follow the canonical [code-review skill](../skills/code-review/SKILL.md).
 Discover the connected CodeRabbit tools and verify the account and requested repository
 before starting a review. Select one launcher: a supported trusted post-tool hook
-by default, with permitted direct bundled-CLI execution as fallback. Call
+by default, with permitted direct packaged-CLI execution as fallback. Call
 `start_code_review` once and preserve its server-generated ID. Use complete CLI
 findings when available; use `get_code_review` for missing/incomplete output and
 later retrieval. Do not invent IDs, perform CLI login, or assemble source into
