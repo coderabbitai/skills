@@ -9,6 +9,10 @@ Help the user reach **connected and ready to review**, with optional review
 settings tailored to their repository. Setup alone does not authorize uploading
 code or starting a review.
 
+If the user wants to keep the existing CLI-only workflow, explain the review
+skill's CLI-only option and leave MCP setup unstarted. That route does not need
+MCP consent or preparation of the pinned runtime.
+
 For a configuration-only request, read
 [references/repository-config.md](references/repository-config.md) and use the
 packaged CLI; local configuration does not require MCP sign-in. For general setup,

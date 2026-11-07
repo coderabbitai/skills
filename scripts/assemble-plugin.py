@@ -129,6 +129,12 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
             entry = skill / "SKILL.md"
             entry.write_text(entry.read_text().replace("name: code-review\n", "name: coderabbit-review\n", 1))
             skill.rename(package / "skills/coderabbit-review")
+        installed_review_skill = "coderabbit-review" if client == "codex" else review_skill
+        legacy = package / "skills" / installed_review_skill / "references/standalone-cli"
+        copy_tree(source / "skills" / review_skill, legacy)
+        # Keep the original workflow and relative references without registering
+        # another broad review skill that competes with the route selector.
+        (legacy / "SKILL.md").rename(legacy / "guide.md")
         cli_path = "bin/coderabbit" if delivery == "bundled" else "scripts/coderabbit"
         (package / "cli.json").write_text(json.dumps({
             "launcher": "./" + cli_path, "delivery": delivery,

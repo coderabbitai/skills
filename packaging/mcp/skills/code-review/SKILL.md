@@ -1,11 +1,33 @@
 ---
 name: code-review
-description: Use when the user asks for code review, PR feedback, or an authorized fix and review cycle with CodeRabbit. Review local changes through the connected MCP service and packaged CLI, then interpret the findings.
+description: Use when the user asks for code review, PR feedback, or an authorized fix and review cycle with CodeRabbit. Review through connected MCP and the packaged CLI, or follow the original standalone workflow for an explicit CLI-only request.
 metadata:
-  version: "0.5.0"
+  version: "0.6.0"
 ---
 
 # CodeRabbit Code Review
+
+## Choose the review route
+
+For an explicit **CLI-only** request, follow the original
+[standalone CLI guide](references/standalone-cli/guide.md) and return. It uses
+the user's existing global CLI, native authentication and selected organization;
+it does not require MCP connection or pinned-runtime preparation. Choose this
+route before any MCP reservation, and do not dispatch the MCP-only review agent.
+Keep its execution, scope, authentication and paid-continuation checks.
+In the guide's auth check, confirm any user-requested account, organization or
+region. Unknown or mismatched context stops the review.
+
+If the host reports MCP disconnected and the route is unspecified, offer
+**Use existing CLI** or **Connect CodeRabbit** before launching sign-in. The
+standalone guide still verifies CLI availability and authentication.
+
+For a connected MCP review, continue below. A missing supported MCP launcher can
+be explained with the available CLI-only option, which the user must explicitly
+select. Never switch routes automatically after an MCP denial, failed launch,
+started review or uncertain result. Preserve the original review ID and recovery.
+
+## MCP review
 
 MCP authorizes the review; the packaged CLI runs its existing collection,
 submission and review stream. Prefer the supported, installed and trusted

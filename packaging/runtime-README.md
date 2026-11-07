@@ -1,10 +1,15 @@
 # CodeRabbit connected code review
 
 Connect CodeRabbit once through your host's browser sign-in. Account, usage and
-pull-request tools use that connection. Local reviews use a pinned native CLI
+pull-request tools use that connection. MCP reviews use a pinned native CLI
 prepared during setup, without another login or a global CLI installation.
 
-Ask CodeRabbit setup to prepare the CLI and verify the connected organization.
+Local MCP launch currently supports macOS and Linux. To keep using your existing
+standalone CLI and sign-in, explicitly ask **“Review with my existing CodeRabbit
+CLI only.”** The included original CLI guide handles that separate route before
+any MCP reservation; it is never an automatic retry for an MCP review.
+
+To enable MCP reviews, ask setup to prepare the CLI and verify the connected organization.
 Setup downloads the exact platform archive from `https://cli.coderabbit.ai`,
 verifies the archive and executable SHA-256 values shipped in this plugin, and
 stores the runtime in the user's versioned CodeRabbit cache. A valid cache is

@@ -209,6 +209,40 @@ class PackageTests(unittest.TestCase):
                     process.stdout.close()
                     shutil.rmtree(marketplace / "plugin")
 
+    @unittest.skipUnless(os.environ.get("CODEX_TEST_BIN"), "Set CODEX_TEST_BIN for native install validation")
+    def test_codex_retains_cli_only_guide_without_mcp_connection(self):
+        artifacts = json.loads(self.manifest.read_text())
+        artifacts["artifacts"][0]["archive_sha256"] = "a" * 64
+        self.manifest.write_text(json.dumps(artifacts))
+        self.assemble(client="codex", delivery="download")
+        marketplace = self.root / "marketplace"
+        (marketplace / ".agents/plugins").mkdir(parents=True)
+        shutil.move(self.output, marketplace / "plugin")
+        (marketplace / ".agents/plugins/marketplace.json").write_text(json.dumps({
+            "name": "cli-only-install-check", "plugins": [{"name": "coderabbit",
+                "source": {"source": "local", "path": "./plugin"},
+                "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+                "category": "Developer Tools"}]}))
+        home = self.root / "home"
+        home.mkdir()
+        profile = home / ".codex"
+        profile.mkdir()
+        env = {**os.environ, "HOME": str(home), "CODEX_HOME": str(profile),
+               "XDG_CONFIG_HOME": str(home / "config"), "XDG_CACHE_HOME": str(home / "cache")}
+        executable = os.environ["CODEX_TEST_BIN"]
+        registration = subprocess.run([executable, "plugin", "marketplace", "add", str(marketplace)],
+                                      env=env, cwd=home, capture_output=True, text=True, timeout=20)
+        self.assertEqual(registration.returncode, 0, registration.stderr)
+        result = subprocess.run([executable, "plugin", "add", "coderabbit@cli-only-install-check", "--json"],
+                                env=env, cwd=home, capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        installed = Path(json.loads(result.stdout)["installedPath"])
+        installed.resolve().relative_to(profile.resolve())
+        legacy = installed / "skills/coderabbit-review/references/standalone-cli"
+        self.assertEqual((legacy / "guide.md").read_bytes(), (ROOT / "skills/code-review/SKILL.md").read_bytes())
+        self.assertEqual((legacy / "references/auth-recovery.md").read_bytes(),
+                         (ROOT / "skills/code-review/references/auth-recovery.md").read_bytes())
+
     def test_pilot_instructions_do_not_replace_shared_cli_consumers(self):
         shared_paths = [ROOT / "skills/code-review/SKILL.md", ROOT / "agents/code-reviewer.md"]
         shared = {path: path.read_bytes() for path in shared_paths}
@@ -222,6 +256,13 @@ class PackageTests(unittest.TestCase):
                     skill_name = "code-review" if client == "claude" else "coderabbit-review"
                     skill = self.output / "skills" / skill_name
                     self.assertIn("start_code_review", (skill / "SKILL.md").read_text())
+                    self.assertIn("references/standalone-cli/guide.md", (skill / "SKILL.md").read_text())
+                    legacy = skill / "references/standalone-cli"
+                    self.assertEqual((legacy / "guide.md").read_bytes(), shared[ROOT / "skills/code-review/SKILL.md"])
+                    self.assertFalse((legacy / "SKILL.md").exists())
+                    for reference in (ROOT / "skills/code-review/references").rglob("*"):
+                        if reference.is_file():
+                            self.assertEqual((legacy / "references" / reference.relative_to(ROOT / "skills/code-review/references")).read_bytes(), reference.read_bytes())
                     self.assertTrue((skill / "references/mcp-upload.md").is_file())
                     self.assertFalse((skill / "references/auth-recovery.md").exists())
                     self.assertTrue((self.output / "skills/setup/SKILL.md").is_file())

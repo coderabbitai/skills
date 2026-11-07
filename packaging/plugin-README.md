@@ -5,12 +5,17 @@ This pilot includes the native CLI. MCP authorizes a review, then a trusted
 post-tool hook runs the normal CLI review on supported hosts. Permitted direct
 CLI execution is the hook-free fallback. The assistant uses complete CLI output
 when visible and `get_code_review` to retrieve the same saved findings otherwise.
-You do not need a global CLI or a second CodeRabbit login.
+MCP reviews do not need a global CLI or a second CodeRabbit login.
+
+Local MCP launch currently supports macOS and Linux. To keep using your existing
+standalone CLI and sign-in, explicitly ask **“Review with my existing CodeRabbit
+CLI only.”** The included original CLI guide handles that separate route before
+any MCP reservation; it is never an automatic retry for an MCP review.
 
 The connection requests account, usage, pull-request read access, and review
 permission together so the available MCP tools can use the same connection.
 
-Install this assembled package and run setup to select its supported launcher
+For MCP reviews, install this package and run setup to select its supported launcher
 and connect CodeRabbit. Trust the hook using your app's controls when present.
 Setup can also help tailor review settings and path instructions to your
 repository, showing the proposed configuration changes before saving them.
