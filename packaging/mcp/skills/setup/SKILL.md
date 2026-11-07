@@ -33,14 +33,16 @@ optional configuration.
    the hook-free fallback for channels without hook support. Confirm permitted
    local execution and network access before selecting direct execution; ensure
    no hook will also launch. Do not bypass a denied execution or upload decision.
-3. In Claude Code, confirm `/mcp` shows the plugin-provided CodeRabbit server.
-   A manually configured server at the same endpoint takes precedence, even with
-   a different name, and can prevent the collector hook from matching. If the
-   plugin server is hidden, identify the duplicate's scope and remove that
-   duplicate through `claude mcp remove --scope <scope> <name>` within the user's
-   setup authorization. Preserve connections to other endpoints. Restart Claude
-   Code and verify the plugin server is active; renaming the duplicate does not
-   fix endpoint deduplication. Do not widen the hook to arbitrary MCP servers.
+3. In Claude Code, check the active server in `/mcp` against this package's
+   `.mcp.json` URL. A manually configured connection at the same endpoint can
+   hide the plugin connection. Keep an existing matching connection if its tool
+   name matches the installed hook (`mcp__coderabbit__start_code_review` or
+   `mcp__plugin_coderabbit_coderabbit__start_code_review`). Verify its account and
+   review access below; no deletion or second connection is needed. If its name
+   cannot match, explain the conflict and let the user disable that duplicate
+   in its native scope, then restart and verify the plugin server. Preserve the
+   entry and unrelated integrations. Renaming alone does not fix endpoint
+   deduplication. Never widen the hook to arbitrary names or another endpoint.
 4. Discover CodeRabbit MCP tools and call `get_me` or `connection_status`. If unavailable
    or signed out, use the app's CodeRabbit **Connect** or **Reconnect** action to
    open browser sign-in. Return to the app when it completes, refresh the tool

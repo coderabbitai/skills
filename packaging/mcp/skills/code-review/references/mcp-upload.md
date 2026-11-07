@@ -46,8 +46,10 @@ stable across both paths. `complete` describes delivery, not analysis coverage;
 partial, skipped, failed and expired reviews never establish clean code.
 
 - Missing review tools: use a compatible connection and packaged candidate.
-- Hook does not match the Claude plugin connection: check setup for a shadowing
-  manual connection; preserve unrelated connections and do not widen matchers.
+- Hook does not match the active Claude connection: check setup for a shadowing
+  manual connection. Keep a matching connection at the packaged endpoint; for
+  unsupported names, let the user disable the duplicate through native controls.
+  Preserve entries and unrelated integrations; do not widen matchers.
 - Endpoint mismatch: use the matching pinned package and server. Do not
   rewrite the handoff or disable validation.
 - Awaiting launch after a hook failure: report the failure and existing review
