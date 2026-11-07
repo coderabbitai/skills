@@ -33,6 +33,10 @@ the pinned CLI during setup, with a verified hosted endpoint, using
 paths below separate from this pilot; they are not fallback instructions for the
 MCP review skill.
 
+For account connection, optional setup, review recovery and the explicit existing
+CLI-only option, read the [MCP setup guide](docs/mcp.md). It describes the pilot's
+current availability separately from the released integrations below.
+
 **Released CLI integration:** install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
 then tell your agent: **“Review my code.”** The review command starts the
 authentication flow when needed.
