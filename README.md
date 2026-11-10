@@ -264,16 +264,17 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - You want to apply suggested fixes from unresolved current CodeRabbit review threads
 - You want guided fixes with explicit approval for each change
 
-**Categories covered:** Review-thread extraction, issue prioritization, guarded fixes, consolidated commit and PR summary
+**Categories covered:** Review-thread retrieval, issue prioritization, guarded fixes, and verified delivery summaries
 
 **Triggers:** "coderabbit autofix", "fix coderabbit", "cr fix"
 
 **Capabilities:**
 
-- Fetches unresolved current CodeRabbit review threads for the current PR
+- Retrieves unresolved current CodeRabbit threads through connected MCP, or the standalone CLI's `pullrequest --show-threads --agent` command
 - Parses and prioritizes issues by severity
 - Applies fixes only after validating the issue and getting approval
-- Commits only approved fixes and, when authorized, posts a summary after confirming the pushed commit on the PR
+- Commits only approved fixes, verifies authorized pushes against the PR head, and reports the result in the conversation
+- Does not require GitHub CLI or create PRs, post comments/reactions, or resolve threads
 
 ## Plugin Components
 
@@ -332,18 +333,19 @@ It keeps diagnostics sandboxed and retains per-command host approval for auth an
 The released Claude plugin contains two skills and two subagents. It bundles no MCP
 servers, hooks, or executables.
 
-- **Local commands**: the `code-review` skill and the `code-reviewer` subagent
-  run the installed `coderabbit` CLI and read-only Git commands. The `autofix`
-  skill uses the installed GitHub CLI (`gh`) to read CodeRabbit review threads
-  on the current pull request and, when you approve, to create a pull request or
-  post a summary comment. The `autofix` subagent only reads: it runs
-  read-only `git` and `gh` commands and never edits, commits, pushes, or posts.
-- **Data sent**: when you run a review, the CodeRabbit CLI sends the code
-  changes under review and the repository context needed to review them to
-  CodeRabbit's service. `autofix` exchanges pull request data with GitHub
-  through `gh`. The plugin sends nothing on its own.
-- **Credentials**: the CodeRabbit CLI and `gh` handle their own login and store
-  their own credentials. The plugin doesn't read or send credentials.
+- **Local commands**: the `code-review` skill and `code-reviewer` subagent run
+  the installed CodeRabbit CLI and read-only Git commands. Autofix retrieves PR
+  feedback through an already connected CodeRabbit MCP server, or through the
+  standalone CLI with `pullrequest --show-threads --agent`. Local fixes, commits
+  and pushes require approval; summaries stay in the conversation. The `autofix`
+  subagent only reads and returns a proposal.
+- **Data sent**: reviews send the selected changes and required repository context
+  to CodeRabbit. Autofix sends the selected PR reference and filters to CodeRabbit
+  to retrieve authorized GitHub feedback. Fetching feedback does not upload local
+  code or start a review. The plugin sends nothing on its own.
+- **Credentials**: the CLI handles its own sign-in; connected MCP uses the host's
+  CodeRabbit browser authorization. The skill does not read or pass credentials
+  between them and does not require GitHub CLI authentication.
 - **Policy**: CodeRabbit's handling, retention, and sharing of review data is
   described in the [CodeRabbit Privacy Policy](https://www.coderabbit.ai/privacy-policy).
   Contact <support@coderabbit.ai> with questions.

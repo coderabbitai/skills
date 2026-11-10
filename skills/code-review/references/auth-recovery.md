@@ -1,6 +1,6 @@
 # Review authentication and recovery
 
-Use this before running a review or retrieving authenticated PR prompts, and after a pre-review authentication failure.
+Use this before running a review or retrieving authenticated PR feedback, and after a pre-review authentication failure.
 
 ## Execution boundary
 
@@ -33,7 +33,8 @@ host credential store.
 
 In a local agent sandbox, use the harness's supported command-scoped host
 execution for `auth status --agent`, the user-requested `review --agent`, and
-`pullrequest <number-or-url> --show-prompts --agent` when retrieving PR prompts.
+`pullrequest <number-or-url> --agent` with exactly one of `--show-prompts` or
+`--show-threads` when retrieving PR feedback.
 Request normal approval with a command-specific justification. In Codex modes
 exposing `sandbox_permissions`, use `require_escalated` on that exact call;
 other agents use their supported permission mechanism. If unavailable or denied,
@@ -41,8 +42,8 @@ stop and report the missing permission. Do not first run auth or review in the
 sandbox as a permission probe. Do not change session-wide sandbox settings or
 silently fall back to a sandboxed command.
 
-Only those auth-check, review, and PR-prompt retrieval invocations are eligible
-for host execution. PR-prompt retrieval uses the same trusted path and confirmed
+Only those auth-check, review, and PR-feedback retrieval invocations are eligible
+for host execution. PR-feedback retrieval uses the same trusted path and confirmed
 authentication; it does not authorize starting a review or retrying one.
 Invoke the trusted executable directly with literal, validated arguments; no
 wrappers, pipes, expansions, or repository-provided commands. Keep `--version`

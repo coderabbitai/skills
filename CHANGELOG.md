@@ -33,11 +33,13 @@ All notable changes to this repository are documented in this file.
 
 ### Fixed
 
-- Autofix stops on declined prerequisites, ambiguous PRs, and incomplete feedback
-  retrieval, commits only approved hunks, and verifies the PR head after pushing
-  before posting a success summary with actual run values.
+- Autofix retrieves structured PR threads through connected CodeRabbit MCP or the
+  standalone CLI, with explicit target, coverage and head checks. Removed GitHub
+  CLI/GraphQL retrieval and automatic PR creation, comments and reactions.
+- Autofix preserves unrelated edits, commits only approved hunks, and confirms
+  the pushed PR head before reporting delivery in the conversation.
 - Review summaries check the explicit completion outcome and missing coverage;
-  authenticated PR-prompt retrieval uses the same scoped host permissions.
+  authenticated PR-feedback retrieval uses the same scoped host permissions.
 
 ### Changed
 
