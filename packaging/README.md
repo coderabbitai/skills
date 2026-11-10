@@ -9,6 +9,13 @@ Shared `skills/code-review` and `agents/code-reviewer.md` retain the released CL
 workflow. The assembler replaces them with the MCP templates in `packaging/mcp`
 and adds its setup skill only inside the complete pilot package.
 
+MCP skill entrypoints are stored as `SKILL.md.tmpl` so recursive standalone
+installers cannot discover them without the plugin's runtime and configuration.
+The assembler emits `SKILL.md` with the same content inside the complete package;
+skill and agent references describe that installed layout. The package-contract
+CI tests check source discovery and the generated entrypoints, frontmatter and
+local references for each supported package variant.
+
 Setup can also offer repository-specific review settings and path instructions
 through the pinned CLI's configuration protocol v2. Configuration is optional,
 uses local inspection without sign-in, and previews a validated proposal before

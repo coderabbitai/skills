@@ -103,7 +103,7 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
     pilot = source / "packaging/mcp"
     for skill in ("setup", review_skill):
         template_skill = "code-review" if skill == review_skill else skill
-        if not (pilot / "skills" / template_skill / "SKILL.md").is_file():
+        if not (pilot / "skills" / template_skill / "SKILL.md.tmpl").is_file():
             raise ValueError(f"Required MCP plugin skill is missing: {skill}")
     pilot_agent = pilot / "agents/code-reviewer.md"
     if client == "claude" and (not pilot_agent.is_file() or pilot_agent.is_symlink()):
@@ -123,6 +123,7 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
                 shutil.rmtree(destination)
             template_skill = "code-review" if skill == review_skill else skill
             copy_tree(pilot / "skills" / template_skill, destination)
+            (destination / "SKILL.md.tmpl").rename(destination / "SKILL.md")
         if client == "claude":
             (package / "agents").mkdir(exist_ok=True)
             shutil.copyfile(pilot_agent, package / "agents/code-reviewer.md")
