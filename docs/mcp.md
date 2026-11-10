@@ -12,8 +12,8 @@ instructions must be confirmed for your version.
 
 ## Connect your account
 
-1. In your host's connector settings, add CodeRabbit with server URL
-   `https://mcp.coderabbit.ai/`, or use **Connect** for the server included in your
+1. In your host's connector settings, add CodeRabbit with the server URL supplied
+   with your preview package, or use **Connect** for the server included in your
    MCP-enabled plugin. In Claude Code, use `/mcp` to inspect that connection and
    follow its authentication action. In Codex, use the plugin's native connection
    controls.
