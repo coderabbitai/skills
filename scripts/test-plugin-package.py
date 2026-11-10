@@ -104,6 +104,27 @@ class PackageTests(unittest.TestCase):
                 self.assertTrue(any(ord(character) > 127 for character in readme))
                 shutil.rmtree(self.output)
 
+    def test_release_notes_match_client_version_runtime_and_launcher(self):
+        for client, plugin_version, version, launcher, expected in (
+            ("claude", "1.3.0", "0.9.3", "hook", True),
+            ("claude", "1.3.0", "0.9.3", "direct", False),
+            ("codex", "1.3.0", "0.9.3", "direct", False),
+            ("claude", "1.3.1", "0.9.3", "hook", False),
+            ("claude", "1.3.0", "0.9.0", "hook", False),
+        ):
+            with self.subTest(client=client, plugin_version=plugin_version, version=version, launcher=launcher):
+                manifest = json.loads(self.manifest.read_text())
+                manifest.update(plugin_version=plugin_version, version=version)
+                manifest["artifacts"][0]["archive_sha256"] = "a" * 64
+                self.manifest.write_text(json.dumps(manifest))
+                self.assemble(client=client, launcher=launcher, delivery="download")
+                readme = (self.output / "README.md").read_text(encoding="utf-8")
+                self.assertEqual((self.output / "CHANGELOG.md").is_file(), expected)
+                self.assertEqual("[Release notes](CHANGELOG.md)" in readme, expected)
+                self.assertNotIn("{{RELEASE_NOTES}}", readme)
+                self.assertIn("https://github.com/coderabbitai/skills/blob/main/docs/mcp.md", readme)
+                shutil.rmtree(self.output)
+
     def test_native_bundle_manifest_and_spaces(self):
         self.assemble("https://fixture.invalid/cli/mcp/mcp")
         self.assertEqual(module.digest(self.output / "bin/darwin-arm64/coderabbit"), self.checksum)

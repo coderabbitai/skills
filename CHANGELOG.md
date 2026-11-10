@@ -12,7 +12,7 @@ All notable changes to this repository are documented in this file.
 - Keep the standalone skills and plugin channels available. This version applies
   only to the assembled Claude MCP package; it does not version or publish Mod,
   Codex, or the shared standalone release archive.
-- See the [MCP changelog](packaging/mcp/CHANGELOG.md) and
+- See the [MCP changelog](packaging/releases/claude-1.3.0.md) and
   [release inputs](packaging/releases/README.md). Directory approval and
   publication are separate from preparing this candidate.
 

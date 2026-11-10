@@ -1,6 +1,7 @@
 {
   "version": "0.9.3",
   "plugin_version": "1.3.0",
+  "launcher": "hook",
   "artifacts": [
     {
       "platform": "darwin-arm64",

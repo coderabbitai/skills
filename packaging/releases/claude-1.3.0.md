@@ -1,4 +1,4 @@
-# CodeRabbit MCP plugin changelog
+# CodeRabbit Claude MCP plugin changelog
 
 ## 1.3.0
 

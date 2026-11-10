@@ -20,7 +20,8 @@ python3 scripts/assemble-plugin.py --client claude \
   --output /absolute/path/to/new-claude-1.3.0-package
 ```
 
-The assembled package includes the [MCP changelog](../mcp/CHANGELOG.md).
+The matching Claude hook package includes the [MCP changelog](claude-1.3.0.md).
+Other clients, versions or launcher modes omit these release notes and their link.
 Qualify the exact package before publication. Keep the plugin name `coderabbit`
 and the existing directory submission. Its source must point to the assembled
 package at the repository root on a dedicated distribution ref; the source tree

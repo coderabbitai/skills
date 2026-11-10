@@ -96,6 +96,7 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
     if not isinstance(plugin_version, str) or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?", plugin_version):
         raise ValueError("Plugin version must be an exact semantic version")
     plugin_manifest["version"] = plugin_version
+    plugin_manifest["homepage"] = "https://github.com/coderabbitai/skills/blob/main/docs/mcp.md"
     if client == "claude" and delivery == "download":
         plugin_manifest["privacyPolicyUrl"] = "https://www.coderabbit.ai/privacy-policy"
         plugin_manifest["icon"] = "./assets/coderabbit-small.png"
@@ -207,7 +208,14 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         for name in ("LICENSE",):
             if (source / name).is_file():
                 shutil.copyfile(source / name, package / name)
-        shutil.copyfile(pilot / "CHANGELOG.md", package / "CHANGELOG.md")
+        release_manifest = source / "packaging/releases" / f"{client}-{plugin_version}.json"
+        release_notes = source / "packaging/releases" / f"{client}-{plugin_version}.md"
+        include_release_notes = False
+        if release_manifest.is_file() and release_notes.is_file():
+            release = json.loads(release_manifest.read_text(encoding="utf-8"))
+            include_release_notes = release.get("version") == version and release.get("launcher") == launcher
+        if include_release_notes:
+            shutil.copyfile(release_notes, package / "CHANGELOG.md")
         readme = "plugin-README.md" if delivery == "bundled" else "runtime-README.md"
         launch_guidance = (
             "This package uses one post-tool hook. Review and trust the CodeRabbit "
@@ -223,7 +231,9 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         )
         readme_text = (source / "packaging" / readme).read_text(encoding="utf-8")
         (package / "README.md").write_text(
-            readme_text.replace("{{REVIEW_LAUNCH}}", launch_guidance), encoding="utf-8"
+            readme_text.replace("{{REVIEW_LAUNCH}}", launch_guidance).replace(
+                "{{RELEASE_NOTES}}", "[Release notes](CHANGELOG.md) · " if include_release_notes else ""
+            ), encoding="utf-8"
         )
         package.rename(output)
     return {"package": str(output), "client": client, "launcher": launcher, "delivery": delivery, "pluginVersion": plugin_version, "cliVersion": version, "platforms": sorted(seen)}
