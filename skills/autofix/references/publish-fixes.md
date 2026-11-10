@@ -8,6 +8,8 @@ Compare the working diff with the recorded approved fixes. Stage only approved h
 
 Inspect the entire `git diff --cached --no-ext-diff --no-textconv --ignore-submodules=none`, including any existing staged changes. Use these explicit diff options for working-tree and post-commit comparisons too, so configuration cannot hide submodule changes or substitute a custom diff renderer. Require that every hunk belongs to an approved fix and that local HEAD still equals the original reviewed head. Stop on unrelated, overlapping, or intervening changes without stashing, reverting, or committing them. Recheck after validation that modifies files.
 
+Rendered diffs alone are insufficient: attributes can mark a text file as binary, and real binary changes may show only “Binary files differ.” Verify each staged object's full content and mode against the approved result, including additions, deletions, symlinks, and gitlinks. For text hidden by attributes, `git diff --cached --no-ext-diff --no-textconv --ignore-submodules=none --text` exposes the content. If the exact staged content cannot be verified against the approved change, stop instead of recording that tree as approved. Apply the same content verification to the resulting commit.
+
 Record the approved index tree with `git write-tree`, show the verified summary, and obtain explicit approval to create one consolidated commit. Approval to apply fixes alone does not authorize committing. If declined, stop and leave the changes uncommitted.
 
 Immediately after approval and before committing, recheck the entire staged diff, HEAD, and index tree. Require the same approved tree and original reviewed HEAD; otherwise stop for reconciliation. Create the commit, require exit status 0, and record its SHA.

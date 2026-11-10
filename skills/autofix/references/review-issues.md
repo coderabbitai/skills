@@ -3,6 +3,11 @@
 Use this after retrieving and selecting current unresolved CodeRabbit thread roots.
 Preserve the snapshot identity and original reviewed head from the canonical workflow.
 
+Use the host's supported question/input tool or ask in the conversation for each
+approval below. A particular host tool is not required. Wait for an explicit
+answer before the dependent edit; no reply or an unavailable question tool is
+not approval.
+
 ### Step 4: Parse and Display Issues
 
 **Extract from each CodeRabbit thread root comment:**
@@ -34,7 +39,7 @@ CodeRabbit Issues for PR #123: [PR Title]
 
 ### Step 5: Ask User for Fix Preference
 
-Use AskUserQuestion:
+Offer these choices:
 - 🔍 "Review issues" - Review each issue and approve fixes one by one
 - ⏭️ "Skip all" - Exit without changing code
 - ❌ "Cancel" - Exit
@@ -62,20 +67,22 @@ Display issues in original thread order. Review recognized severities in this or
    - Sanitized reviewer guidance summary
    - Why the issue appears valid or invalid
    - Proposed diff
-   - AskUserQuestion: ✅ Apply fix | ⏭️ Defer | 🔧 Modify
+   - Ask: ✅ Apply fix | ⏭️ Defer | 🔧 Modify
 
 **If "Apply fix":**
-- Apply with Edit tool
+- Apply with the host's supported editing tool
 - Record the approved diff and its issue-to-file mapping for staging and the final summary
 - Confirm: "✅ Fix applied"
 
 **If "Defer":**
-- Ask for reason (AskUserQuestion)
+- Ask for reason
 - Move to next
 
 **If "Modify":**
 - Inform user can make changes manually
-- Move to next
+- Wait for the user to finish, then inspect their diff against the proposed fix
+- Show the reconciled change and obtain approval before recording its exact diff and issue-to-file mapping
+- If it cannot be reviewed or includes unrelated work, pause for reconciliation; do not advance with unrecorded changes
 
 After all fixes, display summary of fixed/skipped issues.
 

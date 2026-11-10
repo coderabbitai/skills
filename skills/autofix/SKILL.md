@@ -43,7 +43,7 @@ Before local inspection or edits, load applicable repository instructions and fo
 
 ### Step 1: Inspect Local State
 
-For local fixes, inspect `git status --ignore-submodules=none`, the repository remote, current branch, and `git rev-parse HEAD`. Preserve existing work. Dirty or unpushed changes may differ from the hosted review, but do not require a commit or push merely to read feedback.
+For local fixes, inspect `git status --untracked-files=all --ignore-submodules=none`, the repository remote, current branch, and `git rev-parse HEAD`. Preserve existing work. Dirty or unpushed changes may differ from the hosted review, but do not require a commit or push merely to read feedback.
 
 Before applying fixes, require a clean index and working tree. If changes exist, pause for the user to handle them; a declined cleanup/commit request stops edits. Never stash, discard, stage, or commit the user's changes to satisfy this prerequisite. Recheck before resuming.
 
