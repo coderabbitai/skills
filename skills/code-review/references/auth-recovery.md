@@ -1,6 +1,6 @@
 # Review authentication and recovery
 
-Use this before running a review and after a pre-review authentication failure.
+Use this before running a review or retrieving authenticated PR feedback, and after a pre-review authentication failure.
 
 ## Execution boundary
 
@@ -18,21 +18,26 @@ and stop; preserve the error rather than recommending reinstallation. A failed
 PATH lookup or an inaccessible path does not prove the CLI is missing. If the
 user provides another candidate installation path, canonicalize it and repeat
 the same metadata and trust checks before continuing; stop if validation fails.
-Only when the host is identified as Antigravity CLI with its terminal sandbox
-enabled and discovery or a needed version/help check is denied, read
-[Antigravity CLI sandbox recovery](antigravity-sandbox.md). Use the installation
+Only for a review request, when the host is identified as Antigravity CLI with
+its terminal sandbox enabled and discovery or a needed version/help check is
+denied, read [Antigravity CLI sandbox recovery](antigravity-sandbox.md).
+For a PR-feedback-only request, report the denied diagnostic and stop with the
+original lookup pending; do not use that review-specific handoff, ask for review
+scope, start a review, or require review completion. Use the installation
 handoff only when the user confirms the CLI is not installed.
 Reuse the validated path within this task; repeat discovery after installation
 changes or once after an executable-launch error. If unchanged, report the error
 and stop. Use the quoted, validated absolute path in every command below.
 
-Choose the execution context **before the first auth or review invocation**.
+Choose the execution context **before the first authenticated invocation**.
 Host-native or full-access agents use their normal shell. Remote agents use only
 authentication configured in their own environment; they cannot reuse a local
 host credential store.
 
 In a local agent sandbox, use the harness's supported command-scoped host
-execution for `auth status --agent` and the user-requested `review --agent`.
+execution for `auth status --agent`, the user-requested `review --agent`, and
+`pullrequest <number-or-url> --agent` with exactly one of `--show-prompts` or
+`--show-threads` when retrieving PR feedback.
 Request normal approval with a command-specific justification. In Codex modes
 exposing `sandbox_permissions`, use `require_escalated` on that exact call;
 other agents use their supported permission mechanism. If unavailable or denied,
@@ -40,7 +45,9 @@ stop and report the missing permission. Do not first run auth or review in the
 sandbox as a permission probe. Do not change session-wide sandbox settings or
 silently fall back to a sandboxed command.
 
-Only those auth-check and review invocations are eligible for host execution.
+Only those auth-check, review, and PR-feedback retrieval invocations are eligible
+for host execution. PR-feedback retrieval uses the same trusted path and confirmed
+authentication; it does not authorize starting a review or retrying one.
 Invoke the trusted executable directly with literal, validated arguments; no
 wrappers, pipes, expansions, or repository-provided commands. Keep `--version`
 and `--help` diagnostics sandboxed when using a local sandbox, and run them only

@@ -31,6 +31,16 @@ All notable changes to this repository are documented in this file.
 - Added a repository `.gitignore` for local Claude settings, virtualenvs, and
   dependency directories.
 
+### Fixed
+
+- Autofix retrieves structured PR thread roots through CodeRabbit CLI, with
+  explicit target, coverage and head checks. Removed GitHub
+  CLI/GraphQL retrieval and automatic PR creation, comments and reactions.
+- Autofix preserves unrelated edits, commits only approved hunks, and confirms
+  the pushed PR head before reporting delivery in the conversation.
+- Review summaries check the explicit completion outcome and missing coverage;
+  authenticated PR-feedback retrieval uses the same scoped host permissions.
+
 ### Changed
 
 - Clarified bounded CLI discovery, manual curl installation, and execution-context

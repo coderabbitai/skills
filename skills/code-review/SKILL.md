@@ -84,7 +84,15 @@ Default scope includes committed, staged, and tracked unstaged changes; raw untr
 
 Read `--agent` as NDJSON, not a single JSON document. Preserve the returned `critical`, `major`, `minor`, `trivial`, `info`, or `none` severity; do not relabel findings as Warning. Use `fileName`, `codegenInstructions`, and `suggestions` when available, falling back to the comment when fix instructions are absent.
 
-A heartbeat indicates liveness, not completion. Wait for completion and inspect its status. `complete` with `status: review_skipped` and zero findings means no review ran; it is not evidence that analyzed code is clean. Errors or interrupted output also cannot establish a clean review.
+A heartbeat indicates liveness, not completion. Before reporting a completed review with no findings, require all of:
+
+- Process exit status 0 and a well-formed, untruncated NDJSON stream with one terminal `type: "complete"` event and no errors.
+- `complete.status == "review_completed"` and `complete.outcome == "completed"`.
+- `complete.findings == 0`, no finding events, and no positive `unverifiedFindings` count.
+- No positive `unreviewedFileCount`, no entries in `unreviewedFiles`, and no other reported skipped coverage. Include `excludedBinaryFiles` in the scope limitations when present.
+- No `reused: true`; reused output is not a new clean review.
+
+`review_skipped` means no review ran. An absent or unknown outcome leaves completion unverified; `completed_with_warnings` must be reported with its warnings, and `failed` as failure, even when status says `review_completed`. Known missed files mean incomplete coverage, regardless of exit status or outcome. Preserve any findings and report the available unreviewed paths/reasons. Errors, malformed or interrupted output, and incomplete coverage never establish a clean review. Describe a successful zero-finding result as “no findings in the reviewed scope,” not a guarantee that the code is defect-free.
 
 Create a task list for issues found that need to be addressed.
 
