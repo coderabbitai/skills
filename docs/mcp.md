@@ -110,8 +110,8 @@ reservation. It uses your existing CLI, authentication and current organization,
 and checks any requested account, organization or region. It does not prepare
 the pinned MCP runtime. An older CLI may lack newer options; confirm support and
 preserve the requested scope rather than silently changing it. See the
-[standalone CLI guide](https://docs.coderabbit.ai/cli) for installation and native
-authentication.
+[curl installation instructions](../README.md#1-install-the-coderabbit-cli) and
+the [CLI guide](https://docs.coderabbit.ai/cli) for native authentication.
 
 CLI-only reviews can also consume usage or credits. Their output is a separate
 workflow; the MCP saved-review recovery command above applies to MCP reviews.

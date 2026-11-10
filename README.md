@@ -38,7 +38,7 @@ For account connection, optional setup, review recovery and the explicit existin
 CLI-only option, read the [MCP setup guide](docs/mcp.md). It describes the pilot's
 current availability separately from the released integrations below.
 
-**Released CLI integration:** install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
+**Released CLI integration:** install the CodeRabbit CLI with the [curl installer](#1-install-the-coderabbit-cli),
 then tell your agent: **“Review my code.”** The review command starts the
 authentication flow when needed.
 
@@ -50,8 +50,15 @@ through MCP browser sign-in, and trust the post-tool hook when using that varian
 
 ### 1. Install the CodeRabbit CLI
 
-Use the [CLI docs](https://docs.coderabbit.ai/cli) for the primary install path.
-They cover Homebrew, the install script, and CLI usage.
+On macOS/Linux, run the official curl installer in your terminal:
+
+```sh
+curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+```
+
+Use this same command for standalone CLI upgrades. This repository documents
+only the curl installation flow, which requires macOS/Linux. For CLI usage,
+see the [CLI docs](https://docs.coderabbit.ai/cli).
 
 ### 2. Install the agent integration
 

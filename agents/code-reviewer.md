@@ -29,11 +29,8 @@ Use this agent when you need:
 
 ## Prerequisites
 
-CodeRabbit CLI must be installed from the official docs:
-
-<https://www.coderabbit.ai/cli>
-
-Use the official installation handoff in the procedure below; do not install from this agent.
+Use the official curl installation handoff in the procedure below for a missing
+CLI or an authorized upgrade; do not install from this agent.
 
 Read and follow the canonical [authentication and recovery procedure](../skills/code-review/references/auth-recovery.md).
 Resolve a trusted canonical absolute CLI path, use approved command-scoped host

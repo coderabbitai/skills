@@ -37,7 +37,7 @@ Never start login automatically or access credentials yourself. Examples below
 use the validated absolute path; substitute only the path verified by that procedure.
 
 Check `"/absolute/path/to/coderabbit" review --help` when support for an option is uncertain.
-Older binaries may lack current flags; report the mismatch and use the official upgrade path.
+Older binaries may lack current flags; report the mismatch and use the curl upgrade handoff in [authentication and recovery](references/auth-recovery.md#cli-installation-and-upgrades).
 
 ### 2. Run Review
 

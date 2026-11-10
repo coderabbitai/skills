@@ -15,7 +15,7 @@ coordinate reviews with each other.
 
 - Claude Code **2.1.289 or later**. Validated and tested with 2.1.289 on macOS.
   The mods API is early access and can change between Claude releases.
-- An official [CodeRabbit CLI](https://docs.coderabbit.ai/cli) installation with
+- A [curl-installed CodeRabbit CLI](https://github.com/coderabbitai/skills#1-install-the-coderabbit-cli) with
   `review --agent`, `--committed`, `--uncommitted`, `--include-untracked`, and
   `--base` support. The command interface was checked with CLI 0.8.2.
 - An authenticated CodeRabbit account and a Git working tree.

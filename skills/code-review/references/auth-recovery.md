@@ -52,10 +52,11 @@ Let the trusted CLI access its own credentials. Never retrieve, expose,
 copy, store, hash, or pass credentials through arguments, environment variables,
 files, tool output, or model context. Never request pasted tokens.
 
-## Confirmed missing CLI
+## CLI installation and upgrades
 
-When the user confirms the CLI is not installed on macOS/Linux, give this command
-to run in their own terminal; do not install from the review skill or subagent:
+For a confirmed missing CLI or an authorized standalone upgrade on macOS/Linux,
+give this command to run in the user's own terminal; do not install from the
+review skill or subagent:
 
 ```sh
 curl -fsSL https://cli.coderabbit.ai/install.sh | sh
@@ -65,8 +66,8 @@ If the installer offers browser sign-in before asking for a region, EU users
 should skip it and later run `"/absolute/path/to/coderabbit" auth login --region eu`
 with the validated installed path in their own terminal.
 
-For other platforms, link the
-[official installation instructions](https://docs.coderabbit.ai/cli) instead.
+This is the only standalone installation flow documented here. On other
+platforms, report that this installation flow is unsupported and stop.
 Stop until the user confirms installation, then repeat discovery and the auth
 check; installation does not establish login.
 
