@@ -18,9 +18,12 @@ and stop; preserve the error rather than recommending reinstallation. A failed
 PATH lookup or an inaccessible path does not prove the CLI is missing. If the
 user provides another candidate installation path, canonicalize it and repeat
 the same metadata and trust checks before continuing; stop if validation fails.
-Only when the host is identified as Antigravity CLI with its terminal sandbox
-enabled and discovery or a needed version/help check is denied, read
-[Antigravity CLI sandbox recovery](antigravity-sandbox.md). Use the installation
+Only for a review request, when the host is identified as Antigravity CLI with
+its terminal sandbox enabled and discovery or a needed version/help check is
+denied, read [Antigravity CLI sandbox recovery](antigravity-sandbox.md).
+For a PR-feedback-only request, report the denied diagnostic and stop with the
+original lookup pending; do not use that review-specific handoff, ask for review
+scope, start a review, or require review completion. Use the installation
 handoff only when the user confirms the CLI is not installed.
 Reuse the validated path within this task; repeat discovery after installation
 changes or once after an executable-launch error. If unchanged, report the error

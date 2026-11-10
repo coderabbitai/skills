@@ -147,7 +147,7 @@ After all fixes, display summary of fixed/skipped issues.
 
 ### Step 7: Create Single Consolidated Commit
 
-If any fixes were applied, compare the current diff with the approved diffs before staging. Stage only approved autofix hunks (for example, use `git add -p` with the exact affected paths). Do not stage whole files merely because an autofix touched them, and never use `git add .` or `git add -A`.
+If any fixes were applied, compare the current diff with the approved diffs before staging. Stage only approved autofix hunks. For non-interactive hosts, build one combined patch against the current index, verify it contains only approved changes matching the working tree, then use `git apply --cached --check` before `git apply --cached`. If the patch cannot be applied safely, stop for reconciliation. Use `git add -p` with exact paths only when the host supports interactive input. Do not stage whole files merely because an autofix touched them, and never use `git add .` or `git add -A`.
 
 Inspect the **entire** staged diff with `git diff --cached`, including any already-staged changes. Commit only if every staged hunk belongs to an approved fix in this run. If unrelated or overlapping edits appear, stop for reconciliation without stashing, reverting, or committing them. Check again after any validation that modifies files.
 
