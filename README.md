@@ -40,5 +40,5 @@ retain the short-lived review handoff in its own transcript.
 
 [Privacy policy](https://www.coderabbit.ai/privacy-policy)
 
-[Release notes](CHANGELOG.md) · [Documentation](https://docs.coderabbit.ai/cli/claude-code-integration)
+[Release notes](CHANGELOG.md) · [Documentation](https://github.com/coderabbitai/skills/blob/main/docs/mcp.md)
 · [Support](mailto:support@coderabbit.ai)

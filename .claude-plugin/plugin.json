@@ -3,7 +3,7 @@
   "displayName": "CodeRabbit",
   "version": "1.3.0",
   "description": "AI-powered code review in Claude Code, powered by CodeRabbit",
-  "homepage": "https://docs.coderabbit.ai/cli/claude-code-integration",
+  "homepage": "https://github.com/coderabbitai/skills/blob/main/docs/mcp.md",
   "author": {
     "name": "CodeRabbit",
     "email": "support@coderabbit.ai",
