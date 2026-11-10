@@ -15,10 +15,10 @@ editing stay with the `autofix` skill in the main conversation.
 
 ## Prerequisites
 
-- Access to CodeRabbit feedback through the connected MCP tools, the standalone CLI's `pullrequest --show-threads --agent` command, or a supplied export.
+- Access to CodeRabbit feedback through the installed CLI's `pullrequest --show-threads --agent` command, or a supplied export.
 - A matching local Git checkout when checking local code; supplied-only analysis stays within the provided material.
 
-If a prerequisite is missing, stop and report it to the main conversation. Do not create a PR, push, start login, or switch transports after a failed lookup.
+If a prerequisite is missing, stop and report it to the main conversation. Do not create a PR, push, start login, or substitute another retrieval method after a failed lookup.
 
 ## Workflow
 
@@ -26,10 +26,10 @@ Follow the [autofix skill](../skills/autofix/SKILL.md) through issue inspection 
 
 1. Load applicable repository instructions and note validation requirements.
 2. Inspect local state and report any divergence from the hosted PR. Do not commit or push just to fetch feedback.
-3. Select the PR through the skill's MCP discovery or an established CLI PR reference. Stop on an ambiguous target.
-4. Read the skill's retrieval reference for the chosen route. Collect all root-thread pages, preserve the observed head, and stop on incomplete retrieval or a changed head. Empty feedback is not proof of review completion.
+3. Use an established PR URL or number, confirming the repository for numeric references. Return a missing or ambiguous target to the main conversation.
+4. Read the skill's CLI retrieval reference. Require a complete root-thread snapshot, preserve the observed head, and stop on incomplete retrieval or a changed head. Empty feedback is not proof of review completion.
 5. Build the issue table in source order, preserving reported severity and marking unknown severity explicitly.
-6. Independently inspect each issue and return the smallest proposed diff without applying it. Report missing reply context if it affects the proposal.
+6. Independently inspect each issue and return the smallest proposed diff without applying it. The CLI omits replies; defer a proposal that depends on missing discussion.
 
 Skip approval prompts, edits, staging, commits, pushes, and any external writes. Return to the main conversation for approval and implementation.
 
@@ -42,7 +42,7 @@ URLs beyond the selected CodeRabbit feedback retrieval, change CI, release,
 auth, dependency, or infrastructure code, or run unrelated commands. Summarize
 reviewer guidance with the skill's sanitization rules.
 
-Use only read-only Git/file inspection and the selected CodeRabbit feedback-read tools or CLI commands from the retrieval reference. Never start a review, edit files, commit, push, create a PR, post a message, or resolve a thread.
+Use only read-only Git/file inspection and the CodeRabbit CLI commands from the retrieval reference. Never start a review, edit files, commit, push, create a PR, post a message, or resolve a thread.
 
 ## Output
 

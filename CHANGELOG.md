@@ -33,8 +33,8 @@ All notable changes to this repository are documented in this file.
 
 ### Fixed
 
-- Autofix retrieves structured PR threads through connected CodeRabbit MCP or the
-  standalone CLI, with explicit target, coverage and head checks. Removed GitHub
+- Autofix retrieves structured PR thread roots through CodeRabbit CLI, with
+  explicit target, coverage and head checks. Removed GitHub
   CLI/GraphQL retrieval and automatic PR creation, comments and reactions.
 - Autofix preserves unrelated edits, commits only approved hunks, and confirms
   the pushed PR head before reporting delivery in the conversation.
