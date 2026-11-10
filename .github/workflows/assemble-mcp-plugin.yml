@@ -43,7 +43,7 @@ on:
         default: claude
         options: [claude, codex]
       launcher:
-        description: Hook for supported trusted hosts; direct for the hook-free fallback channel
+        description: Claude plugin-owned hook, or qualified direct execution (Codex hooks unavailable)
         required: true
         type: choice
         default: hook

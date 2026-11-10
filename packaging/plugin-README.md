@@ -21,8 +21,8 @@ Connect CodeRabbit through the browser when prompted.
 
 Setup can also help tailor review settings and path instructions to your
 repository, showing the proposed configuration changes before saving them.
-Then ask “Review my changes.” Git is required. Hook-containing Codex packages
-use the supported manual installation channel;
+Then ask “Review my changes.” Git is required. Codex hook packages are unavailable
+until plugin server identity can be verified;
 the hosted connector alone cannot collect files from your laptop. This pilot
 also requires a compatible CodeRabbit review service.
 

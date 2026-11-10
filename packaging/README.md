@@ -71,17 +71,18 @@ python3 scripts/assemble-plugin.py --client claude \
   --output /absolute/path/to/new-plugin-package
 ```
 
-For a Codex package use `--client codex` in this source directory. Hook packages
-use `.codex-plugin/plugin.json` and `mcp.json`, with the review skill renamed for
-Codex. Do not add a root portable `plugin.json` to a hook package: it takes
-precedence, and the current native loader skips hooks for that format. Direct
-packages also emit the portable root manifest with OpenAI presentation and
-onboarding under `extensions.com.openai`. This remains an assembled
-local-marketplace pilot, not a universal-directory submission. Claude hooks use
-`CLAUDE_PLUGIN_ROOT`; Codex hooks use its native `PLUGIN_ROOT` variable.
-The default `--launcher hook` includes the trusted post-tool integration. Use
-`--launcher direct` for a separately qualified hook-free package; it omits hook registration
-and records that selection and the executable path in `cli.json`. Neither package may bypass a
+Codex hook assembly is unavailable: the current bare MCP tool name cannot prove
+that a review start belongs to this plugin. The assembler rejects this combination
+before writing a package. Existing standalone Codex distribution is unchanged.
+For a separately qualified direct Codex candidate, use `--client codex --launcher direct`;
+it includes `mcp.json`, the native manifest, and a portable root manifest with
+OpenAI presentation and onboarding metadata. It is not a public-directory approval.
+
+The default `--launcher hook` is for Claude's plugin-qualified MCP tool only.
+A manual connection at the same endpoint must not substitute for that identity.
+Use `--launcher direct` only for an independently qualified hook-free package;
+it records that mode in `cli.json` and never serves as an automatic fallback.
+Neither package may bypass a
 host's execution or upload permissions. Both require a native CLI whose compiled
 Reviewer origin matches the intended environment; the MCP URL does not override
 that trust anchor. Dev2 URLs belong only in dedicated preview artifacts.
@@ -109,15 +110,14 @@ Tagged releases continue to distribute the shared standalone CLI skills. The
 presence of the pilot assembler does not change those skills or block their
 release; the MCP overlay exists only in the assembler's output. A tagged source
 archive is not an assembled MCP plugin. This pilot uses local marketplace installation for its assembled
-Codex package. Bundled hooks require the host's trust approval and packaged
-scripts; qualify each intended distribution channel separately. See the
-[Codex bundled-hook guidance](https://developers.openai.com/plugins/build/plugins#bundled-hooks).
+direct Codex package. Claude hooks require native trust and the plugin-qualified
+connection; qualify each intended distribution channel separately.
 Publish the assembled plugin only after its archive/import behavior is verified. In particular, a source-repository marketplace install must deliver
 these assembled files; pointing it at this source branch is insufficient.
 
 ## Install a Codex pilot locally
 
-Assemble with `--client codex` first, or extract a complete Codex package. Put
+Assemble with `--client codex --launcher direct` first, or extract a complete Codex package. Put
 that assembled folder in a local marketplace using the
 [official OpenAI marketplace format](https://developers.openai.com/plugins/build/plugins).
 Use a new marketplace folder so the copy does not nest inside an old package.
@@ -151,8 +151,8 @@ codex plugin marketplace add "$marketplace"
 Restart the desktop app. In its Plugins Directory, select **CodeRabbit local
 pilot** and install `coderabbit`. A CLI with `plugin add` can instead run
 `codex plugin add coderabbit@coderabbit-local-pilot`. Start a fresh session in
-the intended Git repository, run CodeRabbit setup, and review/trust any hook
-through native controls. Installation alone does not grant hook trust. Keep one
+the intended Git repository and run CodeRabbit setup to verify permitted execution
+and separate stdin delivery. This direct candidate contains no review hook. Keep one
 CodeRabbit plugin enabled while testing; preserve the published listing and
 matching MCP connections. This registers a manual pilot, not a public release.
 
@@ -208,12 +208,10 @@ Claude's Bash tool, so an implicit switch between cache and hook environment
 would prepare one directory and launch from another; this package avoids that.
 
 For Codex, use its [current packaging requirements](https://developers.openai.com/plugins/build/plugins)
-and qualify the actual target loader. OpenAI's public directory does not accept
-plugins containing lifecycle hooks; hook packages are for manual desktop installs.
-The `direct` package omits hooks, but directory acceptance and permitted local
-execution still require qualification on the intended surface. The compatibility manifest workaround in
-this pilot records tested client behavior; it is not a permanent claim that
-portable manifests cannot load hooks. Hook trust remains a native user decision.
+and qualify the actual target loader. Hook assembly is blocked on verified plugin
+server identity, independently of OpenAI's public-directory restriction on hooks.
+The separately assembled `direct` package still requires safe stdin delivery and
+local-execution qualification. Do not offer it as a fallback for an unavailable hook.
 
 ## Validate
 
@@ -221,9 +219,9 @@ portable manifests cannot load hooks. Hook trust remains a native user decision.
 python3 scripts/test-plugin-package.py
 ```
 
-To also check connector, skill and hook discovery through an installed Codex
+To also check connector and direct-package skill discovery through an installed Codex
 binary, run the same suite with `CODEX_TEST_BIN=/absolute/path/to/codex`.
-This reads both package variants through the native loader using temporary
+This reads the direct delivery variants through the native loader using temporary
 profiles; it does not install plugins, grant trust, authenticate or start reviews.
 
 The tests use synthetic native headers for assembly and a shell test double for

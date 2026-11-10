@@ -37,11 +37,11 @@ invent request IDs, read OAuth credential stores, or perform a separate CLI logi
 
 ## Connect and select
 
-In Claude Code, use the plugin's `mcp__plugin_coderabbit_coderabbit__*` tools, or
-an existing `mcp__coderabbit__*` connection verified by setup to use the same
-packaged endpoint. For hook launch, verify that the installed hook matches the
-active tool name. Follow setup for an unsupported shadowing connection before
-starting. Never widen the matcher to arbitrary names or another endpoint.
+In Claude Code, use only the plugin's `mcp__plugin_coderabbit_coderabbit__*` tools.
+A bare `mcp__coderabbit__*` name does not establish that the tool belongs to this
+plugin, even if a connection reports the expected endpoint. Follow setup to
+resolve a shadowing manual connection before starting. Never widen the hook
+matcher to a bare name, another plugin, or another endpoint.
 
 Confirm the account and organization through `get_me`, or `connection_status`
 when that is the available connection tool. For missing or expired authorization,

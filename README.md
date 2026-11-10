@@ -16,14 +16,15 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 CodeRabbit CLI dependency and a hosted MCP connection. The intended flow is **install the
 plugin → connect CodeRabbit once → “Review my changes.”** There is no separate
 CLI login or persistent local daemon. MCP authorizes one review; the pinned CLI
-runs its existing collection, submission and review stream. Prefer a supported,
-installed and trusted post-tool hook, with permitted direct CLI execution as the
-hook-free fallback. Use complete CLI findings when visible; `get_code_review`
+runs its existing collection, submission and review stream. The installed package
+fixes its launcher; an unavailable hook requires setup, not a shell fallback. Use complete CLI findings when visible; `get_code_review`
 retrieves the same saved result for missing/incomplete output and later sessions.
 
-The hook variant targets supported Claude Code and manually installed Codex
-hosts. Hook trust is a separate setup step. A hook-free variant serves channels
-without hook support; both require allowed local execution and network access.
+The hook variant targets Claude Code through the plugin-owned MCP tool name.
+Codex hook assembly is blocked until the host can establish plugin server identity;
+the published standalone Codex plugin remains unchanged. Separately assembled direct
+packages require their own execution and stdin qualification. Hook trust, local
+execution, and network permissions still apply.
 A hosted connector alone cannot collect local files.
 
 This is not published. The source tree alone is not an installable MCP package:

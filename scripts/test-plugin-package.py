@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import platform
 import queue
+import re
 import shlex
 import shutil
 import subprocess
@@ -48,7 +49,7 @@ class PackageTests(unittest.TestCase):
         self.manifest.write_text(json.dumps(manifest))
         shared = (ROOT / "skills/code-review/SKILL.md").read_bytes()
         for client in ("claude", "codex"):
-            for launcher in ("hook", "direct"):
+            for launcher in (("hook", "direct") if client == "claude" else ("direct",)):
                 with self.subTest(client=client, launcher=launcher):
                     self.assemble(client=client, launcher=launcher, delivery="download")
                     config = json.loads((self.output / "cli.json").read_text())
@@ -97,34 +98,26 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(hook["PostToolUse"][0]["hooks"][0]["command"], '"${CLAUDE_PLUGIN_ROOT}/bin/coderabbit" mcp-hook')
         self.assertFalse((self.output / "scripts").exists())
 
-    def test_both_hosts_bundle_connection_and_automatic_hook(self):
-        for client in ("claude", "codex"):
-            with self.subTest(client=client):
-                self.assemble(client=client)
-                config = json.loads((self.output / (".mcp.json" if client == "claude" else "mcp.json")).read_text())["mcpServers"]["coderabbit"]
-                if client == "claude":
-                    self.assertEqual(config["oauth"]["scopes"].split(), ["connection", "account:read", "usage:read", "pull_requests:read", "review"])
-                else:
-                    # Unknown transport fields make shipped Codex drop the server.
-                    self.assertEqual(set(config), {"type", "url"})
-                self.assertEqual((self.output / "bin/mcp-url").read_text().strip(), config["url"])
-                self.assertTrue((self.output / "hooks/hooks.json").is_file())
-                hook = json.loads((self.output / "hooks/hooks.json").read_text())["hooks"]["PostToolUse"][0]["hooks"][0]
-                root = "CLAUDE_PLUGIN_ROOT" if client == "claude" else "PLUGIN_ROOT"
-                self.assertEqual(hook["command"], '"${' + root + '}/bin/coderabbit" mcp-hook')
-                if client == "codex":
-                    # A root portable manifest wins over this compatibility entry
-                    # and makes the shipped native loader skip bundled hooks.
-                    self.assertFalse((self.output / "plugin.json").exists())
-                    compat = json.loads((self.output / ".codex-plugin/plugin.json").read_text())
-                    overlay = compat["extensions"]["com.openai"]
-                    self.assertTrue((self.output / overlay["onboardingSkill"]).is_file())
-                    self.assertEqual(compat["hooks"], "./hooks/hooks.json")
-                    self.assertTrue((self.output / compat["interface"]["logo"]).is_file())
-                self.assertEqual((self.output / "bin/launch-mode").read_text().strip(), "hook")
-                skill_name = "code-review" if client == "claude" else "coderabbit-review"
-                self.assertTrue((self.output / "skills" / skill_name / "SKILL.md").is_file())
-                shutil.rmtree(self.output)
+    def test_claude_hook_matches_only_plugin_owned_review_start(self):
+        self.assemble(client="claude")
+        config = json.loads((self.output / ".mcp.json").read_text())["mcpServers"]["coderabbit"]
+        self.assertEqual(config["oauth"]["scopes"].split(),
+                         ["connection", "account:read", "usage:read", "pull_requests:read", "review"])
+        self.assertEqual((self.output / "bin/mcp-url").read_text().strip(), config["url"])
+        hook = json.loads((self.output / "hooks/hooks.json").read_text())["hooks"]["PostToolUse"][0]
+        self.assertIsNotNone(re.fullmatch(hook["matcher"], "mcp__plugin_coderabbit_coderabbit__start_code_review"))
+        for name in ("mcp__coderabbit__start_code_review", "mcp__other__start_code_review",
+                     "mcp__plugin_other_coderabbit__start_code_review",
+                     "mcp__plugin_coderabbit_coderabbit__get_code_review"):
+            with self.subTest(tool=name):
+                self.assertIsNone(re.search(hook["matcher"], name))
+
+    def test_codex_hook_assembly_fails_before_writing_a_package(self):
+        for delivery in ("bundled", "download"):
+            with self.subTest(delivery=delivery):
+                with self.assertRaisesRegex(ValueError, "verified plugin server identity"):
+                    self.assemble(client="codex", launcher="hook", delivery=delivery)
+                self.assertFalse(self.output.exists())
 
     def test_direct_channel_has_no_hook_and_preserves_review_skill(self):
         for client in ("claude", "codex"):
@@ -145,7 +138,7 @@ class PackageTests(unittest.TestCase):
                 shutil.rmtree(self.output)
 
     @unittest.skipUnless(os.environ.get("CODEX_TEST_BIN"), "Set CODEX_TEST_BIN for native loader validation")
-    def test_codex_native_hook_discovery(self):
+    def test_codex_native_direct_discovery(self):
         """Read assembled packages through Codex without installing or executing them."""
         executable = Path(os.environ["CODEX_TEST_BIN"])
         self.assertTrue(executable.is_absolute() and executable.is_file())
@@ -153,7 +146,7 @@ class PackageTests(unittest.TestCase):
         artifacts["artifacts"][0]["archive_sha256"] = "a" * 64
         self.manifest.write_text(json.dumps(artifacts))
         for launcher, delivery in ((mode, delivery) for delivery in ("bundled", "download")
-                                   for mode in ("hook", "direct")):
+                                   for mode in ("direct",)):
             with self.subTest(launcher=launcher, delivery=delivery):
                 self.assemble(client="codex", launcher=launcher, delivery=delivery)
                 marketplace = self.root / "marketplace"
@@ -197,7 +190,7 @@ class PackageTests(unittest.TestCase):
                     self.assertEqual({skill["name"] for skill in plugin["skills"]},
                         {"coderabbit:setup", "coderabbit:coderabbit-review", "coderabbit:autofix"})
                     self.assertEqual([hook["eventName"] for hook in plugin["hooks"]],
-                        ["postToolUse"] if launcher == "hook" else [])
+                        [])
                 finally:
                     process.stdin.close()
                     try:
@@ -214,7 +207,7 @@ class PackageTests(unittest.TestCase):
         artifacts = json.loads(self.manifest.read_text())
         artifacts["artifacts"][0]["archive_sha256"] = "a" * 64
         self.manifest.write_text(json.dumps(artifacts))
-        self.assemble(client="codex", delivery="download")
+        self.assemble(client="codex", launcher="direct", delivery="download")
         marketplace = self.root / "marketplace"
         (marketplace / ".agents/plugins").mkdir(parents=True)
         shutil.move(self.output, marketplace / "plugin")
@@ -250,7 +243,7 @@ class PackageTests(unittest.TestCase):
             self.assertIn(b"review --agent", content)
             self.assertNotIn(b"start_code_review", content)
         for client in ("claude", "codex"):
-            for launcher in ("hook", "direct"):
+            for launcher in (("hook", "direct") if client == "claude" else ("direct",)):
                 with self.subTest(client=client, launcher=launcher):
                     self.assemble(client=client, launcher=launcher)
                     skill_name = "code-review" if client == "claude" else "coderabbit-review"

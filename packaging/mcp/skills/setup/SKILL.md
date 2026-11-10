@@ -33,8 +33,8 @@ optional configuration.
 2. Read `launchMode` in `cli.json`; the package determines the launcher, not a
    user choice during setup. For `hook`, verify the installed post-tool hook is
    supported and trusted through the host's controls. It runs the normal CLI
-   review only after an approved `start_code_review` call. Hook-containing Codex
-   packages use the supported manual installation channel. If the hook cannot
+   review only after an approved plugin-owned `start_code_review` call. Codex
+   hook packages are unavailable until server identity can be verified. If the hook cannot
    run, stop local-review setup and explain the native trust or compatibility
    requirement; do not switch to direct execution. Only a `direct` package uses
    hook-free execution. Confirm permitted
@@ -46,14 +46,13 @@ optional configuration.
    denied execution or upload decision.
 3. In Claude Code, check the active server in `/mcp` against this package's
    `.mcp.json` URL. A manually configured connection at the same endpoint can
-   hide the plugin connection. Keep an existing matching connection if its tool
-   name matches the installed hook (`mcp__coderabbit__start_code_review` or
-   `mcp__plugin_coderabbit_coderabbit__start_code_review`). Verify its account and
-   review access below; no deletion or second connection is needed. If its name
-   cannot match, explain the conflict and let the user disable that duplicate
-   in its native scope, then restart and verify the plugin server. Preserve the
-   entry and unrelated integrations. Renaming alone does not fix endpoint
-   deduplication. Never widen the hook to arbitrary names or another endpoint.
+   hide the plugin connection. Local reviews require the plugin-qualified tool
+   `mcp__plugin_coderabbit_coderabbit__start_code_review`; a bare server name
+   cannot prove plugin ownership. If a manual entry shadows it, explain the
+   conflict and let the user disable that duplicate in its native scope, then
+   restart and verify the plugin server. Preserve the entry and unrelated
+   integrations. Renaming alone does not fix endpoint deduplication. Never
+   widen the hook to a bare name, another plugin, or another endpoint.
 4. Discover CodeRabbit MCP tools and call `get_me` or `connection_status`. If unavailable
    or signed out, use the app's CodeRabbit **Connect** or **Reconnect** action to
    open browser sign-in. Return to the app when it completes, refresh the tool

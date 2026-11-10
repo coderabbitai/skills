@@ -31,6 +31,8 @@ def copy_tree(source, destination):
 def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook", delivery="bundled"):
     if launcher not in {"hook", "direct"}:
         raise ValueError("Launcher must be hook or direct")
+    if client == "codex" and launcher == "hook":
+        raise ValueError("Codex hook packages require a verified plugin server identity; assembly is unavailable")
     if delivery not in {"bundled", "download"}:
         raise ValueError("CLI delivery must be bundled or download")
     url = urlparse(endpoint)
@@ -144,14 +146,10 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         if client == "codex":
             plugin_manifest.setdefault("extensions", {}).setdefault("com.openai", {})["onboardingSkill"] = "./skills/setup/SKILL.md"
             plugin_manifest["mcpServers"] = "./mcp.json"
-            if launcher == "hook":
-                plugin_manifest["hooks"] = "./hooks/hooks.json"
-            else:
-                plugin_manifest.pop("hooks", None)
+            plugin_manifest.pop("hooks", None)
         (package / manifest_directory / "plugin.json").write_text(json.dumps(plugin_manifest, indent=2) + "\n")
-        # A portable root manifest takes precedence over the compatibility
-        # manifest, but the shipped Codex loader skips hooks for that format.
-        if client == "codex" and launcher == "direct":
+        # Direct Codex packages include the portable manifest and native entry.
+        if client == "codex":
             portable = {key: value for key, value in plugin_manifest.items()
                         if key not in {"interface", "skills", "mcpServers", "hooks", "extensions"}}
             openai = dict(plugin_manifest["extensions"]["com.openai"])
@@ -172,9 +170,9 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         (package / mcp_file).write_text(json.dumps(mcp, indent=2) + "\n")
         if launcher == "hook":
             (package / "hooks").mkdir()
-            plugin_root = "CLAUDE_PLUGIN_ROOT" if client == "claude" else "PLUGIN_ROOT"
+            plugin_root = "CLAUDE_PLUGIN_ROOT"
             (package / "hooks/hooks.json").write_text(json.dumps({"hooks": {"PostToolUse": [{
-                "matcher": "^mcp__(?:coderabbit|plugin_coderabbit_coderabbit)__start_code_review$",
+                "matcher": "^mcp__plugin_coderabbit_coderabbit__start_code_review$",
                 # Allow the 5m launch window + 30m execution + terminal persistence/cleanup.
                 # This adapter now runs a whole review, not just source collection.
                 "hooks": [{"type": "command", "command": '"${' + plugin_root + '}/' + cli_path + '" mcp-hook', "timeout": 2400}],
@@ -236,7 +234,7 @@ def main():
     parser.add_argument("--artifacts", type=Path, required=True, help="Local artifact manifest with version, platform, path, sha256")
     parser.add_argument("--mcp-url", required=True, help="Verified HTTPS endpoint for this package")
     parser.add_argument("--launcher", choices=["hook", "direct"], default="hook",
-                        help="Prefer hook on supported trusted hosts; direct is the hook-free channel fallback")
+                        help="Claude plugin-owned hook, or separately qualified direct execution; Codex hooks unavailable")
     parser.add_argument("--delivery", choices=["bundled", "download"], default="bundled",
                         help="Bundle native files for manual pilots, or prepare the pinned dependency during setup")
     parser.add_argument("--output", type=Path, required=True)

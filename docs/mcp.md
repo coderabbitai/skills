@@ -55,8 +55,9 @@ Setup follows the launcher already selected in your package; it does not ask
 you to choose one. For the hook-based v1, review and trust the CodeRabbit hook in the
 host's native controls. Folder trust, execution, network and upload permissions
 still apply. A host without permitted local execution cannot start a local
-review. Hook-containing Codex packages use the manual desktop installation
-channel; they are not eligible for OpenAI's public plugin directory.
+review. Codex hook packages are unavailable because the current bare tool name
+does not establish plugin server identity. Existing standalone Codex installs
+remain supported. OpenAI's public directory also excludes lifecycle hooks.
 See [OpenAI's plugin packaging guidance](https://developers.openai.com/plugins/build/plugins).
 
 An unavailable hook requires setup or a compatible host. The assistant does not
