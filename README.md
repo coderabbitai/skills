@@ -273,7 +273,7 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - Fetches unresolved current CodeRabbit review threads for the current PR
 - Parses and prioritizes issues by severity
 - Applies fixes only after validating the issue and getting approval
-- Produces a single consolidated commit and posts a PR summary comment
+- Commits only approved fixes and, when authorized, posts a summary after confirming the pushed commit on the PR
 
 ## Plugin Components
 

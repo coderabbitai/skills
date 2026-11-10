@@ -31,6 +31,14 @@ All notable changes to this repository are documented in this file.
 - Added a repository `.gitignore` for local Claude settings, virtualenvs, and
   dependency directories.
 
+### Fixed
+
+- Autofix stops on declined prerequisites, ambiguous PRs, and incomplete feedback
+  retrieval, commits only approved hunks, and verifies the PR head after pushing
+  before posting a success summary with actual run values.
+- Review summaries check the explicit completion outcome and missing coverage;
+  authenticated PR-prompt retrieval uses the same scoped host permissions.
+
 ### Changed
 
 - Clarified bounded CLI discovery, manual curl installation, and execution-context

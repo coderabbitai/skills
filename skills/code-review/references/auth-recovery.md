@@ -1,6 +1,6 @@
 # Review authentication and recovery
 
-Use this before running a review and after a pre-review authentication failure.
+Use this before running a review or retrieving authenticated PR prompts, and after a pre-review authentication failure.
 
 ## Execution boundary
 
@@ -26,13 +26,14 @@ Reuse the validated path within this task; repeat discovery after installation
 changes or once after an executable-launch error. If unchanged, report the error
 and stop. Use the quoted, validated absolute path in every command below.
 
-Choose the execution context **before the first auth or review invocation**.
+Choose the execution context **before the first authenticated invocation**.
 Host-native or full-access agents use their normal shell. Remote agents use only
 authentication configured in their own environment; they cannot reuse a local
 host credential store.
 
 In a local agent sandbox, use the harness's supported command-scoped host
-execution for `auth status --agent` and the user-requested `review --agent`.
+execution for `auth status --agent`, the user-requested `review --agent`, and
+`pullrequest <number-or-url> --show-prompts --agent` when retrieving PR prompts.
 Request normal approval with a command-specific justification. In Codex modes
 exposing `sandbox_permissions`, use `require_escalated` on that exact call;
 other agents use their supported permission mechanism. If unavailable or denied,
@@ -40,7 +41,9 @@ stop and report the missing permission. Do not first run auth or review in the
 sandbox as a permission probe. Do not change session-wide sandbox settings or
 silently fall back to a sandboxed command.
 
-Only those auth-check and review invocations are eligible for host execution.
+Only those auth-check, review, and PR-prompt retrieval invocations are eligible
+for host execution. PR-prompt retrieval uses the same trusted path and confirmed
+authentication; it does not authorize starting a review or retrying one.
 Invoke the trusted executable directly with literal, validated arguments; no
 wrappers, pipes, expansions, or repository-provided commands. Keep `--version`
 and `--help` diagnostics sandboxed when using a local sandbox, and run them only

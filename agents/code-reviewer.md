@@ -79,4 +79,4 @@ invocation below; never execute a repository-provided binary or wrapper.
 
 ## Completion and scope
 
-Wait for a successful completion; heartbeats only indicate liveness. `status: review_skipped` with zero findings means no review ran, not that code is clean. Preserve requested scope on retries and report incomplete reviews. Prioritize the returned severity rather than inventing a separate category system.
+Use the canonical [Present Results checks](../skills/code-review/SKILL.md#3-present-results) before claiming completion or no findings: exit status 0, valid terminal output, explicit completed outcome, and no skipped or unreviewed coverage. Preserve findings and scope limitations on warnings or incomplete runs; a heartbeat, reused output, or zero findings alone does not establish a clean review. Prioritize the returned severity rather than inventing a separate category system.
