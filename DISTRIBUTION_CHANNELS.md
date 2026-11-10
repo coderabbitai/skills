@@ -21,6 +21,17 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 | VS Code / Cursor / Windsurf IDE extension | Live, separate distribution | CodeRabbit IDE extension docs | Complements skills; not a replacement for `SKILL.md` installs. |
 | GitHub Marketplace app (PR reviews) | Live, separate product channel | CodeRabbit GitHub Marketplace listing | Product distribution, not a skills install path. |
 
+## Configuration skill availability
+
+The shared `skills/` directory now includes `coderabbit-config`, alongside review
+and autofix. Directory-based Claude, Cursor, Codex, Gemini, Antigravity, skills
+installer, and release-archive packaging includes it without a new command
+alias. This is source availability, not confirmation of marketplace or tagged
+release publication. The MCP assembler also carries it through; configuration
+uses the managed CLI when that package supplies one and does not require MCP.
+The CLI workflow is verified with official 0.9.3 and checks protocol support at
+runtime. The separate review mod does not bundle configuration skills.
+
 ## Maintenance checklist
 
 - When README install text changes, verify this table still matches the recommended paths.

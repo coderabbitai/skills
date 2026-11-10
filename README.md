@@ -275,6 +275,24 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - Applies fixes only after validating the issue and getting approval
 - Produces a single consolidated commit and posts a PR summary comment
 
+### [coderabbit-config](skills/coderabbit-config/SKILL.md)
+
+Create, update, or validate repository configuration through the official CLI.
+Ask “Set up CodeRabbit configuration”, “Make CodeRabbit reviews more thorough”,
+or “Validate .coderabbit.yaml”. Where supported, invoke `$coderabbit-config` or
+`/coderabbit-config`; the Claude plugin uses `/coderabbit:coderabbit-config`.
+The distinct name leaves the host's `/config` command available.
+
+Requires an official CLI supporting config protocol v2 (verified with 0.9.3).
+The CLI owns defaults, schema checks, previews, and writes. The skill supports
+review-style changes and the CLI's guided path settings; unsupported settings
+remain a CLI capability gap. Missing commands require an upgrade, never an
+agent-side YAML editor. Validation alone does not change files; saves require
+approval of the preview. Configuration does not require login or run a review.
+
+This skill is included in the source package. Tagged archives and marketplace
+caches require their normal release or publication update to deliver it.
+
 ## Plugin Components
 
 The components below describe the released CLI integration. The unpublished MCP
@@ -285,9 +303,9 @@ the direct variant requires permitted local execution with separate stdin.
 
 ### Claude Code
 
-- Skills: `code-review` and `autofix`. Run them as `/coderabbit:code-review`
-  and `/coderabbit:autofix`, or ask in plain language, such as "review my
-  changes" or "fix the CodeRabbit comments on this PR".
+- Skills: `code-review`, `autofix`, and `coderabbit-config`. Run them as
+  `/coderabbit:code-review`, `/coderabbit:autofix`, and
+  `/coderabbit:coderabbit-config`, or ask in plain language.
 - Subagents: `code-reviewer` runs a CodeRabbit review in its own context, and
   `autofix` collects and checks unresolved CodeRabbit review threads
   and returns a fix plan without editing anything. Mention them as
@@ -329,7 +347,7 @@ It keeps diagnostics sandboxed and retains per-command host approval for auth an
 
 ## Data and Privacy
 
-The released Claude plugin contains two skills and two subagents. It bundles no MCP
+The source Claude plugin contains three skills and two subagents. It bundles no MCP
 servers, hooks, or executables.
 
 - **Local commands**: the `code-review` skill and the `code-reviewer` subagent
@@ -354,6 +372,11 @@ receives one scoped review handoff through stdin and sends the selected changes
 and review context to CodeRabbit. MCP can retrieve the same saved findings.
 Provider credentials remain server-side. A trusted hook or permitted direct
 launcher starts the bundled executable; neither requires a persistent daemon.
+
+The `coderabbit-config` skill runs local CLI configuration commands. The CLI
+fetches the public configuration schema over HTTPS and validates YAML locally;
+it does not submit repository code for review. Approved saves change the local
+configuration file, with commit and push left to the requested workflow.
 
 ## Resources
 
