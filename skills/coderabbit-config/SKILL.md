@@ -26,9 +26,11 @@ The `<cli>` examples below mean that verified executable, not a literal command.
 
 Check `<cli> --version`, `<cli> config --help`, and support for the needed
 subcommands. CLI 0.9.3 supports this workflow. Missing commands or an unsupported
-protocol require upgrading through `<cli> update` or the
-[official installation instructions](https://docs.coderabbit.ai/cli), then
-rechecking support. Do not install or upgrade without authorization. Preserve
+protocol require an upgrade, then rechecking support. For a standalone CLI, use
+`<cli> update` or the [official installation instructions](https://docs.coderabbit.ai/cli).
+For a managed runtime, update the plugin to a version with a compatible pinned
+CLI and follow its preparation instructions; never run `<cli> update` on the
+managed launcher. Do not install or upgrade without authorization. Preserve
 permission and network errors as such; they do not prove an upgrade is needed.
 
 ## Validate only
