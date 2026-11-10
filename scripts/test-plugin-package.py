@@ -352,7 +352,7 @@ class PackageTests(unittest.TestCase):
         target.mkdir()
         binary = target / "coderabbit"
         # Deliberately a test double for launcher forwarding, never a release artifact.
-        binary.write_text('#!/bin/sh\nprintf "%s\\n" "$@"\ncat\n')
+        binary.write_text('#!/bin/sh\nprintf "%s\\n" "$@"\n/bin/cat\n')
         binary.chmod(0o755)
         checksum = target / "coderabbit.sha256"
         checksum.write_text(module.digest(binary) + "\n")
@@ -437,6 +437,44 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(log.read_text(), "download\n")
         self.assertNotEqual(run("auth", "login").returncode, 0)
         self.assertNotEqual(run("review", "--agent", "--mcp-stdin", "--host-url", "https://other.invalid").returncode, 0)
+
+    def test_cli_preserves_caller_git_without_using_caller_checksum_helpers(self):
+        caller = self.root / "caller tools"
+        caller.mkdir()
+        git = caller / "git"
+        git.write_text('#!/bin/sh\necho caller-git-selected\n')
+        git.chmod(0o755)
+        global_cli = caller / "coderabbit"
+        global_cli.write_text('#!/bin/sh\necho unexpected-global-cli\nexit 99\n')
+        global_cli.chmod(0o755)
+        helper_log = self.root / "unexpected-checksum-helper"
+        for name in ("shasum", "sha256sum"):
+            helper = caller / name
+            helper.write_text('#!/bin/sh\ntouch ' + shlex.quote(str(helper_log)) + '\nexit 0\n')
+            helper.chmod(0o755)
+        native = b'#!/bin/sh\ncase "$1" in\n mcp-hook) exit 0;;\n --version) echo 0.9.0;;\n config) git --version;;\nesac\n'
+        env = {**os.environ, "PATH": str(caller) + ":/usr/bin:/bin"}
+        for delivery in ("bundled", "download"):
+            with self.subTest(delivery=delivery):
+                if delivery == "download":
+                    prepare, binary, _, _, _ = self.runtime_fixture(native)
+                    self.assertEqual(prepare("--prepare").returncode, 0)
+                    command = [str(self.root / "download package/scripts/coderabbit"),
+                               "--data-dir", str(self.root / "persistent data")]
+                else:
+                    launcher, binary, checksum = self.launcher_fixture()
+                    binary.write_bytes(native)
+                    checksum.write_text(module.digest(binary) + "\n")
+                    command = [str(launcher)]
+                result = subprocess.run(command + ["config", "--agent"], env=env,
+                                        text=True, capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, "caller-git-selected\n")
+                binary.write_text("corrupt")
+                rejected = subprocess.run(command + ["--version"], env=env,
+                                          text=True, capture_output=True, timeout=10)
+                self.assertNotEqual(rejected.returncode, 0)
+                self.assertFalse(helper_log.exists())
 
     def test_bad_archive_or_native_hash_never_installs_candidate(self):
         run, binary, metadata, target, _ = self.runtime_fixture()
