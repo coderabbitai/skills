@@ -222,8 +222,10 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
             "stdin separately from command text. If the host cannot do that, "
             "local review is unavailable; do not start a review."
         )
-        readme_text = (source / "packaging" / readme).read_text()
-        (package / "README.md").write_text(readme_text.replace("{{REVIEW_LAUNCH}}", launch_guidance))
+        readme_text = (source / "packaging" / readme).read_text(encoding="utf-8")
+        (package / "README.md").write_text(
+            readme_text.replace("{{REVIEW_LAUNCH}}", launch_guidance), encoding="utf-8"
+        )
         package.rename(output)
     return {"package": str(output), "client": client, "launcher": launcher, "delivery": delivery, "pluginVersion": plugin_version, "cliVersion": version, "platforms": sorted(seen)}
 
