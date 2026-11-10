@@ -4,7 +4,7 @@ Use the installed CodeRabbit CLI. Resolve it to a trusted absolute installation 
 
 Run `auth status --agent` and the feedback command in the same permitted execution context. In a local command sandbox, use the host's command-scoped approval for those exact invocations; keep version/help checks sandboxed. A denial stops the lookup, and a sandbox-only authentication result does not establish host logout. Remote agents use their own configured authentication.
 
-Proceed only on successful, well-formed `authenticated: true`. If sign-in is required, use the CLI's native browser sign-in flow with the user's authorization, then recheck status. Never ask for pasted tokens or read or copy credentials. An auth-check error leaves authentication unknown.
+Proceed only on successful, well-formed `authenticated: true`. If sign-in is required, direct the user to run the trusted CLI's `auth login` in that environment's terminal, then recheck status after they confirm login. Do not start or elevate login automatically. Never ask for pasted tokens or read or copy credentials. An auth-check error leaves authentication unknown.
 
 Check `pullrequest --help` for `--show-threads`. A missing flag or backend route is a capability gap; stop without substituting `--show-prompts` or a custom GitHub request. CLI 0.9.3 exposes the command; presence of the flag alone does not prove backend access.
 

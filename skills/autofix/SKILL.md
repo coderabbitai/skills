@@ -151,6 +151,8 @@ If any fixes were applied, compare the current diff with the approved diffs befo
 
 Inspect the **entire** staged diff with `git diff --cached`, including any already-staged changes. Commit only if every staged hunk belongs to an approved fix in this run. If unrelated or overlapping edits appear, stop for reconciliation without stashing, reverting, or committing them. Check again after any validation that modifies files.
 
+Immediately before committing, show the verified staged summary and obtain explicit approval to create the consolidated commit. Approval to apply fixes alone does not authorize committing. If declined, stop and leave the changes uncommitted.
+
 Use one commit for all applied fixes in this run. Require successful commit creation and record its SHA; a failed or empty commit must not proceed to push or success reporting.
 
 ### Step 8: Prompt Build/Lint Before Push
@@ -163,8 +165,10 @@ If a consolidated commit was created:
 ### Step 9: Push Changes
 
 If a consolidated commit was created:
-- Ask: "Push changes?" If declined, stop and report the commit as local-only.
-- If approved, run `git push` and require exit status 0. On failure, stop and report the error.
+- Establish the selected PR’s **head repository and branch** from trusted PR metadata already supplied in the task, or ask the user to confirm them. The CLI thread snapshot does not include these fields. Do not infer a fork’s head repository from the PR URL, local branch, or Git push configuration.
+- Re-read the selected PR snapshot and use `git ls-remote` with the confirmed head repository URL and exact `refs/heads/<head-branch>`. Require that branch to exist and its SHA to equal the snapshot’s `headCommit`; stop on missing, ambiguous, or divergent state.
+- Show the exact destination and recorded fix commit, then ask: "Push changes?" If declined, stop and report the commit as local-only.
+- If approved, push only the recorded commit to that confirmed destination: `git push <head-repository-url> <fix-commit-sha>:refs/heads/<head-branch>`. Pass validated values as separate quoted arguments; do not rely on default remotes/refspecs, force-push, or create a missing branch. Require exit status 0; on failure, stop and report the error.
 - Re-read the selected PR with `pullrequest --show-threads --agent` and confirm the returned `headCommit` equals the recorded fix commit SHA. If lookup fails or the head differs, report delivery as unconfirmed. A push to another branch is insufficient.
 
 If all deferred (no commit): Skip this step.
