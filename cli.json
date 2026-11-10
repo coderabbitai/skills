@@ -1,0 +1,6 @@
+{
+  "launcher": "./scripts/coderabbit",
+  "delivery": "download",
+  "version": "0.9.3",
+  "launchMode": "hook"
+}

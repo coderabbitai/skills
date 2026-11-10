@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "^mcp__plugin_coderabbit_coderabbit__start_code_review$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/coderabbit\" mcp-hook",
+            "timeout": 2400
+          }
+        ]
+      }
+    ]
+  }
+}
