@@ -6,6 +6,9 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added `coderabbit-config` for CLI-owned configuration generation, guided
+  changes, and validation, with preview approval before local saves.
+
 - Added a Claude directory listing icon and a README "Data and Privacy"
   section that discloses what the plugin runs and sends.
 - Added the read-only `autofix` subagent, which collects and checks
@@ -33,6 +36,9 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Clarified bounded CLI discovery, manual curl installation, and execution-context
+  selection in the shared review guidance, with Antigravity CLI sandbox recovery
+  isolated in a conditionally loaded reference.
 - Documented `usage --agent` and authorized review retries with `--use-credits`.
 
 - The Claude plugin now ships the `code-review` and `autofix` skills and the

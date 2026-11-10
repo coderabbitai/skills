@@ -1,6 +1,6 @@
 # Distribution Channels
 
-Last verified: 2026-10-01
+Last verified: 2026-10-01; Claude directory row reverified 2026-11-07.
 
 This file is the repository's operating inventory for where CodeRabbit skills and adjacent agent integrations are distributed. Public user-facing install guidance belongs in `README.md`; in-development and maintainer-only channels should stay here until they are ready to launch.
 
@@ -8,17 +8,29 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 
 | Channel | Status | Source of truth | Notes |
 | --- | --- | --- | --- |
+| MCP local review pilot | Development; not published | `scripts/assemble-plugin.py`, `packaging/mcp/` | Claude plugin-owned hooks with pinned-runtime preparation. Codex hook assembly is blocked on verified server identity; direct packages require separate qualification. Shared standalone CLI skills and tagged releases remain separate. Public submission still requires release-qualified CLI artifacts and channel acceptance; see [packaging](packaging/README.md#public-directory-submission). |
 | Skills package (`npx skills add coderabbitai/skills`) | Live | `README.md`, `skills/` | Canonical multi-agent distribution path for 35+ skills-compatible agents. |
 | Tagged GitHub release archive (`coderabbit skills`) | Live; `v1.2.0` pending | `.github/workflows/release.yml`, [skills install docs](https://docs.coderabbit.ai/cli/skills) | CLI installs the latest published release after manifest and checksum verification. As of 2026-09-30, Latest is `v1.1.1`; publish `v1.2.0` to deliver the merged updates. |
 | Claude Code plugin marketplace | Live | `.claude-plugin/plugin.json`, `skills/`, `agents/` | Official marketplace source: `coderabbitai/skills`. Migration from the legacy `coderabbitai/claude-plugin` repository completed on 2026-05-01. |
-| Claude directory (claude.ai, desktop, Cowork) | Submission in progress | `.claude-plugin/plugin.json`, `skills/`, `agents/`, `README.md` | Submitted from the CodeRabbit claude.ai organization through the developer portal at claude.ai/directory/manage; tracks `main`. |
-| Claude Code review mod | v0.1.0 candidate; not submitted | `mods/coderabbit/` | Separate executable mod for explicit local reviews in the terminal and Local Code sessions in Claude Desktop. Terminal validation uses Claude Code 2.1.289; directory acceptance must be verified before publication. |
+| Claude directory (claude.ai, desktop, Cowork) | Live; `v1.2.0` | `.claude-plugin/plugin.json`, `skills/`, `agents/`, `README.md` | Existing standalone CLI integration; tracks `main`. Published status verified 2026-11-07. The MCP pilot remains a separate unpublished update; preserve this listing. |
+| Claude Code review mod | v0.1.0 candidate; not published | `mods/coderabbit/` | Separate executable mod for explicit local reviews in the terminal and Local Code sessions in Claude Desktop. Terminal validation uses Claude Code 2.1.289; directory acceptance must be verified before publication. |
 | Cursor native plugin marketplace | Repo-packaged, publication should be verified | `.cursor-plugin/plugin.json` | Repo contains marketplace manifest; treat public listing as separate verification work. |
 | Gemini CLI native extension | Repo-packaged, release pending | `gemini-extension.json`, `skills/`, `commands/coderabbit/review.toml`, `agents/` | Publish direct installation after `v1.2.0`; verify gallery listing separately. |
 | Antigravity CLI native plugin | GitHub-installable | `plugin.json`, `skills/` | Install directly with `agy plugin install https://github.com/coderabbitai/skills`; treat marketplace publication as separate verification work. |
 | Codex plugin marketplace | Live; native source added, upload pending | `.codex-plugin/plugin.json`, `skills/`, `assets/` | The root manifest uses the existing review and autofix skills at `1.2.0`. The portal still publishes `1.1.4`; merging does not update it. Native agent loading, runtime validation, and submission preparation remain separate follow-ups. |
 | VS Code / Cursor / Windsurf IDE extension | Live, separate distribution | CodeRabbit IDE extension docs | Complements skills; not a replacement for `SKILL.md` installs. |
 | GitHub Marketplace app (PR reviews) | Live, separate product channel | CodeRabbit GitHub Marketplace listing | Product distribution, not a skills install path. |
+
+## Configuration skill availability
+
+The shared `skills/` directory now includes `coderabbit-config`, alongside review
+and autofix. Directory-based Claude, Cursor, Codex, Gemini, Antigravity, skills
+installer, and release-archive packaging includes it without a new command
+alias. This is source availability, not confirmation of marketplace or tagged
+release publication. The MCP assembler also carries it through; configuration
+uses the managed CLI when that package supplies one and does not require MCP.
+The CLI workflow is verified with official 0.9.3 and checks protocol support at
+runtime. The separate review mod does not bundle configuration skills.
 
 ## Maintenance checklist
 
