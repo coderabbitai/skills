@@ -145,6 +145,8 @@ class PackageTests(unittest.TestCase):
             with self.subTest(client=client):
                 result = self.assemble(client=client, launcher="direct")
                 self.assertEqual(result["launcher"], "direct")
+                self.assertEqual((self.output / "skills/coderabbit-config/SKILL.md").read_bytes(),
+                                 (ROOT / "skills/coderabbit-config/SKILL.md").read_bytes())
                 self.assertFalse((self.output / "hooks").exists())
                 meta = ".claude-plugin" if client == "claude" else ".codex-plugin"
                 manifest = json.loads((self.output / meta / "plugin.json").read_text())
@@ -209,7 +211,8 @@ class PackageTests(unittest.TestCase):
                         "pluginName": "coderabbit"})["plugin"]
                     self.assertEqual(plugin["mcpServers"], ["coderabbit"])
                     self.assertEqual({skill["name"] for skill in plugin["skills"]},
-                        {"coderabbit:setup", "coderabbit:coderabbit-review", "coderabbit:autofix"})
+                        {"coderabbit:setup", "coderabbit:coderabbit-review", "coderabbit:autofix",
+                         "coderabbit:coderabbit-config"})
                     self.assertEqual([hook["eventName"] for hook in plugin["hooks"]],
                         [])
                 finally:

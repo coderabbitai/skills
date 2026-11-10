@@ -6,6 +6,9 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added `coderabbit-config` for CLI-owned configuration generation, guided
+  changes, and validation, with preview approval before local saves.
+
 - Added a Claude directory listing icon and a README "Data and Privacy"
   section that discloses what the plugin runs and sends.
 - Added the read-only `autofix` subagent, which collects and checks

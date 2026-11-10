@@ -2,7 +2,7 @@
   "name": "coderabbit",
   "displayName": "CodeRabbit",
   "version": "1.2.0",
-  "description": "AI-powered code review in Claude Code, powered by CodeRabbit",
+  "description": "AI-powered code review, review-comment autofix, and repository configuration, powered by CodeRabbit.",
   "homepage": "https://docs.coderabbit.ai/cli/claude-code-integration",
   "author": {
     "name": "CodeRabbit",
