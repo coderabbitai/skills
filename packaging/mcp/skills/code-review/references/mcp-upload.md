@@ -6,13 +6,14 @@ authority for its existing collection, submission and review stream. It never
 reads the host's OAuth store or needs a second login. Source goes to Reviewer;
 MCP retrieves the same saved findings when local delivery is unavailable.
 
-## Choose one launcher before starting
+## Use the installed launcher
 
-Prefer the installed and trusted post-tool hook when the host supports it.
+For `launchMode: hook`, use the installed and trusted post-tool hook.
 The hook consumes the approved start result automatically. A pre-hook must not
 upload ahead of approval. Installation alone does not grant hook trust.
 
-Use permitted direct CLI execution when the hook is unavailable or unsuitable.
+Use permitted direct CLI execution only in a `launchMode: direct` package.
+An unavailable hook requires setup, not a change of execution path.
 The package's `cli.json` identifies its launcher and configured adapter. Do not run a
 direct command while an enabled hook may also launch. Do not switch adapters to
 circumvent a denied execution or source-upload decision.

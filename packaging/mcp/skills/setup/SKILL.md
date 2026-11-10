@@ -30,13 +30,16 @@ optional configuration.
    reviews and local configuration are unavailable; do not reserve a review.
    A missing or corrupt bundled executable requires reinstalling the complete
    package. Neither delivery mode installs a global CLI or needs a CLI login.
-2. Read `launchMode` in `cli.json`. Prefer the post-tool hook when supported,
-   installed and trusted through the host's controls. It runs the normal CLI
+2. Read `launchMode` in `cli.json`; the package determines the launcher, not a
+   user choice during setup. For `hook`, verify the installed post-tool hook is
+   supported and trusted through the host's controls. It runs the normal CLI
    review only after an approved `start_code_review` call. Hook-containing Codex
-   packages use the supported manual installation channel. A `direct` package is
-   the hook-free fallback for channels without hook support. Confirm permitted
+   packages use the supported manual installation channel. If the hook cannot
+   run, stop local-review setup and explain the native trust or compatibility
+   requirement; do not switch to direct execution. Only a `direct` package uses
+   hook-free execution. Confirm permitted
    local execution, network access and a process interface that can supply stdin
-   separately from command arguments before selecting direct execution. Ensure
+   separately from command arguments before starting a direct review. Ensure
    no hook will also launch. When direct execution is selected and safe stdin
    delivery is unavailable, report that local review is unavailable; do not
    reserve a review. A trusted hook supplies its own handoff. Do not bypass a

@@ -210,7 +210,20 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
             if (source / name).is_file():
                 shutil.copyfile(source / name, package / name)
         readme = "plugin-README.md" if delivery == "bundled" else "runtime-README.md"
-        shutil.copyfile(source / "packaging" / readme, package / "README.md")
+        launch_guidance = (
+            "This package uses one post-tool hook. Review and trust the CodeRabbit "
+            "hook through your host's native controls during setup. The hook "
+            "launches only after an approved CodeRabbit review start; you do not "
+            "choose or run a launcher. If hook setup fails, resolve that setup "
+            "before starting a review."
+            if launcher == "hook" else
+            "This package contains no hooks. Setup verifies that the host can "
+            "run the packaged CLI and deliver its review authorization through "
+            "stdin separately from command text. If the host cannot do that, "
+            "local review is unavailable; do not start a review."
+        )
+        readme_text = (source / "packaging" / readme).read_text()
+        (package / "README.md").write_text(readme_text.replace("{{REVIEW_LAUNCH}}", launch_guidance))
         package.rename(output)
     return {"package": str(output), "client": client, "launcher": launcher, "delivery": delivery, "pluginVersion": plugin_version, "cliVersion": version, "platforms": sorted(seen)}
 

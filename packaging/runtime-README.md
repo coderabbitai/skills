@@ -18,10 +18,10 @@ managed-install settings for this dependency; plugin releases own its updates.
 It requires curl, unzip,
 a SHA-256 utility and Git. Preparation alone never uploads source.
 
-On a host that permits local execution, ask “Review my changes.” After an
-approved MCP review start, the package's selected launcher runs the prepared
-CLI: a trusted post-tool hook, or an explicitly permitted direct command in a
-hook-free package. Setup confirms which launcher this package uses.
+{{REVIEW_LAUNCH}}
+
+On a host that permits local execution, ask **“Review my changes.”** After an
+approved MCP review start, this package runs the prepared CLI.
 Host execution, network and source-upload permissions still apply. A hook never
 downloads software or switches to another launcher after a failure. Missing or
 later-session output is retrieved through MCP with the same review ID.

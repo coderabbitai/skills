@@ -10,8 +10,9 @@ This agent launches only MCP reviews. If the assignment explicitly requests
 CLI-only review, return it to the main conversation to follow the skill's
 standalone CLI guide before any MCP action.
 Discover the connected CodeRabbit tools and verify the account and requested repository
-before starting a review. Select one launcher: a supported trusted post-tool hook
-by default, with permitted direct packaged-CLI execution as fallback. Call
+before starting a review. Use only the launcher recorded in the package's
+`cli.json`: a trusted post-tool hook for `hook`, or permitted packaged-CLI
+execution for `direct`. Never replace an unavailable hook with a shell launch. Call
 `start_code_review` once and preserve its server-generated ID. Use complete CLI
 findings when available; use `get_code_review` for missing/incomplete output and
 later retrieval. Do not invent IDs, perform CLI login, or assemble source into

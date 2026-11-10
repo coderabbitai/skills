@@ -18,9 +18,10 @@ Keep its execution, scope, authentication and paid-continuation checks.
 In the guide's auth check, confirm any user-requested account, organization or
 region. Unknown or mismatched context stops the review.
 
-If the host reports MCP disconnected and the route is unspecified, offer
-**Use existing CLI** or **Connect CodeRabbit** before launching sign-in. The
-standalone guide still verifies CLI availability and authentication.
+For an ordinary review request, use this plugin's MCP workflow. If disconnected,
+follow setup to connect CodeRabbit through the host's browser flow, preserving
+the requested review scope. Do not ask the user to choose a launcher or a
+standalone route before normal first-use setup.
 
 For a connected MCP review, continue below. A missing supported MCP launcher can
 be explained with the available CLI-only option, which the user must explicitly
@@ -30,9 +31,8 @@ started review or uncertain result. Preserve the original review ID and recovery
 ## MCP review
 
 MCP authorizes the review; the packaged CLI runs its existing collection,
-submission and review stream. Prefer the supported, installed and trusted
-post-tool hook. Permitted direct CLI execution is the hook-free fallback.
-Choose one launcher before starting. Do not assemble source into tool arguments,
+submission and review stream. The installed package fixes the launcher in
+`cli.json`; use that launcher only. Do not assemble source into tool arguments,
 invent request IDs, read OAuth credential stores, or perform a separate CLI login.
 
 ## Connect and select
@@ -53,9 +53,10 @@ supported connection; do not override it in review arguments.
 
 Before `start_code_review`, resolve and verify the pinned executable using the
 setup skill. Read `launchMode` in the installed package's `cli.json`. When it says `hook`,
-verify the host supports and trusts that hook. When it says `direct`, or the hook
-is unavailable or unsuitable, use direct execution only after confirming it is
-permitted and no hook will also launch. Check access to the workspace and network.
+verify the host supports and trusts that hook. An unavailable or untrusted hook
+requires native setup; it does not authorize a shell launch. Only a package with
+`launchMode: direct` uses direct execution, after confirming it is permitted and
+no hook will also launch. Check access to the workspace and network.
 For direct execution, also confirm the process interface can supply stdin
 separately from command arguments, as described in
 [launch and recovery](references/mcp-upload.md). With no safe stdin delivery or
@@ -87,7 +88,7 @@ one review; it does not establish that execution has started.
 - **Hook selected:** let the trusted post-tool hook pass the handoff to the CLI.
   Do not also run a shell command. If hook output is unavailable, use
   `get_code_review({review_id})` to read the same review.
-- **Direct fallback selected:** run the packaged launcher once as
+- **Direct package installed:** run the packaged launcher once as
   `review --agent --mcp-stdin --dir <absolute workspace root>`, supplying the
   returned `handoff` object unchanged as JSON on stdin. Use the host's permitted
   process interface; retain its process handle until completion. The CLI applies

@@ -28,10 +28,11 @@ The shipped Codex loader rejects server-level `extensions` in portable `mcp.json
 so do not add authentication fields there. Confirm the granted scopes in the
 native browser sign-in flow before qualification. After the host approves `start_code_review`, its trusted
 `PostToolUse` hook runs the pinned CLI's normal review using the returned
-one-review handoff. Prefer this automatic path on supported hosts. The `direct`
-package is a hook-free fallback for channels where hooks are unavailable or
-unsuitable; its skill invokes the same CLI through permitted execution. Select
-one launcher before starting. Neither path reads the host OAuth store. The
+one-review handoff. The installed `cli.json` fixes this launcher; setup verifies
+native hook trust rather than asking the user to choose a launch method. A
+separately assembled `direct` package invokes the same CLI through permitted
+execution with separate stdin delivery. It is not a runtime fallback when a
+hook is unavailable. Neither path reads the host OAuth store. The
 handoff may appear in the transcript, so it is scoped to one review and expires.
 The synchronous hook's 40-minute cancellation budget covers the bounded launch,
 execution and terminal-persistence windows; the old five-minute collector timeout
@@ -79,7 +80,7 @@ onboarding under `extensions.com.openai`. This remains an assembled
 local-marketplace pilot, not a universal-directory submission. Claude hooks use
 `CLAUDE_PLUGIN_ROOT`; Codex hooks use its native `PLUGIN_ROOT` variable.
 The default `--launcher hook` includes the trusted post-tool integration. Use
-`--launcher direct` for the hook-free fallback channel; it omits hook registration
+`--launcher direct` for a separately qualified hook-free package; it omits hook registration
 and records that selection and the executable path in `cli.json`. Neither package may bypass a
 host's execution or upload permissions. Both require a native CLI whose compiled
 Reviewer origin matches the intended environment; the MCP URL does not override

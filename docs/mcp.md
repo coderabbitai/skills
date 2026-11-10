@@ -51,13 +51,18 @@ also needs Git. This dependency does not replace your global CLI or change its
 login and update settings. MCP reviews use the browser connection without a
 separate CLI login.
 
-Setup confirms one launcher: the package's installed and trusted hook, or
-permitted direct execution in a hook-free package. Review hook trust in the
+Setup follows the launcher already selected in your package; it does not ask
+you to choose one. For the hook-based v1, review and trust the CodeRabbit hook in the
 host's native controls. Folder trust, execution, network and upload permissions
 still apply. A host without permitted local execution cannot start a local
 review. Hook-containing Codex packages use the manual desktop installation
 channel; they are not eligible for OpenAI's public plugin directory.
 See [OpenAI's plugin packaging guidance](https://developers.openai.com/plugins/build/plugins).
+
+An unavailable hook requires setup or a compatible host. The assistant does not
+replace it with a shell command. Separately assembled hook-free packages require
+permitted direct execution with authorization supplied through separate stdin;
+their existence does not establish support in every host or directory approval.
 
 Repository configuration is optional. Ask setup to suggest review settings and
 path instructions if useful. It inspects local context and shows validated
