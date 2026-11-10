@@ -207,6 +207,7 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         for name in ("LICENSE",):
             if (source / name).is_file():
                 shutil.copyfile(source / name, package / name)
+        shutil.copyfile(pilot / "CHANGELOG.md", package / "CHANGELOG.md")
         readme = "plugin-README.md" if delivery == "bundled" else "runtime-README.md"
         launch_guidance = (
             "This package uses one post-tool hook. Review and trust the CodeRabbit "

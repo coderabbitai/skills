@@ -2,6 +2,20 @@
 
 All notable changes to this repository are documented in this file.
 
+## Claude MCP plugin [1.3.0] - Release candidate
+
+- Connect CodeRabbit through the host's browser flow and review local changes
+  without a separate CLI login. Setup prepares and verifies pinned CLI 0.9.3.
+- Launch approved reviews through the Claude plugin's own post-tool hook and
+  recover saved findings by review ID without starting another review.
+- Preserve the caller's Git and SSH tool paths after executable verification.
+- Keep the standalone skills and plugin channels available. This version applies
+  only to the assembled Claude MCP package; it does not version or publish Mod,
+  Codex, or the shared standalone release archive.
+- See the [MCP changelog](packaging/mcp/CHANGELOG.md) and
+  [release inputs](packaging/releases/README.md). Directory approval and
+  publication are separate from preparing this candidate.
+
 ## [1.2.0] - Unreleased
 
 ### Added

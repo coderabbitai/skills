@@ -39,3 +39,6 @@ reviews send the selected source to the CodeRabbit review service. The host may
 retain the short-lived review handoff in its own transcript.
 
 [Privacy policy](https://www.coderabbit.ai/privacy-policy)
+
+[Release notes](CHANGELOG.md) · [Documentation](https://docs.coderabbit.ai/cli/claude-code-integration)
+· [Support](mailto:support@coderabbit.ai)
