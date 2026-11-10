@@ -147,13 +147,7 @@ After all fixes, display summary of fixed/skipped issues.
 
 ### Step 7: Create Single Consolidated Commit
 
-If any fixes were applied, compare the current diff with the approved diffs before staging. Stage only approved autofix hunks. For non-interactive hosts, build one combined patch against the current index, verify it contains only approved changes matching the working tree, then use `git apply --cached --check` before `git apply --cached`. If the patch cannot be applied safely, stop for reconciliation. Use `git add -p` with exact paths only when the host supports interactive input. Do not stage whole files merely because an autofix touched them, and never use `git add .` or `git add -A`.
-
-Inspect the **entire** staged diff with `git diff --cached`, including any already-staged changes. Commit only if every staged hunk belongs to an approved fix in this run. If unrelated or overlapping edits appear, stop for reconciliation without stashing, reverting, or committing them. Check again after any validation that modifies files.
-
-Immediately before committing, show the verified staged summary and obtain explicit approval to create the consolidated commit. Approval to apply fixes alone does not authorize committing. If declined, stop and leave the changes uncommitted.
-
-Use one commit for all applied fixes in this run. Require successful commit creation and record its SHA; a failed or empty commit must not proceed to push or success reporting.
+If fixes were applied, follow [commit and push verification](references/publish-fixes.md#prepare-and-verify-the-commit). Stage only approved hunks, show the verified summary, and obtain explicit commit approval. Recheck after approval and verify the resulting commit before proceeding. A failed, empty, or mismatched commit stops publication.
 
 ### Step 8: Prompt Build/Lint Before Push
 
@@ -164,14 +158,9 @@ If a consolidated commit was created:
 
 ### Step 9: Push Changes
 
-If a consolidated commit was created:
-- Establish the selected PR’s **head repository and branch** from trusted PR metadata already supplied in the task, or ask the user to confirm them. The CLI thread snapshot does not include these fields. Do not infer a fork’s head repository from the PR URL, local branch, or Git push configuration.
-- Re-read the selected PR snapshot and use `git ls-remote` with the confirmed head repository URL and exact `refs/heads/<head-branch>`. Require that branch to exist and its SHA to equal the snapshot’s `headCommit`; stop on missing, ambiguous, or divergent state.
-- Show the exact destination and recorded fix commit, then ask: "Push changes?" If declined, stop and report the commit as local-only.
-- If approved, push only the recorded commit to that confirmed destination: `git push <head-repository-url> <fix-commit-sha>:refs/heads/<head-branch>`. Pass validated values as separate quoted arguments; do not rely on default remotes/refspecs, force-push, or create a missing branch. Require exit status 0; on failure, stop and report the error.
-- Re-read the selected PR with `pullrequest --show-threads --agent` and confirm the returned `headCommit` equals the recorded fix commit SHA. If lookup fails or the head differs, report delivery as unconfirmed. A push to another branch is insufficient.
+If a consolidated commit was created, follow [commit and push verification](references/publish-fixes.md#push-to-the-selected-pr). Confirm the exact PR head destination and unchanged reviewed head, obtain push approval, and publish only the verified commit with an expected-SHA lease. Require a successful push and a matching CLI snapshot before reporting delivery. If approval is declined, report the commit as local-only.
 
-If all deferred (no commit): Skip this step.
+If no commit was created, skip this step.
 
 ### Step 10: Report the Result
 
