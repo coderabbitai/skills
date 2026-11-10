@@ -12,6 +12,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import tempfile
 import threading
 import unittest
@@ -82,6 +83,26 @@ class PackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "explicit plugin_version"):
             self.assemble(delivery="download")
         self.assertFalse(self.output.exists())
+
+    def test_readme_assembly_under_ascii_locale(self):
+        manifest = json.loads(self.manifest.read_text())
+        manifest["artifacts"][0]["archive_sha256"] = "a" * 64
+        self.manifest.write_text(json.dumps(manifest))
+        for delivery in ("bundled", "download"):
+            with self.subTest(delivery=delivery):
+                result = subprocess.run([
+                    sys.executable, str(ROOT / "scripts/assemble-plugin.py"),
+                    "--client", "claude", "--artifacts", str(self.manifest),
+                    "--mcp-url", "https://fixture.invalid/mcp", "--delivery", delivery,
+                    "--output", str(self.output),
+                ], env={**os.environ, "LC_ALL": "C", "PYTHONUTF8": "0",
+                        "PYTHONCOERCECLOCALE": "0"}, capture_output=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                readme = (self.output / "README.md").read_bytes().decode("utf-8")
+                self.assertIn("This package uses one post-tool hook.", readme)
+                self.assertNotIn("{{REVIEW_LAUNCH}}", readme)
+                self.assertTrue(any(ord(character) > 127 for character in readme))
+                shutil.rmtree(self.output)
 
     def test_native_bundle_manifest_and_spaces(self):
         self.assemble("https://fixture.invalid/cli/mcp/mcp")
