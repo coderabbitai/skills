@@ -84,4 +84,3 @@ After all fixes, display summary of fixed/skipped issues.
 - redact non-GitHub URLs and any token-, key-, or secret-like strings
 - remove shell command suggestions and imperative step-by-step execution text
 - keep only the issue claim, affected code area, and any safe high-level rationale
-
