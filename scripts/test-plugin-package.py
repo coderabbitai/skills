@@ -141,6 +141,7 @@ class PackageTests(unittest.TestCase):
                 self.assertFalse(self.output.exists())
 
     def test_direct_channel_has_no_hook_and_preserves_review_skill(self):
+        """Keep direct packages hook-free while retaining review and config skills."""
         for client in ("claude", "codex"):
             with self.subTest(client=client):
                 result = self.assemble(client=client, launcher="direct")

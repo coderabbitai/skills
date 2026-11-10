@@ -72,9 +72,9 @@ inspect the file before retrying or reporting success.
 
 ## Guided path settings
 
-For path guidance or a user who wants the CLI's interactive setup, run
-`<cli> config` (equivalently `<cli> config --generate`) in an interactive terminal;
-`<cli> config --detailed` selects its manual review-style and path-guidance flow.
+For path-guidance requests, run `<cli> config --detailed` in an interactive
+terminal to enter the manual review-style and path-guidance flow directly.
+For general interactive setup, use `<cli> config` or `<cli> config --generate`.
 Relay the CLI's actual prompts and preview, using settled user preferences and
 asking for missing choices. Confirm the displayed changes only after approval.
 If the host cannot interact with a terminal, give the user the exact command to
