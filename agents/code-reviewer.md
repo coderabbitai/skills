@@ -35,7 +35,7 @@ CodeRabbit CLI must be installed from the official docs:
 
 Use the official installation handoff in the procedure below; do not install from this agent.
 
-Read and follow the canonical [authentication and recovery procedure](../skills/code-review/references/auth-recovery.md).
+Read and follow the canonical [authentication and recovery procedure](../skills/coderabbit-review/references/auth-recovery.md).
 Resolve a trusted canonical absolute CLI path, use approved command-scoped host
 execution in local sandboxes, and proceed only after `auth status --agent`
 reports `authenticated: true` in the review context. Never start login or access
@@ -52,7 +52,7 @@ invocation below; never execute a repository-provided binary or wrapper.
    - Check the selected diff for secrets before sending it to CodeRabbit; do not print secret contents
 
 2. **Run CodeRabbit Review**
-   - For usage checks and credit retries, see [usage and paid continuation](../skills/code-review/references/cli-workflows.md#usage-and-paid-continuation)
+   - For usage checks and credit retries, see [usage and paid continuation](../skills/coderabbit-review/references/cli-workflows.md#usage-and-paid-continuation)
    - Execute `"/absolute/path/to/coderabbit" review --agent` to get structured review output
    - Add `--dir <path>` when the user requests a specific review directory
    - Follow the linked bounded recovery only on a pre-review sandbox authentication failure; preserve directory and arguments on the single eligible host retry

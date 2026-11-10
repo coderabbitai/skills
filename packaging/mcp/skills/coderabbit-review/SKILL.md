@@ -1,5 +1,5 @@
 ---
-name: code-review
+name: coderabbit-review
 description: Use when the user asks for code review, PR feedback, or an authorized fix and review cycle with CodeRabbit. Review through connected MCP and the packaged CLI, or follow the original standalone workflow for an explicit CLI-only request.
 metadata:
   version: "0.6.0"
