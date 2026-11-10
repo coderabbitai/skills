@@ -26,12 +26,16 @@ The `<cli>` examples below mean that verified executable, not a literal command.
 
 Check `<cli> --version`, `<cli> config --help`, and support for the needed
 subcommands. CLI 0.9.3 supports this workflow. Missing commands or an unsupported
-protocol require an upgrade, then rechecking support. For a standalone CLI, use
-`<cli> update` or the [official installation instructions](https://docs.coderabbit.ai/cli).
+protocol require an upgrade. For a standalone CLI, follow the
+[official installation instructions](https://docs.coderabbit.ai/cli) for its
+actual installation method (for example, `brew upgrade coderabbit` for Homebrew).
 For a managed runtime, update the plugin to a version with a compatible pinned
 CLI and follow its preparation instructions; never run `<cli> update` on the
 managed launcher. Do not install or upgrade without authorization. Preserve
 permission and network errors as such; they do not prove an upgrade is needed.
+After any upgrade, repeat trusted executable discovery and verification, then
+recheck version and command support. Do not reuse the old canonical path: an
+upgrade can replace a versioned installation directory or managed launcher.
 
 ## Validate only
 
