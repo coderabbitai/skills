@@ -99,11 +99,10 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
     if client == "claude" and delivery == "download":
         plugin_manifest["privacyPolicyUrl"] = "https://www.coderabbit.ai/privacy-policy"
         plugin_manifest["icon"] = "./assets/coderabbit-small.png"
-    review_skill = "code-review" if (source / "skills/code-review").is_dir() else "coderabbit-review"
+    review_skill = "coderabbit-review"
     pilot = source / "packaging/mcp"
     for skill in ("setup", review_skill):
-        template_skill = "code-review" if skill == review_skill else skill
-        if not (pilot / "skills" / template_skill / "SKILL.md").is_file():
+        if not (pilot / "skills" / skill / "SKILL.md").is_file():
             raise ValueError(f"Required MCP plugin skill is missing: {skill}")
     pilot_agent = pilot / "agents/code-reviewer.md"
     if client == "claude" and (not pilot_agent.is_file() or pilot_agent.is_symlink()):
@@ -121,18 +120,11 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
             destination = package / "skills" / skill
             if destination.exists():
                 shutil.rmtree(destination)
-            template_skill = "code-review" if skill == review_skill else skill
-            copy_tree(pilot / "skills" / template_skill, destination)
+            copy_tree(pilot / "skills" / skill, destination)
         if client == "claude":
             (package / "agents").mkdir(exist_ok=True)
             shutil.copyfile(pilot_agent, package / "agents/code-reviewer.md")
-        if client == "codex" and review_skill == "code-review":
-            skill = package / "skills/code-review"
-            entry = skill / "SKILL.md"
-            entry.write_text(entry.read_text().replace("name: code-review\n", "name: coderabbit-review\n", 1))
-            skill.rename(package / "skills/coderabbit-review")
-        installed_review_skill = "coderabbit-review" if client == "codex" else review_skill
-        legacy = package / "skills" / installed_review_skill / "references/standalone-cli"
+        legacy = package / "skills" / review_skill / "references/standalone-cli"
         copy_tree(source / "skills" / review_skill, legacy)
         # Keep the original workflow and relative references without registering
         # another broad review skill that competes with the route selector.

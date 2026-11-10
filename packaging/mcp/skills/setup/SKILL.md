@@ -60,7 +60,7 @@ optional configuration.
    inspect credentials, or run CLI authentication.
 5. Confirm the returned account and organization, and that `start_code_review`
    and `get_code_review` are available with review permission. If a review was already
-   requested, resume the packaged code-review skill with every original option,
+   requested, resume the packaged coderabbit-review skill with every original option,
    including directory, base, scope, `include_untracked`, and `instructions`.
    Otherwise confirm the connection is ready and offer to tailor review settings
    for this repository, or start with “Review my changes.” When the user wants

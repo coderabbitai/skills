@@ -48,7 +48,7 @@ class PackageTests(unittest.TestCase):
         manifest = json.loads(self.manifest.read_text())
         manifest["artifacts"][0]["archive_sha256"] = "a" * 64
         self.manifest.write_text(json.dumps(manifest))
-        shared = (ROOT / "skills/code-review/SKILL.md").read_bytes()
+        shared = (ROOT / "skills/coderabbit-review/SKILL.md").read_bytes()
         for client in ("claude", "codex"):
             for launcher in (("hook", "direct") if client == "claude" else ("direct",)):
                 with self.subTest(client=client, launcher=launcher):
@@ -65,7 +65,7 @@ class PackageTests(unittest.TestCase):
                             self.assertNotEqual(path.read_bytes(), self.native.read_bytes())
                     self.assertEqual((self.output / "runtime/darwin-arm64.url").read_text(),
                                      "https://cli.coderabbit.ai/releases/0.9.0/coderabbit-darwin-arm64.zip\n")
-                    self.assertEqual((ROOT / "skills/code-review/SKILL.md").read_bytes(), shared)
+                    self.assertEqual((ROOT / "skills/coderabbit-review/SKILL.md").read_bytes(), shared)
                     if launcher == "hook":
                         hook = json.loads((self.output / "hooks/hooks.json").read_text())
                         command = hook["hooks"]["PostToolUse"][0]["hooks"][0]["command"]
@@ -154,7 +154,9 @@ class PackageTests(unittest.TestCase):
                     self.assertEqual(portable["$schema"], "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json")
                     self.assertNotIn("hooks", portable["extensions"]["com.openai"])
                 self.assertEqual((self.output / "bin/launch-mode").read_text().strip(), "direct")
-                skill = "code-review" if client == "claude" else "coderabbit-review"
+                skill = "coderabbit-review"
+                self.assertFalse((self.output / "skills/code-review").exists())
+                self.assertIn("\nname: coderabbit-review\n", (self.output / "skills" / skill / "SKILL.md").read_text())
                 self.assertIn("--mcp-stdin", (self.output / "skills" / skill / "SKILL.md").read_text())
                 shutil.rmtree(self.output)
 
@@ -253,12 +255,12 @@ class PackageTests(unittest.TestCase):
         installed = Path(json.loads(result.stdout)["installedPath"])
         installed.resolve().relative_to(profile.resolve())
         legacy = installed / "skills/coderabbit-review/references/standalone-cli"
-        self.assertEqual((legacy / "guide.md").read_bytes(), (ROOT / "skills/code-review/SKILL.md").read_bytes())
+        self.assertEqual((legacy / "guide.md").read_bytes(), (ROOT / "skills/coderabbit-review/SKILL.md").read_bytes())
         self.assertEqual((legacy / "references/auth-recovery.md").read_bytes(),
-                         (ROOT / "skills/code-review/references/auth-recovery.md").read_bytes())
+                         (ROOT / "skills/coderabbit-review/references/auth-recovery.md").read_bytes())
 
     def test_pilot_instructions_do_not_replace_shared_cli_consumers(self):
-        shared_paths = [ROOT / "skills/code-review/SKILL.md", ROOT / "agents/code-reviewer.md"]
+        shared_paths = [ROOT / "skills/coderabbit-review/SKILL.md", ROOT / "agents/code-reviewer.md"]
         shared = {path: path.read_bytes() for path in shared_paths}
         for content in shared.values():
             self.assertIn(b"review --agent", content)
@@ -267,16 +269,16 @@ class PackageTests(unittest.TestCase):
             for launcher in (("hook", "direct") if client == "claude" else ("direct",)):
                 with self.subTest(client=client, launcher=launcher):
                     self.assemble(client=client, launcher=launcher)
-                    skill_name = "code-review" if client == "claude" else "coderabbit-review"
+                    skill_name = "coderabbit-review"
                     skill = self.output / "skills" / skill_name
                     self.assertIn("start_code_review", (skill / "SKILL.md").read_text())
                     self.assertIn("references/standalone-cli/guide.md", (skill / "SKILL.md").read_text())
                     legacy = skill / "references/standalone-cli"
-                    self.assertEqual((legacy / "guide.md").read_bytes(), shared[ROOT / "skills/code-review/SKILL.md"])
+                    self.assertEqual((legacy / "guide.md").read_bytes(), shared[ROOT / "skills/coderabbit-review/SKILL.md"])
                     self.assertFalse((legacy / "SKILL.md").exists())
-                    for reference in (ROOT / "skills/code-review/references").rglob("*"):
+                    for reference in (ROOT / "skills/coderabbit-review/references").rglob("*"):
                         if reference.is_file():
-                            self.assertEqual((legacy / "references" / reference.relative_to(ROOT / "skills/code-review/references")).read_bytes(), reference.read_bytes())
+                            self.assertEqual((legacy / "references" / reference.relative_to(ROOT / "skills/coderabbit-review/references")).read_bytes(), reference.read_bytes())
                     self.assertTrue((skill / "references/mcp-upload.md").is_file())
                     self.assertFalse((skill / "references/auth-recovery.md").exists())
                     self.assertTrue((self.output / "skills/setup/SKILL.md").is_file())

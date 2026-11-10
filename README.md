@@ -231,7 +231,7 @@ CodeRabbit supports 35+ coding agents.
 
 ## Available Skills
 
-### [code-review](skills/code-review/SKILL.md)
+### [coderabbit-review](skills/coderabbit-review/SKILL.md)
 
 AI-powered code review that finds bugs, security issues, and suggests improvements using CodeRabbit.
 
@@ -285,7 +285,7 @@ the direct variant requires permitted local execution with separate stdin.
 
 ### Claude Code
 
-- Skills: `code-review` and `autofix`. Run them as `/coderabbit:code-review`
+- Skills: `coderabbit-review` and `autofix`. Run them as `/coderabbit:coderabbit-review`
   and `/coderabbit:autofix`, or ask in plain language, such as "review my
   changes" or "fix the CodeRabbit comments on this PR".
 - Subagents: `code-reviewer` runs a CodeRabbit review in its own context, and
@@ -294,9 +294,10 @@ the direct variant requires permitted local execution with separate stdin.
   `@agent-coderabbit:code-reviewer` and `@agent-coderabbit:autofix`.
 - Manifest: `.claude-plugin/plugin.json`
 
-The Claude plugin has no slash commands of its own. In Claude, use
-`/coderabbit:code-review` instead of the earlier
-`/coderabbit:coderabbit-review`.
+The review skill uses a CodeRabbit-specific name so standalone installs preserve
+Claude’s bundled `/code-review`. After upgrading an existing standalone install,
+remove its old `code-review` skill directory and reinstall `coderabbit-review`;
+leaving the old copy installed will keep shadowing the bundled command.
 
 The plugin runs reviews through the locally installed CodeRabbit CLI, so it
 needs a shell on a machine where the CLI is installed and logged in. Claude Code
@@ -312,7 +313,7 @@ and chat doesn't run subagents.
 ### Antigravity CLI
 
 For sandboxed CLI sessions that cannot find or execute an installed CodeRabbit
-CLI, follow the [scoped executable-access recovery](skills/code-review/references/antigravity-sandbox.md).
+CLI, follow the [scoped executable-access recovery](skills/coderabbit-review/references/antigravity-sandbox.md).
 It keeps diagnostics sandboxed and retains per-command host approval for auth and review.
 
 - Native plugin manifest: `plugin.json`
@@ -332,7 +333,7 @@ It keeps diagnostics sandboxed and retains per-command host approval for auth an
 The released Claude plugin contains two skills and two subagents. It bundles no MCP
 servers, hooks, or executables.
 
-- **Local commands**: the `code-review` skill and the `code-reviewer` subagent
+- **Local commands**: the `coderabbit-review` skill and the `code-reviewer` subagent
   run the installed `coderabbit` CLI and read-only Git commands. The `autofix`
   skill uses the installed GitHub CLI (`gh`) to read CodeRabbit review threads
   on the current pull request and, when you approve, to create a pull request or

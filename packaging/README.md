@@ -5,7 +5,7 @@ changes**. It requires the matching hosted MCP control service and a CLI build
 that implements `review --agent --mcp-stdin` and `mcp-hook`. It is not a published release. Installing the
 source tree directly does not supply the native CLI or hosted endpoint.
 
-Shared `skills/code-review` and `agents/code-reviewer.md` retain the released CLI
+Shared `skills/coderabbit-review` and `agents/code-reviewer.md` retain the released CLI
 workflow. The assembler replaces them with the MCP templates in `packaging/mcp`
 and adds its setup skill only inside the complete pilot package.
 

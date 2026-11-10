@@ -33,16 +33,19 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
+- Rename the portable and packaged review skill to `coderabbit-review` so standalone
+  installs preserve the host’s `/code-review`. Existing standalone installs must
+  remove the old skill directory when upgrading.
+
 - Clarified bounded CLI discovery, manual curl installation, and execution-context
   selection in the shared review guidance, with Antigravity CLI sandbox recovery
   isolated in a conditionally loaded reference.
 - Documented `usage --agent` and authorized review retries with `--use-credits`.
 
-- The Claude plugin now ships the `code-review` and `autofix` skills and the
-  `code-reviewer` and `autofix` subagents. It no longer includes the
-  `/coderabbit:coderabbit-review` command, because skills supersede commands
-  in Claude; run `/coderabbit:code-review` instead. Gemini CLI and Antigravity
-  CLI keep their review commands.
+- The Claude plugin ships the `coderabbit-review` and `autofix` skills and the
+  `code-reviewer` and `autofix` subagents. `/coderabbit:coderabbit-review` now
+  invokes the skill rather than a separate Markdown command. Gemini CLI and
+  Antigravity CLI keep their review commands.
 - Removed the duplicate Markdown review command `commands/coderabbit-review.md`.
   Antigravity CLI and Gemini CLI both use `/coderabbit:review` from
   `commands/coderabbit/review.toml`, and the Claude manifest no longer needs a

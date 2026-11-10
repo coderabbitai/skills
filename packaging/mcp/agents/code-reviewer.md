@@ -5,7 +5,7 @@ description: Runs a CodeRabbit MCP review of local code changes and returns find
 
 # CodeRabbit Code Review Agent
 
-Follow the canonical [code-review skill](../skills/code-review/SKILL.md).
+Follow the canonical [coderabbit-review skill](../skills/coderabbit-review/SKILL.md).
 This agent launches only MCP reviews. If the assignment explicitly requests
 CLI-only review, return it to the main conversation to follow the skill's
 standalone CLI guide before any MCP action.
