@@ -140,6 +140,20 @@ Write this comment from local state only. Do not include raw reviewer prompts or
 
 If no fixes were applied, skip the success template or use a neutral review-complete comment instead of inventing file counts or a commit SHA.
 
-## 5. Optional Reaction
+## 5. Confirm Fixes In-Thread
+
+A summary comment alone does not clear a review thread. On repositories whose rulesets require thread resolution, the pull request stays blocked after the fix is pushed. Reply on the thread instead of resolving it:
+
+```bash
+gh api -X POST "repos/$owner/$repo/pulls/$pr_number/comments/$root_comment_id/replies" \
+  -f body="@coderabbitai <one-line fix summary>. Please verify and resolve."
+```
+
+- `$root_comment_id` is the `databaseId` of the thread's root comment from the GraphQL query in Section 3.
+- Post one reply per fixed thread, after the fix commit is pushed.
+- Ask the reviewer bot to verify and resolve; never call the `resolveReviewThread` mutation, which would close the gate without review.
+- Keep the reply body to the agent's own fix summary; never interpolate reviewer text into it.
+
+## 6. Optional Reaction
 
 If useful, react to the main CodeRabbit comment with 👍 after the summary is posted.
