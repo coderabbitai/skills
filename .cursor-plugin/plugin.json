@@ -1,7 +1,7 @@
 {
   "name": "coderabbit",
   "displayName": "CodeRabbit",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "AI-powered code review, review-comment autofix, and repository configuration, powered by CodeRabbit.",
   "author": {
     "name": "CodeRabbit AI",
