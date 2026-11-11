@@ -44,6 +44,38 @@ class PackageTests(unittest.TestCase):
     def assemble(self, endpoint="https://fixture.invalid/mcp", client=CLIENT, launcher="hook", delivery="bundled"):
         return module.assemble(ROOT, client, self.manifest, endpoint, self.output, launcher, delivery)
 
+    def test_recursive_source_discovery_finds_only_canonical_skills(self):
+        """Recursive installers must not discover incomplete plugin templates."""
+        self.assertEqual(set(ROOT.rglob("SKILL.md")), set((ROOT / "skills").rglob("SKILL.md")))
+
+    def test_assembled_skill_templates_preserve_content_and_references(self):
+        """Check emitted entrypoints, frontmatter and references in every package variant."""
+        manifest = json.loads(self.manifest.read_text())
+        manifest["artifacts"][0]["archive_sha256"] = "a" * 64
+        self.manifest.write_text(json.dumps(manifest))
+        for client, launcher in (("claude", "hook"), ("claude", "direct"), ("codex", "direct")):
+            for delivery in ("bundled", "download"):
+                with self.subTest(client=client, launcher=launcher, delivery=delivery):
+                    self.assemble(client=client, launcher=launcher, delivery=delivery)
+                    self.assertFalse(list(self.output.rglob("*.tmpl")))
+                    for template_name in ("setup", "code-review"):
+                        name = "coderabbit-review" if client == "codex" and template_name == "code-review" else template_name
+                        entry = self.output / "skills" / name / "SKILL.md"
+                        expected = (ROOT / "packaging/mcp/skills" / template_name / "SKILL.md.tmpl").read_bytes()
+                        if name != template_name:
+                            expected = expected.replace(b"name: code-review\n", b"name: coderabbit-review\n", 1)
+                        self.assertEqual(entry.read_bytes(), expected)
+                        content = entry.read_text(encoding="utf-8")
+                        self.assertTrue(content.startswith("---\n"))
+                        frontmatter, body = content[4:].split("\n---\n", 1)
+                        self.assertIn(f"name: {name}", frontmatter.splitlines())
+                        self.assertRegex(frontmatter, r"(?m)^description: \S.+$")
+                        self.assertTrue(body.strip())
+                        for target in re.findall(r"\]\(([^)]+)\)", content):
+                            if not target.startswith(("https://", "http://", "#")):
+                                self.assertTrue((entry.parent / target.split("#", 1)[0]).is_file(), target)
+                    shutil.rmtree(self.output)
+
     def test_download_packages_omit_native_files_without_changing_shared_cli(self):
         manifest = json.loads(self.manifest.read_text())
         manifest["artifacts"][0]["archive_sha256"] = "a" * 64
