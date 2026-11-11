@@ -157,6 +157,108 @@ const finding = {
 const noFreshMessage =
   "No fresh detailed file review was performed in this run. To review the selected changes again, rerun your command with --fresh.";
 
+const warningMessage = "Review completed with unverified findings";
+const warningComplete = (findings = 0, extra = {}) =>
+  JSON.stringify({
+    type: "complete",
+    status: "review_completed",
+    findings,
+    outcome: "completed_with_warnings",
+    message: warningMessage,
+    unreviewedFileCount: 0,
+    ...extra,
+  });
+
+for (const surface of ["terminal", "desktop"]) {
+  for (const count of [0, 1]) {
+    test(
+      surface + " preserves completion warnings with " + count + " findings",
+      OPTIONS,
+      async ($, on) => {
+        const clock = mock.clock(on);
+        const { toasts } = interactiveHost(on);
+        mockProcess(on, () => ({
+          value: output((count ? JSON.stringify(finding) + "\n" : "") + warningComplete(count)),
+        }));
+        on("ui.render", { component: "AbovePrompt" }, ($, e) =>
+          $.ui.resolve(e).Text({ children: [] }),
+        );
+        await attach($, surface);
+        await $.session.start({ surface, isInteractive: true, cwd: "/work" });
+        const band = await $.ui.mount(liveBand(surface));
+        const start = await $.command.run({ command: "coderabbit-review", args: "" });
+        const row = await $.ui.mount({ ...commandTarget(start.text), surface });
+        await clock.advance(1);
+        await clock.settle();
+        expect(toasts).toEqual(["Review complete with warnings" + (count ? " · 1 finding" : "")]);
+        expect(JSON.stringify(await band.drawn())).toContain("Review complete with warnings");
+        if (count) expect(JSON.stringify(await band.drawn())).toContain("View findings");
+        else {
+          await band.press({ key: "review-activity" });
+          expect(JSON.stringify(await band.drawn())).toContain(warningMessage);
+        }
+        const drawing = JSON.stringify(await row.drawn());
+        expect(drawing).toContain("Review complete with warnings");
+        expect(drawing).toContain(warningMessage);
+        expect(drawing).not.toContain("No findings");
+        if (count) expect(drawing).toContain("Check the nullable value.");
+        const saved = await $.command.run({ command: "coderabbit-review", args: "results" });
+        expect(JSON.parse(saved.text).outcome).toBe("completed_with_warnings");
+      },
+    );
+  }
+}
+
+for (const [name, extra, detail] of [
+  ["legacy completion message", { outcome: undefined }, warningMessage],
+  ["missing completion message", { message: undefined }, "no warning details were provided"],
+  ["generic completion message", { message: "Review completed" }, "no warning details were provided"],
+]) {
+  test("shows warnings for " + name, OPTIONS, async ($, on) => {
+    stubProcess(on, output(warningComplete(0, extra)));
+    const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+    const row = await $.ui.mount(commandTarget(answer.text));
+    const drawing = JSON.stringify(await row.drawn());
+    expect(drawing).toContain("Review complete with warnings");
+    expect(drawing).toContain(detail);
+    expect(drawing).not.toContain("No findings");
+  });
+}
+
+for (const [name, result, heading] of [
+  ["skipped", output(warningComplete(0, { status: "review_skipped" })), "Review skipped"],
+  ["no fresh analysis", output(warningComplete(0, { message: noFreshMessage })), "Review skipped"],
+  ["failed", output(warningComplete(), { exitCode: 1 }), "Review could not finish"],
+  ["truncated", output(warningComplete(), { isStdoutTruncated: true }), "Review incomplete"],
+  ["invalid", output("not-json\n" + warningComplete()), "Review incomplete"],
+]) {
+  test(name + " takes precedence over completion warnings", OPTIONS, async ($, on) => {
+    stubProcess(on, result);
+    const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+    const row = await $.ui.mount(commandTarget(answer.text));
+    const drawing = JSON.stringify(await row.drawn());
+    expect(drawing).toContain(heading);
+    expect(drawing).not.toContain("Review complete with warnings");
+    expect(drawing).not.toContain("No findings");
+  });
+}
+
+test("finding prose cannot turn a clean completion into a warning", OPTIONS, async ($, on) => {
+  stubProcess(
+    on,
+    output(
+      JSON.stringify({ ...finding, codegenInstructions: warningMessage }) +
+        "\n" +
+        complete("review_completed", 1),
+    ),
+  );
+  const answer = await $.command.run({ command: "coderabbit-review", args: "" });
+  const row = await $.ui.mount(commandTarget(answer.text));
+  const drawing = JSON.stringify(await row.drawn());
+  expect(drawing).toContain("Review complete · 1 finding");
+  expect(drawing).not.toContain("Review complete with warnings");
+});
+
 for (const surface of ["terminal", "desktop"]) {
   test(
     surface + " shows a skipped review consistently in card, band and toast",
