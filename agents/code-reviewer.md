@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Runs a CodeRabbit CLI review of the current code changes in its own context and returns the findings by severity with suggested fixes. Use for a thorough review before a commit or pull request.
+description: Reviews code through the native Claude plugin's MCP workflow or the standalone CLI in other hosts, returning original finding severities and suggested fixes. Use for a thorough review before a commit or pull request.
 ---
 
 # CodeRabbit Code Review Agent

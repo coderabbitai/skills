@@ -317,11 +317,12 @@ For review, use `/coderabbit:code-review` instead of the earlier
 
 The native plugin runs local reviews through its pinned runtime. Run
 `/coderabbit:setup` to prepare it and connect through MCP authorization; no
-separate CLI login is needed. Local review requires permission to execute the
-runtime and access the intended Git working tree. Cowork and Claude chat on the
-web, desktop, and mobile can load the skills, but local review is available only
-where execution is permitted, and chat doesn't run subagents. The explicit
-CLI-only route requires the user's own installed and authenticated CLI.
+separate CLI login is needed. Local review requires a host that supports plugin
+hooks, a trusted review hook, and permission to execute the runtime and access
+the intended Git working tree. Cowork and Claude chat on the web, desktop, and
+mobile can load the skills. Chat does not run plugin hooks or subagents, so it
+cannot launch this hook-based local review. The explicit CLI-only route requires
+the user's own installed and authenticated CLI.
 
 ### Cursor
 

@@ -49,8 +49,9 @@ optional configuration.
    denied execution or upload decision.
 3. In Claude Code, check the active server in `/mcp` against this package's
    declared URL: `mcpServers.coderabbit.url` in `.claude-plugin/plugin.json` for
-   the native root package, or `.mcp.json` for an independently assembled package. A manually configured connection at the same endpoint can
-   hide the plugin connection. Local reviews require the plugin-qualified tool
+   the native root package, or `.mcp.json` for an independently assembled package.
+   A manually configured connection at the same endpoint can hide the plugin
+   connection. Local reviews require the plugin-qualified tool
    `mcp__plugin_coderabbit_coderabbit__start_code_review`; a bare server name
    cannot prove plugin ownership. If a manual entry shadows it, explain the
    conflict and let the user disable that duplicate in its native scope, then
