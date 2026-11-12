@@ -1,6 +1,13 @@
 # Claude release inputs
 
-The repository-root Claude 1.3.3 candidate combines remote MCP with standalone
+> **Historical.** The package assembler (`scripts/assemble-plugin.py`), the
+> bundled-CLI launchers (`scripts/coderabbit`, `scripts/coderabbit-runtime`) and
+> the `assemble-mcp-plugin` workflow were removed in Claude plugin 1.3.4: the
+> Claude directory scans this whole repository and held the plugin over them.
+> They remain in git history at `f0629e0`. Commands below that call them no
+> longer run from `main`.
+
+The repository-root Claude 1.3.4 candidate combines remote MCP with standalone
 CLI local reviews. It declares no review hook and has no managed-runtime pins.
 Its source is `main`; directory validation and publication remain separate.
 

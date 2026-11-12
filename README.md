@@ -13,7 +13,7 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 ## Quickstart
 
 **Claude MCP plugin:** the repository root on `main` is the installable Claude
-1.3.3 candidate. It connects remote CodeRabbit tools through MCP and uses the
+1.3.4 candidate. It connects remote CodeRabbit tools through MCP and uses the
 standalone CodeRabbit CLI for local reviews. It has no automatic review hook.
 Run `/coderabbit:setup` to check both: **connect MCP → sign in to the CLI if
 needed → “Review my changes.”** The two sign-ins are separate; an existing CLI
