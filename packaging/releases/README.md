@@ -1,6 +1,6 @@
 # Claude release inputs
 
-The repository-root Claude 1.3.2 candidate combines remote MCP with standalone
+The repository-root Claude 1.3.3 candidate combines remote MCP with standalone
 CLI local reviews. It declares no review hook and has no managed-runtime pins.
 Its source is `main`; directory validation and publication remain separate.
 

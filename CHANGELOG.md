@@ -2,6 +2,20 @@
 
 All notable changes to this repository are documented in this file.
 
+## Claude plugin [1.3.3] - Release candidate
+
+- Remove the `oauth` block from the remote MCP server in
+  `.claude-plugin/plugin.json`; keep `type` and `url`. Claude now uses standard
+  MCP OAuth discovery from `https://mcp.coderabbit.ai/`, and sign-in requests
+  the server's advertised `scopes_supported` (as Codex does) instead of the
+  previous five pinned scopes.
+- Point the missing-CLI recovery step to the official installation docs instead
+  of a download-and-run command.
+- Addresses the Claude directory policy hold "Uses a credential from the
+  user's machine" (`MCP_FORWARDS_CREDENTIAL_ENV`) that held every 1.3.x version
+  carrying the `oauth` block. The hold is cleared only once the directory
+  rescans this commit.
+
 ## Claude plugin [1.3.2] - Release candidate
 
 - Keep the remote MCP connection and remove the automatic local-review hook.
