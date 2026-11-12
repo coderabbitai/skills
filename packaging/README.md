@@ -1,5 +1,12 @@
 # MCP-authorized CLI plugin packages
 
+> **Historical.** The package assembler (`scripts/assemble-plugin.py`), the
+> bundled-CLI launchers (`scripts/coderabbit`, `scripts/coderabbit-runtime`) and
+> the `assemble-mcp-plugin` workflow were removed in Claude plugin 1.3.0: the
+> Claude directory scans this whole repository and held the plugin over them.
+> They remain in git history at `f0629e0`. Commands below that call them no
+> longer run from `main`.
+
 ## Native Claude package on main
 
 The repository root on `main` is the complete Claude MCP 1.3.1 candidate.

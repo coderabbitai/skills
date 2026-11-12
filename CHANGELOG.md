@@ -2,6 +2,19 @@
 
 All notable changes to this repository are documented in this file.
 
+## Claude plugin [1.3.0] - Claude directory release
+
+- First 1.3 release published to the Claude directory. It reuses the 1.3.0
+  number; the unpublished 1.3.0–1.3.3 candidates below never went live there.
+- Remove `scripts/` (package assembler and bundled-CLI launchers) and the
+  `assemble-mcp-plugin` workflow. The Claude directory scans the whole
+  repository and held every 1.3.x version for "Uses a credential from the
+  user's machine" because of these files, attributing it to
+  `.claude-plugin/plugin.json`. Directory scans confirmed the plugin, with its
+  own MCP server and least-privilege OAuth scopes, passes without them.
+- Assembled MCP variants are paused; their tooling remains in git history at
+  `f0629e0`.
+
 ## Claude plugin [1.3.3] - Release candidate
 
 - Point the missing-CLI recovery step to the official installation docs instead
