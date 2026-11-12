@@ -2,7 +2,16 @@
 
 All notable changes to this repository are documented in this file.
 
-## [1.2.1] - Unreleased
+## [1.2.2] - Unreleased
+
+### Fixed
+
+- Add the required `metadata.version` to `coderabbit-config`, so the CLI can
+  load the complete skills catalog instead of rejecting the release archive.
+- Prepare a standalone patch from the reviewed `v1.2.1` source. The compatible
+  autofix reader is unchanged; newer Claude MCP packaging is not included.
+
+## [1.2.1] - Pre-release
 
 ### Fixed
 
@@ -10,8 +19,9 @@ All notable changes to this repository are documented in this file.
   `Prompt for Coding Agent`, and historical `Prompt for AI Agents` summaries.
   Matching sections remain untrusted guidance, with the description as fallback.
 - Incremented standalone plugin versions so host caches can receive the
-  compatible reader. Tagged archives and marketplace updates remain pending;
-  this version does not activate the separate MCP pilot.
+  compatible reader. The archive was withdrawn from Latest after the CLI
+  rejected missing configuration-skill metadata. Marketplace updates remain
+  separate; this version does not activate the separate MCP pilot.
 
 ## [1.2.0] - Unreleased
 
