@@ -2,6 +2,17 @@
 
 All notable changes to this repository are documented in this file.
 
+## [1.2.1] - Unreleased
+
+### Fixed
+
+- Autofix recognizes `Prompt to fix issue`, `Prompt for Coding Agents`,
+  `Prompt for Coding Agent`, and historical `Prompt for AI Agents` summaries.
+  Matching sections remain untrusted guidance, with the description as fallback.
+- Incremented standalone plugin versions so host caches can receive the
+  compatible reader. Tagged archives and marketplace updates remain pending;
+  this version does not activate the separate MCP pilot.
+
 ## [1.2.0] - Unreleased
 
 ### Added
@@ -68,7 +79,7 @@ All notable changes to this repository are documented in this file.
 - Aligned Claude Code and Cursor plugin versions with the planned `1.2.0`
   release and Gemini CLI manifest.
 - Recorded tagged release archives as the live source for `coderabbit skills`;
-  publishing `v1.2.0` is still required to deliver these changes through the CLI.
+  publishing a newer tagged release is required to deliver these changes through the CLI.
 - Quoted Claude Code command frontmatter values so standard YAML parsers can
   validate them.
 
