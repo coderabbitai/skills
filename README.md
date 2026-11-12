@@ -280,8 +280,9 @@ remain a CLI capability gap. Missing commands require an upgrade, never an
 agent-side YAML editor. Validation alone does not change files; saves require
 approval of the preview. Configuration does not require login or run a review.
 
-This skill is included in the source package. Tagged archives and marketplace
-caches require their normal release or publication update to deliver it.
+This skill is included in the source package and the published
+[standalone `v1.2.2` archive](https://github.com/coderabbitai/skills/releases/tag/v1.2.2).
+Marketplace caches require their normal publication update to deliver it.
 
 ## Plugin Components
 
