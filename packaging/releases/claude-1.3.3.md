@@ -12,4 +12,4 @@ separate Anthropic review/approval for the hook-enabled update is obtained.
 - Keep explicit CLI-only review, portable skills, other host plugins, and the
   separate Mod available. MCP and hook declarations remain Claude-only.
 - Source availability, directory validation, policy approval and publication
-  remain separate. This staged source does not change the live 1.3.2 package.
+  remain separate. This staged source does not change or publish the hook-free 1.3.2 candidate.
