@@ -1,6 +1,6 @@
 # CodeRabbit Skills and Plugins
 
-![Version](https://img.shields.io/badge/version-1.2.1--unreleased-blue)
+[![Standalone release](https://img.shields.io/badge/standalone-1.2.2-blue)](https://github.com/coderabbitai/skills/releases/tag/v1.2.2)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Agents](https://img.shields.io/badge/works_with-35%2B_agents-brightgreen)](#supported-agents)
 
@@ -99,17 +99,15 @@ After publication, Cursor marketplace installs use:
 For the current recommended setup, see the
 [Cursor integration guide](https://docs.coderabbit.ai/cli/cursor-integration).
 
-#### Gemini CLI Extension (pre-release)
+#### Gemini CLI Extension
 
-Until `v1.2.1` is published as the Latest release, Gemini CLI users can install
-the native extension from `main`:
+Gemini CLI users can install the native extension from the published
+[standalone `v1.2.2` tag](https://github.com/coderabbitai/skills/releases/tag/v1.2.2):
 
 ```bash
-gemini extensions install https://github.com/coderabbitai/skills --ref main
+gemini extensions install https://github.com/coderabbitai/skills --ref v1.2.2
 gemini extensions list
 ```
-
-After `v1.2.1` is published, the `--ref main` option can be omitted.
 
 The repository-root [`gemini-extension.json`](gemini-extension.json) packages
 the portable skills, `/coderabbit:review` command, and both subagents.
@@ -282,8 +280,9 @@ remain a CLI capability gap. Missing commands require an upgrade, never an
 agent-side YAML editor. Validation alone does not change files; saves require
 approval of the preview. Configuration does not require login or run a review.
 
-This skill is included in the source package. Tagged archives and marketplace
-caches require their normal release or publication update to deliver it.
+This skill is included in the source package and the published
+[standalone `v1.2.2` archive](https://github.com/coderabbitai/skills/releases/tag/v1.2.2).
+Marketplace caches require their normal publication update to deliver it.
 
 ## Plugin Components
 

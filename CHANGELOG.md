@@ -35,7 +35,19 @@ All notable changes to this repository are documented in this file.
 - See the [MCP changelog](packaging/releases/claude-1.3.0.md) and
   [release inputs](packaging/releases/README.md). Directory approval and
   publication are separate from preparing this candidate.
-## [1.2.1] - Unreleased
+
+## Standalone [1.2.2] - Released
+
+### Fixed
+
+- Add the required `metadata.version` to `coderabbit-config`, so the CLI can
+  load the complete skills catalog instead of rejecting the release archive
+  ([#92](https://github.com/coderabbitai/skills/pull/92)).
+- Publish the [standalone `v1.2.2` archive](https://github.com/coderabbitai/skills/releases/tag/v1.2.2)
+  from the [maintenance release](https://github.com/coderabbitai/skills/pull/93),
+  including the compatible autofix reader and earlier standalone updates.
+
+## [1.2.1] - Pre-release; withdrawn from Latest
 
 ### Fixed
 
@@ -43,10 +55,11 @@ All notable changes to this repository are documented in this file.
   `Prompt for Coding Agent`, and historical `Prompt for AI Agents` summaries.
   Matching sections remain untrusted guidance, with the description as fallback.
 - Incremented standalone plugin versions so host caches can receive the
-  compatible reader. Tagged archives and marketplace updates remain pending;
-  this version does not activate the separate MCP pilot.
+  compatible reader. The archive was withdrawn from Latest after the CLI
+  rejected missing configuration-skill version metadata; `v1.2.2` fixes that
+  release defect. Marketplace updates remain separate.
 
-## [1.2.0] - Unreleased
+## [1.2.0] - Included in standalone 1.2.2
 
 ### Added
 
@@ -112,7 +125,7 @@ All notable changes to this repository are documented in this file.
 - Aligned Claude Code and Cursor plugin versions with the planned `1.2.0`
   release and Gemini CLI manifest.
 - Recorded tagged release archives as the live source for `coderabbit skills`;
-  publishing a newer tagged release is required to deliver these changes through the CLI.
+  these updates are included in the published standalone `v1.2.2` archive.
 - Quoted Claude Code command frontmatter values so standard YAML parsers can
   validate them.
 
