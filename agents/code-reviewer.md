@@ -1,17 +1,21 @@
 ---
 name: code-reviewer
-description: Reviews local code through the installed CodeRabbit CLI, returning original finding severities and suggested fixes. Use for a thorough review before a commit or pull request.
+description: Reviews code through the native Claude plugin's MCP workflow or the standalone CLI in other hosts, returning original finding severities and suggested fixes. Use for a thorough review before a commit or pull request.
 ---
 
 # CodeRabbit Code Review Agent
 
-## Local review workflow
+## Native Claude plugin route
 
-Use the installed CodeRabbit CLI and its own authentication in every host.
-The native Claude plugin's remote MCP connection does not replace CLI login.
-Do not call `start_code_review` or use an MCP handoff for a local review: this
-package has no review hook. Follow the standalone workflow below. Never start a
-standalone review to retry an uncertain MCP review; recover its existing ID.
+When Claude loads this agent from the native `coderabbit` plugin, it substitutes
+this plugin's installed directory into `${CLAUDE_PLUGIN_ROOT}`. Follow
+`${CLAUDE_PLUGIN_ROOT}/packaging/mcp/agents/code-reviewer.md` and return; do not
+run the standalone workflow below. An explicit CLI-only request returns to the
+main conversation's shared review skill before any MCP action.
+
+In other hosts, the plugin-root placeholder is not substituted. Continue with
+the standalone CLI instructions below; a shell environment variable or manual
+MCP connection does not establish that this is the native Claude plugin.
 
 ## Standalone CLI agent
 

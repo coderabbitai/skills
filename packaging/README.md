@@ -2,7 +2,11 @@
 
 ## Native Claude package on main
 
-The repository root on `main` is the complete Claude MCP 1.3.1 candidate.
+This staged follow-up prepares the complete Claude MCP 1.3.3 candidate at the
+repository root. Do not merge until hook-free 1.3.2 is live. After that, merge
+and import 1.3.3 for Anthropic policy review. Do not publish until Anthropic
+clears the applicable hook and credential policy holds and publication is
+authorized.
 `.claude-plugin/plugin.json` declares its hosted connection and plugin-qualified
 post-tool hook. `cli.json` and `runtime/` pin the existing readable
 `scripts/coderabbit-runtime` launcher to CLI 0.9.3. Explicit setup prepares the
