@@ -1,140 +1,58 @@
 # Connect CodeRabbit through MCP
 
-CodeRabbit's hosted MCP connection lets your assistant read account information,
-usage, accessible repositories and pull requests, and saved review results.
-Available tools depend on your account, permissions and the current rollout.
+The Claude plugin 1.3.2 candidate combines CodeRabbit's remote MCP connection
+with standalone CLI local reviews. It declares no automatic hooks. Source on
+`main` and directory publication are separate; see
+[distribution status](../DISTRIBUTION_CHANNELS.md).
 
-The repository root on `main` contains the complete Claude MCP 1.3.1 candidate:
-its connection and hook are declared in `.claude-plugin/plugin.json`, and runtime
-pins are checked in under `runtime/`. No generated distribution branch or local
-assembly is needed for that native Claude package. Source availability does not
-publish the candidate: confirm the current directory or marketplace version
-before installation. Codex and other standalone integrations remain separate.
+## Set up
 
-## Connect your account
+Run `/coderabbit:setup` in the installed Claude plugin.
 
-1. In your host's connector settings, add CodeRabbit with the server URL supplied
-   with your preview package, or use **Connect** for the server included in your
-   MCP-enabled plugin. In Claude Code, use `/mcp` to inspect that connection and
-   follow its authentication action. In Codex, use the plugin's native connection
-   controls.
-2. Complete browser sign-in and consent for the organization you intend to use.
-   Do not paste an authorization code or token into a conversation.
-3. Ask: **“Which CodeRabbit account, organization and region am I connected to?”**
-   Verify the returned identity. A successful browser page alone does not prove
-   which organization the connection uses.
-4. Ask for usage, an accessible repository or pull-request information. The
-   connection does not grant access beyond your account's permissions. A listed
-   organization membership does not switch the active organization.
+1. Connect CodeRabbit through Claude's native browser sign-in and select your
+   organization. In Claude Code, use `/mcp` to inspect the connection.
+2. For local reviews, install the official [CodeRabbit CLI](https://docs.coderabbit.ai/cli)
+   and sign in through its own browser flow. An existing authenticated CLI can
+   be reused. MCP and CLI sign-ins are separate.
+3. Ask “Review my uncommitted changes. Review only; do not edit.” Local reviews
+   use the standalone CLI and the host's normal execution permissions.
 
-Keep an existing connection when setup verifies that its endpoint, tool name,
-account and review permission match the installed package. If another connection
-hides the plugin server, let setup identify the conflict before changing native
-settings. Preserve unrelated connections; another login is not always necessary.
+A remote MCP connection cannot read files on your laptop. Local review requires
+an initialized Git working tree available to the host, permission to run the
+CLI and network access to CodeRabbit. If those are unavailable, remote tools
+can still be used but local review cannot run.
 
-## Prepare local review
+## Remote tools and local reviews
 
-For the native Claude plugin, run `/coderabbit:setup` or ask to set up CodeRabbit.
-This command reads the packaged setup guide, prepares the pinned runtime and
-connects the plugin-owned MCP server. The connection and review hook live in the
-Claude manifest; a manual MCP connection does not substitute for plugin ownership.
+The declared remote connection provides tools within the granted scopes and
+your account's permissions. Use it for account, usage and accessible pull-request
+workflows. Product and tool availability depends on the plan and permissions;
+connecting does not grant access to every CodeRabbit product.
 
-A remote connector alone cannot collect files from your laptop. Local review
-requires an MCP-enabled plugin in a host that can run its CLI and access the
-intended Git working tree. The current local launcher supports macOS and Linux;
-check the supplied package's platform list. Chat-only hosts can still use the
-available remote tools.
+Local reviews do not call MCP `start_code_review`, reserve an MCP review, or use
+a review handoff. They use the CLI's authentication, review output and saved
+results. To retrieve local findings or fix prompts without rerunning, follow
+[the CLI workflow guide](../skills/code-review/references/cli-workflows.md).
 
-In your intended repository, ask:
-
-> Set up CodeRabbit. Prepare its pinned CLI and verify my account, organization
-> and review access. Do not start a review, upload code or write configuration.
-
-For a download package, explicit setup downloads the version-pinned runtime from
-CodeRabbit's CLI CDN, verifies its archive and executable hashes, and reuses a
-verified cache. It needs curl, unzip, a SHA-256 utility and network access; review
-also needs Git. This dependency does not replace your global CLI or change its
-login and update settings. MCP reviews use the browser connection without a
-separate CLI login.
-
-Setup follows the launcher already selected in your package; it does not ask
-you to choose one. For the hook-based v1, review and trust the CodeRabbit hook in the
-host's native controls. Folder trust, execution, network and upload permissions
-still apply. A host without permitted local execution cannot start a local
-review. Codex hook packages are unavailable because the current bare tool name
-does not establish plugin server identity. Existing standalone Codex installs
-remain supported. OpenAI's public directory also excludes lifecycle hooks.
-See [OpenAI's plugin packaging guidance](https://developers.openai.com/plugins/build/plugins).
-
-An unavailable hook requires setup or a compatible host. The assistant does not
-replace it with a shell command. Separately assembled hook-free packages require
-permitted direct execution with authorization supplied through separate stdin;
-their existence does not establish support in every host or directory approval.
-
-Repository configuration is optional. Ask setup to suggest review settings and
-path instructions if useful. It inspects local context and shows validated
-changes before an approved save. You can keep existing settings and begin
-reviewing without changing configuration. If schema loading fails, setup should
-report the concrete error; the package includes a bounded troubleshooting
-reference for the qualified macOS timeout.
-
-## Review and retrieve results
-
-After checking the organization and selected changes, ask:
-
-> Review my uncommitted changes with CodeRabbit. Review only; do not edit files.
-
-Specify a different directory or scope explicitly when needed. An approved MCP
-start reserves one review; its selected local launcher collects the requested
-changes and sends them to CodeRabbit for analysis. Reviews can consume plan usage
-or credits. Keep secrets and credentials out of the selected changes.
-
-Record the returned review ID. In a later session, or if output is missing, ask:
-
-> Retrieve CodeRabbit MCP review REVIEW_ID. Do not start or rerun a review.
-
-The assistant should read all returned pages for that same ID. A pending,
-failed, skipped or unavailable result is not evidence that the code was analyzed
-and found clean. Do not start another review to recover uncertain output or
-silently switch launchers after a failure.
-
-If the runtime is missing or fails integrity checks, return to setup or
-reinstall the complete package as directed. A review hook does not download a
-replacement or use your global CLI as a fallback. If authentication expires,
-use the host's native Authenticate or Reconnect action and verify identity again.
-
-## Keep using your existing CLI
-
-The MCP-enabled package also preserves the original standalone workflow. Ask:
-
-> Review my uncommitted changes with my existing CodeRabbit CLI only. Use its
-> current sign-in. Do not connect MCP or reserve an MCP review. Review only;
-> do not edit files.
-
-This explicit choice follows the ordinary CLI guide before MCP setup or review
-reservation. It uses your existing CLI, authentication and current organization,
-and checks any requested account, organization or region. It does not prepare
-the pinned MCP runtime. An older CLI may lack newer options; confirm support and
-preserve the requested scope rather than silently changing it. See the
-[standalone CLI guide](https://docs.coderabbit.ai/cli) for installation and native
-authentication.
-
-CLI-only reviews can also consume usage or credits. Their output is a separate
-workflow; the MCP saved-review recovery command above applies to MCP reviews.
-An MCP denial, failed launch or uncertain result does not authorize an automatic
-CLI-only retry.
+An existing MCP review may still be recovered through `get_code_review` using
+its original review ID and all result pages. Do not start a standalone CLI
+review to recover an uncertain MCP review. Do not assume a standalone CLI review
+is available through MCP recovery.
 
 ## Data and support
 
-Account and PR tools return information from CodeRabbit within your permissions.
-Runtime preparation sends artifact requests to CodeRabbit's CLI CDN. Approved
-local reviews transmit selected source and repository context to CodeRabbit's
-review service. MCP returns account data and saved findings to the host; the
-host may retain tool output and the short-lived review handoff in its transcript.
-The plugin does not inspect the host's OAuth store. Service retention and data
-handling depend on the applicable policy and account settings.
+Local review sends the selected code changes and required repository context to
+CodeRabbit through the CLI. Remote MCP tools exchange their requested data with
+CodeRabbit through Claude. The host manages connector OAuth; the standalone CLI
+manages its own credentials. The plugin does not copy credentials between them.
+Setup alone does not upload code or start a review.
 
 See the [CodeRabbit Privacy Notice](https://www.coderabbit.ai/privacy-policy).
-For help, contact [CodeRabbit support](mailto:support@coderabbit.ai) with the
-client/package versions, concrete error and review ID when available. Do not
-send credentials, authorization codes or review handoff tokens.
+Contact [CodeRabbit support](mailto:support@coderabbit.ai) with versions, the
+concrete error and review ID when available; never send credentials.
+
+## Other packages
+
+The independently assembled MCP hook/direct packages under `packaging/` are
+separate development candidates. Their runtime and authentication instructions
+do not apply to the repository-root 1.3.2 plugin and require their own qualification.

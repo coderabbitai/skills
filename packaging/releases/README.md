@@ -1,15 +1,12 @@
 # Claude release inputs
 
-The native Claude MCP candidate is now the repository root on `main` (1.3.1).
-Its `.claude-plugin/plugin.json`, `cli.json` and `runtime/` metadata are committed
-and installable without assembling or tracking a distribution branch. The
-matching release JSON records CLI 0.9.3 executable/archive checksums and the
-notes describe the source transition. Update these pins together; the focused
-package tests enforce their agreement.
+The repository-root Claude 1.3.2 candidate combines remote MCP with standalone
+CLI local reviews. It declares no review hook and has no managed-runtime pins.
+Its source is `main`; directory validation and publication remain separate.
 
-The 1.3.0 files below remain the historical inputs for the earlier assembled
-candidate. Independently assembled variants still use the instructions below.
-Directory approval and publication remain separate.
+The 1.3.0 and 1.3.1 files below are historical inputs for the MCP handoff packages.
+Independently assembled variants still use the instructions below; they do not
+define the repository-root plugin's local-review flow.
 
 `claude-1.3.0.json` pins the assembled Claude MCP plugin to version **1.3.0** and
 CodeRabbit CLI **0.9.3**, including archive and executable SHA-256 values for
@@ -35,9 +32,8 @@ The matching Claude hook package includes the [MCP changelog](claude-1.3.0.md).
 Other clients, versions or launcher modes omit these release notes and their link.
 Qualify the exact package before publication. Keep the plugin name `coderabbit`
 and the existing directory submission. The historical 1.3.0 candidate used a
-separate distribution ref. The native 1.3.1 source package replaces that need:
-keep the repository-root listing and switch its tracked branch to `main` after
-this package merges.
+separate distribution ref. The repository-root listing now follows `main`; do not
+switch it back to an assembled distribution branch.
 
 For independently assembled variants, use a channel-specific ref such as
 `claude-mcp-1.3.0`, not a `v*` tag: `v*` tags trigger the shared standalone release
