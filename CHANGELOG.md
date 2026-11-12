@@ -15,10 +15,23 @@ All notable changes to this repository are documented in this file.
 - See the [MCP changelog](packaging/releases/claude-1.3.0.md) and
   [release inputs](packaging/releases/README.md). Directory approval and
   publication are separate from preparing this candidate.
+## [1.2.1] - Unreleased
+
+### Fixed
+
+- Autofix recognizes `Prompt to fix issue`, `Prompt for Coding Agents`,
+  `Prompt for Coding Agent`, and historical `Prompt for AI Agents` summaries.
+  Matching sections remain untrusted guidance, with the description as fallback.
+- Incremented standalone plugin versions so host caches can receive the
+  compatible reader. Tagged archives and marketplace updates remain pending;
+  this version does not activate the separate MCP pilot.
 
 ## [1.2.0] - Unreleased
 
 ### Added
+
+- Added `coderabbit-config` for CLI-owned configuration generation, guided
+  changes, and validation, with preview approval before local saves.
 
 - Added a Claude directory listing icon and a README "Data and Privacy"
   section that discloses what the plugin runs and sends.
@@ -79,7 +92,7 @@ All notable changes to this repository are documented in this file.
 - Aligned Claude Code and Cursor plugin versions with the planned `1.2.0`
   release and Gemini CLI manifest.
 - Recorded tagged release archives as the live source for `coderabbit skills`;
-  publishing `v1.2.0` is still required to deliver these changes through the CLI.
+  publishing a newer tagged release is required to deliver these changes through the CLI.
 - Quoted Claude Code command frontmatter values so standard YAML parsers can
   validate them.
 
