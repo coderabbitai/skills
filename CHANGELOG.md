@@ -2,6 +2,18 @@
 
 All notable changes to this repository are documented in this file.
 
+## Claude plugin [1.3.3] - Release candidate
+
+- Point the missing-CLI recovery step to the official installation docs instead
+  of a download-and-run command (clears the directory `RUNTIME_FETCH_EXEC`
+  warning).
+- Keep the remote MCP server's explicit least-privilege OAuth scopes. A
+  directory scan of a variant without the `oauth` block was still held for
+  "Uses a credential from the user's machine" and "Update adds credential
+  forward": the rule applies to adding an authenticated remote MCP server,
+  whose CodeRabbit OAuth token goes only to `mcp.coderabbit.ai`. That case
+  needs directory reviewer confirmation; it is not cleared by this change.
+
 ## Claude plugin [1.3.2] - Release candidate
 
 - Keep the remote MCP connection and remove the automatic local-review hook.
