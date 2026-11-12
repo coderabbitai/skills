@@ -2,6 +2,19 @@
 
 All notable changes to this repository are documented in this file.
 
+## Claude plugin [1.4.0] - Release candidate
+
+- Restore the one-login MCP review flow from 1.3.1: a `PostToolUse` hook on
+  the plugin's own `start_code_review` runs the readable launcher
+  `scripts/coderabbit-runtime mcp-hook`. That runs the hash-pinned CLI 0.9.3
+  (`cli.json`, `runtime/`) to upload the approved review with the single-review
+  MCP handoff, so no separate CLI login is needed.
+- The review skill, agent and `/coderabbit:setup` route native Claude reviews
+  through MCP again; an explicit CLI-only request keeps the standalone workflow.
+- The package assembler and its test script stay removed. Directory scans
+  showed they caused the credential hold; the hook build is held only for
+  "Update adds hooks", which needs directory review.
+
 ## Claude plugin [1.3.0] - Claude directory release
 
 - First 1.3 release published to the Claude directory. It reuses the 1.3.0
