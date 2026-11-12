@@ -12,8 +12,9 @@ All notable changes to this repository are documented in this file.
 - The review skill, agent and `/coderabbit:setup` route native Claude reviews
   through MCP again; an explicit CLI-only request keeps the standalone workflow.
 - The package assembler and its test script stay removed. Directory scans
-  showed they caused the credential hold; the hook build is held only for
-  "Update adds hooks", which needs directory review.
+  showed they caused the credential hold. The completed directory scan of the
+  1.4.0 branch (`16f3e4d`) holds it only for "Update adds hooks", which needs
+  directory review.
 
 ## Claude plugin [1.3.0] - Claude directory release
 

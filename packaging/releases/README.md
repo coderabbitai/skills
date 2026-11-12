@@ -5,7 +5,9 @@
 > directory scans this whole repository and held the plugin over them. They
 > remain in git history at `f0629e0`. Plugin 1.4.0 restores only the launchers
 > (`scripts/coderabbit`, `scripts/coderabbit-runtime`) for the review hook.
-> Commands below that call the assembler no longer run from `main`.
+> Instructions below that rely on the assembler or the removed
+> `Assemble bundled MCP plugin pilot` workflow are historical and no longer run
+> from `main`.
 
 The repository-root Claude 1.4.0 candidate combines remote MCP with a
 plugin-owned review hook and the managed-runtime pins in `cli.json` and `runtime/`.
