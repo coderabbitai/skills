@@ -1,9 +1,9 @@
 {
   "name": "coderabbit",
   "displayName": "CodeRabbit",
-  "version": "1.2.0",
-  "description": "AI-powered code review in Claude Code, powered by CodeRabbit",
-  "homepage": "https://docs.coderabbit.ai/cli/claude-code-integration",
+  "version": "1.3.0",
+  "description": "CodeRabbit is the governance and control layer for agentic software development helping developers trust AI written code.",
+  "homepage": "https://github.com/coderabbitai/skills/blob/main/docs/mcp.md",
   "author": {
     "name": "CodeRabbit",
     "email": "support@coderabbit.ai",
@@ -17,5 +17,19 @@
     "ai",
     "coderabbit",
     "claude-code"
-  ]
+  ],
+  "documentationUrl": "https://docs.coderabbit.ai/api/platform-api#use-hosted-mcp",
+  "supportUrl": "https://www.coderabbit.ai/contact-us/support",
+  "privacyPolicyUrl": "https://www.coderabbit.ai/privacy-policy",
+  "termsOfServiceUrl": "https://www.coderabbit.ai/terms-of-service",
+  "icon": "./assets/coderabbit-small.png",
+  "mcpServers": {
+    "coderabbit": {
+      "type": "http",
+      "url": "https://mcp.coderabbit.ai/",
+      "oauth": {
+        "scopes": "connection account:read usage:read pull_requests:read review"
+      }
+    }
+  }
 }

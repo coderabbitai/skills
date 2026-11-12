@@ -7,6 +7,19 @@ metadata:
 
 # CodeRabbit Code Review
 
+## Select the installed workflow
+
+Local code reviews use the installed, authenticated CodeRabbit CLI in every
+host, including the native Claude plugin. Follow the standalone workflow below.
+The Claude plugin also declares a remote MCP connection for account and remote
+repository workflows, but that connection does not authenticate the local CLI.
+Do not call `start_code_review` for this plugin's local-review workflow: this
+package has no automatic hook or MCP handoff launcher. Do not reserve an MCP
+review before running the standalone CLI, and do not retry an uncertain MCP
+review through the CLI. Recover that review by its existing ID instead.
+
+## Standalone CLI review
+
 AI-powered code review using CodeRabbit. Enables developers to implement features, review code, and fix issues in autonomous cycles without manual intervention.
 
 ## Capabilities

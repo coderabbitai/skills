@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set up CodeRabbit"
+  short_description: "Connect CodeRabbit and tailor reviews to your repository"
+  default_prompt: "Use $coderabbit:setup to connect CodeRabbit and offer repository-specific review settings, or continue a review I already requested."

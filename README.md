@@ -1,6 +1,6 @@
 # CodeRabbit Skills and Plugins
 
-![Version](https://img.shields.io/badge/version-1.2.0--unreleased-blue)
+[![Standalone release](https://img.shields.io/badge/standalone-1.2.2-blue)](https://github.com/coderabbitai/skills/releases/tag/v1.2.2)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Agents](https://img.shields.io/badge/works_with-35%2B_agents-brightgreen)](#supported-agents)
 
@@ -12,11 +12,32 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-Install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
+**Claude MCP plugin:** the repository root on `main` is the installable Claude
+1.3.0 candidate. It connects remote CodeRabbit tools through MCP and uses the
+standalone CodeRabbit CLI for local reviews. It has no automatic review hook.
+Run `/coderabbit:setup` to check both: **connect MCP → sign in to the CLI if
+needed → “Review my changes.”** The two sign-ins are separate; an existing CLI
+installation and login can be reused. See [distribution status](DISTRIBUTION_CHANNELS.md)
+for directory publication, which is separate from source availability.
+
+The remote connection is declared only in Claude's manifest. Shared skills and
+other host plugins keep their standalone CLI workflow. Local reviews do not
+reserve MCP reviews or pass review handoffs through shell commands. A hosted
+connector alone cannot collect local files.
+
+For setup, recovery and data handling, read the [MCP setup guide](docs/mcp.md).
+Independently assembled MCP hook/direct packages remain development candidates
+with their own qualification requirements; see [packaging](packaging/README.md).
+
+**Released CLI integration:** install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
 then tell your agent: **“Review my code.”** The review command starts the
 authentication flow when needed.
 
 ## Installation
+
+The standalone integration paths below remain available. The native Claude
+plugin on `main` is the MCP candidate described above; directory and official
+marketplace publication require their own approval and catalog updates.
 
 ### 1. Install the CodeRabbit CLI
 
@@ -54,13 +75,14 @@ In Claude Code, install the plugin from the official marketplace:
 /plugin install coderabbit@claude-plugins-official
 ```
 
-A listing in the Claude directory is in review. Once it's published, you'll
-also be able to add CodeRabbit from **Customize > Plugins > Discover** in
+CodeRabbit is also listed in the Claude directory. Add it from
+**Customize > Plugins > Discover** in
 claude.ai or the Claude desktop app, and it will sync to Claude Code sessions
 where you're signed in with the same claude.ai account. If you install from
 both places, Claude Code loads the marketplace copy.
 
-For the full setup flow, see the
+For the MCP candidate from this source, use `/coderabbit:setup` and the
+[MCP setup guide](docs/mcp.md). Published marketplace copies may still use the
 [Claude Code integration guide](https://docs.coderabbit.ai/cli/claude-code-integration).
 
 #### Cursor Plugin
@@ -77,17 +99,15 @@ After publication, Cursor marketplace installs use:
 For the current recommended setup, see the
 [Cursor integration guide](https://docs.coderabbit.ai/cli/cursor-integration).
 
-#### Gemini CLI Extension (pre-release)
+#### Gemini CLI Extension
 
-Until `v1.2.0` is published as the Latest release, Gemini CLI users can install
-the native extension from `main`:
+Gemini CLI users can install the native extension from the published
+[standalone `v1.2.2` tag](https://github.com/coderabbitai/skills/releases/tag/v1.2.2):
 
 ```bash
-gemini extensions install https://github.com/coderabbitai/skills --ref main
+gemini extensions install https://github.com/coderabbitai/skills --ref v1.2.2
 gemini extensions list
 ```
-
-After `v1.2.0` is published, the `--ref main` option can be omitted.
 
 The repository-root [`gemini-extension.json`](gemini-extension.json) packages
 the portable skills, `/coderabbit:review` command, and both subagents.
@@ -123,7 +143,7 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | Path | Purpose |
 | --- | --- |
 | `skills/` | Portable CodeRabbit skills for agents that support `SKILL.md`. |
-| `.claude-plugin/` | Claude Code plugin marketplace metadata. |
+| `.claude-plugin/` | Native Claude manifest with its remote MCP connection; no review hook. |
 | `commands/` | Native review commands for Gemini CLI and Antigravity CLI. |
 | `agents/` | `code-reviewer` and `autofix` subagents shipped to Claude Code, Gemini CLI, and Antigravity CLI. |
 | `.cursor-plugin/` | Cursor marketplace metadata. |
@@ -146,7 +166,7 @@ Review my PR
 Review the directory at ../my-service
 ```
 
-The agent will automatically:
+For standalone installs, the agent will automatically:
 
 1. Check if CodeRabbit CLI is installed
 2. Run the review on your changes
@@ -245,28 +265,51 @@ Safe fix workflow for unresolved CodeRabbit GitHub PR review threads, with per-i
 - Applies fixes only after validating the issue and getting approval
 - Produces a single consolidated commit and posts a PR summary comment
 
+### [coderabbit-config](skills/coderabbit-config/SKILL.md)
+
+Create, update, or validate repository configuration through the official CLI.
+Ask “Set up CodeRabbit configuration”, “Make CodeRabbit reviews more thorough”,
+or “Validate .coderabbit.yaml”. Where supported, invoke `$coderabbit-config` or
+`/coderabbit-config`; the Claude plugin uses `/coderabbit:coderabbit-config`.
+The distinct name leaves the host's `/config` command available.
+
+Requires an official CLI supporting config protocol v2 (verified with 0.9.3).
+The CLI owns defaults, schema checks, previews, and writes. The skill supports
+review-style changes and the CLI's guided path settings; unsupported settings
+remain a CLI capability gap. Missing commands require an upgrade, never an
+agent-side YAML editor. Validation alone does not change files; saves require
+approval of the preview. Configuration does not require login or run a review.
+
+This skill is included in the source package and the published
+[standalone `v1.2.2` archive](https://github.com/coderabbitai/skills/releases/tag/v1.2.2).
+Marketplace caches require their normal publication update to deliver it.
+
 ## Plugin Components
+
+The native Claude candidate combines a remote MCP connection and setup command
+with standalone CLI review and configuration skills. It registers no hooks and
+supplies no managed review runtime. Independently assembled MCP variants have
+separate qualification requirements.
 
 ### Claude Code
 
-- Skills: `code-review` and `autofix`. Run them as `/coderabbit:code-review`
-  and `/coderabbit:autofix`, or ask in plain language, such as "review my
-  changes" or "fix the CodeRabbit comments on this PR".
+- Skills: `code-review`, `autofix`, and `coderabbit-config`. Run them as
+  `/coderabbit:code-review`, `/coderabbit:autofix`, and
+  `/coderabbit:coderabbit-config`, or ask in plain language.
 - Subagents: `code-reviewer` runs a CodeRabbit review in its own context, and
   `autofix` collects and checks unresolved CodeRabbit review threads
   and returns a fix plan without editing anything. Mention them as
   `@agent-coderabbit:code-reviewer` and `@agent-coderabbit:autofix`.
 - Manifest: `.claude-plugin/plugin.json`
 
-The Claude plugin has no slash commands of its own. In Claude, use
-`/coderabbit:code-review` instead of the earlier
+The Claude plugin adds `/coderabbit:setup` for MCP connection and standalone CLI readiness.
+For review, use `/coderabbit:code-review` instead of the earlier
 `/coderabbit:coderabbit-review`.
 
-The plugin runs reviews through the locally installed CodeRabbit CLI, so it
-needs a shell on a machine where the CLI is installed and logged in. Claude Code
-has full support. Cowork and Claude chat on the web, desktop, and mobile can
-load the skills, but a review runs only where the CodeRabbit CLI is available,
-and chat doesn't run subagents.
+Local review uses the user's installed and authenticated CodeRabbit CLI and
+requires host execution permission and access to the intended Git working tree.
+MCP sign-in does not authenticate the CLI. A host without local execution can
+use remote tools but cannot run a local review. No hook trust is needed.
 
 ### Cursor
 
@@ -293,24 +336,26 @@ It keeps diagnostics sandboxed and retains per-command host approval for auth an
 
 ## Data and Privacy
 
-The Claude plugin contains two skills and two subagents. It bundles no MCP
-servers, hooks, or executables.
+The native Claude plugin contains three portable skills, a setup command, two
+subagents and a remote MCP connection. It declares no automatic hooks.
 
-- **Local commands**: the `code-review` skill and the `code-reviewer` subagent
-  run the installed `coderabbit` CLI and read-only Git commands. The `autofix`
-  skill uses the installed GitHub CLI (`gh`) to read CodeRabbit review threads
-  on the current pull request and, when you approve, to create a pull request or
-  post a summary comment. The `autofix` subagent only reads: it runs
-  read-only `git` and `gh` commands and never edits, commits, pushes, or posts.
-- **Data sent**: when you run a review, the CodeRabbit CLI sends the code
-  changes under review and the repository context needed to review them to
-  CodeRabbit's service. `autofix` exchanges pull request data with GitHub
-  through `gh`. The plugin sends nothing on its own.
-- **Credentials**: the CodeRabbit CLI and `gh` handle their own login and store
-  their own credentials. The plugin doesn't read or send credentials.
-- **Policy**: CodeRabbit's handling, retention, and sharing of review data is
-  described in the [CodeRabbit Privacy Policy](https://www.coderabbit.ai/privacy-policy).
-  Contact <support@coderabbit.ai> with questions.
+- **Local commands**: reviews use the user's installed CodeRabbit CLI. The
+  `autofix` skill uses GitHub CLI (`gh`) to read review threads and, when
+  authorized, post or create a pull request. The `autofix` subagent only reads.
+- **Data sent**: local reviews send selected changes and required repository
+  context to CodeRabbit. MCP tools exchange requested account and repository
+  data with CodeRabbit; `autofix` exchanges pull-request data with GitHub.
+  Setup alone does not authorize an upload or start a review.
+- **Credentials**: Claude manages connector OAuth. The standalone CLI and `gh`
+  manage their own logins. The plugin does not read Claude's OAuth store or
+  copy credentials between the connector and the CLI.
+- **Policy**: see the [CodeRabbit Privacy Policy](https://www.coderabbit.ai/privacy-policy)
+  for handling and retention, or contact <support@coderabbit.ai>.
+
+The `coderabbit-config` skill runs local CLI configuration commands. The CLI
+fetches the public configuration schema over HTTPS and validates YAML locally;
+it does not submit repository code for review. Approved saves change the local
+configuration file, with commit and push left to the requested workflow.
 
 ## Resources
 

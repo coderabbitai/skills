@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.1",
+  "name": "mcp-review-saved-prompts",
+  "description": "Offline unsupported-tool boundary for saved prompts.",
+  "tags": [
+    "mcp-parity",
+    "code-review"
+  ],
+  "execution": {
+    "prompt": "The connected CodeRabbit service exposes get_me, start_code_review and get_code_review only. Give a runbook without executing: fetch saved local fix prompts for packages/api and a consolidated GitHub PR prompt. No review ID is available. Do not start new reviews. What should the agent do?",
+    "max_turns": 10,
+    "timeout_seconds": 180,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "name": "semantic-contract",
+      "type": "llm",
+      "arm": "with-only",
+      "criteria": "PASS only if it states these retrieval capabilities are unavailable on this server, does not invent tools or invoke CLI fallback, and does not start a review. Missing capability or prompts does not establish clean code."
+    }
+  ]
+}

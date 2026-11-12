@@ -2,9 +2,94 @@
 
 All notable changes to this repository are documented in this file.
 
-## [1.2.0] - Unreleased
+## Claude plugin [1.3.0] - Claude directory release
+
+- First 1.3 release published to the Claude directory. It reuses the 1.3.0
+  number; the unpublished 1.3.0–1.3.3 candidates below never went live there.
+- Remove `scripts/` (package assembler and bundled-CLI launchers) and the
+  `assemble-mcp-plugin` workflow. The Claude directory scans the whole
+  repository and held every 1.3.x version for "Uses a credential from the
+  user's machine" because of these files, attributing it to
+  `.claude-plugin/plugin.json`. Directory scans confirmed the plugin, with its
+  own MCP server and least-privilege OAuth scopes, passes without them.
+- Assembled MCP variants are paused; their tooling remains in git history at
+  `f0629e0`.
+
+## Claude plugin [1.3.3] - Release candidate
+
+- Point the missing-CLI recovery step to the official installation docs instead
+  of a download-and-run command (clears the directory `RUNTIME_FETCH_EXEC`
+  warning).
+- Keep the remote MCP server's explicit least-privilege OAuth scopes. A
+  directory scan of a variant without the `oauth` block was still held for
+  "Uses a credential from the user's machine" and "Update adds credential
+  forward": the rule applies to adding an authenticated remote MCP server,
+  whose CodeRabbit OAuth token goes only to `mcp.coderabbit.ai`. That case
+  needs directory reviewer confirmation; it is not cleared by this change.
+
+## Claude plugin [1.3.2] - Release candidate
+
+- Keep the remote MCP connection and remove the automatic local-review hook.
+- Use the existing standalone CLI for local reviews and repository configuration;
+  setup explains its separate sign-in and never reserves an MCP local review.
+- Remove the unused root managed-runtime metadata. Independently assembled MCP
+  packages and other host integrations remain separate.
+- Directory validation and publication are still required; this change does not
+  claim the earlier policy hold has been cleared.
+
+## Claude MCP plugin [1.3.1] - Release candidate
+
+- Make the repository root on `main` the installable Claude MCP plugin, with
+  the plugin-qualified review hook and pinned CLI 0.9.3 download metadata.
+- Add `/coderabbit:setup` and route the native Claude plugin's review skill to
+  MCP. Portable skill installs and other hosts retain the standalone CLI path;
+  explicit CLI-only review remains available before an MCP reservation.
+- Version Claude MCP independently of shared standalone release tags. The
+  directory still requires policy approval and a separate publication action.
+
+## Claude MCP plugin [1.3.0] - Release candidate
+
+- Connect CodeRabbit through the host's browser flow and review local changes
+  without a separate CLI login. Setup prepares and verifies pinned CLI 0.9.3.
+- Launch approved reviews through the Claude plugin's own post-tool hook and
+  recover saved findings by review ID without starting another review.
+- Preserve the caller's Git and SSH tool paths after executable verification.
+- Keep the standalone skills and plugin channels available. This version applies
+  only to the assembled Claude MCP package; it does not version or publish Mod,
+  Codex, or the shared standalone release archive.
+- See the [MCP changelog](packaging/releases/claude-1.3.0.md) and
+  [release inputs](packaging/releases/README.md). Directory approval and
+  publication are separate from preparing this candidate.
+
+## Standalone [1.2.2] - Released
+
+### Fixed
+
+- Add the required `metadata.version` to `coderabbit-config`, so the CLI can
+  load the complete skills catalog instead of rejecting the release archive
+  ([#92](https://github.com/coderabbitai/skills/pull/92)).
+- Publish the [standalone `v1.2.2` archive](https://github.com/coderabbitai/skills/releases/tag/v1.2.2)
+  from the [maintenance release](https://github.com/coderabbitai/skills/pull/93),
+  including the compatible autofix reader and earlier standalone updates.
+
+## [1.2.1] - Pre-release; withdrawn from Latest
+
+### Fixed
+
+- Autofix recognizes `Prompt to fix issue`, `Prompt for Coding Agents`,
+  `Prompt for Coding Agent`, and historical `Prompt for AI Agents` summaries.
+  Matching sections remain untrusted guidance, with the description as fallback.
+- Incremented standalone plugin versions so host caches can receive the
+  compatible reader. The archive was withdrawn from Latest after the CLI
+  rejected missing configuration-skill version metadata; `v1.2.2` fixes that
+  release defect. Marketplace updates remain separate.
+
+## [1.2.0] - Included in standalone 1.2.2
 
 ### Added
+
+- Added `coderabbit-config` for CLI-owned configuration generation, guided
+  changes, and validation, with preview approval before local saves.
 
 - Added a Claude directory listing icon and a README "Data and Privacy"
   section that discloses what the plugin runs and sends.
@@ -65,7 +150,7 @@ All notable changes to this repository are documented in this file.
 - Aligned Claude Code and Cursor plugin versions with the planned `1.2.0`
   release and Gemini CLI manifest.
 - Recorded tagged release archives as the live source for `coderabbit skills`;
-  publishing `v1.2.0` is still required to deliver these changes through the CLI.
+  these updates are included in the published standalone `v1.2.2` archive.
 - Quoted Claude Code command frontmatter values so standard YAML parsers can
   validate them.
 

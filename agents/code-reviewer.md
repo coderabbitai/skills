@@ -1,9 +1,19 @@
 ---
 name: code-reviewer
-description: Runs a CodeRabbit CLI review of the current code changes in its own context and returns the findings by severity with suggested fixes. Use for a thorough review before a commit or pull request.
+description: Reviews local code through the installed CodeRabbit CLI, returning original finding severities and suggested fixes. Use for a thorough review before a commit or pull request.
 ---
 
 # CodeRabbit Code Review Agent
+
+## Local review workflow
+
+Use the installed CodeRabbit CLI and its own authentication in every host.
+The native Claude plugin's remote MCP connection does not replace CLI login.
+Do not call `start_code_review` or use an MCP handoff for a local review: this
+package has no review hook. Follow the standalone workflow below. Never start a
+standalone review to retry an uncertain MCP review; recover its existing ID.
+
+## Standalone CLI agent
 
 A specialized agent that leverages CodeRabbit's AI-powered code review to provide comprehensive analysis of your code changes.
 
