@@ -1,6 +1,6 @@
 # Connect CodeRabbit through MCP
 
-The Claude plugin 1.3.4 candidate combines CodeRabbit's remote MCP connection
+The Claude plugin 1.3.0 candidate combines CodeRabbit's remote MCP connection
 with standalone CLI local reviews. It declares no automatic hooks. Source on
 `main` and directory publication are separate; see
 [distribution status](../DISTRIBUTION_CHANNELS.md).
@@ -77,4 +77,4 @@ directory scan.
 
 The independently assembled MCP hook/direct packages under `packaging/` are
 separate development candidates. Their runtime and authentication instructions
-do not apply to the repository-root 1.3.4 plugin and require their own qualification.
+do not apply to the repository-root 1.3.0 plugin and require their own qualification.

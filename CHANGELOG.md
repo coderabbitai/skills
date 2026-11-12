@@ -2,8 +2,10 @@
 
 All notable changes to this repository are documented in this file.
 
-## Claude plugin [1.3.4] - Release candidate
+## Claude plugin [1.3.0] - Claude directory release
 
+- First 1.3 release published to the Claude directory. It reuses the 1.3.0
+  number; the unpublished 1.3.0–1.3.3 candidates below never went live there.
 - Remove `scripts/` (package assembler and bundled-CLI launchers) and the
   `assemble-mcp-plugin` workflow. The Claude directory scans the whole
   repository and held every 1.3.x version for "Uses a credential from the
