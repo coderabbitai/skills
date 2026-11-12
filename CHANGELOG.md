@@ -59,7 +59,7 @@ All notable changes to this repository are documented in this file.
   rejected missing configuration-skill version metadata; `v1.2.2` fixes that
   release defect. Marketplace updates remain separate.
 
-## [1.2.0] - Unreleased
+## [1.2.0] - Included in standalone 1.2.2
 
 ### Added
 
@@ -125,7 +125,7 @@ All notable changes to this repository are documented in this file.
 - Aligned Claude Code and Cursor plugin versions with the planned `1.2.0`
   release and Gemini CLI manifest.
 - Recorded tagged release archives as the live source for `coderabbit skills`;
-  publishing a newer tagged release is required to deliver these changes through the CLI.
+  these updates are included in the published standalone `v1.2.2` archive.
 - Quoted Claude Code command frontmatter values so standard YAML parsers can
   validate them.
 
