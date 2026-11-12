@@ -44,36 +44,19 @@ class PackageTests(unittest.TestCase):
     def assemble(self, endpoint="https://fixture.invalid/mcp", client=CLIENT, launcher="hook", delivery="bundled"):
         return module.assemble(ROOT, client, self.manifest, endpoint, self.output, launcher, delivery)
 
-    def test_native_claude_source_pins_and_host_isolation(self):
-        """Keep native Claude wiring complete without default hook/MCP discovery in other hosts."""
+    def test_native_claude_source_has_mcp_without_local_handoff(self):
+        """Native discovery must not launch a hook or select a managed handoff runtime."""
         manifest = json.loads((ROOT / ".claude-plugin/plugin.json").read_text())
-        self.assertEqual(manifest["version"], "1.3.1")
-        cli = json.loads((ROOT / "cli.json").read_text())
-        self.assertEqual(cli, {"launcher": "./scripts/coderabbit-runtime", "delivery": "download",
-                               "version": "0.9.3", "launchMode": "hook"})
-        self.assertTrue((ROOT / cli["launcher"]).is_file())
-        self.assertTrue(os.access(ROOT / cli["launcher"], os.X_OK))
+        self.assertEqual(manifest["version"], "1.3.2")
+        self.assertNotIn("hooks", manifest)
+        self.assertFalse((ROOT / "cli.json").exists())
+        self.assertFalse((ROOT / "runtime").exists())
         self.assertFalse((ROOT / "hooks/hooks.json").exists())
         self.assertFalse((ROOT / ".mcp.json").exists())
         self.assertFalse((ROOT / "mcp.json").exists())
         server = manifest["mcpServers"]["coderabbit"]
-        self.assertEqual(server["url"], (ROOT / "runtime/mcp-url").read_text().strip())
+        self.assertEqual(server["url"], "https://mcp.coderabbit.ai/")
         self.assertEqual(server["oauth"]["scopes"].split(), module.SCOPES)
-        hook = manifest["hooks"]["PostToolUse"][0]
-        self.assertEqual(hook["matcher"], "^mcp__plugin_coderabbit_coderabbit__start_code_review$")
-        self.assertEqual(hook["hooks"][0]["command"], '"${CLAUDE_PLUGIN_ROOT}/scripts/coderabbit-runtime" mcp-hook')
-        self.assertEqual(hook["hooks"][0]["timeout"], 2400)
-        release = json.loads((ROOT / "packaging/releases/claude-1.3.1.json").read_text())
-        self.assertEqual(release["plugin_version"], manifest["version"])
-        self.assertEqual(release["version"], cli["version"])
-        self.assertEqual((ROOT / "runtime/version").read_text().strip(), cli["version"])
-        self.assertEqual({a["platform"] for a in release["artifacts"]}, module.PLATFORMS)
-        for artifact in release["artifacts"]:
-            platform = artifact["platform"]
-            self.assertEqual((ROOT / f"runtime/{platform}.sha256").read_text().strip(), artifact["sha256"])
-            self.assertEqual((ROOT / f"runtime/{platform}.archive.sha256").read_text().strip(), artifact["archive_sha256"])
-            self.assertEqual((ROOT / f"runtime/{platform}.url").read_text().strip(),
-                             f'https://cli.coderabbit.ai/releases/{cli["version"]}/coderabbit-{platform}.zip')
         for host in (".codex-plugin/plugin.json", ".cursor-plugin/plugin.json", "gemini-extension.json", "plugin.json"):
             other = json.loads((ROOT / host).read_text())
             self.assertNotIn("mcpServers", other)
@@ -90,7 +73,7 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Skills (4)  autofix, code-review, coderabbit-config, setup", result.stdout)
         self.assertIn("Agents (2)  code-reviewer, autofix", result.stdout)
-        self.assertIn("Hooks (1)  PostToolUse", result.stdout)
+        self.assertIn("Hooks (0)", result.stdout)
         self.assertIn("MCP servers (1)  coderabbit", result.stdout)
 
     def test_download_packages_omit_native_files_without_changing_shared_cli(self):
@@ -340,9 +323,12 @@ class PackageTests(unittest.TestCase):
     def test_pilot_instructions_do_not_replace_shared_cli_consumers(self):
         shared_paths = [ROOT / "skills/code-review/SKILL.md", ROOT / "agents/code-reviewer.md"]
         shared = {path: path.read_bytes() for path in shared_paths}
-        for content in shared.values():
-            self.assertIn(b"review --agent", content)
-            self.assertNotIn(b"start_code_review", content)
+        for path, content in shared.items():
+            marker = b"## Standalone CLI review\n" if path.parent.name == "code-review" else b"## Standalone CLI agent\n"
+            workflow = content.partition(marker)[2]
+            self.assertIn(b"review --agent", workflow)
+            self.assertNotIn(b"start_code_review", workflow)
+            self.assertNotIn(b"--mcp-stdin", workflow)
         for client in ("claude", "codex"):
             for launcher in (("hook", "direct") if client == "claude" else ("direct",)):
                 with self.subTest(client=client, launcher=launcher):

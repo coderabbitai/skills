@@ -2,6 +2,16 @@
 
 All notable changes to this repository are documented in this file.
 
+## Claude plugin [1.3.2] - Release candidate
+
+- Keep the remote MCP connection and remove the automatic local-review hook.
+- Use the existing standalone CLI for local reviews and repository configuration;
+  setup explains its separate sign-in and never reserves an MCP local review.
+- Remove the unused root managed-runtime metadata. Independently assembled MCP
+  packages and other host integrations remain separate.
+- Directory validation and publication are still required; this change does not
+  claim the earlier policy hold has been cleared.
+
 ## Claude MCP plugin [1.3.1] - Release candidate
 
 - Make the repository root on `main` the installable Claude MCP plugin, with
