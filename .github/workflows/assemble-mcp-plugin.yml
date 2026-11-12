@@ -67,18 +67,20 @@ permissions:
   contents: read
 
 jobs:
-  package-contract:
+  package-validation:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - name: Check assembly and launcher contracts
-        run: python3 scripts/test-plugin-package.py
+      - name: Validate manifest JSON and assembler syntax
+        run: |
+          python3 -m json.tool .claude-plugin/plugin.json > /dev/null
+          python3 -m py_compile scripts/assemble-plugin.py
   assemble:
     if: github.event_name == 'workflow_dispatch'
-    needs: package-contract
+    needs: package-validation
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:

@@ -51,6 +51,28 @@ See the [CodeRabbit Privacy Notice](https://www.coderabbit.ai/privacy-policy).
 Contact [CodeRabbit support](mailto:support@coderabbit.ai) with versions, the
 concrete error and review ID when available; never send credentials.
 
+## OAuth credential handling
+
+The repository-root manifest declares an HTTP MCP connection to
+`https://mcp.coderabbit.ai/` and the requested OAuth scopes. It declares no
+`env`, `headers`, `headersHelper`, client secret, credential-file path or
+credential environment-variable substitution. It declares no hook or local
+MCP server command.
+
+Claude manages the connector's browser OAuth flow and uses the resulting
+CodeRabbit access token to authenticate MCP requests. “No custom authorization
+header” does not mean unauthenticated requests: the host supplies OAuth
+authentication through its native MCP client. The plugin does not configure
+forwarding of a pre-existing Git-provider token or another service's API key.
+The standalone CLI uses its separate sign-in; this manifest does not transfer
+its credentials into the MCP connection.
+
+See Claude's [remote MCP authentication documentation](https://code.claude.com/docs/en/mcp#authenticate-with-remote-mcp-servers).
+If a directory check reports credential forwarding against this manifest,
+request the exact field and data path identified by the check. This description
+explains the configuration; it does not establish a policy waiver or a passed
+directory scan.
+
 ## Other packages
 
 The independently assembled MCP hook/direct packages under `packaging/` are
