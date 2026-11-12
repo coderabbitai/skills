@@ -15,17 +15,26 @@ start a review.
 
 ## Find the CLI and requested repository
 
-Use the intended Git working tree for every invocation. Resolve an official
-installed `coderabbit` to a quoted canonical absolute path, checking PATH and
-the documented installer location `~/.local/bin/coderabbit` on macOS/Linux.
-Reject repository-local executables, aliases, and unknown wrappers. If the
-installation source is uncertain, ask the user to identify their installation.
-For this native Claude plugin (identified by Claude substituting this plugin's
-installed root into `${CLAUDE_PLUGIN_ROOT}`), use its verified launcher and runtime
-preparation instructions; do not switch to a global CLI if preparation fails.
-A portable skill or another host retains its standalone CLI unless its installed
-package explicitly declares a managed runtime. A source checkout's `cli.json`
-alone does not select the native Claude plugin.
+Use the intended Git working tree for every invocation. Select the installed
+workflow before looking for a standalone CLI:
+
+- For the native Claude plugin (identified by Claude substituting this plugin's
+  installed root into `${CLAUDE_PLUGIN_ROOT}`), read that root's `cli.json` and
+  resolve its `launcher` to a quoted canonical absolute path inside the plugin.
+  The native source package uses `scripts/coderabbit-runtime`. Follow
+  [runtime preparation](https://github.com/coderabbitai/skills/blob/main/packaging/mcp/skills/setup/references/runtime-install.md)
+  for `delivery: download`; a bundled runtime needs no download. Verify the
+  pinned version through the same launcher. Do not require a global CLI or
+  switch to one if preparation fails.
+- For another installed package that explicitly declares a managed runtime,
+  use its verified launcher and preparation instructions.
+- For standalone installs, resolve an official installed `coderabbit` to a
+  quoted canonical absolute path, checking PATH and the documented installer
+  location `~/.local/bin/coderabbit` on macOS/Linux. Reject repository-local
+  executables, aliases, and unknown wrappers. If the installation source is
+  uncertain, ask the user to identify their installation. A source checkout's
+  `cli.json` alone does not select a managed runtime.
+
 The `<cli>` examples below mean that verified executable, not a literal command.
 
 Check `<cli> --version`, `<cli> config --help`, and support for the needed

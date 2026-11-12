@@ -39,11 +39,13 @@ separate distribution ref. The native 1.3.1 source package replaces that need:
 keep the repository-root listing and switch its tracked branch to `main` after
 this package merges.
 
-Use a channel-specific ref such as `claude-mcp-1.3.0`, not a `v*` tag: `v*` tags
-trigger the shared standalone release workflow. A GitHub release for this package
-must not replace the shared skills release as Latest. Disable directory
-auto-publish before switching its tracked ref, verify the imported version and
-data-handling disclosure, then complete the directory's review/publish flow.
+For independently assembled variants, use a channel-specific ref such as
+`claude-mcp-1.3.0`, not a `v*` tag: `v*` tags trigger the shared standalone release
+workflow. A GitHub release for an assembled variant must not replace the shared
+skills release as Latest. The native repository-root listing follows `main`.
+Disable directory auto-publish before switching its tracked ref, verify the
+imported version and data-handling disclosure, then complete the directory's
+review/publish flow.
 
 The hosted MCP server requires its own connector submission. Mod and the existing
 standalone skill and Codex channels are independent; the native Claude manifest

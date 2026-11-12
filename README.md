@@ -315,11 +315,13 @@ The Claude plugin adds `/coderabbit:setup` for its MCP connection and runtime.
 For review, use `/coderabbit:code-review` instead of the earlier
 `/coderabbit:coderabbit-review`.
 
-The plugin runs reviews through the locally installed CodeRabbit CLI, so it
-needs a shell on a machine where the CLI is installed and logged in. Claude Code
-has full support. Cowork and Claude chat on the web, desktop, and mobile can
-load the skills, but a review runs only where the CodeRabbit CLI is available,
-and chat doesn't run subagents.
+The native plugin runs local reviews through its pinned runtime. Run
+`/coderabbit:setup` to prepare it and connect through MCP authorization; no
+separate CLI login is needed. Local review requires permission to execute the
+runtime and access the intended Git working tree. Cowork and Claude chat on the
+web, desktop, and mobile can load the skills, but local review is available only
+where execution is permitted, and chat doesn't run subagents. The explicit
+CLI-only route requires the user's own installed and authenticated CLI.
 
 ### Cursor
 
