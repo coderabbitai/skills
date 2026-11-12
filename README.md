@@ -175,7 +175,7 @@ Review my PR
 Review the directory at ../my-service
 ```
 
-The agent will automatically:
+For standalone installs, the agent will automatically:
 
 1. Check if CodeRabbit CLI is installed
 2. Run the review on your changes
@@ -349,11 +349,13 @@ It keeps diagnostics sandboxed and retains per-command host approval for auth an
 
 ## Data and Privacy
 
-The source Claude plugin contains three skills and two subagents. It bundles no MCP
-servers, hooks, or executables.
+The native Claude plugin contains three portable skills, a setup command, two
+subagents, a remote MCP connection and a review hook. It ships a readable launcher
+and checksum pins; explicit setup prepares the verified native CLI runtime.
 
-- **Local commands**: the `code-review` skill and the `code-reviewer` subagent
-  run the installed `coderabbit` CLI and read-only Git commands. The `autofix`
+- **Local commands**: native Claude reviews use MCP authorization followed by the
+  trusted plugin hook, which runs the pinned CLI. Portable and explicit CLI-only
+  reviews use the user's installed CLI. The `autofix`
   skill uses the installed GitHub CLI (`gh`) to read CodeRabbit review threads
   on the current pull request and, when you approve, to create a pull request or
   post a summary comment. The `autofix` subagent only reads: it runs
@@ -361,19 +363,18 @@ servers, hooks, or executables.
 - **Data sent**: when you run a review, the CodeRabbit CLI sends the code
   changes under review and the repository context needed to review them to
   CodeRabbit's service. `autofix` exchanges pull request data with GitHub
-  through `gh`. The plugin sends nothing on its own.
-- **Credentials**: the CodeRabbit CLI and `gh` handle their own login and store
-  their own credentials. The plugin doesn't read or send credentials.
+  through `gh`. MCP handles account/review operations and saved-result retrieval.
+  Setup alone does not authorize a code upload or start a review.
+- **Credentials**: connector OAuth credentials remain with the host. The pinned
+  CLI receives one scoped review handoff through stdin; provider credentials
+  remain server-side. The plugin does not read the host's OAuth store. The
+  standalone CLI and `gh` manage their own login and credentials.
 - **Policy**: CodeRabbit's handling, retention, and sharing of review data is
   described in the [CodeRabbit Privacy Policy](https://www.coderabbit.ai/privacy-policy).
   Contact <support@coderabbit.ai> with questions.
 
-The unpublished MCP pilot uses connector browser sign-in instead of a separate
-CLI login. Connector OAuth credentials remain with the host; the bundled CLI
-receives one scoped review handoff through stdin and sends the selected changes
-and review context to CodeRabbit. MCP can retrieve the same saved findings.
-Provider credentials remain server-side. A trusted hook or permitted direct
-launcher starts the bundled executable; neither requires a persistent daemon.
+Independently assembled direct packages use their permitted launcher instead of
+the native review hook. Neither launcher requires a persistent daemon.
 
 The `coderabbit-config` skill runs local CLI configuration commands. The CLI
 fetches the public configuration schema over HTTPS and validates YAML locally;
