@@ -187,6 +187,11 @@ function shorten(value) {
   return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, shorten(item)]));
 }
 
+/**
+ * Build the saved card/context report from CLI NDJSON without claiming complete
+ * coverage for known unreviewed work. Fit whole path notices into the existing
+ * 24,000-character record budget after retaining findings and diagnostics.
+ */
 export function reviewResult(result) {
   const findings = [];
   const errors = [];
@@ -216,6 +221,9 @@ export function reviewResult(result) {
     Number.isInteger(complete.findings) &&
     complete.findings >= 0 &&
     complete.findings === findings.length;
+  const unreviewedFiles = Array.isArray(complete?.unreviewedFiles)
+    ? complete.unreviewedFiles.filter((file) => typeof file?.filename === "string")
+    : [];
   let headline;
   if (result.exitCode !== 0 || errors.length)
     headline = errors.some((error) => error.errorType === "auth")
@@ -231,10 +239,21 @@ export function reviewResult(result) {
       complete.message.startsWith(NO_FRESH_REVIEW))
   )
     headline = "CodeRabbit skipped this review; no new analysis was performed.";
+  else if (
+    complete.status === "review_completed" &&
+    (unreviewedFiles.length || complete.unreviewedFileCount > 0)
+  )
+    headline =
+      "CodeRabbit review incomplete: " + findings.length + " finding(s); some files were not reviewed.";
   else if (complete.status === "review_completed")
     headline = "CodeRabbit review completed: " + findings.length + " finding(s).";
   else headline = "CodeRabbit returned an unknown outcome; coverage is unverified.";
 
+  /** Reserve the largest omitted count so the final summary can only shrink. */
+  const inventorySummary = (omitted) =>
+    "Unreviewed files: " +
+    unreviewedFiles.length +
+    (omitted ? " (" + omitted + " omitted by display limit)." : ".");
   const notices = [];
   if (typeof complete?.message === "string" && complete.message !== "Review completed")
     notices.push("CLI message: " + complete.message);
@@ -278,6 +297,44 @@ export function reviewResult(result) {
       report.notices = shorten(report.notices);
       if (report.rateLimit) report.rateLimit = shorten(report.rateLimit);
     }
+  }
+  if (
+    unreviewedFiles.length ||
+    (typeof complete?.unreviewedFileCount === "number" && complete.unreviewedFileCount > 0)
+  ) {
+    // Use the remaining display budget for whole path records, without
+    // displacing findings or diagnostics already retained in the report.
+    let length = JSON.stringify(report).length;
+    const summaryIndex = report.notices.length;
+    const summary = unreviewedFiles.length
+      ? inventorySummary(unreviewedFiles.length)
+      : "Unreviewed files: " + complete.unreviewedFileCount + " (paths unavailable).";
+    const summaryGrowth = JSON.stringify(summary).length + (summaryIndex ? 1 : 0);
+    if (length + summaryGrowth > 24000) {
+      report.truncated = true;
+      return JSON.stringify(report);
+    }
+    report.notices.push(summary);
+    length += summaryGrowth;
+    let retained = 0;
+    for (const file of unreviewedFiles) {
+      const path = JSON.stringify(file.filename).replace(/[\u007f-\u009f]/g, (char) =>
+        "\\u" + char.charCodeAt(0).toString(16).padStart(4, "0"),
+      );
+      const reason =
+        file.reason === "diff_too_large"
+          ? "Diff could not fit within the review context."
+          : "File review did not complete.";
+      const notice = path + ": " + reason;
+      const growth = JSON.stringify(notice).length + 1;
+      if (length + growth > 24000) continue;
+      report.notices.push(notice);
+      length += growth;
+      retained++;
+    }
+    const omitted = unreviewedFiles.length - retained;
+    if (unreviewedFiles.length) report.notices[summaryIndex] = inventorySummary(omitted);
+    if (omitted) report.truncated = true;
   }
   return JSON.stringify(report);
 }
