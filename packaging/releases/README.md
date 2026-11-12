@@ -1,8 +1,9 @@
 # Claude release inputs
 
 The staged Claude MCP 1.3.3 candidate restores the hook-enabled repository-root
-package. Do not merge or publish it until hook-free 1.3.2 is live and the separate
-Anthropic review/approval for the hook update is obtained.
+package. Do not merge until hook-free 1.3.2 is live; then merge and import 1.3.3
+for Anthropic policy review. Do not publish until Anthropic clears the applicable
+hook and credential policy holds and publication is authorized.
 Its `.claude-plugin/plugin.json`, `cli.json` and `runtime/` metadata are committed
 and installable without assembling or tracking a distribution branch. The
 matching release JSON records CLI 0.9.3 executable/archive checksums and the

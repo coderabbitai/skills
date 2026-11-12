@@ -1,7 +1,8 @@
 # Claude MCP plugin 1.3.3 — staged hook update
 
-Do not merge or publish this follow-up until hook-free 1.3.2 is live and the
-separate Anthropic review/approval for the hook-enabled update is obtained.
+Do not merge this follow-up until hook-free 1.3.2 is live. After that, merge and
+import 1.3.3 for Anthropic policy review. Do not publish until Anthropic clears
+the applicable hook and credential policy holds and publication is authorized.
 
 - Restore MCP-authorized local review through the Claude plugin's qualified
   post-tool hook and pinned CLI 0.9.3 runtime. Setup prepares the runtime and

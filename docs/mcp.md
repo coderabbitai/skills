@@ -5,8 +5,10 @@ usage, accessible repositories and pull requests, and saved review results.
 Available tools depend on your account, permissions and the current rollout.
 
 This staged follow-up prepares Claude MCP 1.3.3 at the repository root. Do not
-merge or publish it until hook-free 1.3.2 is live and the separate Anthropic
-review/approval for the hook update is obtained. The later candidate contains:
+merge it until hook-free 1.3.2 is live. Afterward, merge and import 1.3.3 for
+Anthropic policy review, keeping it unpublished until Anthropic clears the
+applicable hook and credential policy holds and publication is authorized.
+The later candidate contains:
 its connection and hook are declared in `.claude-plugin/plugin.json`, and runtime
 pins are checked in under `runtime/`. No generated distribution branch or local
 assembly is needed for that native Claude package. Source availability does not

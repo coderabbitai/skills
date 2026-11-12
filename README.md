@@ -13,9 +13,11 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 ## Staged hook update
 
 This branch prepares hook-enabled Claude MCP **1.3.3**. Keep hook-free **1.3.2**
-on `main` until it is published. Do not merge or publish this follow-up until
-1.3.2 is live and the separate Anthropic review/approval for the hook update is
-obtained. The candidate below describes that later update, not the live listing.
+on `main` until it is published. Do not merge this follow-up until 1.3.2 is live.
+After that, 1.3.3 can be merged and imported for Anthropic policy review. Do not
+publish it until Anthropic clears the applicable hook and credential policy
+holds and publication is authorized. The candidate below describes that later
+update, not the live listing.
 
 ## Quickstart
 

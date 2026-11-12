@@ -5,8 +5,10 @@ All notable changes to this repository are documented in this file.
 ## Claude MCP plugin [1.3.3] - Staged hook update
 
 - Stage the plugin-qualified local-review hook and pinned CLI 0.9.3 runtime
-  after the hook-free 1.3.2 release. Do not merge or publish until 1.3.2 is live
-  and the separate Anthropic review/approval for the hook update is obtained.
+  after the hook-free 1.3.2 release. Do not merge until 1.3.2 is live; then merge
+  and import 1.3.3 for Anthropic policy review. Do not publish until Anthropic
+  clears the applicable hook and credential policy holds and publication is
+  authorized.
 - Restore one-review MCP handoff authorization and browser sign-in for local
   reviews while retaining native hook trust, explicit CLI-only review and other
   host integrations. An unavailable hook never selects another launcher.
