@@ -12,10 +12,11 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-**Claude MCP plugin:** the repository root on `main` is the installable Claude
-1.3.3 candidate. It connects remote CodeRabbit tools through MCP and uses the
-standalone CodeRabbit CLI for local reviews. It has no automatic review hook.
-Run `/coderabbit:setup` to check both: **connect MCP → sign in to the CLI if
+**Claude plugin:** the repository root on `main` is the installable Claude
+1.4.0 candidate. Remote CodeRabbit tools come from the
+[CodeRabbit connector](https://claude.ai/directory/connectors/coderabbit); the plugin uses the
+standalone CodeRabbit CLI for local reviews and has no automatic review hook.
+Run `/coderabbit:setup` to check both: **connect the connector → sign in to the CLI if
 needed → “Review my changes.”** The two sign-ins are separate; an existing CLI
 installation and login can be reused. See [distribution status](DISTRIBUTION_CHANNELS.md)
 for directory publication, which is separate from source availability.
@@ -143,7 +144,7 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | Path | Purpose |
 | --- | --- |
 | `skills/` | Portable CodeRabbit skills for agents that support `SKILL.md`. |
-| `.claude-plugin/` | Native Claude manifest with its remote MCP connection; no review hook. |
+| `.claude-plugin/` | Native Claude manifest; pairs with the CodeRabbit connector, no MCP server or review hook. |
 | `commands/` | Native review commands for Gemini CLI and Antigravity CLI. |
 | `agents/` | `code-reviewer` and `autofix` subagents shipped to Claude Code, Gemini CLI, and Antigravity CLI. |
 | `.cursor-plugin/` | Cursor marketplace metadata. |
@@ -286,8 +287,8 @@ Marketplace caches require their normal publication update to deliver it.
 
 ## Plugin Components
 
-The native Claude candidate combines a remote MCP connection and setup command
-with standalone CLI review and configuration skills. It registers no hooks and
+The native Claude candidate pairs with the CodeRabbit connector and adds a setup
+command plus standalone CLI review and configuration skills. It registers no hooks and
 supplies no managed review runtime. Independently assembled MCP variants have
 separate qualification requirements.
 
@@ -302,7 +303,7 @@ separate qualification requirements.
   `@agent-coderabbit:code-reviewer` and `@agent-coderabbit:autofix`.
 - Manifest: `.claude-plugin/plugin.json`
 
-The Claude plugin adds `/coderabbit:setup` for MCP connection and standalone CLI readiness.
+The Claude plugin adds `/coderabbit:setup` for connector and standalone CLI readiness.
 For review, use `/coderabbit:code-review` instead of the earlier
 `/coderabbit:coderabbit-review`.
 
@@ -337,7 +338,8 @@ It keeps diagnostics sandboxed and retains per-command host approval for auth an
 ## Data and Privacy
 
 The native Claude plugin contains three portable skills, a setup command, two
-subagents and a remote MCP connection. It declares no automatic hooks.
+subagents. It declares no MCP server and no automatic hooks; remote tools come
+from the separately listed CodeRabbit connector.
 
 - **Local commands**: reviews use the user's installed CodeRabbit CLI. The
   `autofix` skill uses GitHub CLI (`gh`) to read review threads and, when

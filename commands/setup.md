@@ -1,18 +1,21 @@
 ---
-description: Connect CodeRabbit MCP for remote tools and set up the standalone CLI for local reviews. The connector and CLI use separate sign-ins.
+description: Connect the CodeRabbit connector for remote tools and set up the standalone CLI for local reviews. The connector and CLI use separate sign-ins.
 ---
 
 # Set up CodeRabbit
 
-This plugin combines a remote MCP connection with standalone CLI local reviews.
-It has no automatic review hook and does not prepare a pinned MCP runtime.
+This plugin pairs CodeRabbit's Claude connector (remote MCP tools) with
+standalone CLI local reviews. The plugin itself declares no MCP server, has no
+automatic review hook and does not prepare a pinned MCP runtime.
 Setup alone does not authorize a review or source upload.
 
 ## Connect remote tools
 
-Use Claude's native Connect or Reconnect flow for this plugin's CodeRabbit
-server at `https://mcp.coderabbit.ai/`. In Claude Code, inspect it through `/mcp`.
-Let the user complete browser consent and select the intended organization.
+Remote tools come from the CodeRabbit connector in Claude's connector directory
+(https://claude.ai/directory/connectors/coderabbit), not from this plugin. Ask the user to add or
+connect it in Claude's connector settings; a connector the user already added
+for `https://mcp.coderabbit.ai/` works the same way. In Claude Code, connected
+claude.ai connectors appear in `/mcp`. Let the user complete browser consent and select the intended organization.
 Verify the account and organization through `connection_status` or `get_me`.
 Do not inspect stored credentials or request pasted authorization codes.
 Preserve other connections; if a duplicate prevents discovery, explain the

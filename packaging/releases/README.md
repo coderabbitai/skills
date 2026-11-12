@@ -1,7 +1,8 @@
 # Claude release inputs
 
-The repository-root Claude 1.3.3 candidate combines remote MCP with standalone
-CLI local reviews. It declares no review hook and has no managed-runtime pins.
+The repository-root Claude 1.4.0 candidate pairs with the CodeRabbit connector
+for remote MCP and uses standalone CLI local reviews. It declares no MCP server,
+no review hook and no managed-runtime pins.
 Its source is `main`; directory validation and publication remain separate.
 
 The 1.3.0 and 1.3.1 files below are historical inputs for the MCP handoff packages.

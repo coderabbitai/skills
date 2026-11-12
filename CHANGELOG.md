@@ -2,6 +2,16 @@
 
 All notable changes to this repository are documented in this file.
 
+## Claude plugin [1.4.0] - Release candidate
+
+- Stop declaring the remote MCP server in `.claude-plugin/plugin.json`. Remote
+  CodeRabbit tools now come from the CodeRabbit connector in Claude's connector
+  directory, which owns the OAuth sign-in; `/coderabbit:setup` and the docs
+  point users there. Local reviews still use the standalone CLI.
+- Resolves the Claude directory policy hold ("Uses a credential from the
+  user's machine", "Update adds credential forward") that applied to every
+  version declaring its own authenticated MCP server.
+
 ## Claude plugin [1.3.3] - Release candidate
 
 - Point the missing-CLI recovery step to the official installation docs instead

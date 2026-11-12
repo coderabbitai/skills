@@ -8,7 +8,7 @@ description: Reviews local code through the installed CodeRabbit CLI, returning 
 ## Local review workflow
 
 Use the installed CodeRabbit CLI and its own authentication in every host.
-The native Claude plugin's remote MCP connection does not replace CLI login.
+The CodeRabbit connector used with the native Claude plugin does not replace CLI login.
 Do not call `start_code_review` or use an MCP handoff for a local review: this
 package has no review hook. Follow the standalone workflow below. Never start a
 standalone review to retry an uncertain MCP review; recover its existing ID.

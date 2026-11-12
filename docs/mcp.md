@@ -1,7 +1,8 @@
 # Connect CodeRabbit through MCP
 
-The Claude plugin 1.3.3 candidate combines CodeRabbit's remote MCP connection
-with standalone CLI local reviews. It declares no automatic hooks. Source on
+The Claude plugin 1.4.0 candidate pairs the CodeRabbit connector
+(https://claude.ai/directory/connectors/coderabbit) for remote MCP tools with standalone CLI
+local reviews. The plugin declares no MCP server and no automatic hooks. Source on
 `main` and directory publication are separate; see
 [distribution status](../DISTRIBUTION_CHANNELS.md).
 
@@ -9,8 +10,9 @@ with standalone CLI local reviews. It declares no automatic hooks. Source on
 
 Run `/coderabbit:setup` in the installed Claude plugin.
 
-1. Connect CodeRabbit through Claude's native browser sign-in and select your
-   organization. In Claude Code, use `/mcp` to inspect the connection.
+1. Add or connect the CodeRabbit connector in Claude's connector settings,
+   complete its browser sign-in and select your organization. In Claude Code,
+   use `/mcp` to inspect the connection.
 2. For local reviews, install the official [CodeRabbit CLI](https://docs.coderabbit.ai/cli)
    and sign in through its own browser flow. An existing authenticated CLI can
    be reused. MCP and CLI sign-ins are separate.
@@ -24,7 +26,7 @@ can still be used but local review cannot run.
 
 ## Remote tools and local reviews
 
-The declared remote connection provides tools within the granted scopes and
+The connector provides tools within the granted scopes and
 your account's permissions. Use it for account, usage and accessible pull-request
 workflows. Product and tool availability depends on the plan and permissions;
 connecting does not grant access to every CodeRabbit product.
@@ -53,28 +55,19 @@ concrete error and review ID when available; never send credentials.
 
 ## OAuth credential handling
 
-The repository-root manifest declares an HTTP MCP connection to
-`https://mcp.coderabbit.ai/` and the requested OAuth scopes. It declares no
-`env`, `headers`, `headersHelper`, client secret, credential-file path or
-credential environment-variable substitution. It declares no hook or local
-MCP server command.
+The repository-root manifest declares no MCP server, `env`, `headers`,
+`headersHelper`, client secret, credential-file path or credential
+environment-variable substitution, and no hook or local MCP server command.
 
-Claude manages the connector's browser OAuth flow and uses the resulting
-CodeRabbit access token to authenticate MCP requests. “No custom authorization
-header” does not mean unauthenticated requests: the host supplies OAuth
-authentication through its native MCP client. The plugin does not configure
-forwarding of a pre-existing Git-provider token or another service's API key.
-The standalone CLI uses its separate sign-in; this manifest does not transfer
-its credentials into the MCP connection.
+Remote tools come from the separately listed CodeRabbit connector. Claude
+manages that connector's browser OAuth flow and token; the plugin never sees or
+forwards it. The standalone CLI uses its separate sign-in, and the plugin does
+not transfer credentials between the connector and the CLI.
 
 See Claude's [remote MCP authentication documentation](https://code.claude.com/docs/en/mcp#authenticate-with-remote-mcp-servers).
-If a directory check reports credential forwarding against this manifest,
-request the exact field and data path identified by the check. This description
-explains the configuration; it does not establish a policy waiver or a passed
-directory scan.
 
 ## Other packages
 
 The independently assembled MCP hook/direct packages under `packaging/` are
 separate development candidates. Their runtime and authentication instructions
-do not apply to the repository-root 1.3.3 plugin and require their own qualification.
+do not apply to the repository-root 1.4.0 plugin and require their own qualification.
