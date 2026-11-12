@@ -26,4 +26,4 @@ until plugin server identity can be verified;
 the hosted connector alone cannot collect files from your laptop. This pilot
 also requires a compatible CodeRabbit review service.
 
-[Privacy policy](https://www.coderabbit.ai/privacy-policy)
+{{RELEASE_NOTES}}[Privacy policy](https://www.coderabbit.ai/privacy-policy)

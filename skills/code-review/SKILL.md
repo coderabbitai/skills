@@ -7,6 +7,27 @@ metadata:
 
 # CodeRabbit Code Review
 
+## Select the installed workflow
+
+For an explicit **CLI-only** request, continue with the standalone instructions
+below before making any MCP reservation.
+
+When this skill is loaded from the native `coderabbit` Claude plugin, Claude
+substitutes its installed root into `${CLAUDE_PLUGIN_ROOT}`. Read that root's
+`cli.json` and follow the [Claude MCP review guide](../../packaging/mcp/skills/code-review/SKILL.md)
+instead of the standalone instructions below. Missing MCP authorization, runtime
+or hook trust requires the plugin's `/coderabbit:setup` command; it never permits
+an automatic switch to standalone CLI review. Use only the plugin-qualified
+`mcp__plugin_coderabbit_coderabbit__*` tools.
+
+For a portable skill install or another host, the plugin-root placeholder remains
+unexpanded. Continue below with the existing standalone CLI workflow. Do not infer
+a Claude plugin installation from a manually connected MCP server or a shell
+environment variable. A source checkout containing `cli.json` alone is not a
+native Claude plugin installation.
+
+## Standalone CLI review
+
 AI-powered code review using CodeRabbit. Enables developers to implement features, review code, and fix issues in autonomous cycles without manual intervention.
 
 ## Capabilities

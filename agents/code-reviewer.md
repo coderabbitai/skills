@@ -5,6 +5,20 @@ description: Runs a CodeRabbit CLI review of the current code changes in its own
 
 # CodeRabbit Code Review Agent
 
+## Native Claude plugin route
+
+When Claude loads this agent from the native `coderabbit` plugin, it substitutes
+this plugin's installed directory into `${CLAUDE_PLUGIN_ROOT}`. Follow
+`${CLAUDE_PLUGIN_ROOT}/packaging/mcp/agents/code-reviewer.md` and return; do not
+run the standalone workflow below. An explicit CLI-only request returns to the
+main conversation's shared review skill before any MCP action.
+
+In other hosts, the plugin-root placeholder is not substituted. Continue with
+the standalone CLI instructions below; a shell environment variable or manual
+MCP connection does not establish that this is the native Claude plugin.
+
+## Standalone CLI agent
+
 A specialized agent that leverages CodeRabbit's AI-powered code review to provide comprehensive analysis of your code changes.
 
 ## Capabilities

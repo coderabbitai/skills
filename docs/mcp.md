@@ -4,11 +4,12 @@ CodeRabbit's hosted MCP connection lets your assistant read account information,
 usage, accessible repositories and pull requests, and saved review results.
 Available tools depend on your account, permissions and the current rollout.
 
-Local MCP review is currently a pilot. The MCP-enabled companion plugin is not
-yet the published directory version. Use a complete preview package supplied by
-CodeRabbit; the source tree and the existing standalone CLI listing are not that
-package. Public review availability, supported hosts and package installation
-instructions must be confirmed for your version.
+The repository root on `main` contains the complete Claude MCP 1.3.1 candidate:
+its connection and hook are declared in `.claude-plugin/plugin.json`, and runtime
+pins are checked in under `runtime/`. No generated distribution branch or local
+assembly is needed for that native Claude package. Source availability does not
+publish the candidate: confirm the current directory or marketplace version
+before installation. Codex and other standalone integrations remain separate.
 
 ## Connect your account
 
@@ -32,6 +33,11 @@ hides the plugin server, let setup identify the conflict before changing native
 settings. Preserve unrelated connections; another login is not always necessary.
 
 ## Prepare local review
+
+For the native Claude plugin, run `/coderabbit:setup` or ask to set up CodeRabbit.
+This command reads the packaged setup guide, prepares the pinned runtime and
+connects the plugin-owned MCP server. The connection and review hook live in the
+Claude manifest; a manual MCP connection does not substitute for plugin ownership.
 
 A remote connector alone cannot collect files from your laptop. Local review
 requires an MCP-enabled plugin in a host that can run its CLI and access the

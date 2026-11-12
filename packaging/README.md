@@ -1,13 +1,41 @@
 # MCP-authorized CLI plugin packages
 
-This branch prepares **install plugin → connect CodeRabbit once → review local
-changes**. It requires the matching hosted MCP control service and a CLI build
-that implements `review --agent --mcp-stdin` and `mcp-hook`. It is not a published release. Installing the
-source tree directly does not supply the native CLI or hosted endpoint.
+## Native Claude package on main
 
-Shared `skills/code-review` and `agents/code-reviewer.md` retain the released CLI
-workflow. The assembler replaces them with the MCP templates in `packaging/mcp`
-and adds its setup skill only inside the complete pilot package.
+The repository root on `main` is the complete Claude MCP 1.3.1 candidate.
+`.claude-plugin/plugin.json` declares its hosted connection and plugin-qualified
+post-tool hook. `cli.json` and `runtime/` pin the existing readable
+`scripts/coderabbit-runtime` launcher to CLI 0.9.3. Explicit setup prepares the
+runtime; hooks never download it. No generated distribution branch is needed.
+
+The shared review skill and review agent select MCP only when Claude loads them
+as native `coderabbit` plugin components and substitutes their plugin root.
+Portable skill installs and other hosts retain the standalone CLI instructions.
+Explicit CLI-only review is chosen before MCP reservation; failed MCP setup never
+switches automatically. `/coderabbit:setup` is a default Markdown command that
+reads the canonical MCP setup guide. No second broad review skill is registered.
+
+MCP and hooks are inline in the Claude manifest rather than root `.mcp.json` or
+`hooks/hooks.json`, which other host loaders can auto-discover. Native Codex,
+Cursor, Gemini and Antigravity manifests retain their standalone versions.
+Shared `v*` tags follow the standalone versions; the Claude MCP version is
+independent. Source archives contain both surfaces, but a portable skill install
+does not become the native Claude plugin merely because `cli.json` is present.
+
+For a new Claude release, update its manifest version, matching checked-in
+`packaging/releases/claude-<version>.json` and notes, and `runtime/` pins together.
+Focused package tests check their consistency. Keep signed artifact provenance,
+native hook trust, directory validation, policy approval and publication as
+separate checks. The local validator does not replace the portal's policy and
+security scan. Do not claim all-platform review qualification from offline checks.
+
+## Independently assembled variants
+
+The assembler remains available for explicit direct, bundled and Codex pilots.
+It normalizes the source-only Claude declarations into each package's own
+component layout, preserves the standalone CLI guide, and never silently changes
+launchers after a failed hook. Codex hook packages remain unavailable until
+plugin server identity can be verified.
 
 Setup can also offer repository-specific review settings and path instructions
 through the pinned CLI's configuration protocol v2. Configuration is optional,
@@ -59,7 +87,7 @@ shipped. Public release signing/provenance is still a release-operator gate.
 Set top-level `plugin_version` explicitly for this delivery mode, independently
 of the CLI `version`, and increment it for each published plugin update. Hosts
 cache by plugin version; changed source with the same version is not an upgrade.
-The shared source manifests and standalone release version remain unchanged.
+The assembler changes only its output; native source and standalone versions remain unchanged.
 
 Run:
 
@@ -106,14 +134,14 @@ plus checksum for three days. It does not execute the downloaded binary or
 publish a release. Extract the tar archive before client installation; it
 preserves executable permissions. Run once per platform for separate pilots.
 
-Tagged releases continue to distribute the shared standalone CLI skills. The
-presence of the pilot assembler does not change those skills or block their
-release; the MCP overlay exists only in the assembler's output. A tagged source
-archive is not an assembled MCP plugin. This pilot uses local marketplace installation for its assembled
-direct Codex package. Claude hooks require native trust and the plugin-qualified
+Tagged releases continue to distribute the shared standalone CLI skills, alongside
+the independently versioned native Claude plugin. Portable installers use their
+standalone route; a tagged source archive is not a separately assembled Codex or
+bundled package. The direct Codex pilot uses local marketplace installation. Claude hooks require native trust and the plugin-qualified
 connection; qualify each intended distribution channel separately.
-Publish the assembled plugin only after its archive/import behavior is verified. In particular, a source-repository marketplace install must deliver
-these assembled files; pointing it at this source branch is insufficient.
+Publish an assembled variant only after its archive/import behavior is verified.
+The native Claude root package requires no assembly, but its actual installation
+channel must still be qualified separately.
 
 ## Install a Codex pilot locally
 
@@ -182,9 +210,10 @@ Merging to a directory's tracked branch can trigger a scan and automatic
 publication when enabled. Check the tracked source and publish settings before
 merging; an unchanged official-marketplace pin does not protect the directory.
 The directory's repository and plugin folder cannot change after submission.
-Prepare the assembled plugin at that same path on a separate distribution
-branch, preserve the canonical standalone source, and obtain publication
-approval before switching the listing's tracked branch or tag. Changing that
+The existing listing keeps this repository and root path and can track `main`
+once this native package is merged. Retire the temporary distribution-branch
+tracking in the portal at that point; preserve the standalone skill routes and
+obtain publication approval separately. Changing that
 reference starts a new scan; the last published version stays live meanwhile.
 After the new version passes, select **Publish** or **Publish update** in the
 portal and follow its review/publish setting. Changing the reference and

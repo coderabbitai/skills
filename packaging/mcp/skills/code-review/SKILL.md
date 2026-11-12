@@ -10,7 +10,7 @@ metadata:
 ## Choose the review route
 
 For an explicit **CLI-only** request, follow the original
-[standalone CLI guide](references/standalone-cli/guide.md) and return. It uses
+[standalone CLI guide](../../../../skills/code-review/SKILL.md) and return. It uses
 the user's existing global CLI, native authentication and selected organization;
 it does not require MCP connection or pinned-runtime preparation. Choose this
 route before any MCP reservation, and do not dispatch the MCP-only review agent.
@@ -19,7 +19,7 @@ In the guide's auth check, confirm any user-requested account, organization or
 region. Unknown or mismatched context stops the review.
 
 For an ordinary review request, use this plugin's MCP workflow. If disconnected,
-follow setup to connect CodeRabbit through the host's browser flow, preserving
+follow the setup guide to connect CodeRabbit through the host's browser flow, preserving
 the requested review scope. Do not ask the user to choose a launcher or a
 standalone route before normal first-use setup.
 
@@ -27,6 +27,10 @@ For a connected MCP review, continue below. A missing supported MCP launcher can
 be explained with the available CLI-only option, which the user must explicitly
 select. Never switch routes automatically after an MCP denial, failed launch,
 started review or uncertain result. Preserve the original review ID and recovery.
+
+For the root Claude plugin, setup is `/coderabbit:setup`, backed by the
+[setup guide](../setup/SKILL.md). Independently assembled packages expose the same
+setup guide as their `setup` skill.
 
 ## MCP review
 

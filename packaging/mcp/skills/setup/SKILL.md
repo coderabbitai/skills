@@ -21,9 +21,12 @@ existing suitable settings and avoid delaying an already-requested review with
 optional configuration.
 
 1. Read this plugin's `cli.json`. Resolve its `launcher` relative to the plugin
-   root, keep it inside that root, and quote its absolute path. In Claude Code,
-   the root is `${CLAUDE_PLUGIN_ROOT}`; in Codex it is two directories above this
-   loaded skill. For `delivery: download`, follow
+   root, keep it inside that root, and quote its absolute path. For the native
+   Claude package, use the installed root already supplied by `/coderabbit:setup`
+   or the invoking plugin skill; do not read an unresolved placeholder from a
+   shell environment. A directly loaded Claude plugin skill substitutes
+   `${CLAUDE_PLUGIN_ROOT}`; in Codex the root is two directories above the
+   loaded setup skill. For `delivery: download`, follow
    [runtime preparation](references/runtime-install.md) before using the CLI.
    For `delivery: bundled`, run `--version` directly. If local execution is
    unavailable, connect the remote account/PR tools but report that local
@@ -45,7 +48,8 @@ optional configuration.
    reserve a review. A trusted hook supplies its own handoff. Do not bypass a
    denied execution or upload decision.
 3. In Claude Code, check the active server in `/mcp` against this package's
-   `.mcp.json` URL. A manually configured connection at the same endpoint can
+   declared URL: `mcpServers.coderabbit.url` in `.claude-plugin/plugin.json` for
+   the native root package, or `.mcp.json` for an independently assembled package. A manually configured connection at the same endpoint can
    hide the plugin connection. Local reviews require the plugin-qualified tool
    `mcp__plugin_coderabbit_coderabbit__start_code_review`; a bare server name
    cannot prove plugin ownership. If a manual entry shadows it, explain the

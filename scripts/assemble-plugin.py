@@ -96,6 +96,13 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
     if not isinstance(plugin_version, str) or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?", plugin_version):
         raise ValueError("Plugin version must be an exact semantic version")
     plugin_manifest["version"] = plugin_version
+    if client == "claude":
+        # Standalone assembled packages use their own default agents and setup
+        # skill, not the repository-root component paths in the native package.
+        plugin_manifest.pop("commands", None)
+        plugin_manifest.pop("agents", None)
+        plugin_manifest.pop("mcpServers", None)
+        plugin_manifest.pop("hooks", None)
     plugin_manifest["homepage"] = "https://github.com/coderabbitai/skills/blob/main/docs/mcp.md"
     if client == "claude" and delivery == "download":
         plugin_manifest["privacyPolicyUrl"] = "https://www.coderabbit.ai/privacy-policy"
@@ -116,8 +123,8 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         for name in ("skills", "assets") + (("agents",) if client == "claude" else ()):
             if (source / name).is_dir():
                 copy_tree(source / name, package / name)
-        # Shared installations retain the released CLI workflow. Only a complete
-        # assembled pilot receives the MCP-specific review and setup instructions.
+        # Assembled variants have direct MCP instructions, independent of the
+        # repository's native-Claude context route and component layout.
         for skill in ("setup", review_skill):
             destination = package / "skills" / skill
             if destination.exists():
@@ -127,6 +134,10 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         if client == "claude":
             (package / "agents").mkdir(exist_ok=True)
             shutil.copyfile(pilot_agent, package / "agents/code-reviewer.md")
+        review_entry = package / "skills" / review_skill / "SKILL.md"
+        review_entry.write_text(review_entry.read_text().replace(
+            "../../../../skills/code-review/SKILL.md", "references/standalone-cli/guide.md"
+        ))
         if client == "codex" and review_skill == "code-review":
             skill = package / "skills/code-review"
             entry = skill / "SKILL.md"
@@ -137,7 +148,13 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         copy_tree(source / "skills" / review_skill, legacy)
         # Keep the original workflow and relative references without registering
         # another broad review skill that competes with the route selector.
-        (legacy / "SKILL.md").rename(legacy / "guide.md")
+        standalone_entry = legacy / "SKILL.md"
+        standalone_text = standalone_entry.read_text()
+        route_start = standalone_text.find("## Select the installed workflow\n")
+        route_end = standalone_text.find("## Standalone CLI review\n", route_start)
+        if route_start >= 0 and route_end > route_start:
+            standalone_entry.write_text(standalone_text[:route_start] + standalone_text[route_end:])
+        standalone_entry.rename(legacy / "guide.md")
         cli_path = "bin/coderabbit" if delivery == "bundled" else "scripts/coderabbit"
         (package / "cli.json").write_text(json.dumps({
             "launcher": "./" + cli_path, "delivery": delivery,

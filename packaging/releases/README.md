@@ -1,4 +1,15 @@
-# Claude MCP release inputs
+# Claude release inputs
+
+The native Claude MCP candidate is now the repository root on `main` (1.3.1).
+Its `.claude-plugin/plugin.json`, `cli.json` and `runtime/` metadata are committed
+and installable without assembling or tracking a distribution branch. The
+matching release JSON records CLI 0.9.3 executable/archive checksums and the
+notes describe the source transition. Update these pins together; the focused
+package tests enforce their agreement.
+
+The 1.3.0 files below remain the historical inputs for the earlier assembled
+candidate. Independently assembled variants still use the instructions below.
+Directory approval and publication remain separate.
 
 `claude-1.3.0.json` pins the assembled Claude MCP plugin to version **1.3.0** and
 CodeRabbit CLI **0.9.3**, including archive and executable SHA-256 values for
@@ -23,9 +34,10 @@ python3 scripts/assemble-plugin.py --client claude \
 The matching Claude hook package includes the [MCP changelog](claude-1.3.0.md).
 Other clients, versions or launcher modes omit these release notes and their link.
 Qualify the exact package before publication. Keep the plugin name `coderabbit`
-and the existing directory submission. Its source must point to the assembled
-package at the repository root on a dedicated distribution ref; the source tree
-on `main` remains the standalone distribution.
+and the existing directory submission. The historical 1.3.0 candidate used a
+separate distribution ref. The native 1.3.1 source package replaces that need:
+keep the repository-root listing and switch its tracked branch to `main` after
+this package merges.
 
 Use a channel-specific ref such as `claude-mcp-1.3.0`, not a `v*` tag: `v*` tags
 trigger the shared standalone release workflow. A GitHub release for this package
@@ -34,5 +46,5 @@ auto-publish before switching its tracked ref, verify the imported version and
 data-handling disclosure, then complete the directory's review/publish flow.
 
 The hosted MCP server requires its own connector submission. Mod and the existing
-standalone Claude/Codex channels are independent; this release does not replace
-their source manifests or publish them.
+standalone skill and Codex channels are independent; the native Claude manifest
+has its own version. Updating source does not publish any channel.
