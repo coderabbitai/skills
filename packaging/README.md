@@ -245,16 +245,13 @@ local-execution qualification. Do not offer it as a fallback for an unavailable 
 ## Validate
 
 ```sh
-python3 scripts/test-plugin-package.py
+python3 -m json.tool .claude-plugin/plugin.json > /dev/null
+python3 -m py_compile scripts/assemble-plugin.py
 ```
 
-To also check connector and direct-package skill discovery through an installed Codex
-binary, run the same suite with `CODEX_TEST_BIN=/absolute/path/to/codex`.
-This reads the direct delivery variants through the native loader using temporary
-profiles; it does not install plugins, grant trust, authenticate or start reviews.
-
-The tests use synthetic native headers for assembly and a shell test double for
-launcher forwarding. They do not establish real CLI execution or authentication.
+These checks validate manifest JSON and assembler syntax only. The former
+packaging test suite has been removed; these checks do not replace its assembly,
+launcher or native-loader coverage and do not establish authentication.
 Before publication, unpack the real artifact under a path with spaces and verify:
 
 - A clean machine with no global CodeRabbit CLI can run bundled `--version`.
