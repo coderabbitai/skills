@@ -49,10 +49,8 @@ The `bundled` variant includes native bytes for manual installation. The
 The installed plugin uses that verified executable and the host's
 normal execution/network permissions. Git must be available for local reviews.
 
-Assembled Claude packages request `connection account:read usage:read pull_requests:read review`
-OAuth scopes explicitly. The repository-root Claude plugin (1.3.3 and later)
-omits the `oauth` block and, like Codex, requests the server's advertised scopes; see
-[docs/mcp.md](../docs/mcp.md#oauth-credential-handling). Codex discovers OAuth and scopes from the server's
+Claude packages request `connection account:read usage:read pull_requests:read review`
+OAuth scopes explicitly. Codex discovers OAuth and scopes from the server's
 metadata; the verified endpoint must advertise those scopes, including `review`.
 The shipped Codex loader rejects server-level `extensions` in portable `mcp.json`,
 so do not add authentication fields there. Confirm the granted scopes in the

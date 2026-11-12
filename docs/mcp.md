@@ -54,19 +54,10 @@ concrete error and review ID when available; never send credentials.
 ## OAuth credential handling
 
 The repository-root manifest declares an HTTP MCP connection to
-`https://mcp.coderabbit.ai/` with only `type` and `url`. It declares no `oauth`
-block, `env`, `headers`, `headersHelper`, client secret, credential-file path or
+`https://mcp.coderabbit.ai/` and the requested OAuth scopes. It declares no
+`env`, `headers`, `headersHelper`, client secret, credential-file path or
 credential environment-variable substitution. It declares no hook or local
 MCP server command.
-
-Claude discovers authorization from the server: an unauthenticated request
-returns `401` with `WWW-Authenticate` pointing to
-`https://mcp.coderabbit.ai/.well-known/oauth-protected-resource`. With no
-`oauth.scopes` in the manifest, Claude Code requests every scope listed in that
-metadata's `scopes_supported` (the deployment's enabled CodeRabbit scopes,
-including write scopes), the same set other discovery-based clients such as
-Codex request. The CodeRabbit consent screen lists them before the user
-approves, and each tool still enforces its own scope server-side.
 
 Claude manages the connector's browser OAuth flow and uses the resulting
 CodeRabbit access token to authenticate MCP requests. “No custom authorization
