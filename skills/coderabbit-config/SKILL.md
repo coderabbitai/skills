@@ -1,6 +1,8 @@
 ---
 name: coderabbit-config
 description: Create, update, or validate CodeRabbit repository configuration through the official CLI. Use for .coderabbit.yaml or .coderabbit.yml setup, review-style changes, path guidance, and configuration validation requests.
+metadata:
+  version: "0.1.0"
 ---
 
 # CodeRabbit Configuration
