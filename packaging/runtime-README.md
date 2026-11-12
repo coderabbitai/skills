@@ -39,3 +39,6 @@ reviews send the selected source to the CodeRabbit review service. The host may
 retain the short-lived review handoff in its own transcript.
 
 [Privacy policy](https://www.coderabbit.ai/privacy-policy)
+
+{{RELEASE_NOTES}}[Documentation](https://github.com/coderabbitai/skills/blob/main/docs/mcp.md)
+· [Support](mailto:support@coderabbit.ai)

@@ -44,6 +44,55 @@ class PackageTests(unittest.TestCase):
     def assemble(self, endpoint="https://fixture.invalid/mcp", client=CLIENT, launcher="hook", delivery="bundled"):
         return module.assemble(ROOT, client, self.manifest, endpoint, self.output, launcher, delivery)
 
+    def test_native_claude_source_pins_and_host_isolation(self):
+        """Keep native Claude wiring complete without default hook/MCP discovery in other hosts."""
+        manifest = json.loads((ROOT / ".claude-plugin/plugin.json").read_text())
+        self.assertEqual(manifest["version"], "1.3.1")
+        cli = json.loads((ROOT / "cli.json").read_text())
+        self.assertEqual(cli, {"launcher": "./scripts/coderabbit-runtime", "delivery": "download",
+                               "version": "0.9.3", "launchMode": "hook"})
+        self.assertTrue((ROOT / cli["launcher"]).is_file())
+        self.assertTrue(os.access(ROOT / cli["launcher"], os.X_OK))
+        self.assertFalse((ROOT / "hooks/hooks.json").exists())
+        self.assertFalse((ROOT / ".mcp.json").exists())
+        self.assertFalse((ROOT / "mcp.json").exists())
+        server = manifest["mcpServers"]["coderabbit"]
+        self.assertEqual(server["url"], (ROOT / "runtime/mcp-url").read_text().strip())
+        self.assertEqual(server["oauth"]["scopes"].split(), module.SCOPES)
+        hook = manifest["hooks"]["PostToolUse"][0]
+        self.assertEqual(hook["matcher"], "^mcp__plugin_coderabbit_coderabbit__start_code_review$")
+        self.assertEqual(hook["hooks"][0]["command"], '"${CLAUDE_PLUGIN_ROOT}/scripts/coderabbit-runtime" mcp-hook')
+        self.assertEqual(hook["hooks"][0]["timeout"], 2400)
+        release = json.loads((ROOT / "packaging/releases/claude-1.3.1.json").read_text())
+        self.assertEqual(release["plugin_version"], manifest["version"])
+        self.assertEqual(release["version"], cli["version"])
+        self.assertEqual((ROOT / "runtime/version").read_text().strip(), cli["version"])
+        self.assertEqual({a["platform"] for a in release["artifacts"]}, module.PLATFORMS)
+        for artifact in release["artifacts"]:
+            platform = artifact["platform"]
+            self.assertEqual((ROOT / f"runtime/{platform}.sha256").read_text().strip(), artifact["sha256"])
+            self.assertEqual((ROOT / f"runtime/{platform}.archive.sha256").read_text().strip(), artifact["archive_sha256"])
+            self.assertEqual((ROOT / f"runtime/{platform}.url").read_text().strip(),
+                             f'https://cli.coderabbit.ai/releases/{cli["version"]}/coderabbit-{platform}.zip')
+        for host in (".codex-plugin/plugin.json", ".cursor-plugin/plugin.json", "gemini-extension.json", "plugin.json"):
+            other = json.loads((ROOT / host).read_text())
+            self.assertNotIn("mcpServers", other)
+            self.assertNotIn("hooks", other)
+            self.assertEqual(other["version"], "1.2.1")
+
+    @unittest.skipUnless(os.environ.get("CLAUDE_TEST_BIN"), "Set CLAUDE_TEST_BIN for native Claude discovery")
+    def test_claude_native_source_discovery(self):
+        """Read component inventory only; no installation, authentication or MCP calls."""
+        executable = Path(os.environ["CLAUDE_TEST_BIN"])
+        self.assertTrue(executable.is_absolute() and executable.is_file())
+        result = subprocess.run([str(executable), "--plugin-dir", str(ROOT), "plugin", "details", "coderabbit"],
+                                capture_output=True, text=True, timeout=20, cwd=self.root)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Skills (4)  autofix, code-review, coderabbit-config, setup", result.stdout)
+        self.assertIn("Agents (2)  code-reviewer, autofix", result.stdout)
+        self.assertIn("Hooks (1)  PostToolUse", result.stdout)
+        self.assertIn("MCP servers (1)  coderabbit", result.stdout)
+
     def test_download_packages_omit_native_files_without_changing_shared_cli(self):
         manifest = json.loads(self.manifest.read_text())
         manifest["artifacts"][0]["archive_sha256"] = "a" * 64
@@ -102,6 +151,28 @@ class PackageTests(unittest.TestCase):
                 self.assertIn("This package uses one post-tool hook.", readme)
                 self.assertNotIn("{{REVIEW_LAUNCH}}", readme)
                 self.assertTrue(any(ord(character) > 127 for character in readme))
+                shutil.rmtree(self.output)
+
+    def test_release_notes_match_client_version_runtime_and_launcher(self):
+        for client, plugin_version, version, launcher, expected in (
+            ("claude", "1.3.0", "0.9.3", "hook", True),
+            ("claude", "1.3.0", "0.9.3", "direct", False),
+            ("codex", "1.3.0", "0.9.3", "direct", False),
+            ("claude", "1.3.1", "0.9.3", "hook", True),
+            ("claude", "1.3.2", "0.9.3", "hook", False),
+            ("claude", "1.3.0", "0.9.0", "hook", False),
+        ):
+            with self.subTest(client=client, plugin_version=plugin_version, version=version, launcher=launcher):
+                manifest = json.loads(self.manifest.read_text())
+                manifest.update(plugin_version=plugin_version, version=version)
+                manifest["artifacts"][0]["archive_sha256"] = "a" * 64
+                self.manifest.write_text(json.dumps(manifest))
+                self.assemble(client=client, launcher=launcher, delivery="download")
+                readme = (self.output / "README.md").read_text(encoding="utf-8")
+                self.assertEqual((self.output / "CHANGELOG.md").is_file(), expected)
+                self.assertEqual("[Release notes](CHANGELOG.md)" in readme, expected)
+                self.assertNotIn("{{RELEASE_NOTES}}", readme)
+                self.assertIn("https://github.com/coderabbitai/skills/blob/main/docs/mcp.md", readme)
                 shutil.rmtree(self.output)
 
     def test_native_bundle_manifest_and_spaces(self):
@@ -169,10 +240,12 @@ class PackageTests(unittest.TestCase):
         artifacts = json.loads(self.manifest.read_text())
         artifacts["artifacts"][0]["archive_sha256"] = "a" * 64
         self.manifest.write_text(json.dumps(artifacts))
-        for launcher, delivery in ((mode, delivery) for delivery in ("bundled", "download")
-                                   for mode in ("direct",)):
+        for launcher, delivery in (("direct", "bundled"), ("direct", "download"), ("source", "source")):
             with self.subTest(launcher=launcher, delivery=delivery):
-                self.assemble(client="codex", launcher=launcher, delivery=delivery)
+                if delivery == "source":
+                    shutil.copytree(ROOT, self.output, ignore=shutil.ignore_patterns(".git", "__pycache__"))
+                else:
+                    self.assemble(client="codex", launcher=launcher, delivery=delivery)
                 marketplace = self.root / "marketplace"
                 (marketplace / ".claude-plugin").mkdir(parents=True, exist_ok=True)
                 manifest = marketplace / ".claude-plugin/marketplace.json"
@@ -210,8 +283,10 @@ class PackageTests(unittest.TestCase):
                     process.stdin.flush()
                     plugin = request(2, "plugin/read", {"marketplacePath": str(manifest),
                         "pluginName": "coderabbit"})["plugin"]
-                    self.assertEqual(plugin["mcpServers"], ["coderabbit"])
+                    self.assertEqual(plugin["mcpServers"], [] if delivery == "source" else ["coderabbit"])
                     self.assertEqual({skill["name"] for skill in plugin["skills"]},
+                        {"coderabbit:code-review", "coderabbit:autofix", "coderabbit:coderabbit-config"}
+                        if delivery == "source" else
                         {"coderabbit:setup", "coderabbit:coderabbit-review", "coderabbit:autofix",
                          "coderabbit:coderabbit-config"})
                     self.assertEqual([hook["eventName"] for hook in plugin["hooks"]],
@@ -257,7 +332,8 @@ class PackageTests(unittest.TestCase):
         installed = Path(json.loads(result.stdout)["installedPath"])
         installed.resolve().relative_to(profile.resolve())
         legacy = installed / "skills/coderabbit-review/references/standalone-cli"
-        self.assertEqual((legacy / "guide.md").read_bytes(), (ROOT / "skills/code-review/SKILL.md").read_bytes())
+        self.assertEqual((legacy / "guide.md").read_text().partition("## Standalone CLI review\n")[2],
+                         (ROOT / "skills/code-review/SKILL.md").read_text().partition("## Standalone CLI review\n")[2])
         self.assertEqual((legacy / "references/auth-recovery.md").read_bytes(),
                          (ROOT / "skills/code-review/references/auth-recovery.md").read_bytes())
 
@@ -276,7 +352,9 @@ class PackageTests(unittest.TestCase):
                     self.assertIn("start_code_review", (skill / "SKILL.md").read_text())
                     self.assertIn("references/standalone-cli/guide.md", (skill / "SKILL.md").read_text())
                     legacy = skill / "references/standalone-cli"
-                    self.assertEqual((legacy / "guide.md").read_bytes(), shared[ROOT / "skills/code-review/SKILL.md"])
+                    self.assertEqual((legacy / "guide.md").read_bytes().partition(b"## Standalone CLI review\n")[2],
+                                     shared[ROOT / "skills/code-review/SKILL.md"].partition(b"## Standalone CLI review\n")[2])
+                    self.assertNotIn("## Select the installed workflow", (legacy / "guide.md").read_text())
                     self.assertFalse((legacy / "SKILL.md").exists())
                     for reference in (ROOT / "skills/code-review/references").rglob("*"):
                         if reference.is_file():

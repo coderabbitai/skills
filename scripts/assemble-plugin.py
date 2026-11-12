@@ -96,6 +96,14 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
     if not isinstance(plugin_version, str) or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?", plugin_version):
         raise ValueError("Plugin version must be an exact semantic version")
     plugin_manifest["version"] = plugin_version
+    if client == "claude":
+        # Standalone assembled packages use their own default agents and setup
+        # skill, not the repository-root component paths in the native package.
+        plugin_manifest.pop("commands", None)
+        plugin_manifest.pop("agents", None)
+        plugin_manifest.pop("mcpServers", None)
+        plugin_manifest.pop("hooks", None)
+    plugin_manifest["homepage"] = "https://github.com/coderabbitai/skills/blob/main/docs/mcp.md"
     if client == "claude" and delivery == "download":
         plugin_manifest["privacyPolicyUrl"] = "https://www.coderabbit.ai/privacy-policy"
         plugin_manifest["icon"] = "./assets/coderabbit-small.png"
@@ -115,8 +123,8 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         for name in ("skills", "assets") + (("agents",) if client == "claude" else ()):
             if (source / name).is_dir():
                 copy_tree(source / name, package / name)
-        # Shared installations retain the released CLI workflow. Only a complete
-        # assembled pilot receives the MCP-specific review and setup instructions.
+        # Assembled variants have direct MCP instructions, independent of the
+        # repository's native-Claude context route and component layout.
         for skill in ("setup", review_skill):
             destination = package / "skills" / skill
             if destination.exists():
@@ -126,6 +134,10 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         if client == "claude":
             (package / "agents").mkdir(exist_ok=True)
             shutil.copyfile(pilot_agent, package / "agents/code-reviewer.md")
+        review_entry = package / "skills" / review_skill / "SKILL.md"
+        review_entry.write_text(review_entry.read_text().replace(
+            "../../../../skills/code-review/SKILL.md", "references/standalone-cli/guide.md"
+        ))
         if client == "codex" and review_skill == "code-review":
             skill = package / "skills/code-review"
             entry = skill / "SKILL.md"
@@ -136,7 +148,13 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         copy_tree(source / "skills" / review_skill, legacy)
         # Keep the original workflow and relative references without registering
         # another broad review skill that competes with the route selector.
-        (legacy / "SKILL.md").rename(legacy / "guide.md")
+        standalone_entry = legacy / "SKILL.md"
+        standalone_text = standalone_entry.read_text()
+        route_start = standalone_text.find("## Select the installed workflow\n")
+        route_end = standalone_text.find("## Standalone CLI review\n", route_start)
+        if route_start >= 0 and route_end > route_start:
+            standalone_entry.write_text(standalone_text[:route_start] + standalone_text[route_end:])
+        standalone_entry.rename(legacy / "guide.md")
         cli_path = "bin/coderabbit" if delivery == "bundled" else "scripts/coderabbit"
         (package / "cli.json").write_text(json.dumps({
             "launcher": "./" + cli_path, "delivery": delivery,
@@ -207,6 +225,14 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         for name in ("LICENSE",):
             if (source / name).is_file():
                 shutil.copyfile(source / name, package / name)
+        release_manifest = source / "packaging/releases" / f"{client}-{plugin_version}.json"
+        release_notes = source / "packaging/releases" / f"{client}-{plugin_version}.md"
+        include_release_notes = False
+        if release_manifest.is_file() and release_notes.is_file():
+            release = json.loads(release_manifest.read_text(encoding="utf-8"))
+            include_release_notes = release.get("version") == version and release.get("launcher") == launcher
+        if include_release_notes:
+            shutil.copyfile(release_notes, package / "CHANGELOG.md")
         readme = "plugin-README.md" if delivery == "bundled" else "runtime-README.md"
         launch_guidance = (
             "This package uses one post-tool hook. Review and trust the CodeRabbit "
@@ -222,7 +248,9 @@ def assemble(source, client, artifact_manifest, endpoint, output, launcher="hook
         )
         readme_text = (source / "packaging" / readme).read_text(encoding="utf-8")
         (package / "README.md").write_text(
-            readme_text.replace("{{REVIEW_LAUNCH}}", launch_guidance), encoding="utf-8"
+            readme_text.replace("{{REVIEW_LAUNCH}}", launch_guidance).replace(
+                "{{RELEASE_NOTES}}", "[Release notes](CHANGELOG.md) · " if include_release_notes else ""
+            ), encoding="utf-8"
         )
         package.rename(output)
     return {"package": str(output), "client": client, "launcher": launcher, "delivery": delivery, "pluginVersion": plugin_version, "cliVersion": version, "platforms": sorted(seen)}
