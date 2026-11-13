@@ -67,6 +67,14 @@ separately from command arguments, as described in
 allowed launcher, explain the limitation before reserving a review. A denied
 launch or upload is not permission to switch adapters.
 
+Before reserving the review, screen the selected scope for secrets: staged and
+tracked unstaged changes, plus untracked files only when the user asked to
+include them. Check `git diff` output and the selected new files for
+credentials such as private keys, tokens, passwords or `.env` values. Never
+print a secret's value; name only the file and line. If you find one, stop:
+do not call `start_code_review` or upload until the user removes it or
+explicitly narrows the scope to exclude it.
+
 Call `start_code_review` once with the requested options:
 
 | Request                             | Input                                                   |

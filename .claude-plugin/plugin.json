@@ -1,9 +1,9 @@
 {
   "name": "coderabbit",
   "displayName": "CodeRabbit",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "CodeRabbit is the governance and control layer for agentic software development helping developers trust AI written code.",
-  "homepage": "https://github.com/coderabbitai/skills/blob/main/docs/mcp.md",
+  "homepage": "https://www.coderabbit.ai",
   "author": {
     "name": "CodeRabbit",
     "email": "support@coderabbit.ai",
@@ -31,5 +31,19 @@
         "scopes": "connection account:read usage:read pull_requests:read review"
       }
     }
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "^mcp__plugin_coderabbit_coderabbit__start_code_review$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/coderabbit-runtime\" mcp-hook",
+            "timeout": 2400
+          }
+        ]
+      }
+    ]
   }
 }

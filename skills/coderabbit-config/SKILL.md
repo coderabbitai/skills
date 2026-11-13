@@ -20,8 +20,14 @@ start a review.
 Use the intended Git working tree for every invocation. Select the installed
 workflow before looking for a standalone CLI:
 
-- The native Claude source plugin uses the standalone CLI discovery below.
-  Its remote MCP connection does not provide a managed local runtime.
+- For the native Claude plugin (identified by Claude substituting this plugin's
+  installed root into `${CLAUDE_PLUGIN_ROOT}`), read that root's `cli.json` and
+  resolve its `launcher` to a quoted canonical absolute path inside the plugin.
+  The native source package uses `scripts/coderabbit-runtime`. Follow
+  [runtime preparation](https://github.com/coderabbitai/skills/blob/main/packaging/mcp/skills/setup/references/runtime-install.md)
+  for `delivery: download`; a bundled runtime needs no download. Verify the
+  pinned version through the same launcher. Do not require a global CLI or
+  switch to one if preparation fails.
 - For another installed package that explicitly declares a managed runtime,
   use its verified launcher and preparation instructions.
 - For standalone installs, resolve an official installed `coderabbit` to a

@@ -1,14 +1,16 @@
 # Claude release inputs
 
-> **Historical.** The package assembler (`scripts/assemble-plugin.py`), the
-> bundled-CLI launchers (`scripts/coderabbit`, `scripts/coderabbit-runtime`) and
-> the `assemble-mcp-plugin` workflow were removed in Claude plugin 1.3.0: the
-> Claude directory scans this whole repository and held the plugin over them.
-> They remain in git history at `f0629e0`. Commands below that call them no
-> longer run from `main`.
+> **Historical.** The package assembler (`scripts/assemble-plugin.py`) and the
+> `assemble-mcp-plugin` workflow were removed in Claude plugin 1.3.0: the Claude
+> directory scans this whole repository and held the plugin over them. They
+> remain in git history at `f0629e0`. Plugin 1.4.0 restores only the launchers
+> (`scripts/coderabbit`, `scripts/coderabbit-runtime`) for the review hook.
+> Instructions below that rely on the assembler or the removed
+> `Assemble bundled MCP plugin pilot` workflow are historical and no longer run
+> from `main`.
 
-The repository-root Claude 1.3.0 candidate combines remote MCP with standalone
-CLI local reviews. It declares no review hook and has no managed-runtime pins.
+The repository-root Claude 1.4.0 candidate combines remote MCP with a
+plugin-owned review hook and the managed-runtime pins in `cli.json` and `runtime/`.
 Its source is `main`; directory validation and publication remain separate.
 
 The 1.3.0 and 1.3.1 files below are historical inputs for the MCP handoff packages.

@@ -59,13 +59,12 @@ Without a profile, this proposes a Balanced baseline for a new file or preserves
 an existing file. If the user chooses a style, add `--profile chill` (Balanced),
 `--profile quiet` (Focused), or `--profile assertive` (Thorough).
 
-For tailored settings, read the live schema at the inspected URL and change only
-fields it supports. Start from the generated `after` or inspected YAML; keep it
-sparse and preserve comments. Match proposed path instructions against real
-files, explaining the concrete review concern each rule addresses. Avoid copying
-existing guideline documents into path instructions or enabling a disabled
-feature without the user's intent. Do not add credentials or private session
-content, and do not turn setup into an exhaustive schema questionnaire.
+For tailored settings, follow the shared `coderabbit-config` skill
+(`${CLAUDE_PLUGIN_ROOT}/skills/coderabbit-config/SKILL.md`): use the
+CLI-generated proposal as is, and do not rewrite or extend its YAML yourself.
+If the CLI cannot express a requested setting, report that as a CLI gap. Do not
+add credentials or private session content, and do not turn setup into an
+exhaustive schema questionnaire.
 
 ## Preview, then save
 
