@@ -15,6 +15,8 @@ All notable changes to this repository are documented in this file.
   showed they caused the credential hold. The completed directory scan of the
   1.4.0 branch (`16f3e4d`) holds it only for "Update adds hooks", which needs
   directory review.
+- Point the listing's Website link (`homepage`) to `https://www.coderabbit.ai`
+  instead of the repository's MCP setup guide.
 
 ## Claude plugin [1.3.0] - Claude directory release
 

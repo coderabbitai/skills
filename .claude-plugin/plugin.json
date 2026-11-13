@@ -3,7 +3,7 @@
   "displayName": "CodeRabbit",
   "version": "1.4.0",
   "description": "CodeRabbit is the governance and control layer for agentic software development helping developers trust AI written code.",
-  "homepage": "https://github.com/coderabbitai/skills/blob/main/docs/mcp.md",
+  "homepage": "https://www.coderabbit.ai",
   "author": {
     "name": "CodeRabbit",
     "email": "support@coderabbit.ai",
