@@ -920,9 +920,9 @@ function interactiveHost(on) {
     submissions.push(e);
     return { text: e.text };
   });
-  // This native test host cannot implement the plugin session.append operation.
-  // Completion exercises its failure path here; delivery.test.ts covers ordering,
-  // and a real CLI fixture verifies that completion does not start a turn.
+  // Tests that exercise note delivery pin session.append and the store themselves;
+  // host defaults differ between Claude Code releases. delivery.test.ts covers
+  // ordering, and a real CLI fixture verifies that completion does not start a turn.
   on("ui.toast", ($, e) => {
     toasts.push(e.text);
     return { value: undefined };
@@ -946,6 +946,15 @@ for (const [surface, outcome] of ["terminal", "desktop"].flatMap((surface) =>
       const clock = mock.clock(on);
       const { toasts, logs, submissions } = interactiveHost(on);
       on("ui.render", { component: "AbovePrompt" }, ($, e) => $.ui.resolve(e).Text({ children: [] }));
+      // Pin the host explicitly: saving works, and attaching a note for Claude fails.
+      const stored = new Map();
+      on("store.get", ($, e) => ({ value: stored.get(e.key) }));
+      on("store.set", ($, e) => {
+        stored.set(e.key, e.value);
+        return { value: undefined };
+      });
+      on("store.keys", () => ({ value: [...stored.keys()] }));
+      on("session.append", () => ({ deny: "Note delivery unavailable" }));
       let calls = 0;
       mockProcess(on, async () => {
         calls++;
