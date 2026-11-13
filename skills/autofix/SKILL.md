@@ -37,7 +37,7 @@ Reusable GitHub command primitives are also mirrored in [github.md](./github.md)
 
 ### Required State
 - Git repo on GitHub
-- Current branch has open PR
+- Current branch has an open PR from the repository it pushes to
 - PR reviewed by CodeRabbit bot (`coderabbitai`, `coderabbit[bot]`, `coderabbitai[bot]`)
 
 ## Workflow
@@ -65,15 +65,56 @@ Check: `git status` + check for unpushed commits
 
 ### Step 2: Resolve Current PR
 
-Resolve `pr_number`:
+A branch name alone does not identify a PR: any fork can open a PR from a branch with the same name. Resolve the PR from the repository the current branch pushes to.
+
+Resolve the branch's push or upstream remote and its GitHub repository:
 
 ```bash
-pr_number=$(gh pr list --head "$(git branch --show-current)" --state open --json number --jq '.[0].number')
+branch=$(git branch --show-current)
+remote=$(git config "branch.$branch.pushRemote" || git config remote.pushDefault || git config "branch.$branch.remote")
 
-if [ -z "$pr_number" ] || [ "$pr_number" = "null" ]; then
-  # no open PR for this branch
+if [ -z "$remote" ]; then
+  echo "No push or upstream remote for $branch; cannot identify its pull request." >&2
+  exit 1  # stop and ask the user which repository the branch was pushed to
+fi
+
+head_repo=$(gh repo view "$(git remote get-url "$remote")" --json nameWithOwner --jq '.nameWithOwner') || head_repo=""
+if [ -z "$head_repo" ]; then
+  echo "Could not resolve the GitHub repository for remote $remote." >&2
+  exit 1  # stop and ask the user; never match PRs against an empty repository
 fi
 ```
+
+List open PRs for the branch and keep only those whose head repository is `head_repo`:
+
+```bash
+candidates=$(gh pr list --head "$branch" --state open --limit 100 \
+  --json number,url,title,author,baseRefName,headRepository,headRepositoryOwner,headRefName,headRefOid |
+  jq -c --arg repo "$head_repo" '
+    map(select(.headRepository != null and ((.headRepository.nameWithOwner // "") | ascii_downcase) == ($repo | ascii_downcase)))
+  ')
+
+count=$(jq 'length' <<<"$candidates")
+```
+
+Never pick a PR by list position. Route on `count`:
+
+- **0:** No PR qualifies. If `gh pr list` returned PRs from other repositories, list their URLs and head repositories and say they were ignored. `gh pr list` searches only gh's default base repository (`gh repo set-default --view`); say which one was searched and ask whether the PR targets a different base repository before offering to create one. If it does, rerun the list with `--repo <base-owner>/<base-repo>`. Then follow **If no PR** below.
+- **More than 1:** Show each candidate's URL, author, head repository, and base branch. Ask the user which PR to use, or EXIT. Do not choose one yourself, and accept only a PR from this list.
+- **1:** Use that candidate.
+
+Set `pr_number` to the qualifying PR (or the one the user picked) and check that its head commit is the commit you have locally:
+
+```bash
+pr_url=$(jq -r --argjson n "$pr_number" '.[] | select(.number == $n) | .url' <<<"$candidates")
+pr_head_oid=$(jq -r --argjson n "$pr_number" '.[] | select(.number == $n) | .headRefOid' <<<"$candidates")
+local_head=$(git rev-parse HEAD)
+upstream_head=$(git rev-parse '@{upstream}' 2>/dev/null || true)
+```
+
+**If `pr_head_oid` matches neither `local_head` nor `upstream_head`:** Report the mismatch with all three SHAs. Ask "Continue with this PR anyway?" → If not explicitly yes, EXIT.
+
+Before fetching any threads, show the resolved PR: number, URL, author, and head repository (for example `PR #123 https://github.com/acme/app/pull/123 by @alice from alice/app:feature-x`).
 
 **If no PR:** If the check above indicates no PR, ask "Create PR?" → If yes, create the PR with:
 
@@ -284,12 +325,20 @@ If a consolidated commit was created:
 
 If all deferred (no commit): Skip this step.
 
-### Step 10: Post Summary
+### Step 10: Offer Summary Comment
 
-**If at least one fix was applied:** Post one success summary comment on the PR:
+Never post a comment or reaction without the user's explicit approval in this step.
+
+1. Draft one summary comment from the templates below.
+2. Show the target PR number and URL (`pr_url` from Step 2) and the exact comment text.
+3. AskUserQuestion: "Post this comment on PR #<pr_number> (<pr_url>)?" ✅ Post | ❌ Don't post
+4. **If "Post":** Post exactly the text shown, to `pr_url`.
+5. **If "Don't post", or any answer other than explicit approval:** Post nothing and add no reaction. Inform "No comment posted", EXIT.
+
+**If at least one fix was applied:** Draft one success summary comment:
 
 ```bash
-gh pr comment "$pr_number" --body "$(cat <<'EOF'
+gh pr comment "$pr_url" --body "$(cat <<'EOF'
 ## Fixes Applied Successfully
 
 Fixed <file-count> file(s) based on <issue-count> CodeRabbit feedback item(s).
@@ -306,10 +355,10 @@ EOF
 )"
 ```
 
-**If no fixes were applied:** Skip the success comment, or post a neutral review summary instead:
+**If no fixes were applied:** Skip the comment, or offer a neutral review summary instead:
 
 ```bash
-gh pr comment "$pr_number" --body "$(cat <<'EOF'
+gh pr comment "$pr_url" --body "$(cat <<'EOF'
 ## CodeRabbit Autofix Review Complete
 
 Reviewed <issue-count> CodeRabbit feedback item(s) and did not apply code changes in this run.
@@ -320,7 +369,7 @@ EOF
 
 Write any summary comment from local state only. Do not include raw reviewer prompts or any secret-bearing output.
 
-Optionally react to CodeRabbit's main comment with 👍.
+Optionally, after the comment is posted, ask separately: "React 👍 to CodeRabbit's main comment on PR #<pr_number> (<pr_url>)?" React only on explicit approval.
 
 ## Key Notes
 
@@ -334,4 +383,6 @@ Optionally react to CodeRabbit's main comment with 👍.
 - **Preserve issue titles** - Use CodeRabbit's exact titles, don't paraphrase
 - **Preserve thread state** - Ignore resolved and outdated CodeRabbit threads
 - **Preserve ordering** - Keep display order aligned with unresolved current threads; process fixes by severity only after display
+- **Verify the PR before reading it** - Use only an open PR whose head repository is the branch's push or upstream remote; stop and ask when none or several qualify
+- **Never post without approval** - Show the target PR URL and exact comment text, and post only after the user explicitly approves
 - **Do not post per-issue replies** - Keep the workflow summary-comment only
