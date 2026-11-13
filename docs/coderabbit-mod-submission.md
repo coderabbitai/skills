@@ -30,6 +30,24 @@ Links and the icon are bundled in the mod's README.md and `.claude-plugin/icon.p
 
 ## Validation recorded
 
+- 2026-11-13 recheck on Claude Code 2.1.322 and CodeRabbit CLI 0.9.5 (macOS):
+  `claude plugin validate mods/coderabbit --strict` passed and
+  `claude plugin test mods/coderabbit` passed 133 tests. The completion test now
+  pins note delivery and the plugin store itself, because 2.1.322's test host
+  changed both defaults. A real headless `/coderabbit-review` and an interactive
+  terminal `/coderabbit-review --fresh` on a small scratch repository each
+  completed with the expected two major findings; the band, card, toast, and
+  **Fix with Claude** actions rendered. Desktop was not rechecked.
+- 2026-11-13 directory preview (submission Step 1 validation, nothing saved):
+  current code passes with the same three policy holds on the CLI launch,
+  "reads local data and sends data out", "may start a program the directory
+  couldn't fully check", and "starts other programs", plus three notes. Probes
+  showed the second hold clears only when the entire argv is fixed text; a
+  configured `cli_path` or variable review options keep it. The mod keeps
+  `cli_path` (Desktop sessions often lack the CLI on PATH) and `--base`, and
+  answers these holds in the README's "What this mod runs, reads, and sends"
+  section, as each hold allows.
+
 - 2026-10-07 candidate refinement: remains a standalone mod with no bundled skills,
   agents, or autofix workflow. One review command with a `results` action, live progress, conversation
   findings, and a draft-only handoff to Claude form the v0.1 scope.

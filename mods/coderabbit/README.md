@@ -13,11 +13,11 @@ coordinate reviews with each other.
 
 ## Requirements and setup
 
-- Claude Code **2.1.289 or later**. Validated and tested with 2.1.289 on macOS.
+- Claude Code **2.1.289 or later**. Validated and tested with 2.1.289 and 2.1.322 on macOS.
   The mods API is early access and can change between Claude releases.
 - An official [CodeRabbit CLI](https://docs.coderabbit.ai/cli) installation with
   `review --agent`, `--committed`, `--uncommitted`, `--include-untracked`, and
-  `--base` support. The command interface was checked with CLI 0.8.2.
+  `--base` support. The command interface was checked with CLI 0.8.2 and 0.9.5.
 - An authenticated CodeRabbit account and a Git working tree.
 
 Authenticate the CLI yourself with `coderabbit auth login`. Set this mod's
@@ -357,7 +357,7 @@ successful authentication or review-service coverage.
 
 ### Local checks
 
-Run from the repository root with Claude Code 2.1.289:
+Run from the repository root with Claude Code 2.1.289 or later:
 
 ```sh
 claude plugin validate mods/coderabbit --strict
