@@ -32,9 +32,10 @@ Follow the [autofix skill](../skills/autofix/SKILL.md) for these steps only:
    CodeRabbit hasn't reviewed. Don't commit or push.
 3. **Resolve the pull request** for the current branch with the skill's checks:
    keep only open pull requests whose head repository is the branch's push or
-   upstream remote. If none or several qualify, or the head commit matches
-   neither local `HEAD` nor the upstream tracking ref, stop and report the
-   candidates or the SHAs. Don't choose one.
+   upstream remote. If that remote or its GitHub repository can't be resolved,
+   stop. If none or several qualify, or the head commit matches neither local
+   `HEAD` nor the upstream tracking ref, stop and report the candidates or the
+   SHAs. Don't choose one.
 4. **Fetch thread-aware CodeRabbit feedback** with the skill's paginated GitHub
    GraphQL query, keeping only unresolved threads from the CodeRabbit bot.
 5. **Parse each thread** as the skill describes. Preserve the reported severity

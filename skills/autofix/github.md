@@ -18,15 +18,20 @@ branch=$(git branch --show-current)
 remote=$(git config "branch.$branch.pushRemote" || git config remote.pushDefault || git config "branch.$branch.remote")
 
 if [ -z "$remote" ]; then
-  # no push or upstream remote: stop and ask the user
+  echo "No push or upstream remote for $branch; cannot identify its pull request." >&2
+  exit 1  # stop and ask the user
 fi
 
-head_repo=$(gh repo view "$(git remote get-url "$remote")" --json nameWithOwner --jq '.nameWithOwner')
+head_repo=$(gh repo view "$(git remote get-url "$remote")" --json nameWithOwner --jq '.nameWithOwner') || head_repo=""
+if [ -z "$head_repo" ]; then
+  echo "Could not resolve the GitHub repository for remote $remote." >&2
+  exit 1  # stop and ask the user
+fi
 
 candidates=$(gh pr list --head "$branch" --state open --limit 100 \
   --json number,url,title,author,baseRefName,headRepository,headRepositoryOwner,headRefName,headRefOid |
   jq -c --arg repo "$head_repo" '
-    map(select((.headRepository.nameWithOwner // "" | ascii_downcase) == ($repo | ascii_downcase)))
+    map(select(.headRepository != null and ((.headRepository.nameWithOwner // "") | ascii_downcase) == ($repo | ascii_downcase)))
   ')
 
 count=$(jq 'length' <<<"$candidates")
@@ -34,7 +39,7 @@ count=$(jq 'length' <<<"$candidates")
 
 Never pick a PR by list position:
 
-- `count == 0`: no PR for this branch. Name any ignored PRs from other repositories.
+- `count == 0`: no PR for this branch. Name any ignored PRs from other repositories. `gh pr list` searches only gh's default base repository; say which one, and if the user says the PR targets another base repository, rerun with `--repo <base-owner>/<base-repo>`.
 - `count > 1`: show each candidate's URL, author, head repository, and base branch, and ask the user to pick one from the list. Do not choose.
 - `count == 1`: use that candidate.
 

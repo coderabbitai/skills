@@ -74,10 +74,15 @@ branch=$(git branch --show-current)
 remote=$(git config "branch.$branch.pushRemote" || git config remote.pushDefault || git config "branch.$branch.remote")
 
 if [ -z "$remote" ]; then
-  # no push or upstream remote: stop and ask the user which repository the branch was pushed to
+  echo "No push or upstream remote for $branch; cannot identify its pull request." >&2
+  exit 1  # stop and ask the user which repository the branch was pushed to
 fi
 
-head_repo=$(gh repo view "$(git remote get-url "$remote")" --json nameWithOwner --jq '.nameWithOwner')
+head_repo=$(gh repo view "$(git remote get-url "$remote")" --json nameWithOwner --jq '.nameWithOwner') || head_repo=""
+if [ -z "$head_repo" ]; then
+  echo "Could not resolve the GitHub repository for remote $remote." >&2
+  exit 1  # stop and ask the user; never match PRs against an empty repository
+fi
 ```
 
 List open PRs for the branch and keep only those whose head repository is `head_repo`:
@@ -86,7 +91,7 @@ List open PRs for the branch and keep only those whose head repository is `head_
 candidates=$(gh pr list --head "$branch" --state open --limit 100 \
   --json number,url,title,author,baseRefName,headRepository,headRepositoryOwner,headRefName,headRefOid |
   jq -c --arg repo "$head_repo" '
-    map(select((.headRepository.nameWithOwner // "" | ascii_downcase) == ($repo | ascii_downcase)))
+    map(select(.headRepository != null and ((.headRepository.nameWithOwner // "") | ascii_downcase) == ($repo | ascii_downcase)))
   ')
 
 count=$(jq 'length' <<<"$candidates")
@@ -94,7 +99,7 @@ count=$(jq 'length' <<<"$candidates")
 
 Never pick a PR by list position. Route on `count`:
 
-- **0:** No PR qualifies. If `gh pr list` returned PRs from other repositories, list their URLs and head repositories and say they were ignored. Then follow **If no PR** below.
+- **0:** No PR qualifies. If `gh pr list` returned PRs from other repositories, list their URLs and head repositories and say they were ignored. `gh pr list` searches only gh's default base repository (`gh repo set-default --view`); say which one was searched and ask whether the PR targets a different base repository before offering to create one. If it does, rerun the list with `--repo <base-owner>/<base-repo>`. Then follow **If no PR** below.
 - **More than 1:** Show each candidate's URL, author, head repository, and base branch. Ask the user which PR to use, or EXIT. Do not choose one yourself, and accept only a PR from this list.
 - **1:** Use that candidate.
 
