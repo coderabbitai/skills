@@ -11,15 +11,38 @@ Use this helper when a skill needs thread-aware CodeRabbit PR feedback, not flat
 
 ## 1. Resolve Current PR
 
-Get the PR number for the current branch:
+A branch name alone does not identify a PR: any fork can open a PR from a branch with the same name. Match the PR's head repository to the branch's push or upstream remote:
 
 ```bash
-pr_number=$(gh pr list --head "$(git branch --show-current)" --state open --json number --jq '.[0].number')
+branch=$(git branch --show-current)
+remote=$(git config "branch.$branch.pushRemote" || git config remote.pushDefault || git config "branch.$branch.remote")
 
-if [ -z "$pr_number" ] || [ "$pr_number" = "null" ]; then
-  # no open PR for this branch
+if [ -z "$remote" ]; then
+  # no push or upstream remote: stop and ask the user
 fi
+
+head_repo=$(gh repo view "$(git remote get-url "$remote")" --json nameWithOwner --jq '.nameWithOwner')
+
+candidates=$(gh pr list --head "$branch" --state open --limit 100 \
+  --json number,url,title,author,baseRefName,headRepository,headRepositoryOwner,headRefName,headRefOid |
+  jq -c --arg repo "$head_repo" '
+    map(select((.headRepository.nameWithOwner // "" | ascii_downcase) == ($repo | ascii_downcase)))
+  ')
+
+count=$(jq 'length' <<<"$candidates")
 ```
+
+Never pick a PR by list position:
+
+- `count == 0`: no PR for this branch. Name any ignored PRs from other repositories.
+- `count > 1`: show each candidate's URL, author, head repository, and base branch, and ask the user to pick one from the list. Do not choose.
+- `count == 1`: use that candidate.
+
+Set `pr_number` and `pr_url` from the chosen candidate.
+
+Then compare its `headRefOid` with `git rev-parse HEAD` and `git rev-parse '@{upstream}'`. If it matches neither, report the three SHAs and continue only if the user explicitly confirms.
+
+Before fetching threads, show the PR's number, URL, author, and head repository.
 
 If no PR exists and the user wants one created, derive title/body from the latest commit:
 
@@ -116,10 +139,12 @@ gh pr view "$pr_number" --json comments,reviews --jq '
 
 ## 4. Post Summary Comment
 
-Use the same `pr_number` from Section 1:
+Post only after the user explicitly approves. First show the target PR number and URL from Section 1 and the exact comment text. If the user declines, post nothing and add no reaction.
+
+On approval, post exactly the text shown, to the same PR URL:
 
 ```bash
-gh pr comment "$pr_number" --body "$(cat <<'EOF'
+gh pr comment "$pr_url" --body "$(cat <<'EOF'
 ## Fixes Applied Successfully
 
 Fixed <file-count> file(s) based on <issue-count> CodeRabbit feedback item(s).
@@ -142,4 +167,4 @@ If no fixes were applied, skip the success template or use a neutral review-comp
 
 ## 5. Optional Reaction
 
-If useful, react to the main CodeRabbit comment with 👍 after the summary is posted.
+If useful, after the summary is posted, ask separately whether to react to the main CodeRabbit comment on that PR with 👍. React only on explicit approval.
