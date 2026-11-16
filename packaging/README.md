@@ -56,7 +56,7 @@ The `bundled` variant includes native bytes for manual installation. The
 The installed plugin uses that verified executable and the host's
 normal execution/network permissions. Git must be available for local reviews.
 
-Claude packages request `connection account:read usage:read pull_requests:read review`
+Claude packages request `connection account:read usage:read pull_requests:read repositories:read review`
 OAuth scopes explicitly. Codex discovers OAuth and scopes from the server's
 metadata; the verified endpoint must advertise those scopes, including `review`.
 The shipped Codex loader rejects server-level `extensions` in portable `mcp.json`,

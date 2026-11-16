@@ -2,6 +2,13 @@
 
 All notable changes to this repository are documented in this file.
 
+## Claude plugin [Unreleased]
+
+- Request the `repositories:read` OAuth scope. Without it, the hosted
+  server's `list_repositories` and `get_repository` tools always failed with
+  `insufficient_scope` for plugin users, and Claude cannot step up the grant
+  on its own. Existing connections must reconnect once to pick it up.
+
 ## Claude plugin [1.3.0] - Claude directory release
 
 - First 1.3 release published to the Claude directory. It reuses the 1.3.0
