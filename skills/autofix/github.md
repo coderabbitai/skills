@@ -22,7 +22,11 @@ if [ -z "$remote" ]; then
   exit 1  # stop and ask the user
 fi
 
-head_repo=$(gh repo view "$(git remote get-url "$remote")" --json nameWithOwner --jq '.nameWithOwner') || head_repo=""
+remote_url=$(git remote get-url "$remote") || remote_url=""
+head_repo=""
+if [ -n "$remote_url" ]; then
+  head_repo=$(gh repo view "$remote_url" --json nameWithOwner --jq '.nameWithOwner') || head_repo=""
+fi
 if [ -z "$head_repo" ]; then
   echo "Could not resolve the GitHub repository for remote $remote." >&2
   exit 1  # stop and ask the user
@@ -59,9 +63,16 @@ gh pr create --title "$title" --body "${body:-Auto-created by CodeRabbit autofix
 
 ## 2. Resolve Repository Coordinates
 
+Take `owner`/`repo` from the selected PR's base repository (`pr_url`), not gh's default repository:
+
 ```bash
-owner=$(gh repo view --json owner --jq '.owner.login')
-repo=$(gh repo view --json name --jq '.name')
+base_repo=$(jq -rn --arg url "$pr_url" '$url | capture("^https://[^/]+/(?<repo>[^/]+/[^/]+)/pull/[0-9]+$").repo // empty')
+if [ -z "$base_repo" ]; then
+  echo "Could not read the base repository from $pr_url." >&2
+  exit 1  # stop; never fall back to gh's default repository
+fi
+owner=${base_repo%%/*}
+repo=${base_repo#*/}
 ```
 
 ## 3. Fetch Thread-Aware CodeRabbit Feedback
@@ -128,7 +139,7 @@ Keep each selected thread as one issue unit. Do not collapse top-level PR commen
 To detect CodeRabbit's "Come back again in a few minutes" status message, use top-level PR comments/reviews separately:
 
 ```bash
-gh pr view "$pr_number" --json comments,reviews --jq '
+gh pr view "$pr_url" --json comments,reviews --jq '
   [
     (.comments[]?
       | select(.author.login == "coderabbitai" or .author.login == "coderabbit[bot]" or .author.login == "coderabbitai[bot]")
