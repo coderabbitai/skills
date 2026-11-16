@@ -25,17 +25,23 @@ fi
 remote_url=$(git remote get-url "$remote") || remote_url=""
 head_repo=""
 if [ -n "$remote_url" ]; then
-  head_repo=$(gh repo view "$remote_url" --json nameWithOwner --jq '.nameWithOwner') || head_repo=""
+  head=$(gh repo view "$remote_url" --json nameWithOwner,url \
+    --jq '[.nameWithOwner, (.url | capture("^https://(?<host>[^/]+)/").host)] | @tsv') || head=""
+  IFS=$'\t' read -r head_repo head_host <<<"$head"
 fi
-if [ -z "$head_repo" ]; then
+if [ -z "$head_repo" ] || [ -z "$head_host" ]; then
   echo "Could not resolve the GitHub repository for remote $remote." >&2
   exit 1  # stop and ask the user
 fi
 
 candidates=$(gh pr list --head "$branch" --state open --limit 100 \
   --json number,url,title,author,baseRefName,headRepository,headRepositoryOwner,headRefName,headRefOid |
-  jq -c --arg repo "$head_repo" '
-    map(select(.headRepository != null and ((.headRepository.nameWithOwner // "") | ascii_downcase) == ($repo | ascii_downcase)))
+  jq -c --arg repo "$head_repo" --arg host "$head_host" '
+    map(select(
+      .headRepository != null
+      and ((.headRepository.nameWithOwner // "") | ascii_downcase) == ($repo | ascii_downcase)
+      and ((.url | capture("^https://(?<host>[^/]+)/").host // "") | ascii_downcase) == ($host | ascii_downcase)
+    ))
   ')
 
 count=$(jq 'length' <<<"$candidates")
@@ -66,8 +72,8 @@ gh pr create --title "$title" --body "${body:-Auto-created by CodeRabbit autofix
 Take `owner`/`repo` from the selected PR's base repository (`pr_url`), not gh's default repository:
 
 ```bash
-base_repo=$(jq -rn --arg url "$pr_url" '$url | capture("^https://[^/]+/(?<repo>[^/]+/[^/]+)/pull/[0-9]+$").repo // empty')
-if [ -z "$base_repo" ]; then
+IFS=$'\t' read -r pr_host base_repo <<<"$(jq -rn --arg url "$pr_url" '$url | capture("^https://(?<host>[^/]+)/(?<repo>[^/]+/[^/]+)/pull/[0-9]+$") | [.host, .repo] | @tsv')"
+if [ -z "$pr_host" ] || [ -z "$base_repo" ]; then
   echo "Could not read the base repository from $pr_url." >&2
   exit 1  # stop; never fall back to gh's default repository
 fi
@@ -89,7 +95,7 @@ while :; do
     args+=(-F cursor="$cursor")
   fi
 
-  response=$(gh api graphql "${args[@]}" -f query='query($owner:String!, $repo:String!, $pr:Int!, $cursor:String) {
+  response=$(gh api graphql --hostname "$pr_host" "${args[@]}" -f query='query($owner:String!, $repo:String!, $pr:Int!, $cursor:String) {
     repository(owner:$owner, name:$repo) {
       pullRequest(number:$pr) {
         title
