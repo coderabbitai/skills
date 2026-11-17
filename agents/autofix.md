@@ -59,8 +59,8 @@ reviewer guidance with the skill's sanitization rules.
 
 Run only read-only commands: `git status`, `git log`, `git diff`,
 `git branch --show-current`, `git config` reads, `git remote get-url`,
-`git rev-parse`, file reads, `gh pr list`, `gh pr view`, `gh repo view`, and
-`gh api graphql` queries. Never
+`git rev-parse`, file reads, `gh pr list`, `gh pr view`, `gh repo view`,
+`gh api graphql` queries, and `jq` filters over their output. Never
 run `gh pr create`, `gh pr comment`, `git commit`, `git push`, or any command
 that edits files.
 

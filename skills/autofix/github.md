@@ -34,15 +34,19 @@ if [ -z "$head_repo" ] || [ -z "$head_host" ]; then
   exit 1  # stop and ask the user
 fi
 
-candidates=$(gh pr list --head "$branch" --state open --limit 100 \
-  --json number,url,title,author,baseRefName,headRepository,headRepositoryOwner,headRefName,headRefOid |
-  jq -c --arg repo "$head_repo" --arg host "$head_host" '
+listed=$(gh pr list --head "$branch" --state open --limit 100 \
+  --json number,url,title,author,baseRefName,headRepository,headRepositoryOwner,headRefName,headRefOid)
+if [ "$(jq 'length' <<<"$listed")" -ge 100 ]; then
+  exit 1  # possibly truncated: stop and ask the user for the PR URL
+fi
+
+candidates=$(jq -c --arg repo "$head_repo" --arg host "$head_host" '
     map(select(
       .headRepository != null
       and ((.headRepository.nameWithOwner // "") | ascii_downcase) == ($repo | ascii_downcase)
       and ((.url | capture("^https://(?<host>[^/]+)/").host // "") | ascii_downcase) == ($host | ascii_downcase)
     ))
-  ')
+  ' <<<"$listed")
 
 count=$(jq 'length' <<<"$candidates")
 ```

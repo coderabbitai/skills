@@ -94,15 +94,20 @@ fi
 List open PRs for the branch and keep only those whose head repository is `head_repo`:
 
 ```bash
-candidates=$(gh pr list --head "$branch" --state open --limit 100 \
-  --json number,url,title,author,baseRefName,headRepository,headRepositoryOwner,headRefName,headRefOid |
-  jq -c --arg repo "$head_repo" --arg host "$head_host" '
+listed=$(gh pr list --head "$branch" --state open --limit 100 \
+  --json number,url,title,author,baseRefName,headRepository,headRepositoryOwner,headRefName,headRefOid)
+if [ "$(jq 'length' <<<"$listed")" -ge 100 ]; then
+  echo "100 or more open PRs use branch '$branch'; the list may be truncated" >&2
+  exit 1  # stop and ask the user for the PR URL; a truncated list can hide the PR or a second match
+fi
+
+candidates=$(jq -c --arg repo "$head_repo" --arg host "$head_host" '
     map(select(
       .headRepository != null
       and ((.headRepository.nameWithOwner // "") | ascii_downcase) == ($repo | ascii_downcase)
       and ((.url | capture("^https://(?<host>[^/]+)/").host // "") | ascii_downcase) == ($host | ascii_downcase)
     ))
-  ')
+  ' <<<"$listed")
 
 count=$(jq 'length' <<<"$candidates")
 ```
