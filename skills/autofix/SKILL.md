@@ -80,7 +80,7 @@ fi
 
 # The push URL, which can differ from the fetch URL; stop if there is more than one.
 remote_url=$(git remote get-url --push --all "$remote") || remote_url=""
-if [ "$(printf '%s\n' "$remote_url" | grep -c .)" -gt 1 ]; then
+if [ "$(jq -Rn '[inputs | select(length > 0)] | length' <<<"$remote_url")" -gt 1 ]; then
   echo "Remote $remote has more than one push URL." >&2
   exit 1  # stop and ask the user which repository the branch was pushed to
 fi
@@ -99,10 +99,21 @@ fi
 List open PRs for the branch and keep only those whose head repository is `head_repo`:
 
 ```bash
-listed=$(gh pr list --head "$branch" --state open --limit 100 \
+# The remote branch name, which can differ from the local one.
+push_ref=$(git rev-parse --abbrev-ref '@{push}' 2>/dev/null) || push_ref=""
+case "$push_ref" in
+  "$remote"/?*) head_branch=${push_ref#"$remote"/} ;;
+  "") head_branch=$branch ;;  # no push tracking: `git push <remote>` uses the local name
+  *)
+    echo "$branch pushes to $push_ref, not to remote $remote." >&2
+    exit 1  # stop and ask the user which branch the PR uses
+    ;;
+esac
+
+listed=$(gh pr list --head "$head_branch" --state open --limit 100 \
   --json number,url,title,author,baseRefName,headRepository,headRepositoryOwner,headRefName,headRefOid)
 if [ "$(jq 'length' <<<"$listed")" -ge 100 ]; then
-  echo "100 or more open PRs use branch '$branch'; the list may be truncated" >&2
+  echo "100 or more open PRs use branch '$head_branch'; the list may be truncated" >&2
   exit 1  # stop and ask the user for the PR URL; a truncated list can hide the PR or a second match
 fi
 
@@ -119,7 +130,7 @@ count=$(jq 'length' <<<"$candidates")
 
 Never pick a PR by list position. Route on `count`:
 
-- **0:** No PR qualifies. If `gh pr list` returned PRs from other repositories, list their URLs and head repositories and say they were ignored. `gh pr list` searches only gh's default base repository (`gh repo set-default --view`); say which one was searched and ask whether the PR targets a different base repository before offering to create one. If it does, rerun the list with `--repo <base-owner>/<base-repo>`, apply the same truncation check and filter, and route the new `count` through these same rules. If it is still 0, follow **If no PR** below.
+- **0:** No PR qualifies. If `gh pr list` returned PRs from other repositories, list their URLs and head repositories and say they were ignored. `gh pr list` searches only gh's default base repository (`gh repo set-default --view`); say which one was searched and ask whether the PR targets a different base repository before offering to create one. If it does, rerun the list with `--repo "$head_host/<base-owner>/<base-repo>"` (the host keeps GitHub Enterprise lookups on the right server), apply the same truncation check and filter, and route the new `count` through these same rules. If it is still 0, follow **If no PR** below.
 - **More than 1:** Show each candidate's URL, author, head repository, and base branch. Ask the user which PR to use, or EXIT. Do not choose one yourself, and accept only a PR from this list.
 - **1:** Use that candidate.
 
