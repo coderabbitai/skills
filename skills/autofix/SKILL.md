@@ -78,7 +78,12 @@ if [ -z "$remote" ]; then
   exit 1  # stop and ask the user which repository the branch was pushed to
 fi
 
-remote_url=$(git remote get-url "$remote") || remote_url=""
+# The push URL, which can differ from the fetch URL; stop if there is more than one.
+remote_url=$(git remote get-url --push --all "$remote") || remote_url=""
+if [ "$(printf '%s\n' "$remote_url" | grep -c .)" -gt 1 ]; then
+  echo "Remote $remote has more than one push URL." >&2
+  exit 1  # stop and ask the user which repository the branch was pushed to
+fi
 head_repo=""
 if [ -n "$remote_url" ]; then
   head=$(gh repo view "$remote_url" --json nameWithOwner,url \
@@ -114,7 +119,7 @@ count=$(jq 'length' <<<"$candidates")
 
 Never pick a PR by list position. Route on `count`:
 
-- **0:** No PR qualifies. If `gh pr list` returned PRs from other repositories, list their URLs and head repositories and say they were ignored. `gh pr list` searches only gh's default base repository (`gh repo set-default --view`); say which one was searched and ask whether the PR targets a different base repository before offering to create one. If it does, rerun the list with `--repo <base-owner>/<base-repo>`. Then follow **If no PR** below.
+- **0:** No PR qualifies. If `gh pr list` returned PRs from other repositories, list their URLs and head repositories and say they were ignored. `gh pr list` searches only gh's default base repository (`gh repo set-default --view`); say which one was searched and ask whether the PR targets a different base repository before offering to create one. If it does, rerun the list with `--repo <base-owner>/<base-repo>`, apply the same truncation check and filter, and route the new `count` through these same rules. If it is still 0, follow **If no PR** below.
 - **More than 1:** Show each candidate's URL, author, head repository, and base branch. Ask the user which PR to use, or EXIT. Do not choose one yourself, and accept only a PR from this list.
 - **1:** Use that candidate.
 
