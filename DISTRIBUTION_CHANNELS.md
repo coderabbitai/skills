@@ -6,6 +6,14 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 
 ## Channels
 
+The 1.4.0 MCP Apps candidate updates the shared local-review and native Autofix
+instructions, Claude consent scopes, and versioned Antigravity/Codex manifests.
+It also adds the separate OpenAI MCP package source at `packaging/openai/` and
+`scripts/package-openai.py`. See [setup and scope migration](docs/mcp.md).
+These are candidate artifacts, not evidence of publication or installed parity.
+The historical channel observations below do not establish current directory versions. Native host QA,
+renewed consent on old grants, and directory submission remain separate steps.
+
 | Channel | Status | Source of truth | Notes |
 | --- | --- | --- | --- |
 | Claude MCP plugin | 1.3.0 source candidate; not published | Repository root on `main`, `.claude-plugin/plugin.json` | Remote MCP tools plus standalone CLI local reviews, with separate sign-ins. No automatic review hook or managed local runtime. Portal validation and publication remain separate. |

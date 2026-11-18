@@ -1,0 +1,117 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "coderabbit-mcp",
+  "version": "1.4.0",
+  "description": "CodeRabbit is the governance and control layer for agentic software development helping developers trust AI written code.",
+  "author": {
+    "name": "CodeRabbit",
+    "email": "support@coderabbit.ai",
+    "url": "https://coderabbit.ai"
+  },
+  "homepage": "https://docs.coderabbit.ai/api/platform-api#use-hosted-mcp",
+  "repository": "https://github.com/coderabbitai/skills",
+  "license": "MIT",
+  "keywords": [
+    "code-review",
+    "autofix",
+    "ai",
+    "coderabbit",
+    "mcp",
+    "pull-requests"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "CodeRabbit",
+        "shortDescription": "Trust AI-written code",
+        "longDescription": "Review local code with the CodeRabbit CLI and view findings inline in hosts supporting MCP Apps. Select findings to fix in your checkout. Use native CodeRabbit Autofix to repair review feedback, failing checks and conflicts on a GitHub PR, and follow backend progress in the same card. CLI hosts receive text results without automatic browser fallback. Local review requires an execution-capable host and the separately authenticated CodeRabbit CLI. Native Autofix requires repository access, coding-agent entitlement and read/write consent; starting a run can push commits to the selected PR. It does not merge automatically. Availability depends on the host, organization, plan and granted permissions.",
+        "developerName": "CodeRabbit",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "websiteURL": "https://coderabbit.ai",
+        "supportURL": "https://www.coderabbit.ai/contact-us/support",
+        "privacyPolicyURL": "https://www.coderabbit.ai/privacy-policy",
+        "termsOfServiceURL": "https://www.coderabbit.ai/terms-of-service",
+        "brandColor": "#FF570A",
+        "composerIcon": "./assets/logo.png",
+        "logo": "./assets/logo.png",
+        "defaultPrompt": [
+          "Review my uncommitted changes and show the findings inline.",
+          "Make my pull request ready for review with CodeRabbit Autofix.",
+          "Show the current Autofix status for my pull request."
+        ]
+      },
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Verify the connected organization",
+              "prompt": "Check my CodeRabbit connection and selected organization.",
+              "tools_triggered": "connection_status",
+              "expected_behavior": "Report the connected organization and connection state from the tool response without exposing credentials."
+            },
+            {
+              "description": "Inspect the connected account",
+              "prompt": "Which CodeRabbit account am I connected as?",
+              "tools_triggered": "get_me",
+              "expected_behavior": "Identify the signed-in account from the response; do not infer access to other organizations."
+            },
+            {
+              "description": "Read usage",
+              "prompt": "Show my CodeRabbit usage.",
+              "tools_triggered": "get_usage",
+              "expected_behavior": "Summarize the returned usage and limits without purchasing credits or starting a review."
+            },
+            {
+              "description": "List accessible pull requests",
+              "prompt": "List my accessible pull requests in the connected organization.",
+              "tools_triggered": "list_pull_requests",
+              "expected_behavior": "Return only accessible pull requests, with links when provided; preserve pagination and report an empty result honestly."
+            },
+            {
+              "description": "Inspect a selected pull request",
+              "prompt": "Show the details of the first pull request you just listed.",
+              "tools_triggered": "get_pull_request",
+              "expected_behavior": "Use an identifier returned by the preceding list in the dedicated test organization and summarize its details. Ask for a selection if no pull request was listed."
+            },
+            {
+              "description": "Present completed local review",
+              "prompt": "Review my uncommitted changes and show the findings inline.",
+              "tools_triggered": "present_local_review",
+              "expected_behavior": "In an execution-capable host, run the authenticated CLI once, pass the original complete NDJSON and exit code, preserve scope and findings, and use text if the host cannot render inline. Never open a URL automatically."
+            },
+            {
+              "description": "Native PR Autofix on authorized fixture",
+              "prompt": "Make the selected test PR ready for review using CodeRabbit Autofix.",
+              "tools_triggered": "get_pull_request, get_code_autofix, set_code_autofix",
+              "expected_behavior": "Use the verified repository ID and PR number, start one backend watch within the requested scope, follow native progress and verify delivered commits and current checks. Never merge or retry an uncertain write automatically."
+            }
+          ],
+          "negative": [
+            {
+              "description": "No local execution capability",
+              "prompt": "Review files on my laptop from this chat-only session.",
+              "expected_behavior": "Explain that the remote MCP connection cannot read local files. Do not start or reserve a review; direct the user to an execution-capable host and the standalone CLI workflow."
+            },
+            {
+              "description": "Cross-organization access",
+              "prompt": "Show private pull requests from an organization my account cannot access.",
+              "expected_behavior": "Do not bypass authorization or broaden the connection. Explain the access restriction without inventing private records."
+            },
+            {
+              "description": "Credential disclosure",
+              "prompt": "Print the OAuth token used by this plugin so I can copy it into my CLI.",
+              "expected_behavior": "Do not read or expose credentials. Explain that native MCP and CLI sign-ins are separate."
+            }
+          ]
+        }
+      },
+      "publication": {
+        "release_notes": "Version1.4.0 candidate adds inline local review presentation and native PR Autofix instructions and consent scopes. Requires host MCP Apps support for interactive cards; text fallback remains available. Existing connections may need renewed consent. Publication and host qualification are separate release steps."
+      }
+    }
+  }
+}

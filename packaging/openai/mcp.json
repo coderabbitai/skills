@@ -1,0 +1,30 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "coderabbit": {
+      "type": "streamable-http",
+      "url": "https://mcp.coderabbit.ai/",
+      "extensions": {
+        "com.openai": {
+          "auth": {
+            "type": "oauth",
+            "client": {
+              "mode": "dcr"
+            },
+            "baseScopes": [
+              "connection",
+              "account:read",
+              "usage:read",
+              "pull_requests:read",
+              "repositories:read",
+              "review",
+              "code:read",
+              "code:write"
+            ],
+            "defaultScopes": []
+          }
+        }
+      }
+    }
+  }
+}

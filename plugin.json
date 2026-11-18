@@ -3,17 +3,30 @@
   "name": "coderabbit",
   "displayName": "CodeRabbit",
   "description": "CodeRabbit is the governance and control layer for agentic software development helping developers trust AI written code.",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "logo": "assets/logo.png",
-  "skills": [".antigravity-plugin/skills"],
-  "suggestedPrompts": [
-    "Check my CodeRabbit connection and selected organization.",
-    "Review my uncommitted changes. Review only; do not edit.",
-    "Show unresolved CodeRabbit feedback on my pull request and propose fixes."
+  "skills": [
+    ".antigravity-plugin/skills"
   ],
-  "author": { "name": "CodeRabbit", "email": "support@coderabbit.ai", "url": "https://coderabbit.ai" },
+  "suggestedPrompts": [
+    "Review my uncommitted changes and show the findings inline.",
+    "Make my pull request ready for review with CodeRabbit Autofix.",
+    "Show the current Autofix status for my pull request."
+  ],
+  "author": {
+    "name": "CodeRabbit",
+    "email": "support@coderabbit.ai",
+    "url": "https://coderabbit.ai"
+  },
   "homepage": "https://docs.coderabbit.ai/cli/antigravity",
   "repository": "https://github.com/coderabbitai/skills",
   "license": "MIT",
-  "keywords": ["code-review", "autofix", "ai", "coderabbit", "mcp", "pull-requests"]
+  "keywords": [
+    "code-review",
+    "autofix",
+    "ai",
+    "coderabbit",
+    "mcp",
+    "pull-requests"
+  ]
 }
