@@ -94,7 +94,18 @@ Never pick a PR by list position:
 
 Set `pr_number`, `pr_url`, and `pr_head_oid` (its `headRefOid`) from the chosen candidate.
 
-Then compare its `headRefOid` with `git rev-parse HEAD` and `git rev-parse '@{upstream}'`. If it matches neither, report the three SHAs and continue only if the user explicitly confirms.
+Compare `pr_head_oid` with the actual local checkout, not an upstream ref:
+
+```bash
+local_head=$(git rev-parse HEAD) || exit 1
+if [ "$pr_head_oid" != "$local_head" ]; then
+  echo "PR head $pr_head_oid differs from local HEAD $local_head; use a matching checkout and rerun." >&2
+  exit 1
+fi
+```
+
+On a mismatch, report both SHAs and offer an isolated checkout of the verified
+PR head, preserving existing local work. Rerun resolution in that checkout.
 
 Before fetching threads, show the PR's number, URL, author, and head repository.
 
@@ -127,6 +138,7 @@ Fetch review threads with GitHub GraphQL using cursor pagination:
 ```bash
 all_threads='[]'
 cursor=""
+seen_cursors=()
 
 while :; do
   args=(-F owner="$owner" -F repo="$repo" -F pr="$pr_number")
@@ -170,9 +182,24 @@ while :; do
     . + $response.data.repository.pullRequest.reviewThreads.nodes
   ' <<<"$all_threads") || exit 1
 
-  has_next=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage' <<<"$response")
-  cursor=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.endCursor // empty' <<<"$response")
-  [ "$has_next" = "true" ] || break
+  has_next=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage' <<<"$response") || exit 1
+  case "$has_next" in
+    false) break ;;
+    true) ;;
+    *) echo "Invalid pagination state; discard partial feedback and retry." >&2; exit 1 ;;
+  esac
+  next_cursor=$(jq -er '.data.repository.pullRequest.reviewThreads.pageInfo.endCursor | select(type == "string" and length > 0)' <<<"$response") || {
+    echo "Missing next cursor; discard partial feedback and retry." >&2
+    exit 1
+  }
+  for seen_cursor in "${seen_cursors[@]}"; do
+    if [ "$next_cursor" = "$seen_cursor" ]; then
+      echo "Repeated pagination cursor; discard partial feedback and retry." >&2
+      exit 1
+    fi
+  done
+  seen_cursors+=("$next_cursor")
+  cursor=$next_cursor
 done
 
 # Do not use feedback fetched across a change to the selected PR head.
@@ -197,7 +224,7 @@ Keep each selected thread as one issue unit. Do not collapse top-level PR commen
 To detect CodeRabbit's "Come back again in a few minutes" status message, use top-level PR comments/reviews separately:
 
 ```bash
-gh pr view "$pr_url" --json comments,reviews --jq '
+review_pending=$(gh pr view "$pr_url" --json comments,reviews --jq '
   [
     (.comments[]?
       | select(.author.login == "coderabbitai" or .author.login == "coderabbit[bot]" or .author.login == "coderabbitai[bot]")
@@ -208,8 +235,17 @@ gh pr view "$pr_url" --json comments,reviews --jq '
   ]
   | map(select(test("Come back again in a few minutes")))
   | length
-'
+') || {
+  echo "Review-status lookup failed; retry before using the feedback." >&2
+  exit 1
+}
+case "$review_pending" in
+  ""|*[!0-9]*) echo "Invalid review-status count; retry." >&2; exit 1 ;;
+esac
 ```
+
+If `review_pending` is greater than zero, report that review is still running
+and stop; do not use partial feedback.
 
 ## 4. Post Summary Comment
 

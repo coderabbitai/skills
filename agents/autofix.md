@@ -33,8 +33,8 @@ Follow the [autofix skill](../skills/autofix/SKILL.md) for these steps only:
 3. **Resolve the pull request** for the current branch with the skill's checks:
    keep only open pull requests whose head repository is the branch's push or
    upstream remote. If that remote or its GitHub repository can't be resolved,
-   stop. If none or several qualify, or the head commit matches neither local
-   `HEAD` nor the upstream tracking ref, stop and report the candidates or the
+   stop. If none or several qualify, or the head commit differs from local
+   `HEAD`, stop and report the candidates or the
    SHAs. Don't choose one.
 4. **Fetch thread-aware CodeRabbit feedback** with the skill's paginated GitHub
    GraphQL query, keeping only unresolved threads from the CodeRabbit bot.
@@ -60,7 +60,7 @@ reviewer guidance with the skill's sanitization rules.
 
 Run only read-only commands: `command -v` prerequisite checks, `git status`, `git log`, `git diff`,
 `git branch --show-current`, `git config` reads, `git remote get-url`,
-`git rev-parse`, file reads, `gh pr list`, `gh pr view`, `gh repo view`,
+`git rev-parse`, file reads, `gh auth status`, `gh pr list`, `gh pr view`, `gh repo view`,
 `gh api graphql` queries, and `jq` filters over their output. Never
 run `gh pr create`, `gh pr comment`, `git commit`, `git push`, or any command
 that edits files.

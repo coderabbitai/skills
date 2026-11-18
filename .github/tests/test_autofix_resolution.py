@@ -148,5 +148,82 @@ class AutofixBranchResolutionTests(unittest.TestCase):
         self.check_head_verification('return 42', 1, "Could not verify the PR head")
 
 
+    def test_local_checkout_must_match_even_when_upstream_matches(self):
+        old_head = self.git("rev-parse", "HEAD").strip()
+        self.git("-c", "user.name=Test", "-c", "user.email=test@example.com",
+                 "-c", "commit.gpgsign=false", "-c", "core.hooksPath=" + str(self.root / "no-hooks"),
+                 "commit", "--allow-empty", "-qm", "local-only")
+        new_head = self.git("rev-parse", "HEAD").strip()
+        self.assertEqual(self.git("rev-parse", "@{upstream}").strip(), old_head)
+        for filename in ("skills/autofix/SKILL.md", "skills/autofix/github.md"):
+            block = re.search(r"local_head=\$\(git rev-parse HEAD\).*?\nfi\n", (ROOT / filename).read_text(), re.S).group()
+            for head, expected in ((old_head, 1), (new_head, 0)):
+                with self.subTest(document=filename, head=head):
+                    result = subprocess.run(["/bin/bash", "-c", 'pr_head_oid=' + head + '\n' + block],
+                                            cwd=self.root, env=self.env, text=True, capture_output=True)
+                    self.assertEqual(result.returncode, expected, result.stderr)
+
+    def check_pagination(self, cursors, expected_message=None):
+        for index, cursor in enumerate(cursors, 1):
+            page = {"nodes": [{"id": index}], "pageInfo": {
+                "hasNextPage": cursor is not False,
+                "endCursor": cursor if cursor is not False else None,
+            }}
+            (self.root / f"page-{index}.json").write_text(json.dumps({
+                "data": {"repository": {"pullRequest": {"reviewThreads": page}}}
+            }))
+        setup = '''owner=acme
+repo=app
+pr_number=1
+pr_host=github.com
+pr_url=https://github.com/acme/app/pull/1
+pr_head_oid=abc
+gh() {
+  if [ "$1 $2" = "pr view" ]; then printf 'abc\\n'; return; fi
+  read -r page < page-count
+  page=$((page + 1))
+  printf '%s\\n' "$page" > page-count
+  cat "page-$page.json"
+}
+'''
+        for filename in ("skills/autofix/SKILL.md", "skills/autofix/github.md"):
+            with self.subTest(document=filename):
+                (self.root / "page-count").write_text("0\n")
+                block = next(block for block in re.findall(r"```bash\n(.*?)```", (ROOT / filename).read_text(), re.S)
+                             if block.startswith("all_threads="))
+                result = subprocess.run(["/bin/bash", "-c", setup + block + '\nprintf "%s\\n" "$all_threads"'],
+                                        cwd=self.root, env=self.env, text=True, capture_output=True, timeout=5)
+                self.assertEqual(result.returncode, 1 if expected_message else 0, result.stderr)
+                if expected_message:
+                    self.assertIn(expected_message, result.stderr)
+                    self.assertEqual(result.stdout, "")
+                else:
+                    self.assertEqual(len(json.loads(result.stdout)), len(cursors))
+
+    def test_complete_pagination_collects_every_page(self):
+        self.check_pagination(["A", False])
+
+    def test_missing_next_cursor_discards_partial_feedback(self):
+        self.check_pagination([None], "Missing next cursor")
+
+    def test_repeated_cursor_discards_partial_feedback(self):
+        self.check_pagination(["A", "A"], "Repeated pagination cursor")
+
+    def test_cursor_cycle_discards_partial_feedback(self):
+        self.check_pagination(["A", "B", "A"], "Repeated pagination cursor")
+
+    def test_review_status_requires_successful_numeric_response(self):
+        for filename in ("skills/autofix/SKILL.md", "skills/autofix/github.md"):
+            block = next(block for block in re.findall(r"```bash\n(.*?)```", (ROOT / filename).read_text(), re.S)
+                         if block.startswith("review_pending="))
+            for response, expected in (("return 42", 1), ("printf nonsense", 1),
+                                       ("printf ''", 1), ("printf 0", 0), ("printf 2", 0)):
+                with self.subTest(document=filename, response=response):
+                    script = 'pr_url=https://github.com/acme/app/pull/1\ngh() { ' + response + '; }\n' + block
+                    result = subprocess.run(["/bin/bash", "-c", script], cwd=self.root,
+                                            env=self.env, text=True, capture_output=True)
+                    self.assertEqual(result.returncode, expected, result.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

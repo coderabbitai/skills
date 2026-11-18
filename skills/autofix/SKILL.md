@@ -158,11 +158,16 @@ Set `pr_number` to the qualifying PR (or the one the user picked) and check that
 ```bash
 pr_url=$(jq -r --argjson n "$pr_number" '.[] | select(.number == $n) | .url' <<<"$candidates")
 pr_head_oid=$(jq -r --argjson n "$pr_number" '.[] | select(.number == $n) | .headRefOid' <<<"$candidates")
-local_head=$(git rev-parse HEAD)
-upstream_head=$(git rev-parse '@{upstream}' 2>/dev/null || true)
+local_head=$(git rev-parse HEAD) || exit 1
+if [ "$pr_head_oid" != "$local_head" ]; then
+  echo "PR head $pr_head_oid differs from local HEAD $local_head; use a matching checkout and rerun." >&2
+  exit 1
+fi
 ```
 
-**If `pr_head_oid` matches neither `local_head` nor `upstream_head`:** Report the mismatch with all three SHAs. Ask "Continue with this PR anyway?" → If not explicitly yes, EXIT.
+On a mismatch, stop and report both SHAs. Offer an isolated checkout of the
+verified PR head, preserving existing local work, then rerun resolution there.
+An upstream tracking ref is not proof of which commit the local files represent.
 
 Before fetching any threads, show the resolved PR: number, URL, author, and head repository (for example `PR #123 https://github.com/acme/app/pull/123 by @alice from alice/app:feature-x`).
 
@@ -197,6 +202,7 @@ Fetch review threads with GitHub GraphQL using cursor pagination:
 ```bash
 all_threads='[]'
 cursor=""
+seen_cursors=()
 
 while :; do
   args=(-F owner="$owner" -F repo="$repo" -F pr="$pr_number")
@@ -240,9 +246,24 @@ while :; do
     . + $response.data.repository.pullRequest.reviewThreads.nodes
   ' <<<"$all_threads") || exit 1
 
-  has_next=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage' <<<"$response")
-  cursor=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.endCursor // empty' <<<"$response")
-  [ "$has_next" = "true" ] || break
+  has_next=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage' <<<"$response") || exit 1
+  case "$has_next" in
+    false) break ;;
+    true) ;;
+    *) echo "Invalid pagination state; discard partial feedback and retry." >&2; exit 1 ;;
+  esac
+  next_cursor=$(jq -er '.data.repository.pullRequest.reviewThreads.pageInfo.endCursor | select(type == "string" and length > 0)' <<<"$response") || {
+    echo "Missing next cursor; discard partial feedback and retry." >&2
+    exit 1
+  }
+  for seen_cursor in "${seen_cursors[@]}"; do
+    if [ "$next_cursor" = "$seen_cursor" ]; then
+      echo "Repeated pagination cursor; discard partial feedback and retry." >&2
+      exit 1
+    fi
+  done
+  seen_cursors+=("$next_cursor")
+  cursor=$next_cursor
 done
 
 # Do not use feedback fetched across a change to the selected PR head.
@@ -259,7 +280,7 @@ fi
 Check top-level PR comments and review bodies for the CodeRabbit in-progress message:
 
 ```bash
-gh pr view "$pr_url" --json comments,reviews --jq '
+review_pending=$(gh pr view "$pr_url" --json comments,reviews --jq '
   [
     (.comments[]?
       | select(.author.login == "coderabbitai" or .author.login == "coderabbit[bot]" or .author.login == "coderabbitai[bot]")
@@ -270,10 +291,16 @@ gh pr view "$pr_url" --json comments,reviews --jq '
   ]
   | map(select(test("Come back again in a few minutes")))
   | length
-'
+') || {
+  echo "Review-status lookup failed; retry before using the feedback." >&2
+  exit 1
+}
+case "$review_pending" in
+  ""|*[!0-9]*) echo "Invalid review-status count; retry." >&2; exit 1 ;;
+esac
 ```
 
-**If the count is greater than 0:** Inform "⏳ Review in progress, try again in a few minutes", EXIT
+**If `review_pending` is greater than 0:** Inform "⏳ Review in progress, try again in a few minutes", EXIT
 
 **If no actionable CodeRabbit threads are found:** Inform "No unresolved current CodeRabbit review threads found", EXIT
 
