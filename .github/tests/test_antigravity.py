@@ -170,6 +170,24 @@ class ReleaseGuardTests(unittest.TestCase):
             self.assertIn("Main-based release version check passed", stdout.getvalue())
             native.assert_called_once_with(self.root)
 
+    def test_native_validation_package_addition_rejected(self):
+        self.write("skills/review/SKILL.md", "changed behavior")
+        self.write("plugin.json", '{"version":"1.3.1"}')
+
+        def add_package_file(root):
+            self.write("scripts/helper.py", "print('helper')")
+
+        with patch("sys.argv", ["check", "--root", str(self.root), "--base", self.base]), \
+                patch.object(checks, "check_package"), \
+                patch.object(checks, "validate_native", side_effect=add_package_file) as native, \
+                patch("sys.stderr", new_callable=io.StringIO) as stderr:
+            with self.assertRaises(SystemExit) as error:
+                checks.main()
+            self.assertEqual(error.exception.code, 1)
+            self.assertIn("Release state changed during native validation; rerun", stderr.getvalue())
+            native.assert_called_once_with(self.root)
+        self.assertEqual(json.loads((self.root / "plugin.json").read_text())["version"], "1.3.1")
+
     def test_concurrent_commit_requires_rerun(self):
         self.write("skills/review/SKILL.md", "changed behavior")
         self.git("add", "skills/review/SKILL.md")
