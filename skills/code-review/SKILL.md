@@ -99,6 +99,14 @@ Read `--agent` as NDJSON, not a single JSON document. Preserve the returned `cri
 
 A heartbeat indicates liveness, not completion. Wait for completion and inspect its status. `complete` with `status: review_skipped` and zero findings means no review ran; it is not evidence that analyzed code is clean. Errors or interrupted output also cannot establish a clean review.
 
+If the connected CodeRabbit MCP server offers `present_local_review`, call it
+after the command exits with that run's original NDJSON stdout and exit code
+(`null` if unavailable). This renders the review comments inline in hosts that
+support MCP Apps. Preserve all events, scope, skipped files, warnings and reused
+results; do not synthesize or truncate the output. If output exceeds the tool's
+request limit, the tool is unavailable, or rendering fails, show the text results.
+Do not repeat a review or change its scope just to display the app.
+
 Create a task list for issues found that need to be addressed.
 
 ### 4. Fix Issues (Autonomous Workflow)
