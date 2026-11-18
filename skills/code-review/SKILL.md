@@ -7,6 +7,10 @@ metadata:
 
 # CodeRabbit Code Review
 
+To start a local review, run `coderabbit review --agent` with the verified
+executable after the CLI and authentication checks below. For a CLI usage
+request, run `coderabbit --help` and report the relevant commands.
+
 ## Select the installed workflow
 
 Local code reviews use the installed, authenticated CodeRabbit CLI in every
@@ -38,11 +42,11 @@ When user asks to:
 - Check code quality / Find bugs or security issues
 - Get PR feedback / Pull request review
 - What's wrong with my code / my changes
-- Run coderabbit / Use coderabbit
+- Run a review with CodeRabbit
 
 ## How to Review
 
-### 1. Check CLI and Authentication
+### 1. Discover the CLI commands, then check authentication
 
 Follow [authentication and recovery](references/auth-recovery.md) to resolve the
 trusted CLI to a quoted canonical absolute path. Start with
@@ -50,6 +54,9 @@ trusted CLI to a quoted canonical absolute path. Start with
 the selected command's `--help` when you need to verify its options. If the
 installed CLI lacks a requested command or option, report the version mismatch
 and preserve the requested review scope and policy.
+
+Use the explicit `review` subcommand to launch reviews. The bare `coderabbit`
+command can enter the CLI's default review flow.
 
 Check authentication in the approved review execution context and proceed only
 on `authenticated: true`. Never start login automatically or access credentials

@@ -7,6 +7,9 @@ description: Reviews local code through the installed CodeRabbit CLI, returning 
 
 ## Local review workflow
 
+Start a local review with `coderabbit review --agent` after the prerequisite
+checks below.
+
 Use the installed CodeRabbit CLI and its own authentication in every host.
 A plugin's remote MCP connection does not replace CLI login.
 Do not call `start_code_review` or use an MCP handoff for a local review: this
