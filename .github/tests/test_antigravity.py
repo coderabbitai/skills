@@ -1,5 +1,6 @@
 import copy
 import importlib.util
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -89,12 +90,15 @@ class ReleaseGuardTests(unittest.TestCase):
             if args[0] == "diff":
                 self.git("add", "scripts/helper.py")
                 index_changes.append("staged")
+            elif args[0] == "status":
+                index_changes.append("status")
             return result
 
         with patch.object(checks, "git", side_effect=stage_after_diff):
             with self.assertRaisesRegex(ValueError, "increment beyond"):
                 checks.check_version(self.root, self.base)
-        self.assertEqual(index_changes, ["staged"])
+        self.assertEqual(index_changes[:2], ["staged", "status"])
+        self.assertEqual(index_changes.count("staged"), 1)
 
     def test_unstaging_between_observations_cannot_hide_addition(self):
         self.write("scripts/helper.py", "print('helper')")
@@ -107,12 +111,64 @@ class ReleaseGuardTests(unittest.TestCase):
             if args[0] == "diff":
                 self.git("reset", "-q", "HEAD", "--", "scripts/helper.py")
                 index_changes.append("unstaged")
+            elif args[0] == "status":
+                index_changes.append("status")
             return result
 
         with patch.object(checks, "git", side_effect=unstage_after_diff):
             with self.assertRaisesRegex(ValueError, "increment beyond"):
                 checks.check_version(self.root, self.base)
-        self.assertEqual(index_changes, ["unstaged"])
+        self.assertEqual(index_changes[:2], ["unstaged", "status"])
+        self.assertEqual(index_changes.count("unstaged"), 1)
+
+    def test_temporary_head_change_requires_rerun(self):
+        self.write("skills/review/SKILL.md", "changed behavior")
+        self.git("add", "skills/review/SKILL.md")
+        original_git = checks.git
+        events = []
+
+        def commit_and_reset(root, *args):
+            result = original_git(root, *args)
+            if args[0] == "diff":
+                self.commit()
+                events.append("committed")
+            elif args[0] == "status" and events == ["committed"]:
+                self.git("reset", "--soft", self.base)
+                events.append("reset")
+            return result
+
+        with patch.object(checks, "git", side_effect=commit_and_reset):
+            with self.assertRaisesRegex(ValueError, "Package status changed.*rerun"):
+                checks.check_version(self.root, self.base)
+        self.assertEqual(events, ["committed", "reset"])
+
+    def test_native_validation_version_change_rejected(self):
+        self.write("skills/review/SKILL.md", "changed behavior")
+        self.write("plugin.json", '{"version":"1.3.1"}')
+
+        def mutate_version(root):
+            self.write("plugin.json", '{"version":"1.3.2"}')
+
+        with patch("sys.argv", ["check", "--root", str(self.root), "--base", self.base]), \
+                patch.object(checks, "check_package"), \
+                patch.object(checks, "validate_native", side_effect=mutate_version) as native, \
+                patch("sys.stderr", new_callable=io.StringIO) as stderr:
+            with self.assertRaises(SystemExit) as error:
+                checks.main()
+            self.assertEqual(error.exception.code, 1)
+            self.assertIn("Release state changed during native validation; rerun", stderr.getvalue())
+            native.assert_called_once_with(self.root)
+
+    def test_native_validation_stable_release_passes(self):
+        self.write("skills/review/SKILL.md", "changed behavior")
+        self.write("plugin.json", '{"version":"1.3.1"}')
+        with patch("sys.argv", ["check", "--root", str(self.root), "--base", self.base]), \
+                patch.object(checks, "check_package"), \
+                patch.object(checks, "validate_native") as native, \
+                patch("sys.stdout", new_callable=io.StringIO) as stdout:
+            checks.main()
+            self.assertIn("Main-based release version check passed", stdout.getvalue())
+            native.assert_called_once_with(self.root)
 
     def test_concurrent_commit_requires_rerun(self):
         self.write("skills/review/SKILL.md", "changed behavior")

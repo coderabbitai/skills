@@ -2,6 +2,8 @@
 
 Requires the official agy validator; uses only Python's standard library.
 This is maintainer CI tooling, not an installed plugin runtime.
+Run on an idle checkout; concurrent editor/Git operations are unsupported.
+The consistency checks detect observed changes, not transactional isolation.
 """
 
 import argparse
@@ -32,7 +34,7 @@ def check_version(root, base):
     current = json.loads((root / "plugin.json").read_text())["version"]
     version(current)
     if not base:
-        return
+        return current, None, None
     # Resolve first so untrusted refs cannot become command options or pathspecs.
     base = git(root, "rev-parse", "--verify", "--end-of-options", base + "^{commit}").strip()
     head = git(root, "rev-parse", "--verify", "HEAD").strip()
@@ -45,11 +47,14 @@ def check_version(root, base):
         raise ValueError("HEAD changed during version validation; rerun the check")
     if json.loads((root / "plugin.json").read_text())["version"] != current:
         raise ValueError("plugin.json version changed during validation; rerun the check")
+    if git(root, "status", "--porcelain=v1", "--untracked-files=all", "--", *RELEASE_PATHS) != local:
+        raise ValueError("Package status changed during validation; rerun the check")
     if (changed.strip() or local.strip()) and version(current) <= version(previous):
         raise ValueError(
             f"Antigravity package changed but plugin.json is {current}; "
             f"increment beyond {previous} for Google's main-branch crawler"
         )
+    return current, head, local
 
 
 def check_package(root):
@@ -115,8 +120,10 @@ def main():
     args = parser.parse_args()
     try:
         check_package(args.root)
-        check_version(args.root, args.base)
+        release_state = check_version(args.root, args.base)
         validate_native(args.root)
+        if check_version(args.root, args.base) != release_state:
+            raise ValueError("Release state changed during native validation; rerun the check")
     except (ValueError, KeyError, OSError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"Antigravity validation failed: {error}\n")
     print("Antigravity package passed: 4 skills, 2 agents, 1 MCP server; only the known commands warning")
