@@ -2,6 +2,23 @@
 
 All notable changes to this repository are documented in this file.
 
+## Antigravity plugin [1.3.0] - Release candidate
+
+- Add the hosted CodeRabbit MCP server with Antigravity's native OAuth discovery.
+- Align branding with the Claude and OpenAI 1.3.0 packages; add three starter
+  prompts and a dedicated marketplace overview with separate MCP/CLI setup.
+- Add an explicit Antigravity setup skill; do not depend on conversion of
+  Claude/Gemini commands for onboarding or reviews.
+- Validate native components in CI and require a root manifest version bump
+  when Google-visible package content changes on `main`.
+- Record the weekly crawler release process and MCP/OAuth QA handoff in the
+  [Antigravity release guide](docs/antigravity-release.md). Publication and
+  authenticated Google QA remain pending.
+- Verify native OAuth, account/organization and usage reads, PR feedback, and
+  one completed standalone CLI review in the App. Document fresh sign-in
+  recovery for rejected authorization codes and text findings when the server
+  does not provide an inline presentation tool.
+
 ## Claude plugin [1.3.0] - Claude directory release
 
 - First 1.3 release published to the Claude directory. It reuses the 1.3.0

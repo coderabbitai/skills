@@ -12,32 +12,36 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-**Claude MCP plugin:** the repository root on `main` is the installable Claude
-1.3.0 candidate. It connects remote CodeRabbit tools through MCP and uses the
-standalone CodeRabbit CLI for local reviews. It has no automatic review hook.
-Run `/coderabbit:setup` to check both: **connect MCP → sign in to the CLI if
-needed → “Review my changes.”** The two sign-ins are separate; an existing CLI
-installation and login can be reused. See [distribution status](DISTRIBUTION_CHANNELS.md)
-for directory publication, which is separate from source availability.
+**Antigravity 1.3.0 candidate:** [install the local source candidate](#antigravity-cli-plugin),
+then ask **“Set up CodeRabbit”** to connect remote tools and
+check local review readiness with the native `coderabbit-setup` skill.
+Authenticate the hosted connection through Antigravity's CodeRabbit account
+settings, then ask **“Check my CodeRabbit connection and selected organization.”**
+See the [Antigravity setup guide](.antigravity-plugin/README.md).
 
-The remote connection is declared only in Claude's manifest. Shared skills and
-other host plugins keep their standalone CLI workflow. Local reviews do not
-reserve MCP reviews or pass review handoffs through shell commands. A hosted
-connector alone cannot collect local files.
+**Claude 1.3.0:** run `/coderabbit:setup` for the same two readiness checks.
+See the [Claude MCP setup guide](docs/mcp.md).
 
-For setup, recovery and data handling, read the [MCP setup guide](docs/mcp.md).
-Independently assembled MCP hook/direct packages remain development candidates
-with their own qualification requirements; see [packaging](packaging/README.md).
+Both packages connect remote tools through MCP and use the standalone
+CodeRabbit CLI for local reviews. **MCP and CLI sign-ins are separate.** Reuse
+an existing CLI installation and login, then ask **“Review my uncommitted
+changes. Review only; do not edit.”** There is no automatic review hook;
+local reviews do not reserve MCP reviews or pass review handoffs through shell
+commands. A hosted connector alone cannot collect local files.
+
+The Antigravity connection is in `mcp_config.json`; Claude's is in its own
+manifest. Other host packages retain their documented workflows. See
+[distribution status](DISTRIBUTION_CHANNELS.md) for publication: source
+availability and matching version numbers do not establish marketplace parity.
 
 **Released CLI integration:** install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
-then tell your agent: **“Review my code.”** The review command starts the
-authentication flow when needed.
+then tell your agent: **“Review my code.”** If sign-in is needed, the agent
+hands off the CLI's browser login to you.
 
 ## Installation
 
-The standalone integration paths below remain available. The native Claude
-plugin on `main` is the MCP candidate described above; directory and official
-marketplace publication require their own approval and catalog updates.
+The standalone integration paths below remain available. Native MCP package
+availability follows each host's release and marketplace process.
 
 ### 1. Install the CodeRabbit CLI
 
@@ -115,16 +119,23 @@ This native extension is separate from the generic skills-installer path above.
 
 #### Antigravity CLI Plugin
 
-Antigravity CLI users can install the native plugin directly from this
-repository:
+Install the published plugin from **Customizations > Marketplace > CodeRabbit**
+in Antigravity, or use `agy plugin install coderabbit` in the CLI.
+To test the source candidate directly from this repository:
 
 ```bash
-agy plugin install https://github.com/coderabbitai/skills
+agy plugin install /absolute/path/to/skills
 agy plugin list
 ```
 
-The repository-root [`plugin.json`](plugin.json) manifest packages the skills,
-review command, and both subagents for Antigravity CLI's plugin discovery.
+The 1.3.0 source candidate adds hosted MCP with native OAuth discovery through
+[`mcp_config.json`](mcp_config.json), alongside the three shared skills and two
+agents, plus a native `coderabbit-setup` skill. Ask “Set up CodeRabbit” to
+check connection and review readiness. Local reviews
+still require the separately installed and authenticated CodeRabbit CLI.
+See the [Antigravity setup guide](.antigravity-plugin/README.md).
+Google's weekly crawler publishes versioned updates from `main`; source
+readiness does not establish the version currently served by the Marketplace.
 
 #### Codex App
 
@@ -144,12 +155,15 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | --- | --- |
 | `skills/` | Portable CodeRabbit skills for agents that support `SKILL.md`. |
 | `.claude-plugin/` | Native Claude manifest with its remote MCP connection; no review hook. |
-| `commands/` | Native review commands for Gemini CLI and Antigravity CLI. |
+| `commands/` | Gemini review command and Claude setup command; Antigravity uses native skills. |
 | `agents/` | `code-reviewer` and `autofix` subagents shipped to Claude Code, Gemini CLI, and Antigravity CLI. |
 | `.cursor-plugin/` | Cursor marketplace metadata. |
 | `.codex-plugin/` | Codex metadata referencing the shared skills. |
 | `gemini-extension.json` | Gemini CLI extension manifest. |
 | `plugin.json` | Antigravity CLI plugin manifest. |
+| `mcp_config.json` | Antigravity's hosted MCP connection with native OAuth discovery. |
+| `.antigravity-plugin/README.md` | Antigravity Marketplace overview and setup guidance. |
+| `.antigravity-plugin/skills/` | Antigravity-specific setup skill, registered by root `plugin.json`. |
 | `assets/` | Shared marketplace and brand assets. |
 | `DISTRIBUTION_CHANNELS.md` | Maintainer inventory of live, packaged, and in-development channels. |
 
@@ -323,9 +337,14 @@ CLI, follow the [scoped executable-access recovery](skills/code-review/reference
 It keeps diagnostics sandboxed and retains per-command host approval for auth and review.
 
 - Native plugin manifest: `plugin.json`
-- Skills source: `skills/`
-- Review command: `/coderabbit:review` from `commands/coderabbit/review.toml` (converted to a skill during installation)
+- Hosted MCP: `mcp_config.json`; native browser OAuth, separate from CLI login
+- Skills: shared `skills/` plus `.antigravity-plugin/skills/coderabbit-setup/`
+- Review: ask “Review my changes” to activate `code-review`; do not rely on the legacy converted `/coderabbit:review` command
 - Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
+
+The [Google-specific overview](.antigravity-plugin/README.md) covers connection,
+prerequisites and example prompts. Maintainers should follow the
+[Antigravity release and QA guide](docs/antigravity-release.md).
 
 ### Gemini CLI
 

@@ -1,0 +1,52 @@
+name: Antigravity package
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # Pinned from Google's official CLI updater manifest, 2026-11-18.
+      # Download only the validator; do not install plugins or authenticate.
+      - name: Prepare official Antigravity CLI 1.5.11
+        env:
+          AGY_URL: https://storage.googleapis.com/antigravity-public/antigravity-cli/1.5.11-6132547114106880/linux-x64/cli_linux_x64.tar.gz
+          AGY_SHA512: dad3c015e8964fcdc1639b13b7152f4cb84cb1bde385707e2bcdf095d6f1831f4f6521199aec499cc052f9e99906b7fdbc52c273df064d5cb7c84b068ba3ce50
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/antigravity-validator"
+          cd "$RUNNER_TEMP/antigravity-validator"
+          curl --fail --silent --show-error --location --retry 3 --max-time 180 "$AGY_URL" -o cli.tar.gz
+          printf '%s  cli.tar.gz\n' "$AGY_SHA512" | sha512sum --check --strict
+          tar -xzf cli.tar.gz antigravity
+          mv antigravity agy
+          chmod +x agy
+          echo "$RUNNER_TEMP/antigravity-validator" >> "$GITHUB_PATH"
+      - name: Test release guard
+        run: python3 -m unittest discover -s .github/tests -v
+      - name: Validate native package and release version
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          agy --version
+          if [[ -n "$BASE_SHA" && ! "$BASE_SHA" =~ ^0+$ ]]; then
+            python3 .github/check_antigravity.py --base "$BASE_SHA"
+          else
+            python3 .github/check_antigravity.py
+          fi

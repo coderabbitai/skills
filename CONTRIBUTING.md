@@ -19,6 +19,8 @@ form, not through a public issue.
   remain behaviorally aligned with the corresponding canonical skill.
 - `.claude-plugin/`, `.cursor-plugin/`, `gemini-extension.json`, and
   `plugin.json` describe host-specific packaging.
+- `mcp_config.json` and `.antigravity-plugin/` provide Antigravity's MCP
+  connection, marketplace overview and native setup skill.
 - `DISTRIBUTION_CHANNELS.md` records which channels are live, packaged, or still
   in development.
 
@@ -58,6 +60,20 @@ coderabbit config validate .coderabbit.yaml
 When changing host-specific packaging, run its official validator when
 available, including `gemini extensions validate .` or
 `agy plugin validate .`.
+
+For Antigravity package changes, also run:
+
+```bash
+git fetch origin main
+python3 .github/check_antigravity.py --base origin/main
+python3 -m unittest discover -s .github/tests -v
+```
+
+The check requires the official `agy` CLI and allows only the known
+multi-host `commands/` warning. Google reads root `plugin.json` on `main`;
+bump its version when changing bundled content. Antigravity's version is
+independent of standalone release tags. See the
+[release and QA guide](docs/antigravity-release.md).
 
 Include the exact commands and results in the pull-request description. If a
 validator is unavailable, state that clearly instead of claiming it passed.

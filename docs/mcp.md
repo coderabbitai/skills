@@ -5,6 +5,10 @@ with standalone CLI local reviews. It declares no automatic hooks. Source on
 `main` and directory publication are separate; see
 [distribution status](../DISTRIBUTION_CHANNELS.md).
 
+For the Antigravity 1.3.0 candidate, use the
+[Google-specific setup guide](../.antigravity-plugin/README.md). Its connection
+is declared in `mcp_config.json` and uses Antigravity's native OAuth discovery.
+
 ## Set up
 
 Run `/coderabbit:setup` in the installed Claude plugin.
@@ -53,7 +57,7 @@ concrete error and review ID when available; never send credentials.
 
 ## OAuth credential handling
 
-The repository-root manifest declares an HTTP MCP connection to
+The Claude manifest `.claude-plugin/plugin.json` declares an HTTP MCP connection to
 `https://mcp.coderabbit.ai/` and the requested OAuth scopes. It declares no
 `env`, `headers`, `headersHelper`, client secret, credential-file path or
 credential environment-variable substitution. It declares no hook or local
