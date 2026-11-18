@@ -163,12 +163,14 @@ class AutofixBranchResolutionTests(unittest.TestCase):
                                             cwd=self.root, env=self.env, text=True, capture_output=True)
                     self.assertEqual(result.returncode, expected, result.stderr)
 
-    def check_pagination(self, cursors, expected_message=None):
+    def check_pagination(self, cursors, expected_message=None, terminal_nodes="default"):
         for index, cursor in enumerate(cursors, 1):
             page = {"nodes": [{"id": index}], "pageInfo": {
                 "hasNextPage": cursor is not False,
                 "endCursor": cursor if cursor is not False else None,
             }}
+            if index == len(cursors) and terminal_nodes != "default":
+                page["nodes"] = terminal_nodes
             (self.root / f"page-{index}.json").write_text(json.dumps({
                 "data": {"repository": {"pullRequest": {"reviewThreads": page}}}
             }))
@@ -181,6 +183,16 @@ pr_head_oid=abc
 gh() {
   if [ "$1 $2" = "pr view" ]; then printf 'abc\\n'; return; fi
   read -r page < page-count
+  request_cursor=""
+  for arg in "$@"; do
+    case "$arg" in cursor=*) request_cursor=${arg#cursor=} ;; esac
+  done
+  if [ "$page" -eq 0 ]; then
+    [ -z "$request_cursor" ] || return 90
+  else
+    expected_cursor=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.endCursor' "page-$page.json")
+    [ "$request_cursor" = "$expected_cursor" ] || return 91
+  fi
   page=$((page + 1))
   printf '%s\\n' "$page" > page-count
   cat "page-$page.json"
@@ -193,12 +205,18 @@ gh() {
                              if block.startswith("all_threads="))
                 result = subprocess.run(["/bin/bash", "-c", setup + block + '\nprintf "%s\\n" "$all_threads"'],
                                         cwd=self.root, env=self.env, text=True, capture_output=True, timeout=5)
-                self.assertEqual(result.returncode, 1 if expected_message else 0, result.stderr)
+                if expected_message:
+                    self.assertNotEqual(result.returncode, 0, result.stderr)
+                else:
+                    self.assertEqual(result.returncode, 0, result.stderr)
                 if expected_message:
                     self.assertIn(expected_message, result.stderr)
                     self.assertEqual(result.stdout, "")
                 else:
-                    self.assertEqual(len(json.loads(result.stdout)), len(cursors))
+                    expected_ids = list(range(1, len(cursors) + 1))
+                    if terminal_nodes == []:
+                        expected_ids.pop()
+                    self.assertEqual([thread["id"] for thread in json.loads(result.stdout)], expected_ids)
 
     def test_complete_pagination_collects_every_page(self):
         self.check_pagination(["A", False])
@@ -212,6 +230,13 @@ gh() {
     def test_cursor_cycle_discards_partial_feedback(self):
         self.check_pagination(["A", "B", "A"], "Repeated pagination cursor")
 
+    def test_invalid_terminal_nodes_discard_partial_feedback(self):
+        for nodes in (None, {}, "invalid"):
+            self.check_pagination(["A", False], "Invalid thread page", terminal_nodes=nodes)
+
+    def test_empty_terminal_page_is_valid(self):
+        self.check_pagination(["A", False], terminal_nodes=[])
+
     def test_review_status_requires_successful_numeric_response(self):
         for filename in ("skills/autofix/SKILL.md", "skills/autofix/github.md"):
             block = next(block for block in re.findall(r"```bash\n(.*?)```", (ROOT / filename).read_text(), re.S)
@@ -219,7 +244,8 @@ gh() {
             for response, expected in (("return 42", 1), ("printf nonsense", 1),
                                        ("printf ''", 1), ("printf 0", 0), ("printf 2", 0)):
                 with self.subTest(document=filename, response=response):
-                    script = 'pr_url=https://github.com/acme/app/pull/1\ngh() { ' + response + '; }\n' + block
+                    script = ('pr_url=https://github.com/acme/app/pull/1\npr_head_oid=abc\n'
+                              'gh() { case \"$*\" in *headRefOid*) printf abc;; *) ' + response + '; esac; }\n' + block)
                     result = subprocess.run(["/bin/bash", "-c", script], cwd=self.root,
                                             env=self.env, text=True, capture_output=True)
                     self.assertEqual(result.returncode, expected, result.stderr)

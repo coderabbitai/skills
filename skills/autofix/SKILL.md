@@ -158,6 +158,7 @@ Set `pr_number` to the qualifying PR (or the one the user picked) and check that
 ```bash
 pr_url=$(jq -r --argjson n "$pr_number" '.[] | select(.number == $n) | .url' <<<"$candidates")
 pr_head_oid=$(jq -r --argjson n "$pr_number" '.[] | select(.number == $n) | .headRefOid' <<<"$candidates")
+resolved_branch=$(git branch --show-current) || exit 1
 local_head=$(git rev-parse HEAD) || exit 1
 if [ "$pr_head_oid" != "$local_head" ]; then
   echo "PR head $pr_head_oid differs from local HEAD $local_head; use a matching checkout and rerun." >&2
@@ -165,9 +166,11 @@ if [ "$pr_head_oid" != "$local_head" ]; then
 fi
 ```
 
-On a mismatch, stop and report both SHAs. Offer an isolated checkout of the
-verified PR head, preserving existing local work, then rerun resolution there.
-An upstream tracking ref is not proof of which commit the local files represent.
+On a mismatch, stop and report both SHAs. Preserve existing local work. To
+recover in an isolated checkout, create a named local branch at the verified
+PR head and configure its push remote and tracking ref to the verified head
+repository and remote branch. Rerun resolution and require the same PR URL.
+A detached checkout or an unrelated upstream ref cannot satisfy this workflow.
 
 Before fetching any threads, show the resolved PR: number, URL, author, and head repository (for example `PR #123 https://github.com/acme/app/pull/123 by @alice from alice/app:feature-x`).
 
@@ -243,7 +246,9 @@ while :; do
   }
 
   all_threads=$(jq -c --argjson response "$response" '
-    . + $response.data.repository.pullRequest.reviewThreads.nodes
+    $response.data.repository.pullRequest.reviewThreads.nodes as $nodes
+    | if ($nodes | type) == "array" then . + $nodes
+      else error("Invalid thread page; discard partial feedback") end
   ' <<<"$all_threads") || exit 1
 
   has_next=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage' <<<"$response") || exit 1
@@ -265,16 +270,6 @@ while :; do
   seen_cursors+=("$next_cursor")
   cursor=$next_cursor
 done
-
-# Do not use feedback fetched across a change to the selected PR head.
-current_head=$(gh pr view "$pr_url" --json headRefOid --jq .headRefOid) || {
-  echo "Could not verify the PR head after fetching feedback; retry." >&2
-  exit 1
-}
-if [ "$current_head" != "$pr_head_oid" ]; then
-  echo "PR head changed while fetching feedback; discard it and rerun resolution." >&2
-  exit 1
-fi
 ```
 
 Check top-level PR comments and review bodies for the CodeRabbit in-progress message:
@@ -298,6 +293,16 @@ review_pending=$(gh pr view "$pr_url" --json comments,reviews --jq '
 case "$review_pending" in
   ""|*[!0-9]*) echo "Invalid review-status count; retry." >&2; exit 1 ;;
 esac
+
+# Do not use feedback fetched across a change to the selected PR head.
+current_head=$(gh pr view "$pr_url" --json headRefOid --jq .headRefOid) || {
+  echo "Could not verify the PR head after fetching feedback; retry." >&2
+  exit 1
+}
+if [ "$current_head" != "$pr_head_oid" ]; then
+  echo "PR head changed while fetching feedback; discard it and rerun resolution." >&2
+  exit 1
+fi
 ```
 
 **If `review_pending` is greater than 0:** Inform "⏳ Review in progress, try again in a few minutes", EXIT
@@ -356,6 +361,12 @@ Use AskUserQuestion:
 
 ### Step 6: Manual Review Mode
 
+Before presenting a plan and immediately before each edit, re-read the selected
+PR head, local branch, and local HEAD. Require them to match `pr_head_oid`,
+`resolved_branch`, and `local_head` from Step 2 (including any agent handoff).
+Stop on lookup failure or mismatch, report recorded/current values, preserve
+local work, and rerun resolution. Approval does not waive these checks.
+
 Display issues in original thread order. Review recognized severities in this order: `Critical` → `Major` → `Minor` → `Trivial` → `Info` → `None`, preserving original order within each severity. Review `Unknown` severities separately in original order without treating them as low severity:
 1. Read relevant files
 2. Independently determine whether the issue is valid from local code and repository context
@@ -397,7 +408,8 @@ After all fixes, display summary of fixed/skipped issues.
 
 ### Step 7: Create Single Consolidated Commit
 
-If any fixes were applied:
+If any fixes were applied, repeat the Step 6 branch/HEAD/PR checks immediately
+before staging or committing. Stop on a mismatch or failed lookup.
 
 ```bash
 git add <all-changed-files>
@@ -418,6 +430,10 @@ If a consolidated commit was created:
 If a consolidated commit was created:
 - Ask: "Push changes?" → If yes: `git push`
 
+After a successful push, verify that the same PR now has the exact commit
+you pushed, then record that SHA as the expected head for the summary. If the
+push fails or the PR differs, stop; do not claim success.
+
 If all deferred (no commit): Skip this step.
 
 ### Step 10: Offer Summary Comment
@@ -427,7 +443,7 @@ Never post a comment or reaction without the user's explicit approval in this st
 1. Draft one summary comment from the templates below.
 2. Show the target PR number and URL (`pr_url` from Step 2) and the exact comment text.
 3. AskUserQuestion: "Post this comment on PR #<pr_number> (<pr_url>)?" ✅ Post | ❌ Don't post
-4. **If "Post":** Post exactly the text shown, to `pr_url`.
+4. **If "Post":** Re-read the PR head and require the verified pushed SHA from Step 9 (or `pr_head_oid` if no commit was made). Stop on failure or mismatch; otherwise post exactly the text shown, to `pr_url`.
 5. **If "Don't post", or any answer other than explicit approval:** Post nothing and add no reaction. Inform "No comment posted", EXIT.
 
 **If at least one fix was applied:** Draft one success summary comment:

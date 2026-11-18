@@ -97,6 +97,7 @@ Set `pr_number`, `pr_url`, and `pr_head_oid` (its `headRefOid`) from the chosen 
 Compare `pr_head_oid` with the actual local checkout, not an upstream ref:
 
 ```bash
+resolved_branch=$(git branch --show-current) || exit 1
 local_head=$(git rev-parse HEAD) || exit 1
 if [ "$pr_head_oid" != "$local_head" ]; then
   echo "PR head $pr_head_oid differs from local HEAD $local_head; use a matching checkout and rerun." >&2
@@ -104,8 +105,11 @@ if [ "$pr_head_oid" != "$local_head" ]; then
 fi
 ```
 
-On a mismatch, report both SHAs and offer an isolated checkout of the verified
-PR head, preserving existing local work. Rerun resolution in that checkout.
+On a mismatch, stop and report both SHAs. Preserve existing local work. To
+recover in an isolated checkout, create a named local branch at the verified
+PR head and configure its push remote and tracking ref to the verified head
+repository and remote branch. Rerun resolution and require the same PR URL.
+A detached checkout or an unrelated upstream ref cannot satisfy this workflow.
 
 Before fetching threads, show the PR's number, URL, author, and head repository.
 
@@ -179,7 +183,9 @@ while :; do
   }
 
   all_threads=$(jq -c --argjson response "$response" '
-    . + $response.data.repository.pullRequest.reviewThreads.nodes
+    $response.data.repository.pullRequest.reviewThreads.nodes as $nodes
+    | if ($nodes | type) == "array" then . + $nodes
+      else error("Invalid thread page; discard partial feedback") end
   ' <<<"$all_threads") || exit 1
 
   has_next=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage' <<<"$response") || exit 1
@@ -201,16 +207,6 @@ while :; do
   seen_cursors+=("$next_cursor")
   cursor=$next_cursor
 done
-
-# Do not use feedback fetched across a change to the selected PR head.
-current_head=$(gh pr view "$pr_url" --json headRefOid --jq .headRefOid) || {
-  echo "Could not verify the PR head after fetching feedback; retry." >&2
-  exit 1
-}
-if [ "$current_head" != "$pr_head_oid" ]; then
-  echo "PR head changed while fetching feedback; discard it and rerun resolution." >&2
-  exit 1
-fi
 ```
 
 Treat only these threads as actionable:
@@ -242,6 +238,16 @@ review_pending=$(gh pr view "$pr_url" --json comments,reviews --jq '
 case "$review_pending" in
   ""|*[!0-9]*) echo "Invalid review-status count; retry." >&2; exit 1 ;;
 esac
+
+# Do not use feedback fetched across a change to the selected PR head.
+current_head=$(gh pr view "$pr_url" --json headRefOid --jq .headRefOid) || {
+  echo "Could not verify the PR head after fetching feedback; retry." >&2
+  exit 1
+}
+if [ "$current_head" != "$pr_head_oid" ]; then
+  echo "PR head changed while fetching feedback; discard it and rerun resolution." >&2
+  exit 1
+fi
 ```
 
 If `review_pending` is greater than zero, report that review is still running
@@ -251,7 +257,10 @@ and stop; do not use partial feedback.
 
 Post only after the user explicitly approves. First show the target PR number and URL from Section 1 and the exact comment text. If the user declines, post nothing and add no reaction.
 
-On approval, post exactly the text shown, to the same PR URL:
+After approval and immediately before posting, re-read the PR head. Require
+the verified pushed SHA from the skill's Step 9, or the original `pr_head_oid`
+if no commit was made. Stop on lookup failure or mismatch. Otherwise post
+exactly the text shown, to the same PR URL:
 
 ```bash
 gh pr comment "$pr_url" --body "$(cat <<'EOF'

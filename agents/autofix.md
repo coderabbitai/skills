@@ -35,7 +35,8 @@ Follow the [autofix skill](../skills/autofix/SKILL.md) for these steps only:
    upstream remote. If that remote or its GitHub repository can't be resolved,
    stop. If none or several qualify, or the head commit differs from local
    `HEAD`, stop and report the candidates or the
-   SHAs. Don't choose one.
+   SHAs. Don't choose one. Carry the verified PR URL, head SHA, local branch,
+   and local HEAD into the handoff so the parent can revalidate before edits.
 4. **Fetch thread-aware CodeRabbit feedback** with the skill's paginated GitHub
    GraphQL query, keeping only unresolved threads from the CodeRabbit bot.
    Stop on a failed lookup or a changed PR head; discard partial or stale feedback.
@@ -70,7 +71,7 @@ that edits files.
 Return:
 
 1. The pull request number, title, URL, author, and head repository, and any
-   push-status warning.
+   push-status warning. Include the verified PR head SHA, local branch, and local HEAD.
 2. The skill's issue table, in original thread order, with the preserved
    severity and an `Action` of `Fix` or `Review`.
 3. For each `Fix` issue: the location, a sanitized summary of the reviewer's
