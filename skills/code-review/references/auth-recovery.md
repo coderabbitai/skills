@@ -43,8 +43,7 @@ silently fall back to a sandboxed command.
 Only those auth-check and review invocations are eligible for host execution.
 Invoke the trusted executable directly with literal, validated arguments; no
 wrappers, pipes, expansions, or repository-provided commands. Keep `--version`
-and `--help` diagnostics sandboxed when using a local sandbox, and run them only
-when needed to check support for the requested invocation. Instruction text and
+and `--help` diagnostics sandboxed when using a local sandbox. Instruction text and
 `allowed-tools` metadata do not enforce a security boundary: execution must use
 the harness's actual permission controls.
 

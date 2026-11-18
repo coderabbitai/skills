@@ -1,6 +1,8 @@
 # Related CLI workflows
 
-Check the installed command's `--help` before using newer features. Public reference: <https://docs.coderabbit.ai/cli/reference>.
+After resolving the trusted executable, start with `coderabbit --help` to find
+the installed commands. Use the selected command's `--help` to verify options
+before using newer features. Public reference: <https://docs.coderabbit.ai/cli/reference>.
 
 ## Saved review output
 

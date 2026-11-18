@@ -44,14 +44,16 @@ When user asks to:
 
 ### 1. Check CLI and Authentication
 
-Before running a review, read and follow [authentication and recovery](references/auth-recovery.md).
-Resolve the trusted CLI to a quoted canonical absolute path, check authentication
-in the approved review execution context, and proceed only on `authenticated: true`.
-Never start login automatically or access credentials yourself. Examples below
-use the validated absolute path; substitute only the path verified by that procedure.
+Follow [authentication and recovery](references/auth-recovery.md) to resolve the
+trusted CLI to a quoted canonical absolute path. Start with
+`"/absolute/path/to/coderabbit" --help` to discover the installed commands. Check
+the selected command's `--help` when you need to verify its options. If the
+installed CLI lacks a requested command or option, report the version mismatch
+and preserve the requested review scope and policy.
 
-Check `"/absolute/path/to/coderabbit" review --help` when support for an option is uncertain.
-Older binaries may lack current flags; report the mismatch and use the official upgrade path.
+Check authentication in the approved review execution context and proceed only
+on `authenticated: true`. Never start login automatically or access credentials
+yourself. Use the validated absolute path for the examples below.
 
 ### 2. Run Review
 
@@ -86,7 +88,7 @@ If the user asks to review a specific directory, append `--dir <path>`. The dire
 | `--committed`     | Committed changes only                                                    |
 | `--uncommitted`   | Staged changes and unstaged edits to tracked files                        |
 | `--include-untracked` | Include untracked files; may combine with `--uncommitted`, never `--committed` |
-| `--light` | Reduce review context; changes review policy, not output format |
+| `--light` | Reduce review context on versions that list this flag in `review --help` |
 | `--base main`     | Compare against specific branch                                           |
 | `--base-commit`   | Compare against specific commit hash                                      |
 | `--dir <path>`    | Review directory path; must be inside an initialized Git working tree     |
