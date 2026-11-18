@@ -43,9 +43,13 @@ silently fall back to a sandboxed command.
 Only those auth-check and review invocations are eligible for host execution.
 Invoke the trusted executable directly with literal, validated arguments; no
 wrappers, pipes, expansions, or repository-provided commands. Keep `--version`
-and `--help` diagnostics sandboxed when using a local sandbox. Instruction text and
-`allowed-tools` metadata do not enforce a security boundary: execution must use
-the harness's actual permission controls.
+and `--help` diagnostics sandboxed when using a local sandbox. If the sandbox
+blocks a help diagnostic, such as when the CLI cannot open its startup log,
+report the diagnostic and use the approved authentication and review workflow
+for the standard review command. Verify support for any version-dependent
+options before using them. Instruction text and `allowed-tools` metadata do not
+enforce a security boundary: execution must use the harness's actual
+permission controls.
 
 Let the trusted CLI access its own credentials. Never retrieve, expose,
 copy, store, hash, or pass credentials through arguments, environment variables,
