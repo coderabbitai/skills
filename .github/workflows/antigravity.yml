@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: antigravity-${{ github.workflow }}-${{ github.ref }}
+  group: antigravity-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -52,11 +52,16 @@ jobs:
       - name: Validate native package and release version
         env:
           BASE_SHA: ${{ inputs.base || github.event.pull_request.base.sha || github.event.before }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
           agy --version
-          if [[ -n "$BASE_SHA" && ! "$BASE_SHA" =~ ^0+$ ]]; then
-            python3 .github/check_antigravity.py --base "$BASE_SHA"
-          else
+          if [[ "$EVENT_NAME" == push && "$BASE_SHA" == 0000000000000000000000000000000000000000 ]]; then
             python3 .github/check_antigravity.py
+          else
+            if [[ -z "$BASE_SHA" ]]; then
+              echo '::error::A comparison base is required for version validation.'
+              exit 1
+            fi
+            python3 .github/check_antigravity.py --base "$BASE_SHA"
           fi

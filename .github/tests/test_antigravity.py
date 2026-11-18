@@ -21,6 +21,9 @@ class ReleaseGuardTests(unittest.TestCase):
         self.git("init", "-q")
         self.empty_hooks = self.root / ".git" / "test-empty-hooks"
         self.empty_hooks.mkdir()
+        empty_excludes = self.root / ".git" / "test-empty-excludes"
+        empty_excludes.touch()
+        self.git("config", "core.excludesFile", str(empty_excludes))
         self.write("plugin.json", json.dumps({"version": "1.3.0"}))
         self.write("skills/review/SKILL.md", "initial skill")
         self.write("agents/reviewer.md", "initial agent")
@@ -75,6 +78,35 @@ class ReleaseGuardTests(unittest.TestCase):
         self.write("scripts/helper.py", "print('helper')")
         with self.assertRaisesRegex(ValueError, "increment beyond"):
             checks.check_version(self.root, self.base)
+
+    def test_staging_between_observations_cannot_hide_addition(self):
+        self.write("scripts/helper.py", "print('helper')")
+        original_git = checks.git
+
+        def stage_after_diff(root, *args):
+            result = original_git(root, *args)
+            if args[0] == "diff":
+                self.git("add", "scripts/helper.py")
+            return result
+
+        with patch.object(checks, "git", side_effect=stage_after_diff):
+            with self.assertRaisesRegex(ValueError, "increment beyond"):
+                checks.check_version(self.root, self.base)
+
+    def test_unstaging_between_observations_cannot_hide_addition(self):
+        self.write("scripts/helper.py", "print('helper')")
+        self.git("add", "scripts/helper.py")
+        original_git = checks.git
+
+        def unstage_after_diff(root, *args):
+            result = original_git(root, *args)
+            if args[0] == "diff":
+                self.git("reset", "-q", "HEAD", "--", "scripts/helper.py")
+            return result
+
+        with patch.object(checks, "git", side_effect=unstage_after_diff):
+            with self.assertRaisesRegex(ValueError, "increment beyond"):
+                checks.check_version(self.root, self.base)
 
     def test_ignored_package_addition_needs_no_bump(self):
         self.write(".gitignore", "scripts/local-only.py\n")

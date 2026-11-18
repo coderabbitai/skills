@@ -35,10 +35,12 @@ def check_version(root, base):
         return
     # Resolve first so untrusted refs cannot become command options or pathspecs.
     base = git(root, "rev-parse", "--verify", "--end-of-options", base + "^{commit}").strip()
-    changed = git(root, "diff", "--name-only", base, "--", *RELEASE_PATHS)
-    untracked = git(root, "ls-files", "--others", "--exclude-standard", "--", *RELEASE_PATHS)
+    # Keep committed history separate from one combined staged/unstaged/untracked
+    # observation, so staging between queries cannot hide a package addition.
+    changed = git(root, "diff", "--name-only", base, "HEAD", "--", *RELEASE_PATHS)
+    local = git(root, "status", "--porcelain=v1", "--untracked-files=all", "--", *RELEASE_PATHS)
     previous = json.loads(git(root, "show", base + ":plugin.json"))["version"]
-    if (changed.strip() or untracked.strip()) and version(current) <= version(previous):
+    if (changed.strip() or local.strip()) and version(current) <= version(previous):
         raise ValueError(
             f"Antigravity package changed but plugin.json is {current}; "
             f"increment beyond {previous} for Google's main-branch crawler"
