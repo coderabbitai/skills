@@ -39,14 +39,22 @@ if [ -z "$head_repo" ] || [ -z "$head_host" ]; then
   exit 1  # stop and ask the user
 fi
 
-# The remote branch name, which can differ from the local one.
-push_ref=$(git rev-parse --abbrev-ref '@{push}' 2>/dev/null) || push_ref=""
-case "$push_ref" in
-  "$remote"/?*) head_branch=${push_ref#"$remote"/} ;;
-  "") head_branch=$branch ;;  # no push tracking: `git push <remote>` uses the local name
+# Resolve the remote branch only under the standard fetch mapping.
+# A custom mapping can put origin/feature at origin/mirror/feature locally.
+fetch_spec=$(git config --get-all "remote.$remote.fetch") || fetch_spec=""
+case "$fetch_spec" in
+  "+refs/heads/*:refs/remotes/$remote/"'*'|"refs/heads/*:refs/remotes/$remote/"'*') ;;
   *)
-    echo "$branch pushes to $push_ref, not to remote $remote." >&2
-    exit 1  # stop and ask the user which branch the PR uses
+    echo "Remote $remote has a missing or nonstandard fetch mapping." >&2
+    exit 1  # stop and ask for the exact PR URL; do not guess the remote branch
+    ;;
+esac
+push_ref=$(git rev-parse --symbolic-full-name '@{push}' 2>/dev/null) || push_ref=""
+case "$push_ref" in
+  "refs/remotes/$remote/"?*) head_branch=${push_ref#"refs/remotes/$remote/"} ;;
+  *)
+    echo "Cannot resolve a push branch for $branch on remote $remote." >&2
+    exit 1  # stop and ask for the exact PR URL, including when tracking is absent
     ;;
 esac
 
