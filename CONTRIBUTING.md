@@ -64,11 +64,14 @@ available, including `gemini extensions validate .` or
 For Antigravity package changes, also run:
 
 ```bash
-git fetch origin main
-python3 .github/check_antigravity.py --base origin/main
+git fetch https://github.com/coderabbitai/skills.git main
+python3 .github/check_antigravity.py --base FETCH_HEAD
 python3 -m unittest discover -s .github/tests -v
 ```
 
+Run those commands together: `FETCH_HEAD` identifies the freshly fetched
+canonical main even when `origin` is a fork. The check includes non-ignored,
+untracked package additions, so staging first is not required.
 The check requires the official `agy` CLI and allows only the known
 multi-host `commands/` warning. Google reads root `plugin.json` on `main`;
 bump its version when changing bundled content. Antigravity's version is

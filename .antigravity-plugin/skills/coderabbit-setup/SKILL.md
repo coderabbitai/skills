@@ -44,7 +44,8 @@ Hand off missing CLI installation or login to the user through the official
 
 MCP sign-in does not authenticate the CLI. Do not call `start_code_review`,
 reserve a review, install a hook, or pass an MCP handoff into shell commands.
-If local execution is unavailable, explain that remote tools remain usable.
+If local execution is unavailable, report that separately from the observed
+MCP connection status. Remote tools remain usable only if the MCP check succeeded.
 Configuration uses the installed `coderabbit-config` skill and needs no login.
 
 If the user already requested a review, continue with the installed

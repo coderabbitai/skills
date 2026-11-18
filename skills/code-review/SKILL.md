@@ -10,10 +10,10 @@ metadata:
 ## Select the installed workflow
 
 Local code reviews use the installed, authenticated CodeRabbit CLI in every
-host, including the native Claude, Antigravity and OpenAI MCP packages.
-Follow the standalone workflow below.
-Those MCP packages also declare a remote connection for account and remote
-repository workflows, but that connection does not authenticate the local CLI.
+host. Follow the standalone workflow below. A package may also declare a remote
+MCP connection for account and remote repository workflows, but that connection
+does not authenticate the local CLI. Standalone skill packages do not gain an
+MCP connection simply by including this skill.
 Do not call `start_code_review` for this plugin's local-review workflow: this
 package has no automatic hook or MCP handoff launcher. Do not reserve an MCP
 review before running the standalone CLI, and do not retry an uncertain MCP

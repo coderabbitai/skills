@@ -36,17 +36,38 @@ Google's [plugin guide](https://antigravity.google/docs/build-plugins) and
 discovery. Do not copy Claude's `oauth.scopes` or OpenAI's auth extension into
 Google's config: they are not documented Google scope controls.
 
+### Public documentation verification
+
+Rechecked on 2026-11-18 for the agent-guidance review:
+
+| Contract | Public source and verification |
+| --- | --- |
+| Additional skills | Google's [manifest field reference](https://antigravity.google/docs/build-plugins#field-reference) says `skills` adds directories alongside the default `skills/`. The native validator discovers the three shared skills plus setup. |
+| Server identity | Google's [MCP plugin layout](https://antigravity.google/docs/build-plugins#mcp-servers) namespaces a server with its plugin name. Both names here are `coderabbit`, producing `coderabbit_coderabbit`. |
+| Native OAuth | Google's [OAuth guide](https://antigravity.google/docs/mcp#oauth) documents automatic CIMD/DCR discovery with PKCE for a remote `serverUrl`. |
+| App sign-in | Google's [authentication steps](https://antigravity.google/docs/mcp#authenticate-a-server) use Customizations > Installed > MCP Servers. The plugin's Accounts tab and successful code entry were separately observed in the App smoke test. |
+| CLI management | Google's [slash-command reference](https://antigravity.google/docs/cli/reference/#core-slash-commands) lists `/mcp` for server management and `/plugin` for plugin management. |
+
+Shared skills do not assume that every host package has MCP. The checked-in
+Claude manifest declares its remote server; the standalone Codex manifest only
+references shared skills. The separately prepared OpenAI MCP candidate is a
+distinct package, not evidence of MCP in the standalone Codex distribution.
+
 ## Release procedure
 
 1. Include the root `plugin.json` version bump with any change to the Google
    package's shared skills, agents, commands, assets, MCP config or overview.
    Antigravity versions are independent of standalone `v*` archive tags.
-2. Fetch current main with `git fetch origin main`, then run
-   `python3 .github/check_antigravity.py --base origin/main` and
+2. Fetch canonical main with
+   `git fetch https://github.com/coderabbitai/skills.git main`, then immediately run
+   `python3 .github/check_antigravity.py --base FETCH_HEAD` and
    `python3 -m unittest discover -s .github/tests -v` before merging. The package
    check requires `agy` and permits only the known commands warning. CI pins
    the official CLI to 1.5.11 with its SHA-512 checksum. Update the pin from
    Google's official updater manifest when qualifying a newer validator.
+   Manual CI runs require an explicit comparison base: use `origin/main` on a
+   feature branch or the previous release commit when validating a release on
+   `main`. Runs with no base explicitly report that version validation was skipped.
 3. Test installation and connection in a dedicated Antigravity test profile.
    Run `agy plugin install /absolute/path/to/skills`, then `agy plugin list --json`.
    Verify version, all four skills, agents and the single
@@ -87,7 +108,7 @@ An allowlisted temporary copy was installed through `agy plugin install`;
 `coderabbit-setup`), both agents and the hosted server. Native validation of
 the installed copy also passed. That initial validation-only installation was
 removed, preserving the profile's pre-existing plugins. The candidate was then
-reinstalled for the live App tests below. The 17 release-guard and diagnostics regression
+reinstalled for the live App tests below. The 23 package, release-guard and diagnostics regression
 tests and skill frontmatter validation passed.
 
 Public discovery metadata was read on 2026-11-18:

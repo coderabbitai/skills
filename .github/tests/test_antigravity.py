@@ -19,15 +19,22 @@ class ReleaseGuardTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         self.git("init", "-q")
+        self.empty_hooks = self.root / ".git" / "test-empty-hooks"
+        self.empty_hooks.mkdir()
         self.write("plugin.json", json.dumps({"version": "1.3.0"}))
         self.write("skills/review/SKILL.md", "initial skill")
         self.write("agents/reviewer.md", "initial agent")
         self.git("add", ".")
-        self.git("-c", "user.name=Test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", "commit", "-qm", "base")
+        self.commit()
         self.base = self.git("rev-parse", "HEAD").strip()
 
     def git(self, *args):
         return subprocess.check_output(["git", "-C", str(self.root), *args], text=True)
+
+    def commit(self):
+        self.git("-c", "user.name=Test", "-c", "user.email=test@example.com",
+                 "-c", "commit.gpgsign=false", "-c", f"core.hooksPath={self.empty_hooks}",
+                 "commit", "-qm", "base")
 
     def write(self, name, text):
         path = self.root / name
@@ -64,6 +71,32 @@ class ReleaseGuardTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "increment beyond"):
             checks.check_version(self.root, self.base)
 
+    def test_untracked_package_addition_requires_bump(self):
+        self.write("scripts/helper.py", "print('helper')")
+        with self.assertRaisesRegex(ValueError, "increment beyond"):
+            checks.check_version(self.root, self.base)
+
+    def test_ignored_package_addition_needs_no_bump(self):
+        self.write(".gitignore", "scripts/local-only.py\n")
+        self.write("scripts/local-only.py", "print('local')")
+        checks.check_version(self.root, self.base)
+
+    def test_untracked_other_host_file_needs_no_bump(self):
+        self.write(".claude-plugin/plugin.json", '{"version":"1.4.0"}')
+        checks.check_version(self.root, self.base)
+
+    def test_fixture_commit_ignores_configured_hooks(self):
+        hook_dir = self.root / ".git" / "rejecting-hooks"
+        hook_dir.mkdir()
+        hook = hook_dir / "commit-msg"
+        hook.write_text("#!/bin/sh\nexit 1\n")
+        hook.chmod(0o755)
+        self.git("config", "core.hooksPath", str(hook_dir))
+        self.write("skills/review/SKILL.md", "changed skill")
+        self.git("add", ".")
+        self.commit()
+        self.assertNotEqual(self.git("rev-parse", "HEAD").strip(), self.base)
+
     def test_patch_bump_allows_shared_changes(self):
         self.write("skills/review/SKILL.md", "changed behavior")
         self.write("plugin.json", '{"version":"1.3.1"}')
@@ -81,6 +114,40 @@ class ReleaseGuardTests(unittest.TestCase):
     def test_invalid_base_fails_closed(self):
         with self.assertRaises(subprocess.CalledProcessError):
             checks.check_version(self.root, "missing-ref")
+
+
+class PackageManifestTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        setup = self.root / ".antigravity-plugin/skills/coderabbit-setup/SKILL.md"
+        setup.parent.mkdir(parents=True)
+        setup.write_text("---\nname: coderabbit-setup\ndescription: Set up CodeRabbit\n---\n")
+        (self.root / ".antigravity-plugin/README.md").write_text("Setup guide")
+        (self.root / "mcp_config.json").write_text(json.dumps({
+            "mcpServers": {"coderabbit": {"serverUrl": "https://mcp.coderabbit.ai/"}}
+        }))
+        self.manifest = {
+            "name": "coderabbit", "version": "1.3.0",
+            "skills": [".antigravity-plugin/skills"],
+        }
+
+    def check_prompts(self, prompts):
+        (self.root / "plugin.json").write_text(json.dumps({**self.manifest, "suggestedPrompts": prompts}))
+        checks.check_package(self.root)
+
+    def test_valid_prompt_arrays(self):
+        for prompts in (["Review my changes"], ["Connect", "Review", "Configure"]):
+            with self.subTest(prompts=prompts):
+                self.check_prompts(prompts)
+
+    def test_invalid_prompt_values_report_validation_error(self):
+        invalid = [None, True, 1, "Review", {"Review": True}, [], ["a"] * 4, [None], [" "]]
+        for prompts in invalid:
+            with self.subTest(prompts=prompts):
+                with self.assertRaisesRegex(ValueError, "one to three actionable"):
+                    self.check_prompts(prompts)
 
 
 class NativeReportTests(unittest.TestCase):

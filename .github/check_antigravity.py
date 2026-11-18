@@ -36,8 +36,9 @@ def check_version(root, base):
     # Resolve first so untrusted refs cannot become command options or pathspecs.
     base = git(root, "rev-parse", "--verify", "--end-of-options", base + "^{commit}").strip()
     changed = git(root, "diff", "--name-only", base, "--", *RELEASE_PATHS)
+    untracked = git(root, "ls-files", "--others", "--exclude-standard", "--", *RELEASE_PATHS)
     previous = json.loads(git(root, "show", base + ":plugin.json"))["version"]
-    if changed.strip() and version(current) <= version(previous):
+    if (changed.strip() or untracked.strip()) and version(current) <= version(previous):
         raise ValueError(
             f"Antigravity package changed but plugin.json is {current}; "
             f"increment beyond {previous} for Google's main-branch crawler"
@@ -60,7 +61,7 @@ def check_package(root):
             "do not add credentials, Claude OAuth fields, or a local launcher"
         )
     prompts = manifest.get("suggestedPrompts", [])
-    if not 1 <= len(prompts) <= 3 or any(not isinstance(p, str) or not p.strip() for p in prompts):
+    if not isinstance(prompts, list) or not 1 <= len(prompts) <= 3 or any(not isinstance(p, str) or not p.strip() for p in prompts):
         raise ValueError("Provide one to three actionable marketplace starter prompts")
     if manifest.get("skills") != [".antigravity-plugin/skills"]:
         raise ValueError("Register the Antigravity setup skill directory")
@@ -89,7 +90,7 @@ def check_report(report):
 def validate_native(root):
     result = subprocess.run(
         ["agy", "plugin", "validate", "--json", str(root)],
-        capture_output=True, text=True,
+        capture_output=True, text=True, check=False,
     )
     if result.returncode:
         diagnostics = result.stdout.strip() or result.stderr.strip()
@@ -114,6 +115,8 @@ def main():
     print("Antigravity package passed: 4 skills, 2 agents, 1 MCP server; only the known commands warning")
     if args.base:
         print("Main-based release version check passed")
+    else:
+        print("Release version check skipped: no --base supplied")
 
 
 if __name__ == "__main__":

@@ -19,8 +19,9 @@ Authenticate the hosted connection through Antigravity's CodeRabbit account
 settings, then ask **“Check my CodeRabbit connection and selected organization.”**
 See the [Antigravity setup guide](.antigravity-plugin/README.md).
 
-**Claude 1.3.0:** run `/coderabbit:setup` for the same two readiness checks.
-See the [Claude MCP setup guide](docs/mcp.md).
+**Claude source package (1.3.0):** run `/coderabbit:setup` for the same two
+readiness checks. See the [Claude MCP setup guide](docs/mcp.md). For a published
+marketplace copy, follow its [integration guide](https://docs.coderabbit.ai/cli/claude-code-integration).
 
 Both packages connect remote tools through MCP and use the standalone
 CodeRabbit CLI for local reviews. **MCP and CLI sign-ins are separate.** Reuse

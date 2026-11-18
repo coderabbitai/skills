@@ -20,8 +20,8 @@ start a review.
 Use the intended Git working tree for every invocation. Select the installed
 workflow before looking for a standalone CLI:
 
-- The native Claude, Antigravity and OpenAI MCP source packages use the standalone CLI discovery below.
-  Their remote MCP connection does not provide a managed local runtime.
+- Packages without a managed runtime use the standalone CLI discovery below.
+  A remote MCP connection does not provide a managed local runtime.
 - For another installed package that explicitly declares a managed runtime,
   use its verified launcher and preparation instructions.
 - For standalone installs, resolve an official installed `coderabbit` to a

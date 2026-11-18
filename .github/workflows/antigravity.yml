@@ -5,20 +5,30 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      base:
+        description: 'Comparison base: origin/main on a feature branch, or the previous release commit on main'
+        required: true
+        type: string
 
 permissions:
   contents: read
 
+concurrency:
+  group: antigravity-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   validate:
+    name: validate
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
       # Pinned from Google's official CLI updater manifest, 2026-11-18.
@@ -41,7 +51,7 @@ jobs:
         run: python3 -m unittest discover -s .github/tests -v
       - name: Validate native package and release version
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          BASE_SHA: ${{ inputs.base || github.event.pull_request.base.sha || github.event.before }}
         run: |
           set -euo pipefail
           agy --version
