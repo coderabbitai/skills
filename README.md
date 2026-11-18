@@ -288,12 +288,14 @@ or “Validate .coderabbit.yaml”. Where supported, invoke `$coderabbit-config`
 `/coderabbit-config`; the Claude plugin uses `/coderabbit:coderabbit-config`.
 The distinct name leaves the host's `/config` command available.
 
-Requires an official CLI supporting config protocol v2 (verified with 0.9.3).
-The CLI owns defaults, schema checks, previews, and writes. The skill supports
-review-style changes and the CLI's guided path settings; unsupported settings
-remain a CLI capability gap. Missing commands require an upgrade, never an
-agent-side YAML editor. Validation alone does not change files; saves require
-approval of the preview. Configuration does not require login or run a review.
+The skill checks which settings schema the installed CLI supports. With a
+V3-capable CLI, new configurations default to V3. Existing unversioned V2
+files keep their layout. Both use agent protocol 2. The skill previews
+review-style changes before saving. The interactive wizard can edit V2 path
+guidance. V3 path instructions live in Markdown files under
+`.coderabbit/instructions/`, outside the wizard. Validation is read-only.
+Saving requires approval of the preview. Configuration runs locally without
+login or a review.
 
 This skill is included in the source package and the published
 [standalone `v1.2.2` archive](https://github.com/coderabbitai/skills/releases/tag/v1.2.2).
