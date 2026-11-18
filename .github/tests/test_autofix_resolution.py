@@ -163,6 +163,15 @@ class AutofixBranchResolutionTests(unittest.TestCase):
                                             cwd=self.root, env=self.env, text=True, capture_output=True)
                     self.assertEqual(result.returncode, expected, result.stderr)
 
+    def test_branch_switch_during_resolution_stops(self):
+        for filename in ("skills/autofix/SKILL.md", "skills/autofix/github.md"):
+            block = re.search(r"resolved_branch=\$\(git branch --show-current\).*?\nfi\n", (ROOT / filename).read_text(), re.S).group()
+            for initial, expected in (("feature", 0), ("other", 1)):
+                with self.subTest(document=filename, initial=initial):
+                    result = subprocess.run(["/bin/bash", "-c", "branch=" + initial + "\n" + block],
+                                            cwd=self.root, env=self.env, text=True, capture_output=True)
+                    self.assertEqual(result.returncode, expected, result.stderr)
+
     def check_pagination(self, cursors, expected_message=None, terminal_nodes="default"):
         for index, cursor in enumerate(cursors, 1):
             page = {"nodes": [{"id": index}], "pageInfo": {

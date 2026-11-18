@@ -98,6 +98,10 @@ Compare `pr_head_oid` with the actual local checkout, not an upstream ref:
 
 ```bash
 resolved_branch=$(git branch --show-current) || exit 1
+if [ "$resolved_branch" != "$branch" ]; then
+  echo "Branch changed from $branch to $resolved_branch during resolution; stop and rerun." >&2
+  exit 1
+fi
 local_head=$(git rev-parse HEAD) || exit 1
 if [ "$pr_head_oid" != "$local_head" ]; then
   echo "PR head $pr_head_oid differs from local HEAD $local_head; use a matching checkout and rerun." >&2
@@ -108,7 +112,9 @@ fi
 On a mismatch, stop and report both SHAs. Preserve existing local work. To
 recover in an isolated checkout, create a named local branch at the verified
 PR head and configure its push remote and tracking ref to the verified head
-repository and remote branch. Rerun resolution and require the same PR URL.
+repository and remote branch. Use the same local and remote branch name, or
+configure an explicit push refspec for that branch; verify `@{push}` resolves
+to the intended remote branch. Rerun resolution and require the same PR URL.
 A detached checkout or an unrelated upstream ref cannot satisfy this workflow.
 
 Before fetching threads, show the PR's number, URL, author, and head repository.
@@ -254,6 +260,10 @@ If `review_pending` is greater than zero, report that review is still running
 and stop; do not use partial feedback.
 
 ## 4. Post Summary Comment
+
+If fixes were committed but not successfully pushed and verified, report that
+they remain local and skip drafting or offering a success comment. Use the
+original `pr_head_oid` fallback only when no commit was created.
 
 Post only after the user explicitly approves. First show the target PR number and URL from Section 1 and the exact comment text. If the user declines, post nothing and add no reaction.
 

@@ -159,6 +159,10 @@ Set `pr_number` to the qualifying PR (or the one the user picked) and check that
 pr_url=$(jq -r --argjson n "$pr_number" '.[] | select(.number == $n) | .url' <<<"$candidates")
 pr_head_oid=$(jq -r --argjson n "$pr_number" '.[] | select(.number == $n) | .headRefOid' <<<"$candidates")
 resolved_branch=$(git branch --show-current) || exit 1
+if [ "$resolved_branch" != "$branch" ]; then
+  echo "Branch changed from $branch to $resolved_branch during resolution; stop and rerun." >&2
+  exit 1
+fi
 local_head=$(git rev-parse HEAD) || exit 1
 if [ "$pr_head_oid" != "$local_head" ]; then
   echo "PR head $pr_head_oid differs from local HEAD $local_head; use a matching checkout and rerun." >&2
@@ -169,7 +173,9 @@ fi
 On a mismatch, stop and report both SHAs. Preserve existing local work. To
 recover in an isolated checkout, create a named local branch at the verified
 PR head and configure its push remote and tracking ref to the verified head
-repository and remote branch. Rerun resolution and require the same PR URL.
+repository and remote branch. Use the same local and remote branch name, or
+configure an explicit push refspec for that branch; verify `@{push}` resolves
+to the intended remote branch. Rerun resolution and require the same PR URL.
 A detached checkout or an unrelated upstream ref cannot satisfy this workflow.
 
 Before fetching any threads, show the resolved PR: number, URL, author, and head repository (for example `PR #123 https://github.com/acme/app/pull/123 by @alice from alice/app:feature-x`).
@@ -437,6 +443,10 @@ push fails or the PR differs, stop; do not claim success.
 If all deferred (no commit): Skip this step.
 
 ### Step 10: Offer Summary Comment
+
+If a commit was created but no successful push and verified pushed SHA were
+recorded, report that the fixes remain local and skip this step entirely.
+The original `pr_head_oid` fallback applies only when no commit was created.
 
 Never post a comment or reaction without the user's explicit approval in this step.
 
