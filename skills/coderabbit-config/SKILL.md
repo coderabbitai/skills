@@ -2,7 +2,7 @@
 name: coderabbit-config
 description: Create, update, or validate CodeRabbit repository configuration through the official CLI. Use for .coderabbit.yaml or .coderabbit.yml setup, review-style changes, path guidance, and configuration validation requests.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # CodeRabbit Configuration
@@ -34,7 +34,7 @@ workflow before looking for a standalone CLI:
 The `<cli>` examples below mean that verified executable, not a literal command.
 
 Check `<cli> --version`, `<cli> config --help`, and support for the needed
-subcommands. CLI 0.9.3 supports this workflow. Missing commands or an unsupported
+subcommands. Missing commands or an unsupported
 protocol require an upgrade. For a standalone CLI, follow the
 [official installation instructions](https://docs.coderabbit.ai/cli) for its
 actual installation method (for example, `brew upgrade coderabbit` for Homebrew).
@@ -46,18 +46,37 @@ After any upgrade, repeat trusted executable discovery and verification, then
 recheck version and command support. Do not reuse the old canonical path: an
 upgrade can replace a versioned installation directory or managed launcher.
 
+## Select the settings schema
+
+Agent protocol 2 is the JSON response format for both V2 and V3 settings.
+For a new repository config or YAML with a numeric top-level `version: 3`,
+expect the CLI's `schema` field to be
+`https://www.coderabbit.ai/integrations/schema.v3.json`. A V3-capable CLI
+generates new configs in V3 by default. Existing unversioned YAML keeps its
+V2 schema and layout during ordinary edits. The YAML editor comment alone
+does not select the settings version.
+
+If the CLI reports the V2 schema for a new config or a V3 document, report
+that this installation lacks the expected V3 workflow. Stop before proposing
+a change or interpreting V2 validation errors as defects in V3 YAML.
+
 ## Validate only
 
 Run `<cli> config validate --agent` for the repository configuration, or
 `<cli> config validate <file> --agent` for the user's explicitly selected YAML
-file. Require exit zero and `ok: true`; report the CLI's validation diagnostics
-otherwise. Do not generate or apply changes for a validation-only request.
+file. Check the returned `schema` against that file's settings version, even
+when it differs from the repository's active config. Require exit zero,
+`ok: true`, and `operation: validate` for success. Report a schema fetch
+failure separately from YAML validation errors. This validates the YAML file;
+directory documents and hosted review activation are outside that check.
+Do not generate or apply changes for a validation-only request.
 
 ## Create or change review style
 
 1. Run `<cli> config --agent`. Require exit zero, `ok: true`,
    `protocolVersion: 2`, `operation: inspect`, and `writable: true`. Preserve
-   the returned repository root, target, and `baseHash` (`none` for a new file).
+   the returned repository root, target, `schema`, and `baseHash` (`none` for a
+   new file). Check the settings schema before generating.
    Respect authority warnings, including TypeScript, remote configuration,
    symlinks, and multiple YAML files; do not delete or bypass them.
 2. Run `<cli> config --agent --generate`. For a requested style, add
@@ -67,7 +86,7 @@ otherwise. Do not generate or apply changes for a validation-only request.
    file and preserves an existing file. Do not infer a style change from a
    general request to check configuration.
 3. Require a successful protocol-v2 `operation: generate` response with the
-   inspected target and base hash. Copy its exact `after` string into a temporary
+   inspected target, schema, and base hash. Copy its exact `after` string into a temporary
    proposal file outside the repository; do not rewrite or extend that YAML.
 4. Preview with `<cli> config apply <proposal> --agent --dry-run --base <baseHash>`.
    Require exit zero and a successful protocol-v2 `operation: apply` result.
@@ -87,8 +106,13 @@ inspect the file before retrying or reporting success.
 
 ## Guided path settings
 
-For path-guidance requests, run `<cli> config --detailed` in an interactive
-terminal to enter the manual review-style and path-guidance flow directly.
+Inspect the repository with `<cli> config --agent` first. For existing V2 YAML,
+run `<cli> config --detailed` in an interactive terminal to edit path guidance.
+For V3, path instructions are Markdown files under `.coderabbit/instructions/`
+and custom checks live under `.coderabbit/pre-merge-checks/`. The CLI wizard
+can edit review style but cannot author those documents. For a request limited
+to V3 instructions or checks, explain the relevant location and CLI limitation
+without starting the wizard or proposing a review-style change.
 For general interactive setup, use `<cli> config` or `<cli> config --generate`.
 Relay the CLI's actual prompts and preview, using settled user preferences and
 asking for missing choices. Confirm the displayed changes only after approval.
