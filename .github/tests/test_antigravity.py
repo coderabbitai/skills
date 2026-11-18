@@ -82,31 +82,74 @@ class ReleaseGuardTests(unittest.TestCase):
     def test_staging_between_observations_cannot_hide_addition(self):
         self.write("scripts/helper.py", "print('helper')")
         original_git = checks.git
+        index_changes = []
 
         def stage_after_diff(root, *args):
             result = original_git(root, *args)
             if args[0] == "diff":
                 self.git("add", "scripts/helper.py")
+                index_changes.append("staged")
             return result
 
         with patch.object(checks, "git", side_effect=stage_after_diff):
             with self.assertRaisesRegex(ValueError, "increment beyond"):
                 checks.check_version(self.root, self.base)
+        self.assertEqual(index_changes, ["staged"])
 
     def test_unstaging_between_observations_cannot_hide_addition(self):
         self.write("scripts/helper.py", "print('helper')")
         self.git("add", "scripts/helper.py")
         original_git = checks.git
+        index_changes = []
 
         def unstage_after_diff(root, *args):
             result = original_git(root, *args)
             if args[0] == "diff":
                 self.git("reset", "-q", "HEAD", "--", "scripts/helper.py")
+                index_changes.append("unstaged")
             return result
 
         with patch.object(checks, "git", side_effect=unstage_after_diff):
             with self.assertRaisesRegex(ValueError, "increment beyond"):
                 checks.check_version(self.root, self.base)
+        self.assertEqual(index_changes, ["unstaged"])
+
+    def test_concurrent_commit_requires_rerun(self):
+        self.write("skills/review/SKILL.md", "changed behavior")
+        self.git("add", "skills/review/SKILL.md")
+        original_git = checks.git
+        commits = []
+
+        def commit_after_diff(root, *args):
+            result = original_git(root, *args)
+            if args[0] == "diff":
+                self.commit()
+                commits.append(self.git("rev-parse", "HEAD").strip())
+            return result
+
+        with patch.object(checks, "git", side_effect=commit_after_diff):
+            with self.assertRaisesRegex(ValueError, "HEAD changed.*rerun"):
+                checks.check_version(self.root, self.base)
+        self.assertEqual(len(commits), 1)
+        self.assertNotEqual(commits[0], self.base)
+
+    def test_concurrent_version_restore_requires_rerun(self):
+        self.write("skills/review/SKILL.md", "changed behavior")
+        self.write("plugin.json", '{"version":"1.3.1"}')
+        original_git = checks.git
+        restores = []
+
+        def restore_after_diff(root, *args):
+            result = original_git(root, *args)
+            if args[0] == "diff":
+                self.write("plugin.json", '{"version":"1.3.0"}')
+                restores.append("restored")
+            return result
+
+        with patch.object(checks, "git", side_effect=restore_after_diff):
+            with self.assertRaisesRegex(ValueError, "plugin.json version changed.*rerun"):
+                checks.check_version(self.root, self.base)
+        self.assertEqual(restores, ["restored"])
 
     def test_ignored_package_addition_needs_no_bump(self):
         self.write(".gitignore", "scripts/local-only.py\n")

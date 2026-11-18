@@ -108,7 +108,7 @@ An allowlisted temporary copy was installed through `agy plugin install`;
 `coderabbit-setup`), both agents and the hosted server. Native validation of
 the installed copy also passed. That initial validation-only installation was
 removed, preserving the profile's pre-existing plugins. The candidate was then
-reinstalled for the live App tests below. The 25 package, release-guard and diagnostics regression
+reinstalled for the live App tests below. The 27 package, release-guard and diagnostics regression
 tests and skill frontmatter validation passed.
 
 Public discovery metadata was read on 2026-11-18:

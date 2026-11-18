@@ -35,11 +35,16 @@ def check_version(root, base):
         return
     # Resolve first so untrusted refs cannot become command options or pathspecs.
     base = git(root, "rev-parse", "--verify", "--end-of-options", base + "^{commit}").strip()
+    head = git(root, "rev-parse", "--verify", "HEAD").strip()
     # Keep committed history separate from one combined staged/unstaged/untracked
     # observation, so staging between queries cannot hide a package addition.
-    changed = git(root, "diff", "--name-only", base, "HEAD", "--", *RELEASE_PATHS)
+    changed = git(root, "diff", "--name-only", base, head, "--", *RELEASE_PATHS)
     local = git(root, "status", "--porcelain=v1", "--untracked-files=all", "--", *RELEASE_PATHS)
     previous = json.loads(git(root, "show", base + ":plugin.json"))["version"]
+    if git(root, "rev-parse", "--verify", "HEAD").strip() != head:
+        raise ValueError("HEAD changed during version validation; rerun the check")
+    if json.loads((root / "plugin.json").read_text())["version"] != current:
+        raise ValueError("plugin.json version changed during validation; rerun the check")
     if (changed.strip() or local.strip()) and version(current) <= version(previous):
         raise ValueError(
             f"Antigravity package changed but plugin.json is {current}; "
