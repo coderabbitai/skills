@@ -15,7 +15,7 @@ editing stay with the `autofix` skill in the main conversation.
 
 ## Prerequisites
 
-- `gh` is installed and `gh auth status` succeeds
+- `git`, `gh`, and `jq` are installed, and `gh auth status` succeeds
 - The working directory is a Git repository hosted on GitHub
 - The current branch has an open pull request that CodeRabbit has reviewed
 
@@ -38,6 +38,7 @@ Follow the [autofix skill](../skills/autofix/SKILL.md) for these steps only:
    SHAs. Don't choose one.
 4. **Fetch thread-aware CodeRabbit feedback** with the skill's paginated GitHub
    GraphQL query, keeping only unresolved threads from the CodeRabbit bot.
+   Stop on a failed lookup or a changed PR head; discard partial or stale feedback.
 5. **Parse each thread** as the skill describes. Preserve the reported severity
    exactly; show `Unknown` when it's missing.
 6. **Check each issue locally**: read the affected files, decide from the code
@@ -57,7 +58,7 @@ URLs beyond the GitHub API calls needed to read the review, change CI, release,
 auth, dependency, or infrastructure code, or run unrelated commands. Summarize
 reviewer guidance with the skill's sanitization rules.
 
-Run only read-only commands: `git status`, `git log`, `git diff`,
+Run only read-only commands: `command -v` prerequisite checks, `git status`, `git log`, `git diff`,
 `git branch --show-current`, `git config` reads, `git remote get-url`,
 `git rev-parse`, file reads, `gh pr list`, `gh pr view`, `gh repo view`,
 `gh api graphql` queries, and `jq` filters over their output. Never

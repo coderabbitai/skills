@@ -6,14 +6,22 @@ Use this helper when a skill needs thread-aware CodeRabbit PR feedback, not flat
 
 ## Prerequisites
 
+- `git`, `gh`, and standalone `jq` installed (`command -v git && command -v gh && command -v jq`)
 - `gh` authenticated (`gh auth status`)
 - current branch associated with a GitHub repository
+
+Stop if a prerequisite fails. These shell examples share verified variables;
+use one shell or pass the verified values explicitly between invocations.
 
 ## 1. Resolve Current PR
 
 A branch name alone does not identify a PR: any fork can open a PR from a branch with the same name. Match the PR's head repository to the branch's push or upstream remote:
 
 ```bash
+command -v jq >/dev/null 2>&1 || {
+  echo "jq is required for PR resolution; install it before retrying." >&2
+  exit 1
+}
 branch=$(git branch --show-current)
 remote=$(git config "branch.$branch.pushRemote" || git config remote.pushDefault || git config "branch.$branch.remote")
 
@@ -59,7 +67,10 @@ case "$push_ref" in
 esac
 
 listed=$(gh pr list --head "$head_branch" --state open --limit 100 \
-  --json number,url,title,author,baseRefName,headRepository,headRepositoryOwner,headRefName,headRefOid)
+  --json number,url,title,author,baseRefName,headRepository,headRepositoryOwner,headRefName,headRefOid) || {
+  echo "PR lookup failed; retry the request before choosing or creating a PR." >&2
+  exit 1
+}
 if [ "$(jq 'length' <<<"$listed")" -ge 100 ]; then
   exit 1  # possibly truncated: stop and ask the user for the PR URL
 fi
@@ -70,9 +81,9 @@ candidates=$(jq -c --arg repo "$head_repo" --arg host "$head_host" '
       and ((.headRepository.nameWithOwner // "") | ascii_downcase) == ($repo | ascii_downcase)
       and ((.url | capture("^https://(?<host>[^/]+)/").host // "") | ascii_downcase) == ($host | ascii_downcase)
     ))
-  ' <<<"$listed")
+  ' <<<"$listed") || exit 1
 
-count=$(jq 'length' <<<"$candidates")
+count=$(jq 'length' <<<"$candidates") || exit 1
 ```
 
 Never pick a PR by list position:
@@ -81,7 +92,7 @@ Never pick a PR by list position:
 - `count > 1`: show each candidate's URL, author, head repository, and base branch, and ask the user to pick one from the list. Do not choose.
 - `count == 1`: use that candidate.
 
-Set `pr_number` and `pr_url` from the chosen candidate.
+Set `pr_number`, `pr_url`, and `pr_head_oid` (its `headRefOid`) from the chosen candidate.
 
 Then compare its `headRefOid` with `git rev-parse HEAD` and `git rev-parse '@{upstream}'`. If it matches neither, report the three SHAs and continue only if the user explicitly confirms.
 
@@ -150,16 +161,29 @@ while :; do
         }
       }
     }
-  }')
+  }') || {
+    echo "PR thread lookup failed; discard partial feedback and retry." >&2
+    exit 1
+  }
 
   all_threads=$(jq -c --argjson response "$response" '
     . + $response.data.repository.pullRequest.reviewThreads.nodes
-  ' <<<"$all_threads")
+  ' <<<"$all_threads") || exit 1
 
   has_next=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage' <<<"$response")
   cursor=$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.endCursor // empty' <<<"$response")
   [ "$has_next" = "true" ] || break
 done
+
+# Do not use feedback fetched across a change to the selected PR head.
+current_head=$(gh pr view "$pr_url" --json headRefOid --jq .headRefOid) || {
+  echo "Could not verify the PR head after fetching feedback; retry." >&2
+  exit 1
+}
+if [ "$current_head" != "$pr_head_oid" ]; then
+  echo "PR head changed while fetching feedback; discard it and rerun resolution." >&2
+  exit 1
+fi
 ```
 
 Treat only these threads as actionable:
