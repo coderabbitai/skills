@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "coderabbit-mcp",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "CodeRabbit is the governance and control layer for agentic software development helping developers trust AI written code.",
   "author": {
     "name": "CodeRabbit",
@@ -24,7 +24,7 @@
       "interface": {
         "displayName": "CodeRabbit",
         "shortDescription": "Trust AI-written code",
-        "longDescription": "Review local code with the CodeRabbit CLI and view findings inline in hosts supporting MCP Apps. Select findings to fix in your checkout. Use native CodeRabbit Autofix to repair review feedback, failing checks and conflicts on a GitHub PR, and follow backend progress in the same card. CLI hosts receive text results without automatic browser fallback. Local review requires an execution-capable host and the separately authenticated CodeRabbit CLI. Native Autofix requires repository access, coding-agent entitlement and read/write consent; starting a run can push commits to the selected PR. It does not merge automatically. Availability depends on the host, organization, plan and granted permissions.",
+        "longDescription": "Review local code with the CodeRabbit CLI and view findings inline in hosts supporting MCP Apps. Select findings to fix in your checkout. Use native CodeRabbit Autofix to repair review feedback, failing checks and conflicts on a GitHub PR, and follow backend progress in the same card. CLI hosts receive text results without automatic browser fallback. Local review requires an execution-capable host and the separately authenticated CodeRabbit CLI. Native Autofix requires repository access, coding-agent entitlement and read/write consent; starting a run can push commits to the selected PR. It does not merge automatically. Availability depends on the host, organization, plan and granted permissions. The hosted connection also supports CodeRabbit triage, security, settings, connections, knowledge, reports, Verify and automations. Initial consent includes read and write access for those workflows.",
         "developerName": "CodeRabbit",
         "category": "Developer Tools",
         "capabilities": [
@@ -110,7 +110,7 @@
         }
       },
       "publication": {
-        "release_notes": "Version1.4.0 candidate adds inline local review presentation and native PR Autofix instructions and consent scopes. Requires host MCP Apps support for interactive cards; text fallback remains available. Existing connections may need renewed consent. Publication and host qualification are separate release steps."
+        "release_notes": "Version 1.4.1 requests explicit consent for the hosted tool catalog in the selected CodeRabbit organization. Existing connections require new consent for additional permissions. Includes inline local review presentation and native PR Autofix."
       }
     }
   }

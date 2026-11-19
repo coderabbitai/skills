@@ -1,7 +1,7 @@
 {
   "name": "coderabbit",
   "displayName": "CodeRabbit",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "CodeRabbit is the governance and control layer for agentic software development helping developers trust AI written code.",
   "homepage": "https://github.com/coderabbitai/skills/blob/main/docs/mcp.md",
   "author": {
@@ -28,7 +28,7 @@
       "type": "http",
       "url": "https://mcp.coderabbit.ai/",
       "oauth": {
-        "scopes": "connection account:read usage:read pull_requests:read repositories:read review code:read code:write"
+        "scopes": "connection account:read usage:read pull_requests:read repositories:read review reviews:write code:read code:write triage:read triage:write security:read security:write configuration:read configuration:write connections:read connections:write knowledge:read knowledge:write reports:read reports:write verify:read verify:write automations:read automations:write"
       }
     }
   }

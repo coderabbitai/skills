@@ -14,6 +14,12 @@ These are candidate artifacts, not evidence of publication or installed parity.
 The historical channel observations below do not establish current directory versions. Native host QA,
 renewed consent on old grants, and directory submission remain separate steps.
 
+The Claude and OpenAI 1.4.1 package candidates request the hosted US catalog.
+The published claude.ai remote connector discovers OAuth from its configured
+endpoint independently of the Claude plugin manifest. See the
+[connector permission and reconnect guide](docs/mcp-permissions.md) for scope
+selection, regional endpoints and steps for existing connections.
+
 | Channel | Status | Source of truth | Notes |
 | --- | --- | --- | --- |
 | Claude MCP plugin | 1.3.0 source candidate; not published | Repository root on `main`, `.claude-plugin/plugin.json` | Remote MCP tools plus standalone CLI local reviews, with separate sign-ins. No automatic review hook or managed local runtime. Portal validation and publication remain separate. |
