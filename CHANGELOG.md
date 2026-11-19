@@ -2,6 +2,11 @@
 
 All notable changes to this repository are documented in this file.
 
+## Antigravity plugin [1.3.1] - Marketplace packaging
+
+- Include `coderabbit-setup` in the Marketplace ZIP. The setup workflow is
+  shared with Claude and Codex and follows each host's configured connections.
+
 ## Antigravity plugin [1.3.0] - Release candidate
 
 - Add the hosted CodeRabbit MCP server with Antigravity's native OAuth discovery.
