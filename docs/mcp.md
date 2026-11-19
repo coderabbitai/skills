@@ -29,6 +29,8 @@ can still be used but local review cannot run.
 ## Remote tools and local reviews
 
 Antigravity, Claude and Codex show local CLI findings directly in chat.
+Inline review cards are prerelease. The [stable CLI](https://cli.coderabbit.ai/releases/latest/VERSION)
+was 0.9.5 at verification and offers chat findings without a card receipt.
 An inline card requires confirmed Apps support, a connected CodeRabbit
 presenter that accepts a card ID alone, and an installed CLI that advertises
 `--review-card`. In that case the agent can request a receipt during the

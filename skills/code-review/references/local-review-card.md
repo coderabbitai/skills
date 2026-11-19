@@ -1,5 +1,8 @@
 # Local review cards
 
+Inline review cards are prerelease. Stable CLI 0.9.5 emits findings for
+chat and provides neither the flag nor a final card receipt.
+
 ## Before the review
 
 For chat, run the trusted CLI's ordinary scoped `review --agent` command.
