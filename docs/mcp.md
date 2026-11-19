@@ -1,6 +1,6 @@
 # Connect CodeRabbit through MCP
 
-The Claude plugin 1.3.0 candidate combines CodeRabbit's remote MCP connection
+The Claude plugin combines CodeRabbit's remote MCP connection
 with standalone CLI local reviews. It declares no automatic hooks. Source on
 `main` and directory publication are separate; see
 [distribution status](../DISTRIBUTION_CHANNELS.md).
@@ -27,6 +27,13 @@ CLI and network access to CodeRabbit. If those are unavailable, remote tools
 can still be used but local review cannot run.
 
 ## Remote tools and local reviews
+
+In Antigravity, Claude and Codex, a connected CodeRabbit MCP server can
+present a finished CLI review inline. Ask to review local changes or to show a
+GitHub PR's readiness. When the host has MCP Apps enabled, it can render the
+review findings or PR status as a card. With Apps disabled, the same workflows
+return text in chat. The skills-only Codex package uses local CLI results
+unless a CodeRabbit connection is configured separately.
 
 The declared remote connection provides tools within the granted scopes and
 your account's permissions. Use it for account, usage and accessible pull-request
@@ -81,4 +88,4 @@ directory scan.
 
 The independently assembled MCP hook/direct packages under `packaging/` are
 separate development candidates. Their runtime and authentication instructions
-do not apply to the repository-root 1.3.0 plugin and require their own qualification.
+do not apply to the repository-root plugin and require their own qualification.

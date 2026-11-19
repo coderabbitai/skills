@@ -12,21 +12,23 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-**Antigravity 1.3.1 candidate:** [install the local source candidate](#antigravity-cli-plugin),
+**Antigravity 1.3.2 candidate:** [install the local source candidate](#antigravity-cli-plugin),
 then ask **“Set up CodeRabbit”** to connect remote tools and
 check local review readiness with the native `coderabbit-setup` skill.
 Authenticate the hosted connection through Antigravity's CodeRabbit account
 settings, then ask **“Check my CodeRabbit connection and selected organization.”**
 See the [Antigravity setup guide](.antigravity-plugin/README.md).
 
-**Claude source package (1.3.0):** run `/coderabbit:setup` for the same two
+**Claude source package (1.3.4):** run `/coderabbit:setup` for the same two
 readiness checks. See the [Claude MCP setup guide](docs/mcp.md). For a published
 marketplace copy, follow its [integration guide](https://docs.coderabbit.ai/cli/claude-code-integration).
 
 Both packages connect remote tools through MCP and use the standalone
 CodeRabbit CLI for local reviews. **MCP and CLI sign-ins are separate.** Reuse
 an existing CLI installation and login, then ask **“Review my uncommitted
-changes. Review only; do not edit.”** There is no automatic review hook;
+changes. Review only; do not edit.”** A connected CodeRabbit MCP server can
+show local findings and PR status inline in Antigravity, Claude and Codex.
+Hosts without Apps support show text. There is no automatic review hook;
 local reviews do not reserve MCP reviews or pass review handoffs through shell
 commands. A hosted connector alone cannot collect local files.
 
