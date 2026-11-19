@@ -74,11 +74,11 @@ invocation below; never execute a repository-provided binary or wrapper.
    - Parse NDJSON and preserve critical, major, minor, trivial, info, or none severity
 
 3. **Analyze Findings**
-   - Follow [Present Results](../skills/code-review/SKILL.md#3-present-results).
-     When delegated, summarize findings for the local calling agent. If this
-     run produced a documented card receipt, return that ID to the caller for
-     the shared ID-only presentation workflow. Never forward findings or CLI
-     output to an MCP tool.
+   - When delegated, return the findings summary and any eligible card receipt
+     from this run to the local calling agent. Only the caller may invoke the
+     presenter, once, using the receipt ID. For a direct review, follow
+     [Present Results](../skills/code-review/SKILL.md#3-present-results).
+     Never forward findings or CLI output to an MCP tool.
    - Prioritize critical security issues
    - Group related issues by file and functionality
    - Identify patterns across multiple files
