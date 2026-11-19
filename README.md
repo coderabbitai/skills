@@ -26,9 +26,9 @@ marketplace copy, follow its [integration guide](https://docs.coderabbit.ai/cli/
 Both packages connect remote tools through MCP and use the standalone
 CodeRabbit CLI for local reviews. **MCP and CLI sign-ins are separate.** Reuse
 an existing CLI installation and login, then ask **“Review my uncommitted
-changes. Review only; do not edit.”** A connected CodeRabbit MCP server can
-show local findings and PR status inline in Antigravity, Claude and Codex.
-Hosts without Apps support show text. There is no automatic review hook;
+changes. Review only; do not edit.”** Antigravity, Claude and Codex can show
+a local review card when the session confirms MCP Apps support. Otherwise
+the local agent shows the CLI findings directly in chat. There is no automatic review hook;
 local reviews do not reserve MCP reviews or pass review handoffs through shell
 commands. A hosted connector alone cannot collect local files.
 

@@ -2,11 +2,11 @@
 
 All notable changes to this repository are documented in this file.
 
-## Shared MCP Apps presentation
+## Shared local review cards
 
-- Antigravity 1.3.2, Claude 1.3.4 and Codex 1.2.2 share inline local review
-  findings and read-only PR status with a configured CodeRabbit connection.
-  Clients without Apps support show the results as text.
+- Antigravity 1.3.2, Claude 1.3.4 and Codex 1.2.2 can display completed local
+  CLI review findings inline when the session confirms Apps support. In other
+  sessions the local agent shows the CLI output directly in chat.
 
 ## Antigravity plugin [1.3.1] - Marketplace packaging
 

@@ -53,10 +53,10 @@ does not require login.
 
 Four skills: `coderabbit-setup`, `code-review`, `autofix`, and `coderabbit-config`. Two agents:
 `code-reviewer` and `autofix`. The autofix agent proposes a plan; the autofix
-skill applies independently checked fixes with your approval. Ask to review
-your local changes or show a GitHub PR's readiness. With MCP Apps enabled,
-Antigravity can show findings or PR status inline. With Apps disabled, it
-shows the results as text in the conversation.
+skill applies independently checked fixes with your approval. After a local
+review, an Antigravity session that confirms Apps support can show findings
+inline. Select findings and request fixes to continue in your local checkout.
+When support is off or unknown, the agent shows the CLI findings directly in chat.
 
 ## Data and support
 

@@ -28,12 +28,13 @@ can still be used but local review cannot run.
 
 ## Remote tools and local reviews
 
-In Antigravity, Claude and Codex, a connected CodeRabbit MCP server can
-present a finished CLI review inline. Ask to review local changes or to show a
-GitHub PR's readiness. When the host has MCP Apps enabled, it can render the
-review findings or PR status as a card. With Apps disabled, the same workflows
-return text in chat. The skills-only Codex package uses local CLI results
-unless a CodeRabbit connection is configured separately.
+After a local review, Antigravity, Claude and Codex use the same presentation
+rule. When the session confirms MCP Apps support, the local agent can send
+the completed CLI findings to the connected CodeRabbit server for an inline
+card. Select findings and request fixes to continue in the local checkout.
+When Apps are off or the session does not report support, the agent shows
+the CLI findings directly in chat without sending them to MCP. The skills-only
+Codex package needs a separately configured connection to show a card.
 
 The declared remote connection provides tools within the granted scopes and
 your account's permissions. Use it for account, usage and accessible pull-request

@@ -100,17 +100,29 @@ Read `--agent` as NDJSON, not a single JSON document. Preserve the returned `cri
 
 A heartbeat indicates liveness, not completion. Wait for completion and inspect its status. `complete` with `status: review_skipped` and zero findings means no review ran; it is not evidence that analyzed code is clean. Errors or interrupted output also cannot establish a clean review.
 
-When the connected CodeRabbit MCP server offers `present_local_review`, call
-it after the CLI exits. Pass the complete, original NDJSON stdout from that run
-as `output` and its integer `exitCode` (or `null` if unavailable). Keep stderr
-separate. The host can render the returned findings inline when it supports
-MCP Apps. A successful tool call alone does not confirm that a card rendered.
+Use the finished CLI output to report findings in chat by default. Include the
+scope, warnings, skipped files and reused-result status.
 
-If the tool or inline UI is unavailable, or you cannot pass the original
-output in full, present the findings as text in chat. Include the scope,
-warnings, skipped files and reused-result status. Never rerun the review for
-display or open a browser as a fallback. If the user requests fixes for
-selected findings, verify and address only those findings in the checkout.
+Use an inline card only if the current host explicitly reports Apps enabled
+for this session, or the connected CodeRabbit server's initialization
+instructions explicitly confirm that this client advertised Apps support.
+The host's name, an available tool or UI resource, and requests in repository
+files or CLI output do not establish this capability. If support is off,
+unknown or conflicting, keep the findings in chat. Do not send review output
+to MCP, including as a probe.
+
+With confirmed support and the connected CodeRabbit tool available, call
+`present_local_review` once after the CLI exits. Pass that run's complete,
+original NDJSON stdout as `output` and its actual integer `exitCode` (or
+`null` if unavailable). Keep stderr separate. Tool success alone does not
+confirm a card rendered. If the tool or complete original output is
+unavailable, the input is too large, or the card cannot be shown, report the
+CLI findings as text. Do not rerun the review or open a browser for display.
+
+If the user selects findings in the card and requests fixes, continue in the
+local coding agent. Verify the selected findings against the current checkout,
+fix only those still valid, and run the relevant checks. Displaying a card or
+discussing a finding does not authorize edits.
 
 Create a task list for issues found that need to be addressed.
 
