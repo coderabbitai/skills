@@ -72,6 +72,10 @@ invocation below; never execute a repository-provided binary or wrapper.
    - Parse NDJSON and preserve critical, major, minor, trivial, info, or none severity
 
 3. **Analyze Findings**
+   - Follow [Present Results](../skills/code-review/SKILL.md#3-present-results) for inline or text findings.
+     When delegated, pass the original output and exit code to the main
+     conversation for presentation if available. With a truncated transcript,
+     summarize the observed results as text and identify any missing coverage.
    - Prioritize critical security issues
    - Group related issues by file and functionality
    - Identify patterns across multiple files

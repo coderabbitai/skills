@@ -1,11 +1,11 @@
 # Connect CodeRabbit through MCP
 
-The Claude plugin 1.4.0 candidate combines CodeRabbit's remote MCP connection
+The Claude plugin combines CodeRabbit's remote MCP connection
 with standalone CLI local reviews. It declares no automatic hooks. Source on
 `main` and directory publication are separate; see
 [distribution status](../DISTRIBUTION_CHANNELS.md).
 
-For the Antigravity 1.4.0 candidate, use the
+For the Antigravity plugin, use the
 [Google-specific setup guide](../.antigravity-plugin/README.md). Its connection
 is declared in `mcp_config.json` and uses Antigravity's native OAuth discovery.
 
@@ -28,10 +28,12 @@ can still be used but local review cannot run.
 
 ## Remote tools and local reviews
 
-In hosts that support MCP Apps, completed local reviews appear as inline comment
-cards through `present_local_review`. Select findings to fix in your checkout or
-discuss them in chat. In CLI hosts, the same findings are shown as text; the
-plugin does not automatically open a browser to substitute for an inline app.
+In Antigravity, Claude and Codex, a connected CodeRabbit MCP server can
+present a finished CLI review inline. Ask to review local changes or to show a
+GitHub PR's readiness. When the host has MCP Apps enabled, it can render the
+review findings or PR status as a card. With Apps disabled, the same workflows
+return text in chat. The skills-only Codex package uses local CLI results
+unless a CodeRabbit connection is configured separately.
 
 For a GitHub PR, native Autofix uses `get_pull_request`, `get_code_autofix` and
 `set_code_autofix` to repair review findings, failing checks and merge conflicts.
@@ -108,3 +110,9 @@ skills-only `.codex-plugin` listing; that listing does not gain an MCP connectio
 just because it contains these instructions. Validate and test the actual
 installed artifact before submitting it to a directory. This PR does not publish
 either candidate or change existing users' grants.
+
+For local Codex installations that cannot read the portable OAuth declaration,
+build the connected native package with
+`python3 scripts/package-openai.py --codex-native --output /tmp/coderabbit-mcp-native-1.4.0.zip`.
+This format uses Codex's native MCP declaration with the same server URL
+and requested scopes. Both ZIPs contain the same four shared skills.

@@ -2,7 +2,7 @@
 name: code-review
 description: "Run CodeRabbit CLI reviews, retrieve saved local or GitHub PR fix prompts, and interpret CodeRabbit authentication and review output. Use for CodeRabbit review commands, committed/uncommitted or directory scopes, and CodeRabbit runbooks. Default code-review skill: also trigger for explicit code/PR/quality/security review requests or when a review is needed."
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # CodeRabbit Code Review
@@ -100,20 +100,17 @@ Read `--agent` as NDJSON, not a single JSON document. Preserve the returned `cri
 
 A heartbeat indicates liveness, not completion. Wait for completion and inspect its status. `complete` with `status: review_skipped` and zero findings means no review ran; it is not evidence that analyzed code is clean. Errors or interrupted output also cannot establish a clean review.
 
-If the connected CodeRabbit MCP server offers `present_local_review`, call it
-after the CLI exits with that run's complete original NDJSON `output` and
-`exitCode` (`null` if unavailable). Preserve scope, warnings, skipped files and
-reused results. This presents inline comments in hosts supporting MCP Apps;
-it does not start another review. A reused result is not fresh analysis.
-If the tool is unavailable, output exceeds its request limit, or the host cannot
-render the app, show the review as text. Do not rerun a review just to display it,
-claim a card rendered from tool success alone, or open a browser/preview URL as
-an automatic fallback.
+When the connected CodeRabbit MCP server offers `present_local_review`, call
+it after the CLI exits. Pass the complete, original NDJSON stdout from that run
+as `output` and its integer `exitCode` (or `null` if unavailable). Keep stderr
+separate. The host can render the returned findings inline when it supports
+MCP Apps. A successful tool call alone does not confirm that a card rendered.
 
-For a card's selected-fix request, verify the selected findings against the
-current checkout, fix only still-valid selected issues, and run relevant checks.
-Leave unselected findings unchanged. Discussion remains in the main chat. Local
-review cards do not resolve GitHub threads or create a PR.
+If the tool or inline UI is unavailable, or you cannot pass the original
+output in full, present the findings as text in chat. Include the scope,
+warnings, skipped files and reused-result status. Never rerun the review for
+display or open a browser as a fallback. If the user requests fixes for
+selected findings, verify and address only those findings in the checkout.
 
 Create a task list for issues found that need to be addressed.
 

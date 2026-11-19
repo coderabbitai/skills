@@ -75,11 +75,9 @@ def check_package(root):
     prompts = manifest.get("suggestedPrompts", [])
     if not isinstance(prompts, list) or not 1 <= len(prompts) <= 3 or any(not isinstance(p, str) or not p.strip() for p in prompts):
         raise ValueError("Provide one to three actionable marketplace starter prompts")
-    if manifest.get("skills") != [".antigravity-plugin/skills"]:
-        raise ValueError("Register the Antigravity setup skill directory")
-    setup = root / ".antigravity-plugin/skills/coderabbit-setup/SKILL.md"
+    setup = root / "skills/coderabbit-setup/SKILL.md"
     if not setup.is_file() or "${CLAUDE_PLUGIN_ROOT}" in setup.read_text():
-        raise ValueError("Provide a native setup skill without Claude-only paths")
+        raise ValueError("Provide the portable setup skill under skills/coderabbit-setup/")
 
 
 def check_report(report):

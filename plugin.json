@@ -5,9 +5,6 @@
   "description": "CodeRabbit is the governance and control layer for agentic software development helping developers trust AI written code.",
   "version": "1.4.0",
   "logo": "assets/logo.png",
-  "skills": [
-    ".antigravity-plugin/skills"
-  ],
   "suggestedPrompts": [
     "Review my uncommitted changes and show the findings inline.",
     "Make my pull request ready for review with CodeRabbit Autofix.",
