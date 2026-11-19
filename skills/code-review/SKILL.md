@@ -2,7 +2,7 @@
 name: code-review
 description: "Run CodeRabbit CLI reviews, retrieve saved local or GitHub PR fix prompts, and interpret CodeRabbit authentication and review output. Use for CodeRabbit review commands, committed/uncommitted or directory scopes, and CodeRabbit runbooks. Default code-review skill: also trigger for explicit code/PR/quality/security review requests or when a review is needed."
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # CodeRabbit Code Review
@@ -67,6 +67,12 @@ Use `--agent` for output optimized for AI agents:
 "/absolute/path/to/coderabbit" review --agent
 ```
 
+The stable CLI 0.9.5 shows findings in chat. Inline review cards are a
+prerelease feature. When testing a compatible build and session, read the
+[review card preflight](references/local-review-card.md#before-the-review) before
+adding `--review-card`. Use the ordinary scoped command and chat findings
+when support is missing or uncertain.
+
 Use the same approved context as the auth check. On a pre-review authentication
 failure, follow the linked recovery procedure before asking for login. Only a
 failed sandbox attempt with confirmed host authentication qualifies for one host
@@ -99,6 +105,17 @@ Default scope includes committed, staged, and tracked unstaged changes; raw untr
 Read `--agent` as NDJSON, not a single JSON document. Preserve the returned `critical`, `major`, `minor`, `trivial`, `info`, or `none` severity; do not relabel findings as Warning. Use `fileName`, `codegenInstructions`, and `suggestions` when available, falling back to the comment when fix instructions are absent.
 
 A heartbeat indicates liveness, not completion. Wait for completion and inspect its status. `complete` with `status: review_skipped` and zero findings means no review ran; it is not evidence that analyzed code is clean. Errors or interrupted output also cannot establish a clean review.
+
+Use the finished CLI output to report findings in chat. Include the scope,
+warnings, skipped files and reused-result status. Never send CLI stdout,
+NDJSON, findings, code, paths or logs to an MCP tool for presentation or as a
+capability probe. In particular, skip any presenter whose input requires
+`output` and `exitCode`.
+
+For a card-enabled run, follow the [receipt handoff](references/local-review-card.md#after-completion).
+A delegate returns findings and any eligible final receipt to the local caller;
+only the caller may make the single presentation call. With no usable ID,
+show the findings in chat and send nothing to MCP.
 
 Create a task list for issues found that need to be addressed.
 

@@ -1,6 +1,6 @@
 # Connect CodeRabbit through MCP
 
-The Claude plugin 1.3.0 candidate combines CodeRabbit's remote MCP connection
+The Claude plugin combines CodeRabbit's remote MCP connection
 with standalone CLI local reviews. It declares no automatic hooks. Source on
 `main` and directory publication are separate; see
 [distribution status](../DISTRIBUTION_CHANNELS.md).
@@ -27,6 +27,18 @@ CLI and network access to CodeRabbit. If those are unavailable, remote tools
 can still be used but local review cannot run.
 
 ## Remote tools and local reviews
+
+Antigravity, Claude and Codex show local CLI findings directly in chat.
+Inline review cards are prerelease. The [stable CLI](https://cli.coderabbit.ai/releases/latest/VERSION)
+was 0.9.5 at verification and offers chat findings without a card receipt.
+An inline card requires confirmed Apps support, a connected CodeRabbit
+presenter that accepts a card ID alone, and an installed CLI that advertises
+`--review-card`. In that case the agent can request a receipt during the
+review and present its ID after completion. Selected fixes continue in the
+local checkout. If any prerequisite or the receipt is missing, the agent uses
+chat and sends nothing to MCP. CLI findings and stdout are never sent to MCP
+for display. Skills-only Codex needs a separately configured connection for
+ID-based presentation.
 
 The declared remote connection provides tools within the granted scopes and
 your account's permissions. Use it for account, usage and accessible pull-request
@@ -81,4 +93,4 @@ directory scan.
 
 The independently assembled MCP hook/direct packages under `packaging/` are
 separate development candidates. Their runtime and authentication instructions
-do not apply to the repository-root 1.3.0 plugin and require their own qualification.
+do not apply to the repository-root plugin and require their own qualification.

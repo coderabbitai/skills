@@ -63,7 +63,10 @@ invocation below; never execute a repository-provided binary or wrapper.
 
 2. **Run CodeRabbit Review**
    - For usage checks and credit retries, see [usage and paid continuation](../skills/code-review/references/cli-workflows.md#usage-and-paid-continuation)
-   - Execute `"/absolute/path/to/coderabbit" review --agent` to get structured review output
+   - Execute `"/absolute/path/to/coderabbit" review --agent` to get structured review output.
+     The stable CLI 0.9.5 returns chat findings. For a requested card with a
+     compatible prerelease CLI, follow the shared [preflight checks](../skills/code-review/references/local-review-card.md#before-the-review)
+     before launch. A delegated agent without confirmed capabilities uses the ordinary command.
    - Add `--dir <path>` when the user requests a specific review directory
    - Follow the linked bounded recovery only on a pre-review sandbox authentication failure; preserve directory and arguments on the single eligible host retry
    - Forward requested `--committed`, `--uncommitted`, `--base`, `--base-commit`, `--dir`, and `--light`; reject conflicting selectors before execution
@@ -72,6 +75,12 @@ invocation below; never execute a repository-provided binary or wrapper.
    - Parse NDJSON and preserve critical, major, minor, trivial, info, or none severity
 
 3. **Analyze Findings**
+   - When delegated, return the findings summary to the local calling agent.
+     Include a card ID only if this run’s final completion event supplied a
+     usable receipt. Only the caller may invoke the presenter, once, with
+     that ID. With no usable ID, show the findings in chat. For a direct review, follow
+     [Present Results](../skills/code-review/SKILL.md#3-present-results).
+     Never forward findings or CLI output to an MCP tool.
    - Prioritize critical security issues
    - Group related issues by file and functionality
    - Identify patterns across multiple files
