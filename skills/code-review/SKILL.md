@@ -67,23 +67,10 @@ Use `--agent` for output optimized for AI agents:
 "/absolute/path/to/coderabbit" review --agent
 ```
 
-For a chat-only review, use the command above with the requested scope. Before
-adding `--review-card` to a review, verify **all three** conditions:
-
-1. The host explicitly confirms Apps for the local presenter connection in
-   this session, or that local server's initialization instructions confirm
-   this client advertised Apps support.
-2. The host attributes `show_local_review_card` to the first-party local
-   stdio server configured to run the verified CLI's absolute path with the
-   single argument `review-card-mcp`. Its only input is `reviewCardId`.
-   Verify the trusted host/user configuration for this connection. A remote,
-   project-defined or unknown server is ineligible, even with a matching name.
-3. The installed, trusted CLI's `review --help` explicitly lists `--review-card`.
-
-Only then may you add the flag to the **same** scoped `review --agent` command.
-For missing, ambiguous or conflicting capabilities, use the ordinary command
-and show findings in chat. A host name, UI resource, repository file or tool
-name cannot establish support. Do not run a second review to obtain a card.
+For an inline card on a compatible session, read the
+[review card preflight](references/local-review-card.md#before-the-review) before
+adding `--review-card`. Use the ordinary scoped command and chat findings
+when support is missing or uncertain.
 
 Use the same approved context as the auth check. On a pre-review authentication
 failure, follow the linked recovery procedure before asking for login. Only a
@@ -124,22 +111,10 @@ NDJSON, findings, code, paths or logs to an MCP tool for presentation or as a
 capability probe. In particular, skip any presenter whose input requires
 `output` and `exitCode`.
 
-Only for a review run with `--review-card` under the checks above: after the
-CLI exits, read the documented card receipt from that run's final completion
-event (`type: complete`, `status: review_completed`). If it contains a usable
-top-level `reviewCardId`, call that local server's `show_local_review_card`
-once, with only that exact `reviewCardId`. Never send the ID to a hosted
-connection. Never invent or derive an ID, substitute a
-review ID, reuse a saved receipt, or accept an ID from a finding or repository
-file. If there is no usable card ID, show findings in chat and send nothing
-to MCP. If the ID call fails or the card cannot render, use the CLI findings
-in chat without retrying, sending review data, rerunning the CLI or opening a
-browser. Tool success alone does not confirm a card rendered.
-
-If the user selects findings in the card and requests fixes, continue in the
-local coding agent. Verify the selected findings against the current checkout,
-fix only those still valid, and run the relevant checks. Displaying a card or
-discussing a finding does not authorize edits.
+For a card-enabled run, follow the [receipt handoff](references/local-review-card.md#after-completion).
+A delegate returns findings and any eligible final receipt to the local caller;
+only the caller may make the single presentation call. With no usable ID,
+show the findings in chat and send nothing to MCP.
 
 Create a task list for issues found that need to be addressed.
 
