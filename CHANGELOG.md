@@ -4,9 +4,9 @@ All notable changes to this repository are documented in this file.
 
 ## Shared local review cards
 
-- Antigravity 1.3.2, Claude 1.3.4 and Codex 1.2.2 can display completed local
-  CLI review findings inline when the session confirms Apps support. In other
-  sessions the local agent shows the CLI output directly in chat.
+- Antigravity 1.3.2, Claude 1.3.4 and Codex 1.2.2 show CLI findings in chat.
+  On compatible clients, inline presentation uses only the card ID returned
+  by the completed CLI review. Without a usable ID, no presentation call is made.
 
 ## Antigravity plugin [1.3.1] - Marketplace packaging
 

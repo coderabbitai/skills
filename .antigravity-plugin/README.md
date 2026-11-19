@@ -54,9 +54,10 @@ does not require login.
 Four skills: `coderabbit-setup`, `code-review`, `autofix`, and `coderabbit-config`. Two agents:
 `code-reviewer` and `autofix`. The autofix agent proposes a plan; the autofix
 skill applies independently checked fixes with your approval. After a local
-review, an Antigravity session that confirms Apps support can show findings
-inline. Select findings and request fixes to continue in your local checkout.
-When support is off or unknown, the agent shows the CLI findings directly in chat.
+review, the agent shows findings in chat. For an inline card, the session
+must confirm Apps support and the CLI and connected CodeRabbit presenter must
+both support a card ID. Only that ID is sent for presentation. With no usable
+ID the agent shows the findings in chat and sends nothing to MCP.
 
 ## Data and support
 

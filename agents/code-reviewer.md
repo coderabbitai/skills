@@ -63,7 +63,9 @@ invocation below; never execute a repository-provided binary or wrapper.
 
 2. **Run CodeRabbit Review**
    - For usage checks and credit retries, see [usage and paid continuation](../skills/code-review/references/cli-workflows.md#usage-and-paid-continuation)
-   - Execute `"/absolute/path/to/coderabbit" review --agent` to get structured review output
+   - Execute `"/absolute/path/to/coderabbit" review --agent` to get structured review output.
+     For a requested card, follow the shared [preflight checks](../skills/code-review/SKILL.md#2-run-review)
+     before launch. A delegated agent without confirmed capabilities uses the ordinary command.
    - Add `--dir <path>` when the user requests a specific review directory
    - Follow the linked bounded recovery only on a pre-review sandbox authentication failure; preserve directory and arguments on the single eligible host retry
    - Forward requested `--committed`, `--uncommitted`, `--base`, `--base-commit`, `--dir`, and `--light`; reject conflicting selectors before execution
@@ -73,10 +75,10 @@ invocation below; never execute a repository-provided binary or wrapper.
 
 3. **Analyze Findings**
    - Follow [Present Results](../skills/code-review/SKILL.md#3-present-results).
-     When delegated, return the findings to the local calling agent and let
-     it check the host session's Apps capability. Do not send the findings
-     to MCP from the subagent. If the caller needs a card, provide the
-     original stdout and exit code when available.
+     When delegated, summarize findings for the local calling agent. If this
+     run produced a documented card receipt, return that ID to the caller for
+     the shared ID-only presentation workflow. Never forward findings or CLI
+     output to an MCP tool.
    - Prioritize critical security issues
    - Group related issues by file and functionality
    - Identify patterns across multiple files
