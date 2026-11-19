@@ -76,8 +76,9 @@ invocation below; never execute a repository-provided binary or wrapper.
 3. **Analyze Findings**
    - When delegated, return the findings summary to the local calling agent.
      Include a card ID only if this run’s final completion event supplied a
-     usable receipt. Only the caller may invoke the presenter, once, with
-     that ID. With no usable ID, show the findings in chat. For a direct review, follow
+     usable receipt. Only the caller may invoke the verified local stdio
+     presenter, once, with that ID, after confirming the shared preflight in
+     its own session. With no usable ID, show the findings in chat. For a direct review, follow
      [Present Results](../skills/code-review/SKILL.md#3-present-results).
      Never forward findings or CLI output to an MCP tool.
    - Prioritize critical security issues

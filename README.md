@@ -12,14 +12,14 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-**Antigravity 1.3.2 candidate:** [install the local source candidate](#antigravity-cli-plugin),
+**Antigravity 1.3.3 candidate:** [install the local source candidate](#antigravity-cli-plugin),
 then ask **“Set up CodeRabbit”** to connect remote tools and
 check local review readiness with the native `coderabbit-setup` skill.
 Authenticate the hosted connection through Antigravity's CodeRabbit account
 settings, then ask **“Check my CodeRabbit connection and selected organization.”**
 See the [Antigravity setup guide](.antigravity-plugin/README.md).
 
-**Claude source package (1.3.4):** run `/coderabbit:setup` for the same two
+**Claude source package (1.3.5):** run `/coderabbit:setup` for the same two
 readiness checks. See the [Claude MCP setup guide](docs/mcp.md). For a published
 marketplace copy, follow its [integration guide](https://docs.coderabbit.ai/cli/claude-code-integration).
 
@@ -27,9 +27,10 @@ Both packages connect remote tools through MCP and use the standalone
 CodeRabbit CLI for local reviews. **MCP and CLI sign-ins are separate.** Reuse
 an existing CLI installation and login, then ask **“Review my uncommitted
 changes. Review only; do not edit.”** Antigravity, Claude and Codex show local
-findings in chat. A session with confirmed Apps support, a compatible CLI and
-a CodeRabbit presenter that accepts a card ID alone can also display a card.
-The agent sends only that ID for presentation. There is no automatic review hook;
+findings in chat. On a local host with a compatible CLI, ask **“Set up inline
+CodeRabbit review cards.”** Setup can register the CLI as a local stdio server.
+In a session that confirms Apps for this connection, the agent passes only the
+finished review's card ID to the local presenter. There is no automatic review hook;
 local reviews do not reserve MCP reviews or pass review handoffs through shell
 commands. A hosted connector alone cannot collect local files.
 

@@ -2,6 +2,13 @@
 
 All notable changes to this repository are documented in this file.
 
+## Local stdio review card setup
+
+- Antigravity 1.3.3 and Claude 1.3.5 can register the installed CodeRabbit CLI
+  as an optional local presenter. Connected Codex 1.3 packages can use the
+  same setup skill. Card rendering requires a compatible CLI and a session
+  that confirms Apps on its local connection. Older CLIs keep chat findings.
+
 ## Shared local review cards
 
 - Antigravity 1.3.2, Claude 1.3.4 and Codex 1.2.2 show CLI findings in chat.

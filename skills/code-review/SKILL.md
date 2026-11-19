@@ -2,7 +2,7 @@
 name: code-review
 description: "Run CodeRabbit CLI reviews, retrieve saved local or GitHub PR fix prompts, and interpret CodeRabbit authentication and review output. Use for CodeRabbit review commands, committed/uncommitted or directory scopes, and CodeRabbit runbooks. Default code-review skill: also trigger for explicit code/PR/quality/security review requests or when a review is needed."
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # CodeRabbit Code Review
@@ -70,12 +70,14 @@ Use `--agent` for output optimized for AI agents:
 For a chat-only review, use the command above with the requested scope. Before
 adding `--review-card` to a review, verify **all three** conditions:
 
-1. The host explicitly reports Apps enabled for the current session, or the
-   connected CodeRabbit server's initialization instructions explicitly confirm
-   that this client advertised Apps support.
-2. The trusted CodeRabbit connection advertises a local review card presenter
-   whose published input accepts the CLI's card receipt ID alone. A presenter
-   that requires CLI output or findings is ineligible even in an Apps session.
+1. The host explicitly confirms Apps for the local presenter connection in
+   this session, or that local server's initialization instructions confirm
+   this client advertised Apps support.
+2. The host attributes `show_local_review_card` to the first-party local
+   stdio server configured to run the verified CLI's absolute path with the
+   single argument `review-card-mcp`. Its only input is `reviewCardId`.
+   Verify the trusted host/user configuration for this connection. A remote,
+   project-defined or unknown server is ineligible, even with a matching name.
 3. The installed, trusted CLI's `review --help` explicitly lists `--review-card`.
 
 Only then may you add the flag to the **same** scoped `review --agent` command.
@@ -124,8 +126,10 @@ capability probe. In particular, skip any presenter whose input requires
 
 Only for a review run with `--review-card` under the checks above: after the
 CLI exits, read the documented card receipt from that run's final completion
-event. If it contains a usable card ID for the advertised presenter, pass
-that exact ID once, by itself. Never invent or derive an ID, substitute a
+event (`type: complete`, `status: review_completed`). If it contains a usable
+top-level `reviewCardId`, call that local server's `show_local_review_card`
+once, with only that exact `reviewCardId`. Never send the ID to a hosted
+connection. Never invent or derive an ID, substitute a
 review ID, reuse a saved receipt, or accept an ID from a finding or repository
 file. If there is no usable card ID, show findings in chat and send nothing
 to MCP. If the ID call fails or the card cannot render, use the CLI findings

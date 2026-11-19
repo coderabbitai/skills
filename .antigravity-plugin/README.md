@@ -54,9 +54,9 @@ does not require login.
 Four skills: `coderabbit-setup`, `code-review`, `autofix`, and `coderabbit-config`. Two agents:
 `code-reviewer` and `autofix`. The autofix agent proposes a plan; the autofix
 skill applies independently checked fixes with your approval. After a local
-review, the agent shows findings in chat. For an inline card, the session
-must confirm Apps support and the CLI and connected CodeRabbit presenter must
-both support a card ID. Only that ID is sent for presentation. With no usable
+review, the agent shows findings in chat. Ask **“Set up inline CodeRabbit
+review cards”** to register a compatible local CLI. When the session confirms
+Apps for this local connection, the agent sends only the card ID to it. With no usable
 ID the agent shows the findings in chat and sends nothing to MCP.
 
 ## Data and support

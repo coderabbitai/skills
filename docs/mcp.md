@@ -29,14 +29,14 @@ can still be used but local review cannot run.
 ## Remote tools and local reviews
 
 Antigravity, Claude and Codex show local CLI findings directly in chat.
-An inline card requires confirmed Apps support, a connected CodeRabbit
-presenter that accepts a card ID alone, and an installed CLI that advertises
-`--review-card`. In that case the agent can request a receipt during the
-review and present its ID after completion. Selected fixes continue in the
-local checkout. If any prerequisite or the receipt is missing, the agent uses
-chat and sends nothing to MCP. CLI findings and stdout are never sent to MCP
-for display. Skills-only Codex needs a separately configured connection for
-ID-based presentation.
+On a local host, ask “Set up inline CodeRabbit review cards.” The shared setup
+skill uses the native host's MCP settings to register a compatible installed
+CLI as a local stdio server. When that connection confirms Apps support, the
+agent can request a receipt during the review and present the exact ID locally
+after completion. Selected fixes continue in the local checkout. Missing
+support or receipt leaves the findings in chat. The hosted connector receives
+neither CLI findings nor the card ID. Hosted-only clients continue using their
+existing account tools. See [local presenter setup](../skills/coderabbit-setup/references/local-review-card.md).
 
 The declared remote connection provides tools within the granted scopes and
 your account's permissions. Use it for account, usage and accessible pull-request
