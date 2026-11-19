@@ -12,7 +12,7 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-**Antigravity 1.3.0 candidate:** [install the local source candidate](#antigravity-cli-plugin),
+**Antigravity 1.3.1 candidate:** [install the local source candidate](#antigravity-cli-plugin),
 then ask **“Set up CodeRabbit”** to connect remote tools and
 check local review readiness with the native `coderabbit-setup` skill.
 Authenticate the hosted connection through Antigravity's CodeRabbit account
@@ -129,9 +129,9 @@ agy plugin install /absolute/path/to/skills
 agy plugin list
 ```
 
-The 1.3.0 source candidate adds hosted MCP with native OAuth discovery through
-[`mcp_config.json`](mcp_config.json), alongside the three shared skills and two
-agents, plus a native `coderabbit-setup` skill. Ask “Set up CodeRabbit” to
+The source candidate includes hosted MCP with native OAuth discovery through
+[`mcp_config.json`](mcp_config.json), four shared skills and two agents.
+Ask “Set up CodeRabbit” to use `coderabbit-setup` and
 check connection and review readiness. Local reviews
 still require the separately installed and authenticated CodeRabbit CLI.
 See the [Antigravity setup guide](.antigravity-plugin/README.md).
@@ -164,7 +164,7 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | `plugin.json` | Antigravity CLI plugin manifest. |
 | `mcp_config.json` | Antigravity's hosted MCP connection with native OAuth discovery. |
 | `.antigravity-plugin/README.md` | Antigravity Marketplace overview and setup guidance. |
-| `.antigravity-plugin/skills/` | Antigravity-specific setup skill, registered by root `plugin.json`. |
+| `skills/coderabbit-setup/` | Shared setup for local CLI reviews and the host's configured MCP connection. |
 | `assets/` | Shared marketplace and brand assets. |
 | `DISTRIBUTION_CHANNELS.md` | Maintainer inventory of live, packaged, and in-development channels. |
 
@@ -339,7 +339,7 @@ It keeps diagnostics sandboxed and retains per-command host approval for auth an
 
 - Native plugin manifest: `plugin.json`
 - Hosted MCP: `mcp_config.json`; native browser OAuth, separate from CLI login
-- Skills: shared `skills/` plus `.antigravity-plugin/skills/coderabbit-setup/`
+- Skills: all four are discovered under `skills/`, including `coderabbit-setup`
 - Review: ask “Review my changes” to activate `code-review`; do not rely on the legacy converted `/coderabbit:review` command
 - Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
 
@@ -356,7 +356,7 @@ prerequisites and example prompts. Maintainers should follow the
 
 ## Data and Privacy
 
-The native Claude plugin contains three portable skills, a setup command, two
+The native Claude plugin contains four portable skills, a setup command, two
 subagents and a remote MCP connection. It declares no automatic hooks.
 
 - **Local commands**: reviews use the user's installed CodeRabbit CLI. The

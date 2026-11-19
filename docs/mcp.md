@@ -5,7 +5,7 @@ with standalone CLI local reviews. It declares no automatic hooks. Source on
 `main` and directory publication are separate; see
 [distribution status](../DISTRIBUTION_CHANNELS.md).
 
-For the Antigravity 1.3.0 candidate, use the
+For the Antigravity plugin, use the
 [Google-specific setup guide](../.antigravity-plugin/README.md). Its connection
 is declared in `mcp_config.json` and uses Antigravity's native OAuth discovery.
 
