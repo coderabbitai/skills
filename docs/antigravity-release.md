@@ -21,8 +21,9 @@ not identical host behavior or permissions.
 - `.antigravity-plugin/README.md` provides the Google-specific marketplace
   setup guide. Local App installation currently renders the root `README.md`
   as its overview, so its quickstart must cover Antigravity too; verify which
-  overview Google's marketplace packager serves. Root `plugin.json` registers `.antigravity-plugin/skills/` for the
-  native `coderabbit-setup` skill; `skills/`, `agents/` and `assets/` remain shared.
+  overview Google's marketplace packager serves. The packager omits hidden
+  skill directories. Keep all four skills, including `coderabbit-setup`, under
+  the default `skills/` directory so they also ship in Marketplace ZIPs.
 - Local reviews use the separately authenticated CodeRabbit CLI. There is
   no automatic review hook, bundled CLI, or MCP-to-CLI credential transfer.
 - `commands/` remains for Claude and Gemini. Native `agy plugin validate`
@@ -42,7 +43,7 @@ Rechecked on 2026-11-18 for the agent-guidance review:
 
 | Contract | Public source and verification |
 | --- | --- |
-| Additional skills | Google's [manifest field reference](https://antigravity.google/docs/build-plugins#field-reference) says `skills` adds directories alongside the default `skills/`. The native validator discovers the three shared skills plus setup. |
+| Skill discovery | Google's [manifest field reference](https://antigravity.google/docs/build-plugins#field-reference) specifies the default `skills/` directory. The native validator discovers all four shared skills there. |
 | Server identity | Google's [MCP plugin layout](https://antigravity.google/docs/build-plugins#mcp-servers) namespaces a server with its plugin name. Both names here are `coderabbit`, producing `coderabbit_coderabbit`. |
 | Native OAuth | Google's [OAuth guide](https://antigravity.google/docs/mcp#oauth) documents automatic CIMD/DCR discovery with PKCE for a remote `serverUrl`. |
 | App sign-in | Google's [authentication steps](https://antigravity.google/docs/mcp#authenticate-a-server) use Customizations > Installed > MCP Servers. The plugin's Accounts tab and successful code entry were separately observed in the App smoke test. |

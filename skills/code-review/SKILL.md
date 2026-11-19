@@ -2,7 +2,7 @@
 name: code-review
 description: "Run CodeRabbit CLI reviews, retrieve saved local or GitHub PR fix prompts, and interpret CodeRabbit authentication and review output. Use for CodeRabbit review commands, committed/uncommitted or directory scopes, and CodeRabbit runbooks. Default code-review skill: also trigger for explicit code/PR/quality/security review requests or when a review is needed."
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # CodeRabbit Code Review
@@ -99,6 +99,18 @@ Default scope includes committed, staged, and tracked unstaged changes; raw untr
 Read `--agent` as NDJSON, not a single JSON document. Preserve the returned `critical`, `major`, `minor`, `trivial`, `info`, or `none` severity; do not relabel findings as Warning. Use `fileName`, `codegenInstructions`, and `suggestions` when available, falling back to the comment when fix instructions are absent.
 
 A heartbeat indicates liveness, not completion. Wait for completion and inspect its status. `complete` with `status: review_skipped` and zero findings means no review ran; it is not evidence that analyzed code is clean. Errors or interrupted output also cannot establish a clean review.
+
+When the connected CodeRabbit MCP server offers `present_local_review`, call
+it after the CLI exits. Pass the complete, original NDJSON stdout from that run
+as `output` and its integer `exitCode` (or `null` if unavailable). Keep stderr
+separate. The host can render the returned findings inline when it supports
+MCP Apps. A successful tool call alone does not confirm that a card rendered.
+
+If the tool or inline UI is unavailable, or you cannot pass the original
+output in full, present the findings as text in chat. Include the scope,
+warnings, skipped files and reused-result status. Never rerun the review for
+display or open a browser as a fallback. If the user requests fixes for
+selected findings, verify and address only those findings in the checkout.
 
 Create a task list for issues found that need to be addressed.
 

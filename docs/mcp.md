@@ -1,11 +1,11 @@
 # Connect CodeRabbit through MCP
 
-The Claude plugin 1.3.0 candidate combines CodeRabbit's remote MCP connection
+The Claude plugin combines CodeRabbit's remote MCP connection
 with standalone CLI local reviews. It declares no automatic hooks. Source on
 `main` and directory publication are separate; see
 [distribution status](../DISTRIBUTION_CHANNELS.md).
 
-For the Antigravity 1.3.0 candidate, use the
+For the Antigravity plugin, use the
 [Google-specific setup guide](../.antigravity-plugin/README.md). Its connection
 is declared in `mcp_config.json` and uses Antigravity's native OAuth discovery.
 
@@ -27,6 +27,26 @@ CLI and network access to CodeRabbit. If those are unavailable, remote tools
 can still be used but local review cannot run.
 
 ## Remote tools and local reviews
+
+In Antigravity, Claude and Codex, a connected CodeRabbit MCP server can
+present a finished CLI review inline. Ask to review local changes or to show a
+GitHub PR's readiness. When the host has MCP Apps enabled, it can render the
+review findings or PR status as a card. With Apps disabled, the same workflows
+return text in chat. The skills-only Codex package uses local CLI results
+unless a CodeRabbit connection is configured separately.
+
+For a GitHub PR, native Autofix uses `get_pull_request`, `get_code_autofix` and
+`set_code_autofix` to repair review findings, failing checks and merge conflicts.
+Its state persists on the backend. A request to start Autofix can push commits
+to that PR; it does not authorize merging. Showing status alone does not start it.
+
+Version 1.4.0 requests repository discovery and `code:read` / `code:write` in
+addition to the existing account, usage, PR and review scopes. Install the updated
+package before renewing an old connection's consent. Renew only after an actual
+missing-scope error or the host's consent prompt; do not copy credentials or
+replace the separately authenticated CLI session. Organization entitlement and
+repository authorization still apply. A successful connection does not prove
+native card rendering or Autofix completion.
 
 The declared remote connection provides tools within the granted scopes and
 your account's permissions. Use it for account, usage and accessible pull-request
@@ -81,4 +101,18 @@ directory scan.
 
 The independently assembled MCP hook/direct packages under `packaging/` are
 separate development candidates. Their runtime and authentication instructions
-do not apply to the repository-root 1.3.0 plugin and require their own qualification.
+do not apply to the repository-root 1.4.0 plugin and require their own qualification.
+
+The OpenAI MCP candidate is built from `packaging/openai/` and the shared skills:
+`python3 scripts/package-openai.py --output /tmp/coderabbit-mcp-1.4.0.zip`.
+The builder uses an explicit file allowlist. It is separate from the existing
+skills-only `.codex-plugin` listing; that listing does not gain an MCP connection
+just because it contains these instructions. Validate and test the actual
+installed artifact before submitting it to a directory. This PR does not publish
+either candidate or change existing users' grants.
+
+For local Codex installations that cannot read the portable OAuth declaration,
+build the connected native package with
+`python3 scripts/package-openai.py --codex-native --output /tmp/coderabbit-mcp-native-1.4.0.zip`.
+This format uses Codex's native MCP declaration with the same server URL
+and requested scopes. Both ZIPs contain the same four shared skills.

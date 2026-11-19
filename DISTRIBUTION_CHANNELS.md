@@ -6,9 +6,17 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 
 ## Channels
 
+The 1.4.0 MCP Apps candidate updates the shared local-review and native Autofix
+instructions, Claude consent scopes, and versioned Antigravity/Codex manifests.
+It also adds the separate OpenAI MCP package source at `packaging/openai/` and
+`scripts/package-openai.py`. See [setup and scope migration](docs/mcp.md).
+These are candidate artifacts, not evidence of publication or installed parity.
+The historical channel observations below do not establish current directory versions. Native host QA,
+renewed consent on old grants, and directory submission remain separate steps.
+
 | Channel | Status | Source of truth | Notes |
 | --- | --- | --- | --- |
-| Claude MCP plugin | 1.3.0 source candidate; not published | Repository root on `main`, `.claude-plugin/plugin.json` | Remote MCP tools plus standalone CLI local reviews, with separate sign-ins. No automatic review hook or managed local runtime. Portal validation and publication remain separate. |
+| Claude MCP plugin | 1.3.4 source candidate; not published | Repository root on `main`, `.claude-plugin/plugin.json` | Remote MCP tools plus standalone CLI local reviews, with separate sign-ins. No automatic review hook or managed local runtime. Portal validation and publication remain separate. |
 | Assembled MCP variants | Paused; not published | `packaging/mcp/` (assembler and launchers removed in 1.3.0; see git history at `f0629e0`) | Bundled/direct/Codex pilots can no longer be assembled from `main`. Codex hook assembly is blocked on verified server identity; direct packages require separate qualification. |
 | Skills package (`npx skills add coderabbitai/skills`) | Live | `README.md`, `skills/` | Canonical multi-agent distribution path for 35+ skills-compatible agents. |
 | Tagged GitHub release archive (`coderabbit skills`) | Live; `v1.2.2` | [Latest release](https://github.com/coderabbitai/skills/releases/tag/v1.2.2), `.github/workflows/release.yml`, [skills install docs](https://docs.coderabbit.ai/cli/skills) | Released from standalone maintenance commit `0b18e5b7c498f614cd5a496215525535a4338d96`. Archive/checksum verification and the CLI catalog passed for review, autofix, and configuration. `v1.2.1` was withdrawn from Latest after the CLI rejected missing configuration-skill version metadata. |
@@ -17,8 +25,8 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 | Claude Code review mod | v0.1.0 candidate; not published | `mods/coderabbit/` | Separate executable mod for explicit local reviews in the terminal and Local Code sessions in Claude Desktop. Terminal validation uses Claude Code 2.1.289; directory acceptance must be verified before publication. |
 | Cursor native plugin marketplace | Repo-packaged, publication should be verified | `.cursor-plugin/plugin.json` | Repo contains marketplace manifest; treat public listing as separate verification work. |
 | Gemini CLI native extension | Released source in `v1.2.2` | `gemini-extension.json`, `skills/`, `commands/coderabbit/review.toml`, `agents/` | Install the published tag using the [README instructions](README.md#gemini-cli-extension); verify gallery listing separately. |
-| Antigravity App / CLI plugin | Existing marketplace listing; locally tested MCP 1.3.0 candidate | Root `plugin.json`, `mcp_config.json`, `.antigravity-plugin/README.md`, shared `skills/` and `agents/` on `main` | Native validation, installed OAuth, account/usage/PR reads and standalone CLI review passed on 2026-11-18. MCP and CLI sign-ins remain separate, matching current Claude/OpenAI workflows. Google's weekly crawler reads versioned changes on `main`; merge and notify Google for partner QA. Marketplace 1.3.0 publication remains unverified. See [release and QA](docs/antigravity-release.md). |
-| Codex plugin marketplace | Live code review; expanded source pending | Published `1.1.4` package; `.codex-plugin/plugin.json`, `skills/`, `assets/` | The published package verified 2026-11-11 contains only `skills/coderabbit-review/SKILL.md`, which runs local CLI review and reads NDJSON; it contains no autofix skill or PR-prompt heading reader. The root `1.2.1` manifest references the shared standalone skills; publishing that expanded package is separate from updating existing heading readers. |
+| Antigravity App / CLI plugin | Existing Marketplace listing; 1.3.2 source candidate | Root `plugin.json`, `mcp_config.json`, `.antigravity-plugin/README.md`, shared `skills/` and `agents/` on `main` | The 1.3.0 source passed installed OAuth, account/usage/PR and CLI review checks on 2026-11-18. The 1.3.1 package puts setup in the shared skills directory for Marketplace ZIPs. Google's weekly crawler reads versioned changes on `main`. See [release and QA](docs/antigravity-release.md). |
+| Codex plugin marketplace | Live code review; expanded source pending | Published `1.1.4` package; `.codex-plugin/plugin.json`, `skills/`, `assets/` | The published package verified 2026-11-11 contains only `skills/coderabbit-review/SKILL.md`, which runs local CLI review and reads NDJSON; it contains no autofix skill or PR-prompt heading reader. The root `1.2.2` manifest references the shared standalone skills; publishing that expanded package is separate from updating existing heading readers. |
 | VS Code / Cursor / Windsurf IDE extension | Live, separate distribution | CodeRabbit IDE extension docs | Complements skills; not a replacement for `SKILL.md` installs. |
 | GitHub Marketplace app (PR reviews) | Live, separate product channel | CodeRabbit GitHub Marketplace listing | Product distribution, not a skills install path. |
 
