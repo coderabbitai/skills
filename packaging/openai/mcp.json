@@ -12,16 +12,34 @@
               "mode": "dcr"
             },
             "baseScopes": [
-              "connection",
+              "connection"
+            ],
+            "defaultScopes": [
               "account:read",
               "usage:read",
               "pull_requests:read",
               "repositories:read",
               "review",
+              "reviews:write",
               "code:read",
-              "code:write"
-            ],
-            "defaultScopes": []
+              "code:write",
+              "triage:read",
+              "triage:write",
+              "security:read",
+              "security:write",
+              "configuration:read",
+              "configuration:write",
+              "connections:read",
+              "connections:write",
+              "knowledge:read",
+              "knowledge:write",
+              "reports:read",
+              "reports:write",
+              "verify:read",
+              "verify:write",
+              "automations:read",
+              "automations:write"
+            ]
           }
         }
       }
