@@ -67,7 +67,8 @@ Use `--agent` for output optimized for AI agents:
 "/absolute/path/to/coderabbit" review --agent
 ```
 
-For an inline card on a compatible session, read the
+The stable CLI 0.9.5 shows findings in chat. Inline review cards are a
+prerelease feature. When testing a compatible build and session, read the
 [review card preflight](references/local-review-card.md#before-the-review) before
 adding `--review-card`. Use the ordinary scoped command and chat findings
 when support is missing or uncertain.

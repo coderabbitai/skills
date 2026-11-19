@@ -29,6 +29,8 @@ can still be used but local review cannot run.
 ## Remote tools and local reviews
 
 Antigravity, Claude and Codex show local CLI findings directly in chat.
+Inline review cards are prerelease. The [stable CLI](https://cli.coderabbit.ai/releases/latest/VERSION)
+was 0.9.5 at verification and offers chat findings without a card receipt.
 On a local host, ask “Set up inline CodeRabbit review cards.” The shared setup
 skill uses the native host's MCP settings to register a compatible installed
 CLI as a local stdio server. When that connection confirms Apps support, the
