@@ -20,9 +20,10 @@ through follow-ups. Ask which repository the user means if several match.
 
 If disconnected, use the host's MCP setup and browser sign-in. If authenticated
 tools are missing, check the host's tool allowlist. On a denied read, name the
-blocked action and any missing permission. Only rank or draft from findings
-retrieved for this target or supplied by the user. Plugin examples are never
-evidence about a user's repository.
+blocked action and any missing permission. For `insufficient_scope`, reconnect
+through the host, renew consent for that scope and retry the blocked read.
+Only rank or draft from findings retrieved for this target or supplied by the
+user. Plugin examples are never evidence about a user's repository.
 
 ## Triage a backlog
 

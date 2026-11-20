@@ -33,7 +33,7 @@
     {
       "name": "credit-gap",
       "type": "regex",
-      "pattern": "(?:\\$|USD\\s*)15(?:\\.00)?\\b|15 (?:US )?dollars",
+      "pattern": "(?:(?:\\$|\\bUSD\\s*)15(?:\\.00)?\\b(?![.,]\\d)|(?<![\\d.,])\\b15(?:\\.00)?\\s+(?:US\\s+)?dollars\\b)",
       "flags": "i"
     }
   ]
