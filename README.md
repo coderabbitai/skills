@@ -12,7 +12,7 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-**Antigravity 1.3.3 candidate:** [install the local source candidate](#antigravity-cli-plugin),
+**Antigravity 1.3.4 candidate:** [install the local source candidate](#antigravity-cli-plugin),
 then ask **“Set up CodeRabbit”** to connect remote tools and
 check local review readiness with the native `coderabbit-setup` skill.
 Authenticate the hosted connection through Antigravity's CodeRabbit account
@@ -61,14 +61,22 @@ Choose the path that matches your coding agent.
 
 #### Skills installer
 
-For agents that support portable `SKILL.md` files, use the
-[skills docs](https://docs.coderabbit.ai/cli/skills).
+For Codex, Claude Code, Cursor, Gemini CLI, and GitHub Copilot, install the
+published standalone skills with the CodeRabbit CLI. It detects installed
+agents and asks you to confirm the destination paths:
+
+```bash
+coderabbit skills install
+```
+
+For a project-scoped install or another compatible agent, use the package runner.
+See the [skills guide](https://docs.coderabbit.ai/cli/skills) for update and removal instructions.
 
 ```bash
 npx skills add coderabbitai/skills
 ```
 
-Installation options for the skills installer:
+Options for `npx skills add`:
 
 | Flag           | Purpose                                          |
 | -------------- | ------------------------------------------------ |
@@ -98,10 +106,8 @@ For the MCP candidate from this source, use `/coderabbit:setup` and the
 
 #### Cursor Plugin
 
-This repository now includes Cursor marketplace metadata in
-[`/.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json).
-
-After publication, Cursor marketplace installs use:
+Install the [CodeRabbit plugin from the Cursor Marketplace](https://cursor.com/marketplace/coderabbit)
+or enter this command in Cursor Agent:
 
 ```text
 /add-plugin coderabbit
@@ -165,7 +171,7 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | `.claude-plugin/` | Native Claude manifest with its remote MCP connection; no review hook. |
 | `commands/` | Gemini review command and Claude setup command; Antigravity uses native skills. |
 | `agents/` | `code-reviewer` and `autofix` subagents shipped to Claude Code, Gemini CLI, and Antigravity CLI. |
-| `.cursor-plugin/` | Cursor marketplace metadata. |
+| `.cursor-plugin/` | Cursor manifest used by the standalone release job. |
 | `.codex-plugin/` | Codex metadata referencing the shared skills. |
 | `gemini-extension.json` | Gemini CLI extension manifest. |
 | `plugin.json` | Antigravity CLI plugin manifest. |
@@ -355,8 +361,8 @@ use remote tools but cannot run a local review. No hook trust is needed.
 
 ### Cursor
 
-- Marketplace manifest: `.cursor-plugin/plugin.json`
-- Skills source: `skills/`
+- Marketplace package: [coderabbitai/cursor-plugin](https://github.com/coderabbitai/cursor-plugin).
+- Standalone skills archive: `.cursor-plugin/plugin.json` supplies the Cursor manifest version used by the tagged release job.
 
 ### Antigravity CLI
 

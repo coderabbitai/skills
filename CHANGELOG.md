@@ -2,6 +2,10 @@
 
 All notable changes to this repository are documented in this file.
 
+## Antigravity plugin [1.3.4] - Source candidate
+
+- Update the shared README with the first-party skills installer and the published Cursor Marketplace package.
+
 ## Local stdio review card setup
 
 - Antigravity 1.3.3 and Claude 1.3.5 can register the installed CodeRabbit CLI

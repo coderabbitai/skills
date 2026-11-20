@@ -68,7 +68,8 @@ distinct package, not evidence of MCP in the standalone Codex distribution.
    Google's official updater manifest when qualifying a newer validator.
    Manual CI runs require an explicit comparison base: use `origin/main` on a
    feature branch or the previous release commit when validating a release on
-   `main`. Runs with no base explicitly report that version validation was skipped.
+   `main`. Manual CI fails if the comparison base is missing. Running the local
+   checker without `--base` validates the package only.
    Run on an idle checkout: concurrent editor writes, commits and resets are
    unsupported. Observed state changes require a rerun; the checker does not
    provide transactional isolation from other local processes. CI uses an
@@ -105,7 +106,7 @@ distinct package, not evidence of MCP in the standalone Codex distribution.
 
 ## Evidence for 1.3.0
 
-Prepared on 2026-11-18; not yet merged or verified in the Marketplace.
+The 1.3.0 source was tested on 2026-11-18 and merged into `main`. For the version served by the Marketplace, see the [distribution inventory](../DISTRIBUTION_CHANNELS.md).
 Local native validation with `agy` 1.5.11 discovers four skills, two agents
 and one MCP server, with only the documented multi-host commands warning.
 An allowlisted temporary copy was installed through `agy plugin install`;
