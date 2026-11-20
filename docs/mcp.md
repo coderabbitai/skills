@@ -55,6 +55,35 @@ its original review ID and all result pages. Do not start a standalone CLI
 review to recover an uncertain MCP review. Do not assume a standalone CLI review
 is available through MCP recovery.
 
+## CodeRabbit Secure
+
+With the source plugin, ask “Which open Deep Scan findings in owner/repo
+should we fix first?” Claude's source manifest requests repository discovery,
+Security reads and Security writes. Reconnect through the host if an older
+grant lacks the scope returned by the tool. The account also needs access to
+the selected repository. Google uses native scope discovery.
+
+For a portable skill in Codex, reuse your existing CodeRabbit connection. With
+no server configured, add the hosted endpoint for your organization's region
+and sign in using the name you configured. For example, for a US organization:
+
+```sh
+codex mcp add coderabbit --url https://mcp.coderabbit.ai/
+codex mcp login coderabbit --scopes connection,account:read,repositories:read,security:read
+```
+
+The EU endpoint is `https://mcp.eu.coderabbit.ai/`. Start a new session after
+connecting. The example grants read access for triage, quotes and ticket
+previews. To request fixes or start scans, include `security:write` in the
+login scopes alongside the reads you need. Editing a scan schedule also needs
+`automations:write`; editing or deleting an existing Security learning needs
+`knowledge:write`. Preserve scopes used by other workflows when reconnecting.
+Use the permissions your host and account support. The remote server supplies
+scan data; checking a deployment or logs uses the host's separately authorized
+access to that evidence. If sign-in succeeds and Security tools are absent,
+check the server's tool allowlist in the host. A configuration limited to
+PR review tools can hide `list_security_findings` even after Security consent.
+
 ## Data and support
 
 Local review sends the selected code changes and required repository context to

@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.1",
+  "name": "secure-paid-scan",
+  "tags": [
+    "secure"
+  ],
+  "execution": {
+    "prompt": "I want to know what a full Deep Scan would cost for repository 408. We have $10 in credit. Give me the likely out-of-pocket cost. I'll decide whether to start after that.",
+    "max_turns": 16,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "mcp__plugin_coderabbit_coderabbit__get_security_scan_quote",
+      "mcp__plugin_coderabbit_coderabbit__start_security_scans"
+    ]
+  },
+  "graders": [
+    {
+      "name": "read-quote",
+      "type": "tool_used",
+      "tool": "mcp__plugin_coderabbit_coderabbit__get_security_scan_quote"
+    },
+    {
+      "name": "no-dispatch",
+      "type": "tool_used",
+      "tool": "mcp__plugin_coderabbit_coderabbit__start_security_scans",
+      "min": 0,
+      "max": 0
+    },
+    {
+      "name": "credit-gap",
+      "type": "regex",
+      "pattern": "(?:\\$|USD\\s*)15(?:\\.00)?\\b|15 (?:US )?dollars",
+      "flags": "i"
+    }
+  ]
+}

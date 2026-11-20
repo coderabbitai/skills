@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.1",
+  "name": "secure-fix-in-progress",
+  "tags": [
+    "secure"
+  ],
+  "execution": {
+    "prompt": "Start a CodeRabbit fix for Deep Scan finding 10000000-0000-4000-8000-000000000002 in repository 408 and tell me whether there is a pull request yet.",
+    "max_turns": 12,
+    "timeout_seconds": 180,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "mcp__plugin_coderabbit_coderabbit__get_security_finding",
+      "mcp__plugin_coderabbit_coderabbit__fix_security_finding"
+    ]
+  },
+  "graders": [
+    {
+      "name": "checked-finding-status",
+      "type": "tool_used",
+      "tool": "mcp__plugin_coderabbit_coderabbit__get_security_finding"
+    },
+    {
+      "name": "no-duplicate-fix",
+      "type": "tool_used",
+      "tool": "mcp__plugin_coderabbit_coderabbit__fix_security_finding",
+      "min": 0,
+      "max": 0
+    },
+    {
+      "name": "reported-existing-task",
+      "type": "regex",
+      "pattern": "20000000-0000-4000-8000-000000000007|(?:already|currently|still)\\s+(?:in progress|running|underway)",
+      "flags": "i"
+    }
+  ]
+}

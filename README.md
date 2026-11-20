@@ -12,14 +12,14 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-**Antigravity 1.3.2 candidate:** [install the local source candidate](#antigravity-cli-plugin),
+**Antigravity 1.4.0 candidate:** [install the local source candidate](#antigravity-cli-plugin),
 then ask **“Set up CodeRabbit”** to connect remote tools and
 check local review readiness with the native `coderabbit-setup` skill.
 Authenticate the hosted connection through Antigravity's CodeRabbit account
 settings, then ask **“Check my CodeRabbit connection and selected organization.”**
 See the [Antigravity setup guide](.antigravity-plugin/README.md).
 
-**Claude source package (1.3.4):** run `/coderabbit:setup` for the same two
+**Claude source package (1.4.0):** run `/coderabbit:setup` for the same two
 readiness checks. See the [Claude MCP setup guide](docs/mcp.md). For a published
 marketplace copy, follow its [integration guide](https://docs.coderabbit.ai/cli/claude-code-integration).
 
@@ -302,6 +302,21 @@ This skill is included in the source package and the published
 [standalone `v1.2.2` archive](https://github.com/coderabbitai/skills/releases/tag/v1.2.2).
 Marketplace caches require their normal publication update to deliver it.
 
+### [CodeRabbit Secure](skills/coderabbit-secure/SKILL.md)
+
+Ask **“Which findings from the latest Deep Scan of owner/repo should we fix
+first, and why?”** The skill uses your CodeRabbit MCP connection to read the
+scan, rank the findings and show what evidence supports the first fix. Follow
+up with “Draft a Linear ticket for the first one,” “Request a fix for it,”
+or “What would a full scan cost?” A ticket preview is a draft. A fix request
+starts work only when you ask.
+
+The portable skill name is `coderabbit-secure`; in Claude Code, invoke
+`/coderabbit:coderabbit-secure`. Use the source plugin or select
+`--skill coderabbit-secure` in the skills installer on a revision containing
+the skill. A skills-only install needs a separately connected hosted MCP
+server. See [connection and permissions](docs/mcp.md#coderabbit-secure).
+
 ## Plugin Components
 
 The native Claude candidate combines a remote MCP connection and setup command
@@ -311,9 +326,9 @@ separate qualification requirements.
 
 ### Claude Code
 
-- Skills: `code-review`, `autofix`, and `coderabbit-config`. Run them as
-  `/coderabbit:code-review`, `/coderabbit:autofix`, and
-  `/coderabbit:coderabbit-config`, or ask in plain language.
+- Skills include `code-review`, `autofix`, `coderabbit-config`, `coderabbit-setup`
+  and `coderabbit-secure`. Ask in plain language or invoke a skill directly,
+  for example `/coderabbit:coderabbit-secure`.
 - Subagents: `code-reviewer` runs a CodeRabbit review in its own context, and
   `autofix` collects and checks unresolved CodeRabbit review threads
   and returns a fix plan without editing anything. Mention them as
@@ -342,7 +357,7 @@ It keeps diagnostics sandboxed and retains per-command host approval for auth an
 
 - Native plugin manifest: `plugin.json`
 - Hosted MCP: `mcp_config.json`; native browser OAuth, separate from CLI login
-- Skills: all four are discovered under `skills/`, including `coderabbit-setup`
+- Skills are discovered under `skills/`, including `coderabbit-setup` and `coderabbit-secure`.
 - Review: ask “Review my changes” to activate `code-review`; do not rely on the legacy converted `/coderabbit:review` command
 - Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
 

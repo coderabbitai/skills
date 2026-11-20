@@ -1,4 +1,13 @@
-# CLI behavior evaluations
+# Plugin behavior evaluations
+
+Run the CodeRabbit Secure cases against the source plugin with synthetic MCP
+tools. The triage case checks the selected finding and ticket destination.
+The quote case checks the credit gap and that the agent made zero dispatches.
+The fix case presents an active fix task and checks for duplicate dispatches.
+
+```sh
+claude plugin eval . --tag secure --runs 1 --ablation none --no-publish
+```
 
 The seven `mcp-review-*` cases evaluate agent guidance and authorization decisions,
 including a user-stated spending-cap condition, not a backend-enforced cap. Select

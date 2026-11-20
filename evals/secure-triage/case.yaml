@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.1",
+  "name": "secure-triage",
+  "tags": [
+    "secure"
+  ],
+  "execution": {
+    "prompt": "Using CodeRabbit Secure, what should we fix first among the current open findings for repository 408? Draft a Linear ticket for the top one.",
+    "max_turns": 16,
+    "timeout_seconds": 240,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "mcp__plugin_coderabbit_coderabbit__list_security_findings",
+      "mcp__plugin_coderabbit_coderabbit__get_security_finding",
+      "mcp__plugin_coderabbit_coderabbit__preview_security_finding_ticket"
+    ]
+  },
+  "graders": [
+    {
+      "name": "followed-backlog-cursor",
+      "type": "tool_used",
+      "tool": "mcp__plugin_coderabbit_coderabbit__list_security_findings",
+      "input_match": "page-2"
+    },
+    {
+      "name": "drafted-selected-finding",
+      "type": "tool_used",
+      "tool": "mcp__plugin_coderabbit_coderabbit__preview_security_finding_ticket",
+      "min": 1,
+      "max": 1
+    },
+    {
+      "name": "decision-quality",
+      "type": "llm",
+      "criteria": "The response puts the deployed invoice ownership flaw ahead of the excluded sample parser, explains the evidence for that order, and presents the PAY Linear draft with its title or an accurate equivalent. It does not claim ticket creation or a deployed fix."
+    }
+  ]
+}

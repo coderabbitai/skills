@@ -1,0 +1,57 @@
+{
+  "tools": [
+    {
+      "name": "get_security_finding",
+      "description": "Returns one code security finding with its severity, location, description, recommendation, state and fix status, including any fix task or pull request and tracker ticket delivery status and URLs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repository_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "finding_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "repository_id",
+          "finding_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "fix_security_finding",
+      "description": "Request an AI fix for this Deep Scan finding.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repository_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "finding_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "finding_kind": {
+            "type": "string",
+            "enum": [
+              "vulnerability"
+            ]
+          }
+        },
+        "required": [
+          "repository_id",
+          "finding_id",
+          "finding_kind"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

@@ -22,7 +22,7 @@ not identical host behavior or permissions.
   setup guide. Local App installation currently renders the root `README.md`
   as its overview, so its quickstart must cover Antigravity too; verify which
   overview Google's marketplace packager serves. The packager omits hidden
-  skill directories. Keep all four skills, including `coderabbit-setup`, under
+  skill directories. Keep the shared skills, including `coderabbit-secure`, under
   the default `skills/` directory so they also ship in Marketplace ZIPs.
 - Local reviews use the separately authenticated CodeRabbit CLI. There is
   no automatic review hook, bundled CLI, or MCP-to-CLI credential transfer.
@@ -75,7 +75,7 @@ distinct package, not evidence of MCP in the standalone Codex distribution.
    isolated checkout for this reason.
 3. Test installation and connection in a dedicated Antigravity test profile.
    Run `agy plugin install /absolute/path/to/skills`, then `agy plugin list --json`.
-   Verify version, all four skills, agents and the single
+   Verify version, all five skills, agents and the single
    `coderabbit_coderabbit` MCP server. Inspect the marketplace overview too.
 4. Merge the reviewed change into `coderabbitai/skills` **main**. Google
    confirmed on 2026-11-17 that its weekly crawler reads that branch and
@@ -92,10 +92,10 @@ distinct package, not evidence of MCP in the standalone Codex distribution.
 
 | Check | Expected result |
 | --- | --- |
-| Fresh install | Correct branding, three starter prompts, Google overview, four skills and two agents; exactly one hosted MCP server. |
+| Fresh install | Correct branding, three starter prompts, Google overview, five skills and two agents; exactly one hosted MCP server. |
 | OAuth | Native consent succeeds; cancellation stays disconnected; reconnect works. No secrets or codes are pasted into chat. |
 | Account and organization | `connection_status` or `get_me` reports the selected organization. A browser success page is insufficient. |
-| Scope parity | Inspect actual consent and granted capabilities. Claude/OpenAI request `connection account:read usage:read pull_requests:read review`; Google relies on discovery. Do not assume its grant matches them. |
+| Scope parity | Inspect actual consent and granted capabilities. Claude 1.4.0 also requests repository and Security access. Google relies on discovery. Check a scoped findings read after sign-in. |
 | Remote tools | Usage and an accessible PR can be read; inaccessible repositories remain inaccessible. |
 | Local review | In an approved sample Git repo, review the requested changes through the installed CLI, preserving scope and terminal completion status. MCP login alone must not count as CLI login. |
 | Findings display | Show the original completed CLI findings as text, preserving severity and coverage without rerunning the review. |

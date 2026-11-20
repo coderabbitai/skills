@@ -51,7 +51,12 @@ does not require login.
 
 ## Included workflows
 
-Four skills: `coderabbit-setup`, `code-review`, `autofix`, and `coderabbit-config`. Two agents:
+For CodeRabbit Secure, ask **“Which findings from the latest Deep Scan of
+owner/repo should I fix first?”** Follow up with “Draft a ticket for the
+first one” or “How much would a new full scan cost?”
+
+Five skills: `coderabbit-setup`, `code-review`, `autofix`, `coderabbit-config`
+and `coderabbit-secure`. Two agents:
 `code-reviewer` and `autofix`. The autofix agent proposes a plan; the autofix
 skill applies independently checked fixes with your approval. After a local
 review, the agent shows findings in chat. For an inline card, the session
