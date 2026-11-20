@@ -95,7 +95,7 @@ distinct package, not evidence of MCP in the standalone Codex distribution.
 | Fresh install | Correct branding, three starter prompts, Google overview, five skills and two agents; exactly one hosted MCP server. |
 | OAuth | Native consent succeeds; cancellation stays disconnected; reconnect works. No secrets or codes are pasted into chat. |
 | Account and organization | `connection_status` or `get_me` reports the selected organization. A browser success page is insufficient. |
-| Scope parity | Inspect actual consent and granted capabilities. Claude 1.4.0 requests repository and Security access, plus automation and knowledge writes for schedule and learning changes. Google relies on discovery. Check a scoped findings read after sign-in. |
+| Scope parity | Inspect actual consent and granted capabilities. The Claude source manifest requests repository and Security access, plus automation and knowledge writes for schedule and learning changes. Google relies on discovery. Check a scoped findings read after sign-in. |
 | Remote tools | Usage and an accessible PR can be read; inaccessible repositories remain inaccessible. |
 | Local review | In an approved sample Git repo, review the requested changes through the installed CLI, preserving scope and terminal completion status. MCP login alone must not count as CLI login. |
 | Findings display | Show the original completed CLI findings as text, preserving severity and coverage without rerunning the review. |
