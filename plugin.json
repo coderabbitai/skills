@@ -3,7 +3,7 @@
   "name": "coderabbit",
   "displayName": "CodeRabbit",
   "description": "CodeRabbit is the governance and control layer for agentic software development helping developers trust AI written code.",
-  "version": "1.3.3",
+  "version": "1.3.2",
   "logo": "assets/logo.png",
   "suggestedPrompts": [
     "Check my CodeRabbit connection and selected organization.",
