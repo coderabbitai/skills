@@ -14,7 +14,6 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 | Tagged GitHub release archive (`coderabbit skills`) | Live; `v1.2.2` | [Latest release](https://github.com/coderabbitai/skills/releases/tag/v1.2.2), `.github/workflows/release.yml`, [skills install docs](https://docs.coderabbit.ai/cli/skills) | Released from standalone maintenance commit `0b18e5b7c498f614cd5a496215525535a4338d96`. Archive/checksum verification and the CLI catalog passed for review, autofix, and configuration. `v1.2.1` was withdrawn from Latest after the CLI rejected missing configuration-skill version metadata. |
 | Claude Code plugin marketplace | Live | `.claude-plugin/plugin.json`, `skills/`, `agents/` | Official marketplace source: `coderabbitai/skills`. Migration from the legacy `coderabbitai/claude-plugin` repository completed on 2026-05-01. |
 | Claude directory (claude.ai, desktop, Cowork) | Live 1.2.0; 1.3.0 held | Existing `coderabbit` listing | Verified 2026-11-12: 1.2.0 serves, assembled 1.3.0 has an “Update adds hooks” policy hold; auto-publish is off. The existing root listing now follows the default branch (`main`); policy approval and publication remain separate. |
-| Claude Code review mod | v0.1.0 candidate; not published | `mods/coderabbit/` | Separate executable mod for explicit local reviews in the terminal and Local Code sessions in Claude Desktop. Terminal validation uses Claude Code 2.1.289; directory acceptance must be verified before publication. |
 | Cursor native plugin marketplace | Repo-packaged, publication should be verified | `.cursor-plugin/plugin.json` | Repo contains marketplace manifest; treat public listing as separate verification work. |
 | Gemini CLI native extension | Released source in `v1.2.2` | `gemini-extension.json`, `skills/`, `commands/coderabbit/review.toml`, `agents/` | Install the published tag using the [README instructions](README.md#gemini-cli-extension); verify gallery listing separately. |
 | Antigravity App / CLI plugin | Existing Marketplace listing; 1.3.2 source candidate | Root `plugin.json`, `mcp_config.json`, `.antigravity-plugin/README.md`, shared `skills/` and `agents/` on `main` | The 1.3.0 source passed installed OAuth, account/usage/PR and CLI review checks on 2026-11-18. The 1.3.1 package puts setup in the shared skills directory for Marketplace ZIPs. Google's weekly crawler reads versioned changes on `main`. See [release and QA](docs/antigravity-release.md). |
@@ -31,7 +30,7 @@ shared skill without a new command alias. Marketplace publication remains
 channel-specific. The MCP assembler also carries it through; configuration uses
 the managed CLI when that package supplies one and does not require MCP.
 The CLI workflow is verified with official 0.9.3 and checks protocol support at
-runtime. The separate review mod does not bundle configuration skills.
+runtime.
 
 ## Maintenance checklist
 

@@ -33,5 +33,4 @@
 - Claude Chat and hosts without local execution can use available remote tools;
   the hosted connector alone cannot review files on a laptop.
 - Codex hook packages are unavailable pending verified plugin server identity.
-  The standalone Codex plugin and the separate Review Mod retain their existing
-  versions and distribution channels.
+  The standalone Codex plugin retains its existing version and distribution channel.

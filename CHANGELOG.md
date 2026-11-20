@@ -82,9 +82,9 @@ All notable changes to this repository are documented in this file.
 - Launch approved reviews through the Claude plugin's own post-tool hook and
   recover saved findings by review ID without starting another review.
 - Preserve the caller's Git and SSH tool paths after executable verification.
-- Keep the standalone skills and plugin channels available. This version applies
-  only to the assembled Claude MCP package; it does not version or publish Mod,
-  Codex, or the shared standalone release archive.
+- Keep the standalone skills and plugin channels available. The assembled Claude
+  MCP package, Codex plugin, and shared standalone release archive have independent
+  versions.
 - See the [MCP changelog](packaging/releases/claude-1.3.0.md) and
   [release inputs](packaging/releases/README.md). Directory approval and
   publication are separate from preparing this candidate.
