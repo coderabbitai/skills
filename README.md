@@ -382,7 +382,7 @@ prerequisites and example prompts. Maintainers should follow the
 
 ## Data and Privacy
 
-The native Claude plugin contains four portable skills, a setup command, two
+The native Claude plugin contains five portable skills, a setup command, two
 subagents and a remote MCP connection. It declares no automatic hooks.
 
 - **Local commands**: reviews use the user's installed CodeRabbit CLI. The

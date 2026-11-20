@@ -43,7 +43,7 @@ Rechecked on 2026-11-18 for the agent-guidance review:
 
 | Contract | Public source and verification |
 | --- | --- |
-| Skill discovery | Google's [manifest field reference](https://antigravity.google/docs/build-plugins#field-reference) specifies the default `skills/` directory. The native validator discovers all four shared skills there. |
+| Skill discovery | Google's [manifest field reference](https://antigravity.google/docs/build-plugins#field-reference) specifies the default `skills/` directory. The native validator discovers all five shared skills there. |
 | Server identity | Google's [MCP plugin layout](https://antigravity.google/docs/build-plugins#mcp-servers) namespaces a server with its plugin name. Both names here are `coderabbit`, producing `coderabbit_coderabbit`. |
 | Native OAuth | Google's [OAuth guide](https://antigravity.google/docs/mcp#oauth) documents automatic CIMD/DCR discovery with PKCE for a remote `serverUrl`. |
 | App sign-in | Google's [authentication steps](https://antigravity.google/docs/mcp#authenticate-a-server) use Customizations > Installed > MCP Servers. The plugin's Accounts tab and successful code entry were separately observed in the App smoke test. |
