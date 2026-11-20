@@ -39,6 +39,8 @@ manifest. Other host packages retain their documented workflows. See
 [distribution status](DISTRIBUTION_CHANNELS.md) for publication: source
 availability and matching version numbers do not establish marketplace parity.
 
+**EU accounts:** change the CodeRabbit MCP server URL from `https://mcp.coderabbit.ai/` to `https://mcp.eu.coderabbit.ai/` in your host's MCP settings. For a source-installed package, edit `mcpServers.coderabbit.url` in `.claude-plugin/plugin.json` (Claude) or `mcpServers.coderabbit.serverUrl` in `mcp_config.json` (Antigravity). Reconnect through the host's browser sign-in; US connections do not transfer to EU. Local CLI login remains separate: `coderabbit auth login --region eu`.
+
 **Released CLI integration:** install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
 then tell your agent: **“Review my code.”** If sign-in is needed, the agent
 hands off the CLI's browser login to you.

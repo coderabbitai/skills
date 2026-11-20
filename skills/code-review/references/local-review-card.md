@@ -1,7 +1,7 @@
 # Local review cards
 
-Inline review cards are prerelease. Stable CLI 0.9.5 emits findings for
-chat and provides neither the flag nor a final card receipt.
+The [latest stable CLI](https://cli.coderabbit.ai/releases/latest/VERSION)
+returns findings in chat by default. Check the installed CLI and host before requesting a card.
 
 ## Before the review
 
