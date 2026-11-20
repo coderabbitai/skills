@@ -64,7 +64,7 @@ invocation below; never execute a repository-provided binary or wrapper.
 2. **Run CodeRabbit Review**
    - For usage checks and credit retries, see [usage and paid continuation](../skills/code-review/references/cli-workflows.md#usage-and-paid-continuation)
    - Execute `"/absolute/path/to/coderabbit" review --agent` to get structured review output.
-     The stable CLI 0.9.5 returns chat findings. For a requested card with a
+     The latest stable CLI returns findings in chat. For a requested card with a
      compatible prerelease CLI, follow the shared [preflight checks](../skills/code-review/references/local-review-card.md#before-the-review)
      before launch. A delegated agent without confirmed capabilities uses the ordinary command.
    - Add `--dir <path>` when the user requests a specific review directory
