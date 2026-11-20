@@ -47,9 +47,9 @@ Use the official installation handoff in the procedure below; do not install fro
 
 Read and follow the canonical [authentication and recovery procedure](../skills/code-review/references/auth-recovery.md).
 Resolve a trusted canonical absolute CLI path, use approved command-scoped host
-execution in local sandboxes, and proceed only after `auth status --agent`
-reports `authenticated: true` in the review context. Never start login or access
-credentials yourself. Use the quoted, validated absolute path for every CLI
+execution in local sandboxes, and apply the before-review check in the review
+context. Never start login or access credentials yourself.
+Use the quoted, validated absolute path for every CLI
 invocation below; never execute a repository-provided binary or wrapper.
 
 ## Workflow

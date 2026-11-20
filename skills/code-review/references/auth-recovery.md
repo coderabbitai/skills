@@ -68,12 +68,20 @@ check; installation does not establish login.
 ## Before review
 
 Run `"/absolute/path/to/coderabbit" auth status --agent` in the same approved
-context that will run the review. Proceed only after a successful, well-formed
-`authenticated: true`. On `false`, ask the user to run
-`"/absolute/path/to/coderabbit" auth login` in that environment's terminal; never
-start or elevate login automatically. Resume after the user confirms login and
-the status check succeeds. Failure or malformed output means unknown; report
-the error and stop. Abort any interactive login prompt from a review command.
+context that will run the review. If the command fails or returns a malformed
+or unrecognized status, report that the check failed and stop.
+
+- If `reviewCredentialStatus` is `reauthentication_required` or
+  `authenticated` is `false`, ask the user to run
+  `"/absolute/path/to/coderabbit" auth login` in that environment's terminal.
+  Recheck status after the user confirms sign-in.
+- If `reviewCredentialStatus` is `refresh_unavailable`, retry the status check
+  once in the same context. If refresh is still unavailable, report it and stop.
+- Proceed on `authenticated: true` with `reviewCredentialStatus` absent.
+  Older CLIs omit this field.
+
+Never start or elevate login automatically. Abort any interactive login prompt
+from a review command.
 
 ## Recover a sandbox auth failure
 
@@ -84,13 +92,13 @@ That callback message alone does not prove a port collision; an absent status
 field does not prove missing authentication.
 
 If the original review ran in a local sandbox and failed during authentication
-before review work began, check `auth status --agent` through approved host
-execution as above. A sandbox's `authenticated: false` is not authoritative for
-the host. If host status is `true`, retry the original review **once** on the
-host, preserving its working directory and every argument. If host status is
-`false`, use the manual login handoff above. If host status fails, the retry
-fails, or the original review already failed on the host, report the failure
-and stop.
+before review work began, apply the [before-review check](#before-review) through
+approved host execution. Only when that check allows review, retry the original
+review **once** on the host, preserving its working directory and every argument.
+If the retry fails or the original review already failed on the host, report
+the failure and stop. A pre-submission `reauthentication_required` in the
+approved context calls for the same manual sign-in even if the earlier status
+check passed.
 
 Never retry a review that is still running, completed, or failed after remote
 analysis began. This recovery does not apply to network, rate-limit, billing,

@@ -45,8 +45,8 @@ When user asks to:
 ### 1. Check CLI and Authentication
 
 Before running a review, read and follow [authentication and recovery](references/auth-recovery.md).
-Resolve the trusted CLI to a quoted canonical absolute path, check authentication
-in the approved review execution context, and proceed only on `authenticated: true`.
+Resolve the trusted CLI to a quoted canonical absolute path and apply the
+before-review check in the approved review execution context.
 Never start login automatically or access credentials yourself. Examples below
 use the validated absolute path; substitute only the path verified by that procedure.
 
