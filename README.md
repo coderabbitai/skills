@@ -2,6 +2,12 @@
 
 Use CodeRabbit to review local changes, work through pull request feedback, and configure repository reviews.
 
+In Claude apps, install CodeRabbit from the Anthropic Directory. In Claude Code, install the version published to the official marketplace:
+
+```text
+/plugin install coderabbit --marketplace anthropics/claude-plugins-official
+```
+
 Run `/coderabbit:setup` to check the hosted CodeRabbit MCP connection and local CLI. Claude handles sign-in to the hosted connection. Local reviews use your installed CodeRabbit CLI and its own sign-in.
 
 For a local review, ask “Review my uncommitted changes.” To work through feedback on a pull request, use `/coderabbit:autofix`.
