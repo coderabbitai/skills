@@ -2,7 +2,7 @@
 name: code-review
 description: "Run CodeRabbit CLI reviews, retrieve saved local or GitHub PR fix prompts, and interpret CodeRabbit authentication and review output. Use for CodeRabbit review commands, committed/uncommitted or directory scopes, and CodeRabbit runbooks. Default code-review skill: also trigger for explicit code/PR/quality/security review requests or when a review is needed."
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # CodeRabbit Code Review
@@ -51,7 +51,7 @@ Never start login automatically or access credentials yourself. Examples below
 use the validated absolute path; substitute only the path verified by that procedure.
 
 Check `"/absolute/path/to/coderabbit" review --help` when support for an option is uncertain.
-Older binaries may lack current flags; report the mismatch and use the official upgrade path.
+If a missing option blocks the requested review scope, report the mismatch and use the official upgrade path.
 
 ### 2. Run Review
 
@@ -67,11 +67,10 @@ Use `--agent` for output optimized for AI agents:
 "/absolute/path/to/coderabbit" review --agent
 ```
 
-The [latest stable CLI](https://cli.coderabbit.ai/releases/latest/VERSION) shows findings in chat. Inline review cards are a
-prerelease feature. When testing a compatible build and session, read the
-[review card preflight](references/local-review-card.md#before-the-review) before
-adding `--review-card`. Use the ordinary scoped command and chat findings
-when support is missing or uncertain.
+For an ordinary review, choose the presentation automatically. When the
+[review card preflight](references/local-review-card.md#before-the-review)
+passes, add `--review-card` to the same scoped command. Otherwise use the
+ordinary command. Honor an explicit request for text.
 
 Use the same approved context as the auth check. On a pre-review authentication
 failure, follow the linked recovery procedure before asking for login. Only a
@@ -106,9 +105,12 @@ Read `--agent` as NDJSON, not a single JSON document. Preserve the returned `cri
 
 A heartbeat indicates liveness, not completion. Wait for completion and inspect its status. `complete` with `status: review_skipped` and zero findings means no review ran; it is not evidence that analyzed code is clean. Errors or interrupted output also cannot establish a clean review.
 
-Use the finished CLI output to report findings in chat. Include the scope,
-warnings, skipped files and reused-result status. Never send CLI stdout,
-NDJSON, findings, code, paths or logs to an MCP tool for presentation or as a
+Present the findings once, in the inline card when it renders or directly in
+chat otherwise. Keep review scope, warnings, skipped files and reused-result
+status visible. Keep presentation checks, receipt IDs and fallback details out
+of ordinary review updates and replies. Explain them when the user asks about
+cards or troubleshooting. Always report a failed, skipped or incomplete review.
+Never send CLI stdout, NDJSON, findings, code, paths or logs to an MCP tool for presentation or as a
 capability probe. In particular, skip any presenter whose input requires
 `output` and `exitCode`.
 
@@ -117,7 +119,7 @@ A delegate returns findings and any eligible final receipt to the local caller;
 only the caller may make the single presentation call. With no usable ID,
 show the findings in chat and send nothing to MCP.
 
-Create a task list for issues found that need to be addressed.
+In chat, list the actionable findings as the task list.
 
 ### 4. Fix Issues (Autonomous Workflow)
 

@@ -1,8 +1,8 @@
 ---
 name: coderabbit-setup
-description: Check CodeRabbit setup for local CLI reviews and, when configured, connect the host's CodeRabbit MCP tools. Use for onboarding, reconnection, or diagnosing separate MCP and CLI sign-ins.
+description: Set up CodeRabbit for local CLI reviews, optional inline review cards, and the host's configured remote MCP tools. Use for onboarding, reconnection, or diagnosing separate MCP and CLI sign-ins.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Set up CodeRabbit
@@ -58,6 +58,10 @@ reserve a review, install a hook, or pass an MCP handoff into shell commands.
 If local execution is unavailable, report that separately from the observed
 MCP connection status. Remote tools remain usable only if the MCP check succeeded.
 Configuration uses the installed `coderabbit-config` skill and needs no login.
+
+When the user wants inline local review cards, follow
+[local presenter setup](references/local-review-card.md) in the host that will
+run the CLI. Chat reviews and remote tools work independently of this optional setup.
 
 If the user already requested a review, continue with the installed
 `code-review` skill and preserve their scope. Otherwise summarize what is
