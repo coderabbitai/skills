@@ -50,6 +50,6 @@ Disable directory auto-publish before switching its tracked ref, verify the
 imported version and data-handling disclosure, then complete the directory's
 review/publish flow.
 
-The hosted MCP server requires its own connector submission. Mod and the existing
-standalone skill and Codex channels are independent; the native Claude manifest
-has its own version. Updating source does not publish any channel.
+The hosted MCP server requires its own connector submission. The standalone
+skills, Codex plugin, and native Claude plugin have independent release channels
+and versions. Updating source does not publish any channel.

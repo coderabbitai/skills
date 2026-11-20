@@ -1,4 +1,0 @@
-{
-  "description": "Explicit CodeRabbit review command",
-  "modules": ["./register.js"]
-}
