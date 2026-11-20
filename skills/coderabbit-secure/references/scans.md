@@ -36,5 +36,6 @@ when its baseline or coverage is insufficient. The delta spend limit does
 not cap that full run. If the user requires a maximum for every scheduled
 run, resolve that constraint before saving. Recurring paid use requires the
 user's explicit approval and appropriate billing access. Delete only the
-selected schedule with its current revision. Re-read on conflicts and
+selected schedule with `delete_security_scan_schedule`, passing its ID and
+`expected_revision` from the read. Re-read on conflicts and
 report dashboard-managed schedules as such.

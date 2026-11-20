@@ -59,8 +59,10 @@ is available through MCP recovery.
 
 With the source plugin, ask “Which open Deep Scan findings in owner/repo
 should we fix first?” Claude's source manifest requests repository discovery,
-Security reads and Security writes. Reconnect through the host if an older
-grant lacks the scope returned by the tool. The account also needs access to
+Security reads and Security writes. It also requests `automations:write` for
+schedule changes and `knowledge:write` for editing or deleting Security
+learnings. These are shared product permissions. Reconnect through the host
+if an older grant lacks the scope returned by the tool. The account also needs access to
 the selected repository. Google uses native scope discovery.
 
 For a portable skill in Codex, reuse your existing CodeRabbit connection. With

@@ -5,6 +5,8 @@ tools. The triage case checks the selected finding and ticket destination.
 The quote case checks the credit gap and that the agent made zero dispatches.
 The fix case presents an active fix task and checks for duplicate dispatches.
 The denied-read case checks that a demo cannot supply evidence for a real ticket.
+The dashboard parity case checks that the agent can explain schedule and learning
+management while identifying actions that need the web app.
 
 ```sh
 claude plugin eval . --tag secure --runs 1 --ablation none --no-publish

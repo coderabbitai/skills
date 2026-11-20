@@ -34,14 +34,29 @@ another request.
 
 **Disposition.** Use `set_security_finding_severity`,
 `dismiss_security_finding` or `reopen_security_finding` when the user selects
-that change. A lower triage priority alone does not justify dismissal. If the
-user asks to teach future scans, `create_security_finding_learning` saves
+that change. A lower triage priority alone does not justify dismissal. When
+the user asks to record a dismissal reason, check for `dismiss_reason` in
+the connected tool's schema before changing state. If the field is missing,
+explain where the user can record the reason in the app.
+
+**After a merge.** Use these actions only if the host actually advertises
+them. For `resolve_security_finding`, identify the open finding and supply
+the requested supporting context, such as the merged fix. For
+`recheck_security_finding`, follow the selected finding's recorded attempt
+to its outcome. If either tool is absent, report the existing state and
+direct the user to that action in the app. Runtime validation history and
+a new repository scan answer different questions.
+
+**Security learnings.** If the user asks to teach future scans, `create_security_finding_learning` saves
 suppression or severity feedback. Explain its future scope and use the
 requested finding or repository scope. Editing the current finding and
 saving a learning are independent actions. To inspect existing feedback, use
 `list_security_learnings`. For a requested edit or deletion, use the selected
-learning ID and its current text to identify the change. Report which future
-scans it applies to when the service supplies that scope.
+learning ID from the 100 most recent results. Use `update_security_learning`
+to replace its text or `delete_security_learning` to remove it. Severity
+calibration requires different previous and new severities and applies to the
+finding. Report which future scans it applies to when the service supplies
+that scope.
 
 **Export.** For a CSV request, use `export_security_findings_csv`. Save the
 first page's content, then append each continuation verbatim with identical

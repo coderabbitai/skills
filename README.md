@@ -304,6 +304,11 @@ Marketplace caches require their normal publication update to deliver it.
 
 ### [CodeRabbit Secure](skills/coderabbit-secure/SKILL.md)
 
+The [Secure capability guide](skills/coderabbit-secure/references/capabilities.md)
+maps plain-language requests to hosted tools across scan history and recovery,
+cost and scheduling, findings and secrets, runtime evidence, fixes, tickets,
+CSV exports and Security learnings. It also shows where the web app is needed.
+
 Ask **“Which findings from the latest Deep Scan of owner/repo should we fix
 first, and why?”** The skill uses your CodeRabbit MCP connection to read the
 scan, rank the findings and show what evidence supports the first fix. Follow

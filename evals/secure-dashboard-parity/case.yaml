@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.1",
+  "name": "secure-dashboard-parity",
+  "tags": [
+    "secure"
+  ],
+  "execution": {
+    "prompt": "Before I give my team access to CodeRabbit Secure, explain what our agent can do with scan schedules and saved Security learnings. Can it also force a fresh full-scan quote, download runtime evidence, record a dismissal reason, mark a finding fixed or recheck it? This is a capabilities question. Don't change anything.",
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ],
+    "max_turns": 10,
+    "timeout_seconds": 150
+  },
+  "graders": [
+    {
+      "name": "current-capability-boundaries",
+      "type": "llm",
+      "criteria": "Distinguish read/create/edit/delete schedules and read/create/edit/delete Security learnings from dashboard-only actions. Explain that the current documented hosted tools cannot force-refresh an existing quote, download evidence files, save a dismissal reason, mark fixed or recheck, with discovery/schema-dependent caveats acceptable. A stored runtime result or manifest is a read. Do not suggest dismissal or requesting a fix as a substitute for marking fixed, or starting a paid scan to get a quote."
+    }
+  ]
+}

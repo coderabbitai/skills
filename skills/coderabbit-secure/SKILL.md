@@ -1,19 +1,26 @@
 ---
 name: coderabbit-secure
-description: Use CodeRabbit Secure through hosted MCP to prioritize Deep Scan security findings, investigate exposure, preview tracker tickets, request fixes, or estimate and follow scans. Use for existing CodeRabbit Security findings and scan workflows, including “what should I fix first?”
+description: Use CodeRabbit Secure over hosted MCP for Deep Scan findings and secret triage, fixes, ticket drafts, evidence, exports, scan pricing and recovery, schedules, and Security learnings. Use for “what should I fix first?” or to explain which Security dashboard actions are available in chat.
 metadata:
   version: "0.1.0"
 ---
 
 # CodeRabbit Secure
 
-Help the user decide which security issue to act on and carry out their chosen
-next step. For “what can I do here?”, offer a few examples in their terms:
+For “what can I do here?” or a dashboard parity question, read the
+[Secure capability guide](references/capabilities.md). Offer workflows in
+the user's terms, from finding a repository and pricing a scan through
+triage, validation history, exports, schedules and learning maintenance.
+When someone asks for the full list, cover each section of the guide, including
+which steps finish in the web app or need a separate tracker connection.
+Discovery questions require no repository selection or write.
 
 - “What should we fix first from the last Deep Scan of payments?”
 - “Is this finding reachable in our deployment?”
 - “Draft a Linear ticket for the first one.”
 - “How much would a full scan cost, and is there one already running?”
+- “Export the open secret findings from this scan.”
+- “Show the weekend scan schedule and the feedback our team has saved.”
 
 ## Select the target
 
