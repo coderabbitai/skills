@@ -5,7 +5,7 @@
     "secure"
   ],
   "execution": {
-    "prompt": "Using CodeRabbit Secure, what should we fix first among the current open findings for repository 408? Draft a Linear ticket for the top one.",
+    "prompt": "What should we fix first among the open Deep Scan findings for repository 408? Explain why and draft a Linear ticket for the top one.",
     "max_turns": 16,
     "timeout_seconds": 240,
     "allowed_tools": [
@@ -19,6 +19,12 @@
     ]
   },
   "graders": [
+    {
+      "name": "selected-secure-skill",
+      "type": "tool_used",
+      "tool": "Skill",
+      "input_match": "coderabbit-secure"
+    },
     {
       "name": "followed-backlog-cursor",
       "type": "tool_used",

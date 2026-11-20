@@ -65,7 +65,8 @@ learnings. These are shared product permissions. Reconnect through the host
 if an older grant lacks the scope returned by the tool. The account also needs access to
 the selected repository. Google uses native scope discovery.
 
-For a portable skill in Codex, reuse your existing CodeRabbit connection. With
+In Codex, the source plugin and the portable skill both use your configured
+CodeRabbit MCP connection. With
 no server configured, add the hosted endpoint for your organization's region
 and sign in using the name you configured. For example, for a US organization:
 

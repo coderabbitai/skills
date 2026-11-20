@@ -133,7 +133,7 @@ agy plugin list
 ```
 
 The source candidate includes hosted MCP with native OAuth discovery through
-[`mcp_config.json`](mcp_config.json), four shared skills and two agents.
+[`mcp_config.json`](mcp_config.json), five shared skills and two agents.
 Ask “Set up CodeRabbit” to use `coderabbit-setup` and
 check connection and review readiness. Local reviews
 still require the separately installed and authenticated CodeRabbit CLI.
@@ -147,8 +147,9 @@ Codex users can install the official CodeRabbit plugin by following the
 [Codex app integration guide](https://docs.coderabbit.ai/cli/codex-integration#codex-app).
 
 Native Codex metadata in [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json)
-references the existing `skills/` directory. Marketplace publication remains a
-separate step; this source change does not update the live listing.
+loads the shared skills. To use Deep Scan findings in the source plugin,
+[connect CodeRabbit MCP in Codex](docs/mcp.md#coderabbit-secure).
+Marketplace publication is a separate step.
 
 For an at-a-glance inventory of active and repo-packaged distribution paths, see
 [DISTRIBUTION_CHANNELS.md](DISTRIBUTION_CHANNELS.md).

@@ -1,47 +1,28 @@
 ---
 name: coderabbit-secure
-description: Use CodeRabbit Secure over hosted MCP for Deep Scan findings and secret triage, fixes, ticket drafts, evidence, exports, scan pricing and recovery, schedules, and Security learnings. Use for “what should I fix first?” or to explain which Security dashboard actions are available in chat.
+description: Triage CodeRabbit Deep Scan findings and secrets, prioritize fixes, draft tickets, and manage scans, schedules, exports and Security learnings through hosted MCP.
 metadata:
   version: "0.1.0"
 ---
 
 # CodeRabbit Secure
 
-For “what can I do here?” or a dashboard parity question, read the
-[Secure capability guide](references/capabilities.md). Offer workflows in
-the user's terms, from finding a repository and pricing a scan through
-triage, validation history, exports, schedules and learning maintenance.
-When someone asks for the full list, cover each section of the guide, including
-which steps finish in the web app or need a separate tracker connection.
-Discovery questions require no repository selection or write.
-
-- “What should we fix first from the last Deep Scan of payments?”
-- “Is this finding reachable in our deployment?”
-- “Draft a Linear ticket for the first one.”
-- “How much would a full scan cost, and is there one already running?”
-- “Export the open secret findings from this scan.”
-- “Show the weekend scan schedule and the feedback our team has saved.”
+For “what can I do in chat?”, use the [capability guide](references/capabilities.md).
+It covers the hosted tools and the steps that need the dashboard or a tracker.
+Answer capability questions without selecting a repository or making changes.
 
 ## Select the target
 
-Use the host’s authenticated CodeRabbit MCP tools and their advertised schemas.
-Tool names below omit host prefixes. Bind reads to the requested organization
-and repository. Reuse a known provider repository ID or resolve the exact
-owner/name with `list_repositories`. When the conversation already identifies
-a finding or scan, carry its repository and ID into follow-ups. Ask for a
-choice if multiple targets fit. Avoid querying an entire organization to
-resolve an ambiguous repository.
+Use the connected CodeRabbit tools and their advertised schemas. Names here
+omit host prefixes. Reuse the provider repository ID or resolve the exact
+owner/name with `list_repositories`. Carry repository, finding and scan IDs
+through follow-ups. Ask which repository the user means if several match.
 
-If the connection is missing, use the host's CodeRabbit MCP setup and browser
-sign-in. For a scope error, name the missing permission and the action it
-blocks. If sign-in works but the Security tools are missing, check the host's
-tool allowlist for `list_security_findings` and the other tools needed for the
-request. A successful `connection_status` check verifies the connection.
-Reading a scoped page verifies access to findings. If the read is denied,
-report what failed and how to restore access. Base rankings and ticket drafts
-only on findings retrieved for the requested target or supplied by the user
-for this task. A similarly named repository in plugin examples or evals is
-never evidence about the user's backlog.
+If disconnected, use the host's MCP setup and browser sign-in. If authenticated
+tools are missing, check the host's tool allowlist. On a denied read, name the
+blocked action and any missing permission. Only rank or draft from findings
+retrieved for this target or supplied by the user. Plugin examples are never
+evidence about a user's repository.
 
 ## Triage a backlog
 
