@@ -1,0 +1,9 @@
+{
+  "id": "10000000-0000-4000-8000-000000000001",
+  "repoId": "408",
+  "filePath": "examples/parser.ts",
+  "severity": "critical",
+  "state": "open",
+  "description": "Build manifest excludes this sample from the deployed image.",
+  "tickets": []
+}

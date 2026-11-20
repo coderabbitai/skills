@@ -1,0 +1,141 @@
+{
+  "tools": [
+    {
+      "name": "get_security_finding",
+      "description": "Returns one code security finding with its severity, location, description, recommendation, state and fix status, including any fix task or pull request and tracker ticket delivery status and URLs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repository_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "finding_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "repository_id",
+          "finding_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "preview_security_finding_ticket",
+      "description": "Returns the generated ticket content and the existing Jira or Linear destination for a Deep Scan finding. Does not create a ticket. Requires security:read.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repository_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "finding_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "finding_kind": {
+            "const": "vulnerability",
+            "type": "string",
+            "description": "Use vulnerability for all Deep Scan findings, including AI-detected secrets."
+          },
+          "destination": {
+            "enum": [
+              "jira",
+              "linear"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "repository_id",
+          "finding_id",
+          "finding_kind",
+          "destination"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_security_findings",
+      "description": "Lists code vulnerability and secret findings, up to 100 per page. Filter by repository, scan, state, finding kind, severity or search text; secret_validation_status requires finding_kind=secret. Follow next_cursor with the same filters.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repository_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1000,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          },
+          "scan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "search": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "state": {
+            "enum": [
+              "open",
+              "fixed",
+              "dismissed",
+              "superseded",
+              "all"
+            ],
+            "type": "string"
+          },
+          "finding_kind": {
+            "enum": [
+              "vulnerability",
+              "secret"
+            ],
+            "type": "string"
+          },
+          "severity": {
+            "type": "array",
+            "maxItems": 4,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50
+            }
+          },
+          "secret_validation_status": {
+            "type": "array",
+            "maxItems": 3,
+            "items": {
+              "enum": [
+                "valid",
+                "invalid",
+                "unknown"
+              ],
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  ]
+}

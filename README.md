@@ -136,7 +136,7 @@ agy plugin list
 ```
 
 The source candidate includes hosted MCP with native OAuth discovery through
-[`mcp_config.json`](mcp_config.json), four shared skills and two agents.
+[`mcp_config.json`](mcp_config.json), five shared skills and two agents.
 Ask “Set up CodeRabbit” to use `coderabbit-setup` and
 check connection and review readiness. Local reviews
 still require the separately installed and authenticated CodeRabbit CLI.
@@ -150,8 +150,9 @@ Codex users can install the official CodeRabbit plugin by following the
 [Codex app integration guide](https://docs.coderabbit.ai/cli/codex-integration#codex-app).
 
 Native Codex metadata in [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json)
-references the existing `skills/` directory. Marketplace publication remains a
-separate step; this source change does not update the live listing.
+loads the shared skills. To use Deep Scan findings in the source plugin,
+[connect CodeRabbit MCP in Codex](docs/mcp.md#coderabbit-secure).
+Marketplace publication is a separate step.
 
 For an at-a-glance inventory of active and repo-packaged distribution paths, see
 [DISTRIBUTION_CHANNELS.md](DISTRIBUTION_CHANNELS.md).
@@ -305,6 +306,26 @@ This skill is included in the source package and the published
 [standalone `v1.2.2` archive](https://github.com/coderabbitai/skills/releases/tag/v1.2.2).
 Marketplace caches require their normal publication update to deliver it.
 
+### [CodeRabbit Secure](skills/coderabbit-secure/SKILL.md)
+
+The [Secure capability guide](skills/coderabbit-secure/references/capabilities.md)
+maps plain-language requests to hosted tools across scan history and recovery,
+cost and scheduling, findings and secrets, runtime evidence, fixes, tickets,
+CSV exports and Security learnings. It also shows where the web app is needed.
+
+Ask **“Which findings from the latest Deep Scan of owner/repo should we fix
+first, and why?”** The skill uses your CodeRabbit MCP connection to read the
+scan, rank the findings and show what evidence supports the first fix. Follow
+up with “Draft a Linear ticket for the first one,” “Request a fix for it,”
+or “What would a full scan cost?” A ticket preview is a draft. A fix request
+starts work only when you ask.
+
+The portable skill name is `coderabbit-secure`; in Claude Code, invoke
+`/coderabbit:coderabbit-secure`. Use the source plugin or select
+`--skill coderabbit-secure` in the skills installer on a revision containing
+the skill. A skills-only install needs a separately connected hosted MCP
+server. See [connection and permissions](docs/mcp.md#coderabbit-secure).
+
 ## Plugin Components
 
 The native Claude candidate combines a remote MCP connection and setup command
@@ -314,9 +335,9 @@ separate qualification requirements.
 
 ### Claude Code
 
-- Skills: `code-review`, `autofix`, and `coderabbit-config`. Run them as
-  `/coderabbit:code-review`, `/coderabbit:autofix`, and
-  `/coderabbit:coderabbit-config`, or ask in plain language.
+- Skills include `code-review`, `autofix`, `coderabbit-config`, `coderabbit-setup`
+  and `coderabbit-secure`. Ask in plain language or invoke a skill directly,
+  for example `/coderabbit:coderabbit-secure`.
 - Subagents: `code-reviewer` runs a CodeRabbit review in its own context, and
   `autofix` collects and checks unresolved CodeRabbit review threads
   and returns a fix plan without editing anything. Mention them as
@@ -345,7 +366,7 @@ It keeps diagnostics sandboxed and retains per-command host approval for auth an
 
 - Native plugin manifest: `plugin.json`
 - Hosted MCP: `mcp_config.json`; native browser OAuth, separate from CLI login
-- Skills: all four are discovered under `skills/`, including `coderabbit-setup`
+- Skills are discovered under `skills/`, including `coderabbit-setup` and `coderabbit-secure`.
 - Review: ask “Review my changes” to activate `code-review`; do not rely on the legacy converted `/coderabbit:review` command
 - Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
 
@@ -362,7 +383,7 @@ prerequisites and example prompts. Maintainers should follow the
 
 ## Data and Privacy
 
-The native Claude plugin contains four portable skills, a setup command, two
+The native Claude plugin contains five portable skills, a setup command, two
 subagents and a remote MCP connection. It declares no automatic hooks.
 
 - **Local commands**: reviews use the user's installed CodeRabbit CLI. The

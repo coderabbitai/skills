@@ -1,11 +1,14 @@
 # Connected Codex candidate
 
 The source in this directory belongs to the connected `coderabbit` 1.3.0
-listing. Both ZIPs contain the same four reviewed skills. The portable listing
+listing. Both ZIPs contain the same five skills, including `coderabbit-secure`. The portable listing
 uses the original OAuth declaration and review metadata. The native Codex
 reader uses its own manifest and native `scopes` field for the same hosted
 server and five scopes. The repository root's skills-only Codex package has
 its own version and release process.
+
+Secure operations require a connection with the repository and Security
+permissions for the requested action. See the [Secure connection guide](../../docs/mcp.md#coderabbit-secure).
 
 Both profiles wire the native setup action to `coderabbit-setup`. The
 portable server-level OAuth extension follows [OpenAI's packaging reference](https://developers.openai.com/plugins/build/plugins).

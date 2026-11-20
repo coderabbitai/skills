@@ -16,7 +16,7 @@ def main():
     root = source.parent.parent
     manifest = json.loads((source / "plugin.json").read_text())
     mcp = json.loads((source / "mcp.json").read_text())
-    skills = ("code-review", "autofix", "coderabbit-config", "coderabbit-setup")
+    skills = ("code-review", "autofix", "coderabbit-config", "coderabbit-setup", "coderabbit-secure")
     tracked = subprocess.check_output(
         ["git", "ls-files", "-z", "--", *(f"skills/{name}/" for name in skills)],
         cwd=root,

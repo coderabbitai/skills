@@ -1,0 +1,11 @@
+{
+  "id": "10000000-0000-4000-8000-000000000002",
+  "repoId": "408",
+  "filePath": "src/invoices.ts",
+  "startLine": 42,
+  "severity": "high",
+  "state": "open",
+  "description": "Production handler looks up invoice by ID without checking tenant.",
+  "recommendation": "Scope lookup to the caller's tenant.",
+  "tickets": []
+}

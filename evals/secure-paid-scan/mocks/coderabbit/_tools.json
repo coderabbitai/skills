@@ -1,0 +1,56 @@
+{
+  "tools": [
+    {
+      "name": "get_security_scan_quote",
+      "description": "Returns the repository's full-scan estimate, its freshness and the organization's available Deep Scan credit in cents. Compare available_credit_cents with estimated_amount_cents to see whether credits cover this estimate. A null balance is unknown. Stored estimates are reused even when stale. Scan admission rechecks funding at start.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repository_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "repository_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "start_security_scans",
+      "description": "Request a full or delta Deep Scan.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repository_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "code"
+              ]
+            }
+          },
+          "scan_mode": {
+            "enum": [
+              "full",
+              "delta"
+            ]
+          }
+        },
+        "required": [
+          "repository_ids",
+          "targets",
+          "scan_mode"
+        ]
+      }
+    }
+  ]
+}

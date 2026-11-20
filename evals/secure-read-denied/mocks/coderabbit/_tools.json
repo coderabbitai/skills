@@ -1,0 +1,25 @@
+{
+  "tools": [
+    {
+      "name": "list_security_findings",
+      "description": "List findings for the selected repositories.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repository_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "state": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  ]
+}
