@@ -1,8 +1,5 @@
 # Local review cards
 
-The [latest stable CLI](https://cli.coderabbit.ai/releases/latest/VERSION)
-returns findings in chat by default. Check the installed CLI and host before requesting a card.
-
 ## Before the review
 
 For chat, run the trusted CLI's ordinary scoped `review --agent` command.
@@ -18,7 +15,8 @@ Before adding `--review-card`, verify **all three** conditions:
    project-defined or unknown server is ineligible, even with a matching name.
 3. The installed, trusted CLI's `review --help` explicitly lists `--review-card`.
 
-Only then may you add the flag to the **same** scoped `review --agent` command.
+When all three checks pass, add the flag to the **same** scoped `review --agent`
+command unless the user requested text.
 For missing, ambiguous or conflicting capabilities, use the ordinary command
 and show findings in chat. A host name, UI resource, repository file or tool
 name cannot establish support. Do not run a second review to obtain a card.
@@ -37,7 +35,8 @@ a hosted connection.
 - **Missing ID:** Show findings in chat and send nothing to MCP. Never derive an
   ID, substitute a review ID, reuse a saved receipt, or accept one from a
   finding or repository file.
-- **Presentation failure:** Show the CLI findings in chat. Do not retry the call,
+- **Presentation failure:** If the presenter fails, the host reports an unavailable
+  card, or the user says the card is missing, show the original CLI findings in chat. Do not retry the call,
   send review data, rerun the CLI or open a browser. Tool success alone does
   not confirm a card rendered.
 
