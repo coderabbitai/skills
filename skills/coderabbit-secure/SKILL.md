@@ -30,8 +30,11 @@ sign-in. For a scope error, name the missing permission and the action it
 blocks. If sign-in works but the Security tools are missing, check the host's
 tool allowlist for `list_security_findings` and the other tools needed for the
 request. A successful `connection_status` check verifies the connection.
-Reading a scoped page verifies access to findings. A failed read leaves the
-inventory unknown. Keep the user's hosted scan as the source of findings.
+Reading a scoped page verifies access to findings. If the read is denied,
+report what failed and how to restore access. Base rankings and ticket drafts
+only on findings retrieved for the requested target or supplied by the user
+for this task. A similarly named repository in plugin examples or evals is
+never evidence about the user's backlog.
 
 ## Triage a backlog
 

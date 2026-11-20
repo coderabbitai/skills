@@ -4,6 +4,7 @@ Run the CodeRabbit Secure cases against the source plugin with synthetic MCP
 tools. The triage case checks the selected finding and ticket destination.
 The quote case checks the credit gap and that the agent made zero dispatches.
 The fix case presents an active fix task and checks for duplicate dispatches.
+The denied-read case checks that a demo cannot supply evidence for a real ticket.
 
 ```sh
 claude plugin eval . --tag secure --runs 1 --ablation none --no-publish

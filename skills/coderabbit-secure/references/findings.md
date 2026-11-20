@@ -15,10 +15,12 @@ manifest leaves a gap. These tools read existing attempts.
 Jira or Linear destination. Show the draft title, destination, suggested
 priority and actionable description. If the preview omits part of the draft,
 compose that part from the finding and distinguish it from the returned fields.
-A preview creates no ticket. If the
-user wants to file it, use an available authorized tracker tool for that
-destination, check for existing delivery, and report a ticket only after
-receiving its ID or link. Otherwise leave a ready-to-copy draft. For ticket
+A preview creates no ticket. If the user wants to file it, use the selected
+tracker and team or project. Ask for the destination if neither the preview
+nor the user supplies it. For a direct tracker write, include the finding ID
+and check for an existing ticket there when possible. Report the returned
+ticket ID or link; a tracker receipt alone does not establish a link back
+from CodeRabbit. Without an authorized tracker, leave a ready-to-copy draft. For ticket
 preview, fix and dismiss operations, the current tool schema requires
 `finding_kind: "vulnerability"` even for a Deep Scan secret. The listing
 filter for secrets is `finding_kind: "secret"`.
