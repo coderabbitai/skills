@@ -83,7 +83,7 @@ def check_package(root):
 def check_report(report):
     if report.get("manifest") != "plugin.json" or report.get("name") != "coderabbit":
         raise ValueError("The native loader did not select root plugin.json")
-    expected = {"skills": 4, "agents": 2, "mcpServers": 1, "hooks": 0, "rules": 0, "sidecars": 0}
+    expected = {"skills": 5, "agents": 2, "mcpServers": 1, "hooks": 0, "rules": 0, "sidecars": 0}
     if report.get("components") != expected:
         raise ValueError(f"Unexpected native components: {report.get('components')}")
     for finding in report.get("findings", []):
@@ -124,7 +124,7 @@ def main():
             raise ValueError("Release state changed during native validation; rerun the check")
     except (ValueError, KeyError, OSError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"Antigravity validation failed: {error}\n")
-    print("Antigravity package passed: 4 skills, 2 agents, 1 MCP server; only the known commands warning")
+    print("Antigravity package passed: 5 skills, 2 agents, 1 MCP server; only the known commands warning")
     if args.base:
         print("Main-based release version check passed")
     else:

@@ -311,7 +311,7 @@ class NativeReportTests(unittest.TestCase):
     def setUp(self):
         self.report = {
             "manifest": "plugin.json", "name": "coderabbit",
-            "components": {"skills": 4, "agents": 2, "mcpServers": 1, "hooks": 0, "rules": 0, "sidecars": 0},
+            "components": {"skills": 5, "agents": 2, "mcpServers": 1, "hooks": 0, "rules": 0, "sidecars": 0},
             "findings": [{"severity": "warning", "file": "commands", "message": "never loaded: plugins have no commands. Make each one a skill"}],
         }
 
@@ -329,7 +329,7 @@ class NativeReportTests(unittest.TestCase):
             checks.check_report(self.report)
 
     def test_missing_mcp_and_extra_hooks_fail(self):
-        for field, value in (("mcpServers", 0), ("hooks", 1), ("skills", 3)):
+        for field, value in (("mcpServers", 0), ("hooks", 1), ("skills", 4)):
             with self.subTest(field=field):
                 report = copy.deepcopy(self.report)
                 report["components"][field] = value

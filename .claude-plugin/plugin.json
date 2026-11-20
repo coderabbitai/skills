@@ -28,7 +28,7 @@
       "type": "http",
       "url": "https://mcp.coderabbit.ai/",
       "oauth": {
-        "scopes": "connection account:read usage:read pull_requests:read review"
+        "scopes": "connection account:read usage:read pull_requests:read review repositories:read security:read security:write automations:write knowledge:write"
       }
     }
   }

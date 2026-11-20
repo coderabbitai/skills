@@ -8,7 +8,7 @@
   "suggestedPrompts": [
     "Check my CodeRabbit connection and selected organization.",
     "Review my uncommitted changes. Review only; do not edit.",
-    "Show unresolved CodeRabbit feedback on my pull request and propose fixes."
+    "Which findings from my latest Deep Scan should I fix first?"
   ],
   "author": { "name": "CodeRabbit", "email": "support@coderabbit.ai", "url": "https://coderabbit.ai" },
   "homepage": "https://docs.coderabbit.ai/cli/antigravity",

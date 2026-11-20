@@ -21,6 +21,13 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 | VS Code / Cursor / Windsurf IDE extension | Live, separate distribution | CodeRabbit IDE extension docs | Complements skills; not a replacement for `SKILL.md` installs. |
 | GitHub Marketplace app (PR reviews) | Live, separate product channel | CodeRabbit GitHub Marketplace listing | Product distribution, not a skills install path. |
 
+## CodeRabbit Secure availability
+
+The source package includes `skills/coderabbit-secure/`. Claude and Antigravity
+declare hosted MCP connections. A portable installation uses the host's
+configured CodeRabbit server. The source change does not establish a tagged
+release or marketplace publication. See the [connection guide](docs/mcp.md#coderabbit-secure).
+
 ## Configuration skill availability
 
 The shared `skills/` directory and published [standalone `v1.2.2` archive](https://github.com/coderabbitai/skills/releases/tag/v1.2.2)
