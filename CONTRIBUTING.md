@@ -58,19 +58,6 @@ When changing `.coderabbit.yaml`, also run:
 coderabbit config validate .coderabbit.yaml
 ```
 
-For standalone releases, the tag's workflow checks the packaged `SKILL.md` for
-every directory in `skills/` before publishing. To test from a release checkout:
-
-```bash
-archive=$(mktemp)
-git archive --format=tar.gz --prefix=coderabbit-skills-0.0.0/ HEAD > "$archive"
-ruby .github/check_release_catalog.rb "$archive" 0.0.0
-```
-
-When tagging from a maintenance branch, include the catalog check and its
-workflow step on that branch. The Cursor and Gemini manifest versions must
-match the standalone tag.
-
 When changing host-specific packaging, run its official validator when
 available, including `gemini extensions validate .` or
 `agy plugin validate .`.

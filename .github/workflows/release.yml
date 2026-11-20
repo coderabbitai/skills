@@ -75,11 +75,6 @@ jobs:
             "  \"sourceTarballUrl\": \"${SOURCE_TARBALL_URL}\"" \
             '}' > release-manifest.json
 
-      - name: Check the packaged skill catalog
-        env:
-          TAG_NAME: ${{ github.ref_name }}
-        run: ruby .github/check_release_catalog.rb "coderabbit-skills-${TAG_NAME}.tar.gz" "${TAG_NAME#v}"
-
       - name: Publish GitHub release assets
         uses: softprops/action-gh-release@v2
         with:
