@@ -2,6 +2,14 @@
 
 All notable changes to this repository are documented in this file.
 
+## Optional MCP product feedback
+
+- Agents can optionally send concrete feedback about any CodeRabbit product
+  through `submit_feedback`, when available and consented. Claude 1.3.6 source
+  requests `feedback:write`; Antigravity 1.3.4 source uses native discovery.
+  Backend deployment is required before publication. Existing grants retain
+  their original scopes until reconnection. Feedback is stored in PostHog.
+
 ## Local stdio review card setup
 
 - Antigravity 1.3.3 and Claude 1.3.5 can register the installed CodeRabbit CLI

@@ -86,6 +86,29 @@ access to that evidence. If sign-in succeeds and Security tools are absent,
 check the server's tool allowlist in the host. A configuration limited to
 PR review tools can hide `list_security_findings` even after Security consent.
 
+## Optional product feedback
+
+When the connected server exposes `submit_feedback`, your agent can voluntarily
+report bugs, suggestions, or useful experiences with any CodeRabbit product.
+You can also ask it to send your feedback. Only a concise `message` is required;
+optional fields identify the product, category, tool, an existing request ID,
+and whether the feedback comes from the agent or you.
+
+Submission requires `feedback:write`. Claude 1.3.6 source requests this scope;
+hosts using native scope discovery can request the server's `write` group.
+Existing connections keep their original permissions until you reconnect.
+For a connection with an explicit scope list, preserve its current scopes and
+add `feedback:write` when you choose to enable feedback. The server must advertise
+the scope first; publish this source update after that backend deployment.
+Agents should skip unsolicited feedback when the tool or permission is unavailable.
+
+Feedback is stored in CodeRabbit's PostHog project for product investigation.
+It includes the submitted text, connected user and organization, region, and
+normalized agent attribution. Do not include secrets, private source code, or
+conversation transcripts. `received` and `feedback_id` confirm ingestion
+acceptance, not that someone read the report or a fix is promised. A failed or
+interrupted submission is not confirmed; avoid repeatedly resubmitting it.
+
 ## Data and support
 
 Local review sends the selected code changes and required repository context to

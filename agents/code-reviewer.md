@@ -5,6 +5,9 @@ description: Reviews local code through the installed CodeRabbit CLI, returning 
 
 # CodeRabbit Code Review Agent
 
+For optional feedback about CodeRabbit, follow the
+[product feedback action](../skills/code-review/SKILL.md#optional-product-feedback).
+
 ## Local review workflow
 
 Use the installed CodeRabbit CLI and its own authentication in every host.
