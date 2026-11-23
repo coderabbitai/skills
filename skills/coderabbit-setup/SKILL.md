@@ -2,7 +2,7 @@
 name: coderabbit-setup
 description: Set up CodeRabbit for local CLI reviews, optional inline review cards, and the host's configured remote MCP tools. Use for onboarding, reconnection, or diagnosing separate MCP and CLI sign-ins.
 metadata:
-  version: "0.2.0"
+  version: "1.4.0"
 ---
 
 # Set up CodeRabbit

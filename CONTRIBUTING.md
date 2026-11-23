@@ -45,6 +45,14 @@ documentation for every agent or plugin host named by the change.
 
 ## Validation
 
+Follow the [shared source version policy](docs/versioning.md). For changes to
+shipped content, use `python3 .github/release.py bump X.Y.Z` to update all active
+manifest and skill versions together. After fetching canonical main, run:
+
+```sh
+python3 .github/release.py check --base FETCH_HEAD
+```
+
 Run the checks that match your change:
 
 ```bash
@@ -75,8 +83,8 @@ canonical main even when `origin` is a fork. The check includes non-ignored,
 untracked package additions, so staging first is not required.
 The check requires the official `agy` CLI and allows only the known
 multi-host `commands/` warning. Google reads root `plugin.json` on `main`;
-bump its version when changing bundled content. Antigravity's version is
-independent of standalone release tags. See the
+bump the shared source version when changing bundled content. Antigravity
+publication is independent of GitHub archive publication. See the
 [release and QA guide](docs/antigravity-release.md).
 
 Include the exact commands and results in the pull-request description. If a

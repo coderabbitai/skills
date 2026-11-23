@@ -1,0 +1,42 @@
+name: Package versions
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate versions and artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Test version policy and release packaging
+        run: python3 -m unittest discover -s .github/tests -v
+      - name: Validate shared source versions
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$BASE_SHA" && "$BASE_SHA" != 0000000000000000000000000000000000000000 ]]; then
+            python3 .github/release.py check --base "$BASE_SHA"
+          else
+            python3 .github/release.py check
+          fi
+      - name: Build CLI release snapshot
+        run: python3 .github/release.py build --snapshot --output "$RUNNER_TEMP/skills-release"
+      - name: Build connected Codex profiles
+        run: |
+          python3 packaging/codex-connected/build.py portal "$RUNNER_TEMP/coderabbit-portal.zip"
+          python3 packaging/codex-connected/build.py native "$RUNNER_TEMP/coderabbit-native.zip"

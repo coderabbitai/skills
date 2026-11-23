@@ -2,7 +2,7 @@
 name: coderabbit-secure
 description: Triage CodeRabbit Deep Scan findings and secrets, prioritize fixes, draft tickets, and manage scans, schedules, exports and Security learnings through hosted MCP.
 metadata:
-  version: "0.1.0"
+  version: "1.4.0"
 ---
 
 # CodeRabbit Secure

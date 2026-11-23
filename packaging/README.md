@@ -7,6 +7,9 @@
 > They remain in git history at `f0629e0`. Commands below that call them no
 > longer run from `main`.
 
+Current source versions follow the [shared version policy](../docs/versioning.md).
+The independent versioning instructions below describe the archived assembler.
+
 ## Native Claude package on main
 
 The repository root on `main` is the complete Claude MCP 1.3.1 candidate.

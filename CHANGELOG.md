@@ -2,6 +2,13 @@
 
 All notable changes to this repository are documented in this file.
 
+## [1.4.0] - Unreleased source version alignment
+
+- Unify six active host manifests and five canonical skill versions under `VERSION`.
+- Add one bump command, PR version checks and verified CLI-compatible release assets.
+- Preserve published channel observations and historical release inputs separately.
+- Require native package validation before tagged GitHub releases.
+
 ## Local stdio review card setup
 
 - Antigravity 1.3.3 and Claude 1.3.5 can register the installed CodeRabbit CLI

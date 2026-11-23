@@ -5,7 +5,7 @@ the same local CLI workflows and remote endpoint as Claude 1.3.0 and the
 OpenAI MCP 1.3.0 candidate. These are independently published channels;
 matching source versions do not establish live marketplace parity.
 
-The 1.3.0 target is the current separate-sign-in workflow. MCP-authorized CLI
+The current source preserves the separate-sign-in workflow introduced in 1.3.0. MCP-authorized CLI
 handoffs are deferred and are not a release requirement for this candidate.
 Google's broader discovered OAuth grant, starter-prompt routing and unavailable
 inline presentation tool remain explicit differences; this is workflow parity,
@@ -56,9 +56,10 @@ distinct package, not evidence of MCP in the standalone Codex distribution.
 
 ## Release procedure
 
-1. Include the root `plugin.json` version bump with any change to the Google
-   package's shared skills, agents, commands, assets, MCP config or overview.
-   Antigravity versions are independent of standalone `v*` archive tags.
+1. Use `python3 .github/release.py bump X.Y.Z` for changes to shared skills,
+   agents, commands, assets, MCP config or overview. All active packages now
+   share the source version; see the [version policy](versioning.md).
+   Antigravity publication remains independent of GitHub `v*` archive releases.
 2. Fetch canonical main with
    `git fetch https://github.com/coderabbitai/skills.git main`, then immediately run
    `python3 .github/check_antigravity.py --base FETCH_HEAD` and
