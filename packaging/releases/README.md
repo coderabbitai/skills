@@ -7,9 +7,6 @@
 > They remain in git history at `f0629e0`. Commands below that call them no
 > longer run from `main`.
 
-Current source versions follow the [shared version policy](../../docs/versioning.md).
-The independent versioning instructions below describe the archived assembler.
-
 The repository-root Claude 1.3.0 candidate combines remote MCP with standalone
 CLI local reviews. It declares no review hook and has no managed-runtime pins.
 Its source is `main`; directory validation and publication remain separate.

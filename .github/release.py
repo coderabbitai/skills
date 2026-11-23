@@ -1,4 +1,4 @@
-"""Maintain the shared source version and build CLI-compatible release assets.
+"""Validate current independent versions; opt into shared source versions later.
 
 Python standard library only. Marketplace publication is tracked separately.
 """
@@ -83,15 +83,25 @@ def check_inventory(root):
 
 
 def check(root, base=None, tag=None, after_tag=None):
-    current = read_version(root)
+    current = read_version(root) if (root / 'VERSION').exists() else None
     check_inventory(root)
     for name in MANIFESTS:
         data = json.loads((root / name).read_text())
-        if data.get('name') != 'coderabbit' or data.get('version') != current:
+        version(data.get('version'))
+        if data.get('name') != 'coderabbit':
+            raise ValueError(f'{name}: preserve the coderabbit package identity')
+        if current is not None and data.get('version') != current:
             raise ValueError(f'{name}: expected coderabbit version {current}; run bump')
     for path in skills(root):
-        if skill_metadata(path)[0] != current:
+        installed = skill_metadata(path)[0]
+        if current is not None and installed != current:
             raise ValueError(f'{path.relative_to(root)}: expected metadata.version {current}; run bump')
+    if current is None:
+        if tag is not None or after_tag is not None:
+            raise ValueError('Shared release checks require explicit VERSION activation')
+        if base and git(root, 'ls-tree', '--name-only', resolve(root, base), '--', 'VERSION'):
+            raise ValueError('Cannot remove VERSION after shared versioning is activated')
+        return None
     if tag is not None and tag != f'v{current}':
         raise ValueError(f'Tag {tag!r} must be v{current}')
     if after_tag is not None:
@@ -116,7 +126,9 @@ def check(root, base=None, tag=None, after_tag=None):
     return current
 
 
-def bump(root, target):
+def bump(root, target, activate_shared=False):
+    if not (root / 'VERSION').exists() and not activate_shared:
+        raise ValueError('Shared versioning is not active; use --activate-shared only for an agreed migration')
     version(target)
     check_inventory(root)
     existing = []
@@ -154,6 +166,8 @@ def bump(root, target):
 
 def build(root, output, tag=None):
     current = check(root, tag=tag)
+    if current is None:
+        raise ValueError('Shared archive builder requires explicit VERSION activation; use the existing release workflow')
     commit = resolve(root, 'HEAD')
     if git(root, 'status', '--porcelain', '--untracked-files=all'):
         raise ValueError('Build from a clean, committed checkout')
@@ -194,7 +208,9 @@ def main():
     audit.add_argument('--base', help='fresh canonical main SHA, or previous main SHA in CI')
     audit.add_argument('--tag')
     audit.add_argument('--after-tag', help='currently published latest tag; release must be newer')
-    commands.add_parser('bump').add_argument('version')
+    advance = commands.add_parser('bump')
+    advance.add_argument('version')
+    advance.add_argument('--activate-shared', action='store_true', help='explicitly migrate all source packages and skills to VERSION')
     package = commands.add_parser('build')
     package.add_argument('--output', type=Path, required=True, help='new directory outside checkout')
     modes = package.add_mutually_exclusive_group(required=True)
@@ -203,9 +219,17 @@ def main():
     args = parser.parse_args()
     try:
         if args.command == 'check':
-            print(f'Source versions valid: {check(args.root, args.base, args.tag, args.after_tag)}')
+            current = check(args.root, args.base, args.tag, args.after_tag)
+            if current is None:
+                print('Independent source versions valid; shared versioning is not activated')
+                for name in MANIFESTS:
+                    print(f'{name}: {json.loads((args.root / name).read_text())["version"]}')
+                for path in skills(args.root):
+                    print(f'{path.relative_to(args.root)}: {skill_metadata(path)[0]}')
+            else:
+                print(f'Shared source versions valid: {current}')
         elif args.command == 'bump':
-            bump(args.root, args.version)
+            bump(args.root, args.version, args.activate_shared)
             print(f'Updated all source versions to {args.version}')
         else:
             result = build(args.root, args.output, args.tag)

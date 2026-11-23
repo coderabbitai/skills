@@ -44,6 +44,40 @@ class VersionPolicyTests(unittest.TestCase):
         self.git('-c', 'user.name=Test', '-c', 'user.email=test@example.com',
                  '-c', 'commit.gpgsign=false', 'commit', '-qm', 'fixture')
 
+    def test_independent_versions_remain_valid_without_activation(self):
+        self.git('rm', 'VERSION')
+        name = release.MANIFESTS[0]
+        self.write(name, json.dumps({'name': 'coderabbit', 'version': '1.3.5'}, indent=2))
+        self.commit()
+        before = (self.root / name).read_bytes()
+        self.assertIsNone(release.check(self.root, self.git('rev-parse', 'HEAD')))
+        self.assertEqual((self.root / name).read_bytes(), before)
+        self.assertFalse((self.root / 'VERSION').exists())
+        with self.assertRaisesRegex(ValueError, '--activate-shared'):
+            release.bump(self.root, '1.5.0')
+        with self.assertRaisesRegex(ValueError, 'explicit VERSION activation'):
+            release.build(self.root, Path(self.temp.name) / 'output')
+        release.bump(self.root, '1.5.0', activate_shared=True)
+        self.assertEqual(release.check(self.root), '1.5.0')
+
+    def test_independent_mode_still_rejects_invalid_metadata(self):
+        self.git('rm', 'VERSION')
+        name = release.MANIFESTS[0]
+        original = (self.root / name).read_text()
+        self.write(name, original.replace('1.4.0', 'not-a-version'))
+        with self.assertRaises(ValueError):
+            release.check(self.root)
+        self.write(name, original)
+        path = self.root / 'skills/coderabbit-config/SKILL.md'
+        path.write_text(path.read_text().replace('  version: "1.4.0"\n', ''))
+        with self.assertRaisesRegex(ValueError, 'metadata.version'):
+            release.check(self.root)
+
+    def test_shared_policy_cannot_be_disabled_by_deleting_version(self):
+        self.git('rm', 'VERSION')
+        with self.assertRaisesRegex(ValueError, 'Cannot remove VERSION'):
+            release.check(self.root, self.base)
+
     def test_all_host_manifests_are_enforced(self):
         for name in release.MANIFESTS:
             with self.subTest(name=name):
@@ -128,7 +162,7 @@ class VersionPolicyTests(unittest.TestCase):
         self.write('VERSION', '1.4.0')
         with self.assertRaisesRegex(ValueError, 'backwards'):
             release.check(self.root, base)
-        release.bump(self.root, '1.6.0')
+        release.bump(self.root, '1.6.0', activate_shared=True)
         release.check(self.root, base)
 
     def test_parallel_pr_must_bump_again_after_other_pr_merges(self):
@@ -190,9 +224,9 @@ class VersionPolicyTests(unittest.TestCase):
 
 
 class ConnectedPackageTests(unittest.TestCase):
-    def test_both_profiles_preserve_shared_version_and_skill_payloads(self):
+    def test_both_profiles_preserve_current_versions_and_skill_payloads(self):
         root = Path(__file__).resolve().parents[2]
-        expected = release.read_version(root)
+        expected = json.loads((root / 'packaging/codex-connected/plugin.json').read_text())['version']
         with tempfile.TemporaryDirectory() as directory:
             for profile in ('portal', 'native'):
                 with self.subTest(profile=profile):

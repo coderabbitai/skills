@@ -24,7 +24,7 @@ jobs:
           python-version: '3.12'
       - name: Test version policy and release packaging
         run: python3 -m unittest discover -s .github/tests -v
-      - name: Validate shared source versions
+      - name: Validate source version metadata
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
@@ -34,7 +34,8 @@ jobs:
           else
             python3 .github/release.py check
           fi
-      - name: Build CLI release snapshot
+      - name: Build CLI release snapshot after shared-version activation
+        if: ${{ hashFiles('VERSION') != '' }}
         run: python3 .github/release.py build --snapshot --output "$RUNNER_TEMP/skills-release"
       - name: Build connected Codex profiles
         run: |

@@ -1,11 +1,11 @@
 # Connected Codex candidate
 
-This directory packages the connected `coderabbit` source candidate at the
-shared version in [`VERSION`](../../VERSION). Both ZIPs contain the same five skills, including `coderabbit-secure`. The portable listing
+The source in this directory belongs to the connected `coderabbit` 1.3.0
+listing. Both ZIPs contain the same five skills, including `coderabbit-secure`. The portable listing
 uses the original OAuth declaration and review metadata. The native Codex
 reader uses its own manifest and native `scopes` field for the same hosted
 server and five scopes. The repository root's skills-only Codex package has
-the same source version and a separate publication process.
+its own version and release process.
 
 Secure operations require a connection with the repository and Security
 permissions for the requested action. See the [Secure connection guide](../../docs/mcp.md#coderabbit-secure).

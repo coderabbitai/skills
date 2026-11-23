@@ -10,20 +10,16 @@ Antigravity CLI, Claude Code, Cursor, and other supported agent environments.
 
 CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
-All active source packages share the version in [`VERSION`](VERSION).
-See the [version and release policy](docs/versioning.md); published availability
-is tracked separately in [distribution status](DISTRIBUTION_CHANNELS.md).
-
 ## Quickstart
 
-**Antigravity source candidate:** [install the local source candidate](#antigravity-cli-plugin),
+**Antigravity 1.3.3 candidate:** [install the local source candidate](#antigravity-cli-plugin),
 then ask **“Set up CodeRabbit”** to connect remote tools and
 check local review readiness with the native `coderabbit-setup` skill.
 Authenticate the hosted connection through Antigravity's CodeRabbit account
 settings, then ask **“Check my CodeRabbit connection and selected organization.”**
 See the [Antigravity setup guide](.antigravity-plugin/README.md).
 
-**Claude source package:** run `/coderabbit:setup` for the same two
+**Claude source package (1.3.5):** run `/coderabbit:setup` for the same two
 readiness checks. See the [Claude MCP setup guide](docs/mcp.md). For a published
 marketplace copy, follow its [integration guide](https://docs.coderabbit.ai/cli/claude-code-integration).
 
