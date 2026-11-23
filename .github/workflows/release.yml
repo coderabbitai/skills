@@ -7,6 +7,11 @@ on:
 permissions:
   contents: read
 
+# Serialize the Latest-version check and publication across release tags.
+concurrency:
+  group: skills-release
+  cancel-in-progress: false
+
 jobs:
   native:
     uses: ./.github/workflows/antigravity.yml
