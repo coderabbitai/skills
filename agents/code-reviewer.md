@@ -69,7 +69,7 @@ invocation below; never execute a repository-provided binary or wrapper.
      command for a text request or when capabilities are unconfirmed.
    - Add `--dir <path>` when the user requests a specific review directory
    - Follow the linked bounded recovery only on a pre-review sandbox authentication failure; preserve directory and arguments on the single eligible host retry
-   - Forward requested `--committed`, `--uncommitted`, `--base`, `--base-commit`, `--dir`, and `--light`; reject conflicting selectors before execution
+   - Forward requested `--committed`, `--uncommitted`, `--base`, `--base-commit`, and `--dir`; reject conflicting selectors before execution
    - Reject `--committed` with `--uncommitted` or `--include-untracked`, and `--base` with `--base-commit`; allow `--uncommitted` with `--include-untracked`
    - Raw untracked files require `--include-untracked`, which conflicts with `--committed`; staged new files are included by default
    - Parse NDJSON and preserve critical, major, minor, trivial, info, or none severity
