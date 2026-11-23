@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 import subprocess
+import sys
 from zipfile import ZIP_DEFLATED, ZipFile
 
 
@@ -14,6 +15,7 @@ def main():
     args = parser.parse_args()
     source = Path(__file__).resolve().parent
     root = source.parent.parent
+    subprocess.run([sys.executable, str(root / '.github/release.py'), 'check'], check=True)
     manifest = json.loads((source / "plugin.json").read_text())
     mcp = json.loads((source / "mcp.json").read_text())
     skills = ("code-review", "autofix", "coderabbit-config", "coderabbit-setup", "coderabbit-secure")

@@ -45,6 +45,17 @@ documentation for every agent or plugin host named by the change.
 
 ## Validation
 
+The [versioning harness](docs/versioning.md) validates current manifest and
+skill metadata without requiring shared versions. Run:
+
+```sh
+python3 .github/release.py check
+python3 -m unittest discover -s .github/tests -v
+```
+
+A shared-version migration is a separate, explicit decision. Continue existing
+channel-specific bump requirements in the meantime.
+
 Run the checks that match your change:
 
 ```bash
