@@ -91,7 +91,6 @@ If the user asks to review a specific directory, append `--dir <path>`. The dire
 | `--committed`     | Committed changes only                                                    |
 | `--uncommitted`   | Staged changes and unstaged edits to tracked files                        |
 | `--include-untracked` | Include untracked files; may combine with `--uncommitted`, never `--committed` |
-| `--light` | Reduce review context; changes review policy, not output format |
 | `--base main`     | Compare against specific branch                                           |
 | `--base-commit`   | Compare against specific commit hash                                      |
 | `--dir <path>`    | Review directory path; must be inside an initialized Git working tree     |

@@ -17,6 +17,9 @@ Use the connected CodeRabbit tools and their advertised schemas. Names here
 omit host prefixes. Reuse the provider repository ID or resolve the exact
 owner/name with `list_repositories`. Carry repository, finding and scan IDs
 through follow-ups. Ask which repository the user means if several match.
+If exact lookup fails and the user limited access to this repository, do not
+enumerate other repositories as a fallback. Report the lookup failure or ask
+for the verified provider repository ID.
 
 If disconnected, use the host's MCP setup and browser sign-in. If authenticated
 tools are missing, check the host's tool allowlist. On a denied read, name the
