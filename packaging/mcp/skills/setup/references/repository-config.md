@@ -34,7 +34,13 @@ V3 validation must use V3. If a validator rejects an explicit V2 declaration,
 report the compatibility diagnostic and retain the declaration.
 See [agent-guided setup](https://docs.coderabbit.ai/cli#agent-guided-setup).
 
-V3 path instructions and custom checks are Markdown documents under
+Directory instructions and checks work on GitHub Cloud with CodeRabbit Cloud
+for both V2 and V3 settings. Establish that environment before recommending
+documents. GitHub Enterprise Server, other Git hosts and self-hosted CodeRabbit
+do not read them. For unsupported hosting, explain the limitation and stop
+document setup. See [availability](https://docs.coderabbit.ai/configuration/documents#availability).
+
+Path instructions and custom checks are Markdown documents under
 `.coderabbit/instructions/` and `.coderabbit/pre-merge-checks/`. The config
 wizard cannot author them. A request limited to those documents should surface
 that capability gap and stop before starting the wizard.
@@ -53,8 +59,9 @@ For existing V2 YAML, run `<packaged-cli> config --detailed` in an interactive
 terminal for path guidance. For a new V2 configuration, first verify that the
 installed CLI provides a documented V2 creation path or returns a V2 proposal
 through its supported fallback. If it generates only V3 for this repository,
-report the capability gap and stop V2 setup. Otherwise generate and
-preview the V2 baseline, save it with approval through the workflow below, and
+report the capability gap and stop V2 setup. Otherwise generate a proposal and
+verify its V2 schema and absent version or numeric `version: 2`. Stop before
+preview or save if the proposal is V3 or otherwise not V2. Then preview the V2 baseline, save it with approval through the workflow below, and
 re-inspect to confirm V2 before running `config --detailed`. Relay the actual
 prompts and obtain approval for the displayed changes. When the host cannot
 interact with a terminal, provide the command for the selected repository and

@@ -109,7 +109,10 @@ inspect the file before retrying or reporting success.
 Inspect the repository with `<cli> config --agent` first.
 
 For a request limited to V3 instructions or checks, including a repository with
-no config yet, explain the relevant location and CLI limitation, then stop this
+no config yet, first check directory-document availability in the settings
+reference. For unsupported hosting, explain the limitation and stop without
+recommending document creation. For supported hosting, explain the relevant
+location and CLI limitation, then stop this
 wizard workflow. Path instructions are Markdown files under
 `.coderabbit/instructions/` and custom checks live under
 `.coderabbit/pre-merge-checks/`. The CLI wizard can edit review style but
@@ -120,7 +123,9 @@ For V2 path-guidance requests with existing V2 YAML, run
 request with no config yet, verify that the CLI offers a documented V2 creation
 path or returns V2 through its supported fallback. If it only generates V3 for
 this repository, report the capability gap and stop V2 setup. Otherwise generate,
-preview, and save the approved V2 baseline through the workflow above.
+verify the generated proposal uses the V2 schema and has no version or numeric
+`version: 2`. Stop before preview or save if it is V3 or otherwise not V2.
+Then preview and save the approved V2 baseline through the workflow above.
 Re-inspect to confirm V2, then run `<cli> config --detailed`.
 
 For general interactive setup, check the hosting environment before creating

@@ -40,3 +40,12 @@ If the CLI reports the V2 schema for an existing V3 document, stop before
 proposing a change or interpreting V2 validation errors as defects in V3 YAML.
 A documented V2 creation workflow for an environment requiring V2 can continue.
 
+
+## Directory-document availability
+
+Instruction and check documents work on GitHub Cloud with CodeRabbit Cloud,
+with either V2 or V3 settings. GitHub Enterprise Server, other Git providers,
+and self-hosted CodeRabbit do not read them. Establish the hosting environment
+before recommending these documents. For unsupported hosting, explain the
+limitation and use a supported configuration route.
+See [document availability](https://docs.coderabbit.ai/configuration/documents#availability).
