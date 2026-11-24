@@ -70,7 +70,8 @@ Agent protocol 2 is the JSON response format for both V2 and V3 settings.
 For YAML with a numeric top-level `version: 3`, or a new config for an eligible
 GitHub Cloud repository on CodeRabbit Cloud, expect the CLI's `schema` field to be
 `https://www.coderabbit.ai/integrations/schema.v3.json`. A V3-capable CLI
-generates new configs in V3 by default. Existing unversioned YAML keeps its
+generates new configs in V3 by default for that eligible hosted environment.
+Existing unversioned YAML keeps its
 V2 schema and layout during ordinary edits. The YAML editor comment alone
 does not select the settings version.
 
