@@ -12,6 +12,11 @@ when it is missing. Central configs, other Git hosts, and self-hosted CodeRabbit
 use V2. Read-only validation can proceed independently of hosted support.
 See the [migration guide](https://docs.coderabbit.ai/guides/migrate-configuration-v3).
 
+The historical native package in `packaging/releases/claude-1.3.1.json` pins
+CLI 0.9.3. Its runtime must be updated through the package preparation workflow
+before using the CLI 0.9.6 fallback described below. Check the actual packaged
+CLI version and preserve version-gap diagnostics.
+
 Protocol 2 is the agent response format for both settings versions. YAML with
 numeric `version: 3` requires `schema.v3.json`. Unversioned YAML and numeric
 `version: 2` use `schema.v2.json`. Preserve existing declarations and layout.
@@ -30,7 +35,25 @@ See [agent-guided setup](https://docs.coderabbit.ai/cli#agent-guided-setup).
 V3 path instructions and custom checks are Markdown documents under
 `.coderabbit/instructions/` and `.coderabbit/pre-merge-checks/`. The config
 wizard cannot author them. A request limited to those documents should surface
-that capability gap before proposing a review-style change.
+that capability gap and stop before starting the wizard.
+
+## Validate only
+
+For a validation-only request, run `<packaged-cli> config validate --agent`,
+or `<packaged-cli> config validate <file> --agent` for an explicitly selected
+file. Require exit zero, `ok: true`, `operation: validate`, and a schema
+matching that file's version. Report schema-download and compatibility errors.
+This route performs no generation or apply step.
+
+## V2 path guidance
+
+For existing V2 YAML, run `<packaged-cli> config --detailed` in an interactive
+terminal for path guidance. For a new V2 configuration, first generate and
+preview the V2 baseline, save it with approval through the workflow below, and
+re-inspect to confirm V2 before running `config --detailed`. Relay the actual
+prompts and obtain approval for the displayed changes. When the host cannot
+interact with a terminal, provide the command for the selected repository and
+resume after the user finishes.
 
 ## Discover and recommend
 
