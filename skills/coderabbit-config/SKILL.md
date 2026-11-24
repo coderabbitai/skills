@@ -46,20 +46,6 @@ After any upgrade, repeat trusted executable discovery and verification, then
 recheck version and command support. Do not reuse the old canonical path: an
 upgrade can replace a versioned installation directory or managed launcher.
 
-## Select the settings schema
-
-Agent protocol 2 is the JSON response format for both V2 and V3 settings.
-For a new repository config or YAML with a numeric top-level `version: 3`,
-expect the CLI's `schema` field to be
-`https://www.coderabbit.ai/integrations/schema.v3.json`. A V3-capable CLI
-generates new configs in V3 by default. Existing unversioned YAML keeps its
-V2 schema and layout during ordinary edits. The YAML editor comment alone
-does not select the settings version.
-
-If the CLI reports the V2 schema for a new config or a V3 document, report
-that this installation lacks the expected V3 workflow. Stop before proposing
-a change or interpreting V2 validation errors as defects in V3 YAML.
-
 ## Check the hosted environment
 
 Before generating or recommending a new V3 repository configuration for hosted
@@ -77,6 +63,22 @@ an existing V2 configuration through the CLI, or use a documented V2 creation
 workflow if the installed CLI provides one. If it only creates V3, report that
 capability gap. Read-only validation of an explicitly selected file can proceed
 without establishing hosted support.
+
+## Select the settings schema
+
+Agent protocol 2 is the JSON response format for both V2 and V3 settings.
+For YAML with a numeric top-level `version: 3`, or a new config for an eligible
+GitHub Cloud repository on CodeRabbit Cloud, expect the CLI's `schema` field to be
+`https://www.coderabbit.ai/integrations/schema.v3.json`. A V3-capable CLI
+generates new configs in V3 by default. Existing unversioned YAML keeps its
+V2 schema and layout during ordinary edits. The YAML editor comment alone
+does not select the settings version.
+
+If the CLI reports the V2 schema for a V3 document or a new config in that
+eligible hosted environment, report that this installation lacks the expected
+V3 workflow. Stop before proposing a change or interpreting V2 validation errors
+as defects in V3 YAML. A documented V2 creation workflow for an environment
+requiring V2 should return the V2 schema and can continue.
 
 ## Validate only
 
