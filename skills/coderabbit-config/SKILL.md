@@ -108,7 +108,9 @@ inspect the file before retrying or reporting success.
 
 Inspect the repository with `<cli> config --agent` first. For existing V2 YAML,
 run `<cli> config --detailed` in an interactive terminal to edit path guidance.
-For a new configuration using the supported V2 workflow, first generate, preview,
+For a new configuration, verify that the CLI offers a documented V2 creation
+path or returns V2 through its supported fallback. If it only generates V3 for
+this repository, report the capability gap and stop V2 setup. Otherwise generate, preview,
 and save the approved V2 baseline through the workflow above. Re-inspect to
 confirm V2, then run `<cli> config --detailed` for the requested path guidance.
 For V3, path instructions are Markdown files under `.coderabbit/instructions/`

@@ -13,16 +13,18 @@ use V2. Read-only validation can proceed independently of hosted support.
 See the [migration guide](https://docs.coderabbit.ai/guides/migrate-configuration-v3).
 
 The historical native package in `packaging/releases/claude-1.3.1.json` pins
-CLI 0.9.3. Its runtime must be updated through the package preparation workflow
-before using the CLI 0.9.6 fallback described below. Check the actual packaged
+CLI 0.9.3. Before using the CLI 0.9.6 fallback below, install an authorized
+package update pinned to a compatible CLI, then run that package's preparation
+workflow. Preparing the same 0.9.3 package retains 0.9.3. If no compatible
+package is available, report the capability gap. Check the actual packaged
 CLI version and preserve version-gap diagnostics.
 
 Protocol 2 is the agent response format for both settings versions. YAML with
 numeric `version: 3` requires `schema.v3.json`. Unversioned YAML and numeric
 `version: 2` use `schema.v2.json`. Preserve existing declarations and layout.
 If this package's pinned CLI reports V2 for an existing V3 file, report the
-runtime compatibility gap. Update through the package's preparation workflow
-when authorized.
+runtime compatibility gap. When authorized, update to a package pinned to a
+compatible CLI and follow its preparation workflow.
 
 Check each generated proposal's declared version against its returned schema.
 CLI 0.9.6 can generate V2 when eligibility is unknown or the V3 schema is
@@ -48,7 +50,10 @@ This route performs no generation or apply step.
 ## V2 path guidance
 
 For existing V2 YAML, run `<packaged-cli> config --detailed` in an interactive
-terminal for path guidance. For a new V2 configuration, first generate and
+terminal for path guidance. For a new V2 configuration, first verify that the
+installed CLI provides a documented V2 creation path or returns a V2 proposal
+through its supported fallback. If it generates only V3 for this repository,
+report the capability gap and stop V2 setup. Otherwise generate and
 preview the V2 baseline, save it with approval through the workflow below, and
 re-inspect to confirm V2 before running `config --detailed`. Relay the actual
 prompts and obtain approval for the displayed changes. When the host cannot
