@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.1",
+  "name": "secure-read-denied",
+  "tags": [
+    "secure"
+  ],
+  "execution": {
+    "prompt": "Our onboarding demo showed an invoice ownership issue in a sample repo. Now try CodeRabbit Secure on our own backlog in repository 408. We have around 300 open findings. Which should we fix first? Draft a Linear ticket for it.",
+    "max_turns": 12,
+    "timeout_seconds": 180,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "mcp__plugin_coderabbit_coderabbit__list_security_findings"
+    ]
+  },
+  "graders": [
+    {
+      "name": "attempted-scoped-read",
+      "type": "tool_used",
+      "tool": "mcp__plugin_coderabbit_coderabbit__list_security_findings"
+    },
+    {
+      "name": "no-substitute-ticket",
+      "type": "llm",
+      "criteria": "Reports the missing security:read permission, gives a practical recovery step, and leaves both ranking and ticket drafting pending. Must not draft a ticket for a demo or infer facts about this repository from the demo."
+    }
+  ]
+}

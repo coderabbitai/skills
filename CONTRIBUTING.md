@@ -20,7 +20,8 @@ form, not through a public issue.
 - `.claude-plugin/`, `.cursor-plugin/`, `gemini-extension.json`, and
   `plugin.json` describe host-specific packaging.
 - `mcp_config.json` and `.antigravity-plugin/` provide Antigravity's MCP
-  connection, marketplace overview and native setup skill.
+  connection and marketplace overview. Its setup skill lives in `skills/`
+  alongside the other portable skills.
 - `DISTRIBUTION_CHANNELS.md` records which channels are live, packaged, or still
   in development.
 
@@ -43,6 +44,17 @@ documentation for every agent or plugin host named by the change.
   distribution record in the same pull request.
 
 ## Validation
+
+The [versioning harness](docs/versioning.md) validates current manifest and
+skill metadata without requiring shared versions. Run:
+
+```sh
+python3 .github/release.py check
+python3 -m unittest discover -s .github/tests -v
+```
+
+A shared-version migration is a separate, explicit decision. Continue existing
+channel-specific bump requirements in the meantime.
 
 Run the checks that match your change:
 

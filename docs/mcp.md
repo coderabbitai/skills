@@ -1,11 +1,11 @@
 # Connect CodeRabbit through MCP
 
-The Claude plugin 1.3.0 candidate combines CodeRabbit's remote MCP connection
+The Claude plugin combines CodeRabbit's remote MCP connection
 with standalone CLI local reviews. It declares no automatic hooks. Source on
 `main` and directory publication are separate; see
 [distribution status](../DISTRIBUTION_CHANNELS.md).
 
-For the Antigravity 1.3.0 candidate, use the
+For the Antigravity plugin, use the
 [Google-specific setup guide](../.antigravity-plugin/README.md). Its connection
 is declared in `mcp_config.json` and uses Antigravity's native OAuth discovery.
 
@@ -28,6 +28,17 @@ can still be used but local review cannot run.
 
 ## Remote tools and local reviews
 
+Antigravity, Claude and Codex show local CLI findings directly in chat.
+To enable cards with the [latest stable CLI](https://cli.coderabbit.ai/releases/latest/VERSION)
+on a local host, ask “Set up inline CodeRabbit review cards.” The shared setup
+skill uses the native host's MCP settings to register a compatible installed
+CLI as a local stdio server. When that connection confirms Apps support, the
+agent can request a receipt during the review and present the exact ID locally
+after completion. Selected fixes continue in the local checkout. Missing
+support or receipt leaves the findings in chat. The hosted connector receives
+neither CLI findings nor the card ID. Hosted-only clients continue using their
+existing account tools. See [local presenter setup](../skills/coderabbit-setup/references/local-review-card.md).
+
 The declared remote connection provides tools within the granted scopes and
 your account's permissions. Use it for account, usage and accessible pull-request
 workflows. Product and tool availability depends on the plan and permissions;
@@ -42,6 +53,38 @@ An existing MCP review may still be recovered through `get_code_review` using
 its original review ID and all result pages. Do not start a standalone CLI
 review to recover an uncertain MCP review. Do not assume a standalone CLI review
 is available through MCP recovery.
+
+## CodeRabbit Secure
+
+With the source plugin, ask “Which open Deep Scan findings in owner/repo
+should we fix first?” Claude's source manifest requests repository discovery,
+Security reads and Security writes. It also requests `automations:write` for
+schedule changes and `knowledge:write` for editing or deleting Security
+learnings. These are shared product permissions. Reconnect through the host
+if an older grant lacks the scope returned by the tool. The account also needs access to
+the selected repository. Google uses native scope discovery.
+
+In Codex, the source plugin and the portable skill both use your configured
+CodeRabbit MCP connection. With
+no server configured, add the hosted endpoint for your organization's region
+and sign in using the name you configured. For example, for a US organization:
+
+```sh
+codex mcp add coderabbit --url https://mcp.coderabbit.ai/
+codex mcp login coderabbit --scopes connection,account:read,repositories:read,security:read
+```
+
+The EU endpoint is `https://mcp.eu.coderabbit.ai/`. Start a new session after
+connecting. The example grants read access for triage, quotes and ticket
+previews. To request fixes or start scans, include `security:write` in the
+login scopes alongside the reads you need. Editing a scan schedule also needs
+`automations:write`; editing or deleting an existing Security learning needs
+`knowledge:write`. Preserve scopes used by other workflows when reconnecting.
+Use the permissions your host and account support. The remote server supplies
+scan data; checking a deployment or logs uses the host's separately authorized
+access to that evidence. If sign-in succeeds and Security tools are absent,
+check the server's tool allowlist in the host. A configuration limited to
+PR review tools can hide `list_security_findings` even after Security consent.
 
 ## Data and support
 
@@ -81,4 +124,4 @@ directory scan.
 
 The independently assembled MCP hook/direct packages under `packaging/` are
 separate development candidates. Their runtime and authentication instructions
-do not apply to the repository-root 1.3.0 plugin and require their own qualification.
+do not apply to the repository-root plugin and require their own qualification.

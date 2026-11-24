@@ -2,6 +2,24 @@
 
 All notable changes to this repository are documented in this file.
 
+## Local stdio review card setup
+
+- Antigravity 1.3.3 and Claude 1.3.5 can register the installed CodeRabbit CLI
+  as an optional local presenter. Connected Codex 1.3 packages can use the
+  same setup skill. Card rendering requires a compatible CLI and a session
+  that confirms Apps on its local connection. Older CLIs keep chat findings.
+
+## Shared local review cards
+
+- Antigravity 1.3.2, Claude 1.3.4 and Codex 1.2.2 show CLI findings in chat.
+  On compatible clients, inline presentation uses only the card ID returned
+  by the completed CLI review. Without a usable ID, no presentation call is made.
+
+## Antigravity plugin [1.3.1] - Marketplace packaging
+
+- Include `coderabbit-setup` in the Marketplace ZIP. The setup workflow is
+  shared with Claude and Codex and follows each host's configured connections.
+
 ## Antigravity plugin [1.3.0] - Release candidate
 
 - Add the hosted CodeRabbit MCP server with Antigravity's native OAuth discovery.
@@ -71,9 +89,9 @@ All notable changes to this repository are documented in this file.
 - Launch approved reviews through the Claude plugin's own post-tool hook and
   recover saved findings by review ID without starting another review.
 - Preserve the caller's Git and SSH tool paths after executable verification.
-- Keep the standalone skills and plugin channels available. This version applies
-  only to the assembled Claude MCP package; it does not version or publish Mod,
-  Codex, or the shared standalone release archive.
+- Keep the standalone skills and plugin channels available. The assembled Claude
+  MCP package, Codex plugin, and shared standalone release archive have independent
+  versions.
 - See the [MCP changelog](packaging/releases/claude-1.3.0.md) and
   [release inputs](packaging/releases/README.md). Directory approval and
   publication are separate from preparing this candidate.

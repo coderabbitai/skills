@@ -12,21 +12,25 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-**Antigravity 1.3.0 candidate:** [install the local source candidate](#antigravity-cli-plugin),
+**Antigravity 1.3.4 candidate:** [install the local source candidate](#antigravity-cli-plugin),
 then ask **“Set up CodeRabbit”** to connect remote tools and
 check local review readiness with the native `coderabbit-setup` skill.
 Authenticate the hosted connection through Antigravity's CodeRabbit account
 settings, then ask **“Check my CodeRabbit connection and selected organization.”**
 See the [Antigravity setup guide](.antigravity-plugin/README.md).
 
-**Claude source package (1.3.0):** run `/coderabbit:setup` for the same two
+**Claude source package (1.3.5):** run `/coderabbit:setup` for the same two
 readiness checks. See the [Claude MCP setup guide](docs/mcp.md). For a published
 marketplace copy, follow its [integration guide](https://docs.coderabbit.ai/cli/claude-code-integration).
 
 Both packages connect remote tools through MCP and use the standalone
 CodeRabbit CLI for local reviews. **MCP and CLI sign-ins are separate.** Reuse
 an existing CLI installation and login, then ask **“Review my uncommitted
-changes. Review only; do not edit.”** There is no automatic review hook;
+changes. Review only; do not edit.”** Antigravity, Claude and Codex show local
+findings in chat. On a local host with a compatible CLI, ask **“Set up inline
+CodeRabbit review cards.”** Setup can register the CLI as a local stdio server.
+In a session that confirms Apps for this connection, the agent passes only the
+finished review's card ID to the local presenter. There is no automatic review hook;
 local reviews do not reserve MCP reviews or pass review handoffs through shell
 commands. A hosted connector alone cannot collect local files.
 
@@ -34,6 +38,8 @@ The Antigravity connection is in `mcp_config.json`; Claude's is in its own
 manifest. Other host packages retain their documented workflows. See
 [distribution status](DISTRIBUTION_CHANNELS.md) for publication: source
 availability and matching version numbers do not establish marketplace parity.
+
+**EU accounts:** change the CodeRabbit MCP server URL from `https://mcp.coderabbit.ai/` to `https://mcp.eu.coderabbit.ai/` in your host's MCP settings. For a source-installed package, edit `mcpServers.coderabbit.url` in `.claude-plugin/plugin.json` (Claude) or `mcpServers.coderabbit.serverUrl` in `mcp_config.json` (Antigravity). Reconnect through the host's browser sign-in; US connections do not transfer to EU. Local CLI login remains separate: `coderabbit auth login --region eu`.
 
 **Released CLI integration:** install the CodeRabbit CLI via the [CLI docs](https://docs.coderabbit.ai/cli),
 then tell your agent: **“Review my code.”** If sign-in is needed, the agent
@@ -129,9 +135,9 @@ agy plugin install /absolute/path/to/skills
 agy plugin list
 ```
 
-The 1.3.0 source candidate adds hosted MCP with native OAuth discovery through
-[`mcp_config.json`](mcp_config.json), alongside the three shared skills and two
-agents, plus a native `coderabbit-setup` skill. Ask “Set up CodeRabbit” to
+The source candidate includes hosted MCP with native OAuth discovery through
+[`mcp_config.json`](mcp_config.json), five shared skills and two agents.
+Ask “Set up CodeRabbit” to use `coderabbit-setup` and
 check connection and review readiness. Local reviews
 still require the separately installed and authenticated CodeRabbit CLI.
 See the [Antigravity setup guide](.antigravity-plugin/README.md).
@@ -144,8 +150,9 @@ Codex users can install the official CodeRabbit plugin by following the
 [Codex app integration guide](https://docs.coderabbit.ai/cli/codex-integration#codex-app).
 
 Native Codex metadata in [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json)
-references the existing `skills/` directory. Marketplace publication remains a
-separate step; this source change does not update the live listing.
+loads the shared skills. To use Deep Scan findings in the source plugin,
+[connect CodeRabbit MCP in Codex](docs/mcp.md#coderabbit-secure).
+Marketplace publication is a separate step.
 
 For an at-a-glance inventory of active and repo-packaged distribution paths, see
 [DISTRIBUTION_CHANNELS.md](DISTRIBUTION_CHANNELS.md).
@@ -164,7 +171,7 @@ For an at-a-glance inventory of active and repo-packaged distribution paths, see
 | `plugin.json` | Antigravity CLI plugin manifest. |
 | `mcp_config.json` | Antigravity's hosted MCP connection with native OAuth discovery. |
 | `.antigravity-plugin/README.md` | Antigravity Marketplace overview and setup guidance. |
-| `.antigravity-plugin/skills/` | Antigravity-specific setup skill, registered by root `plugin.json`. |
+| `skills/coderabbit-setup/` | Shared setup for local CLI reviews and the host's configured MCP connection. |
 | `assets/` | Shared marketplace and brand assets. |
 | `DISTRIBUTION_CHANNELS.md` | Maintainer inventory of live, packaged, and in-development channels. |
 
@@ -289,7 +296,9 @@ or “Validate .coderabbit.yaml”. Where supported, invoke `$coderabbit-config`
 The distinct name leaves the host's `/config` command available.
 
 The skill checks which settings schema the installed CLI supports. With a
-V3-capable CLI, new configurations default to V3. Existing unversioned V2
+V3-capable CLI, new configurations default to V3. The skill checks that the
+repository uses GitHub Cloud on CodeRabbit Cloud before proposing a new V3
+configuration for hosted reviews. Existing unversioned V2
 files keep their layout. Both use agent protocol 2. The skill previews
 review-style changes before saving. The interactive wizard can edit V2 path
 guidance. V3 path instructions live in Markdown files under
@@ -297,9 +306,31 @@ guidance. V3 path instructions live in Markdown files under
 Saving requires approval of the preview. Configuration runs locally without
 login or a review.
 
-This skill is included in the source package and the published
-[standalone `v1.2.2` archive](https://github.com/coderabbitai/skills/releases/tag/v1.2.2).
-Marketplace caches require their normal publication update to deliver it.
+The source package includes this schema-selection behavior. The published
+[standalone `v1.2.2` archive](https://github.com/coderabbitai/skills/releases/tag/v1.2.2)
+contains the earlier 0.1.0 configuration skill. Archive users receive the new
+behavior when a release includes it. Marketplace delivery follows each
+channel's publication process.
+
+### [CodeRabbit Secure](skills/coderabbit-secure/SKILL.md)
+
+The [Secure capability guide](skills/coderabbit-secure/references/capabilities.md)
+maps plain-language requests to hosted tools across scan history and recovery,
+cost and scheduling, findings and secrets, runtime evidence, fixes, tickets,
+CSV exports and Security learnings. It also shows where the web app is needed.
+
+Ask **“Which findings from the latest Deep Scan of owner/repo should we fix
+first, and why?”** The skill uses your CodeRabbit MCP connection to read the
+scan, rank the findings and show what evidence supports the first fix. Follow
+up with “Draft a Linear ticket for the first one,” “Request a fix for it,”
+or “What would a full scan cost?” A ticket preview is a draft. A fix request
+starts work only when you ask.
+
+The portable skill name is `coderabbit-secure`; in Claude Code, invoke
+`/coderabbit:coderabbit-secure`. Use the source plugin or select
+`--skill coderabbit-secure` in the skills installer on a revision containing
+the skill. A skills-only install needs a separately connected hosted MCP
+server. See [connection and permissions](docs/mcp.md#coderabbit-secure).
 
 ## Plugin Components
 
@@ -310,9 +341,9 @@ separate qualification requirements.
 
 ### Claude Code
 
-- Skills: `code-review`, `autofix`, and `coderabbit-config`. Run them as
-  `/coderabbit:code-review`, `/coderabbit:autofix`, and
-  `/coderabbit:coderabbit-config`, or ask in plain language.
+- Skills include `code-review`, `autofix`, `coderabbit-config`, `coderabbit-setup`
+  and `coderabbit-secure`. Ask in plain language or invoke a skill directly,
+  for example `/coderabbit:coderabbit-secure`.
 - Subagents: `code-reviewer` runs a CodeRabbit review in its own context, and
   `autofix` collects and checks unresolved CodeRabbit review threads
   and returns a fix plan without editing anything. Mention them as
@@ -341,7 +372,7 @@ It keeps diagnostics sandboxed and retains per-command host approval for auth an
 
 - Native plugin manifest: `plugin.json`
 - Hosted MCP: `mcp_config.json`; native browser OAuth, separate from CLI login
-- Skills: shared `skills/` plus `.antigravity-plugin/skills/coderabbit-setup/`
+- Skills are discovered under `skills/`, including `coderabbit-setup` and `coderabbit-secure`.
 - Review: ask “Review my changes” to activate `code-review`; do not rely on the legacy converted `/coderabbit:review` command
 - Subagents: `agents/code-reviewer.md`, `agents/autofix.md`
 
@@ -358,7 +389,7 @@ prerequisites and example prompts. Maintainers should follow the
 
 ## Data and Privacy
 
-The native Claude plugin contains three portable skills, a setup command, two
+The native Claude plugin contains five portable skills, a setup command, two
 subagents and a remote MCP connection. It declares no automatic hooks.
 
 - **Local commands**: reviews use the user's installed CodeRabbit CLI. The

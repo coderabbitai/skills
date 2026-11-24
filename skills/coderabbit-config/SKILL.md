@@ -60,6 +60,24 @@ If the CLI reports the V2 schema for a new config or a V3 document, report
 that this installation lacks the expected V3 workflow. Stop before proposing
 a change or interpreting V2 validation errors as defects in V3 YAML.
 
+## Check the hosted environment
+
+Before generating or recommending a new V3 repository configuration for hosted
+reviews, establish that the repository uses GitHub Cloud on CodeRabbit Cloud.
+Use known session context or ask for the hosting environment when it is missing.
+Each such repository can opt in with numeric `version: 3`. Central configuration
+files, other Git hosting platforms, and self-hosted CodeRabbit continue to use
+V2. The web app has separate enrollment for its V3 editor. Follow the current
+[migration guide](https://docs.coderabbit.ai/guides/migrate-configuration-v3).
+
+Local CLI capability and schema validation establish file compatibility.
+Hosted support also depends on the environment above. If the environment is
+unknown or requires V2, explain that constraint before generating V3. Continue
+an existing V2 configuration through the CLI, or use a documented V2 creation
+workflow if the installed CLI provides one. If it only creates V3, report that
+capability gap. Read-only validation of an explicitly selected file can proceed
+without establishing hosted support.
+
 ## Validate only
 
 Run `<cli> config validate --agent` for the repository configuration, or
@@ -76,7 +94,8 @@ Do not generate or apply changes for a validation-only request.
 1. Run `<cli> config --agent`. Require exit zero, `ok: true`,
    `protocolVersion: 2`, `operation: inspect`, and `writable: true`. Preserve
    the returned repository root, target, `schema`, and `baseHash` (`none` for a
-   new file). Check the settings schema before generating.
+   new file). Check the settings schema and, for new V3 hosted configuration,
+   the hosting environment before generating.
    Respect authority warnings, including TypeScript, remote configuration,
    symlinks, and multiple YAML files; do not delete or bypass them.
 2. Run `<cli> config --agent --generate`. For a requested style, add
@@ -113,7 +132,8 @@ and custom checks live under `.coderabbit/pre-merge-checks/`. The CLI wizard
 can edit review style but cannot author those documents. For a request limited
 to V3 instructions or checks, explain the relevant location and CLI limitation
 without starting the wizard or proposing a review-style change.
-For general interactive setup, use `<cli> config` or `<cli> config --generate`.
+For general interactive setup, check the hosting environment before creating
+a new V3 configuration, then use `<cli> config` or `<cli> config --generate`.
 Relay the CLI's actual prompts and preview, using settled user preferences and
 asking for missing choices. Confirm the displayed changes only after approval.
 If the host cannot interact with a terminal, give the user the exact command to
