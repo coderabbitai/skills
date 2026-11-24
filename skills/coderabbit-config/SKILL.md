@@ -69,7 +69,8 @@ without establishing hosted support.
 Agent protocol 2 is the JSON response format for both V2 and V3 settings.
 For YAML with numeric top-level `version: 3`, expect the CLI's `schema`
 field to be `https://www.coderabbit.ai/integrations/schema.v3.json`.
-Existing unversioned YAML keeps its V2 schema and layout during ordinary edits.
+Existing YAML with no version or numeric `version: 2` uses the V2 schema.
+Preserve its version declaration and layout during ordinary edits.
 The YAML editor comment alone does not select the settings version.
 
 CLI 0.9.6 generates a new V3 proposal when the repository and signed-in
@@ -92,7 +93,10 @@ Run `<cli> config validate --agent` for the repository configuration, or
 file. Check the returned `schema` against that file's settings version, even
 when it differs from the repository's active config. Require exit zero,
 `ok: true`, and `operation: validate` for success. Report a schema fetch
-failure separately from YAML validation errors. This validates the YAML file;
+failure separately from YAML validation errors. Numeric `version: 2` is a
+supported V2 declaration. If the installed CLI rejects that declaration, report
+a CLI compatibility diagnostic and require a compatible validator before
+claiming success. Preserve the declaration in the user's file. This validates the YAML file;
 directory documents and hosted review activation are outside that check.
 Do not generate or apply changes for a validation-only request.
 

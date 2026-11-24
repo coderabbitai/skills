@@ -301,8 +301,8 @@ receive V3 proposals. CLI 0.9.6 can fall back to V2 when eligibility is unknown
 or the V3 schema is unavailable. The skill explains that fallback before the
 user chooses V2 or resolves V3 availability. Other
 environments require V2 and can use a documented CLI V2 creation workflow when
-available. Existing unversioned V2
-files keep their layout. Both use agent protocol 2. The skill previews
+available. Existing V2 files, including those declaring numeric
+`version: 2`, keep their layout. Both use agent protocol 2. The skill previews
 review-style changes before saving. The interactive wizard can edit V2 path
 guidance. V3 path instructions live in Markdown files under
 `.coderabbit/instructions/`, outside the wizard. Validation is read-only.
