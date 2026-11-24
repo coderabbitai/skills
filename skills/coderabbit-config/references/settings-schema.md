@@ -23,7 +23,8 @@ without establishing hosted support.
 Agent protocol 2 is the JSON response format for both V2 and V3 settings.
 For YAML with numeric top-level `version: 3`, expect the CLI's `schema`
 field to be `https://www.coderabbit.ai/integrations/schema.v3.json`.
-Existing YAML with no version or numeric `version: 2` uses the V2 schema.
+A V2 proposal uses the V2 schema and either has no version key or declares
+numeric `version: 2`.
 Preserve its version declaration and layout during ordinary edits.
 The YAML editor comment alone does not select the settings version.
 

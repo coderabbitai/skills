@@ -60,7 +60,8 @@ terminal for path guidance. For a new V2 configuration, first verify that the
 installed CLI provides a documented V2 creation path or returns a V2 proposal
 through its supported fallback. If it generates only V3 for this repository,
 report the capability gap and stop V2 setup. Otherwise generate a proposal and
-verify its V2 schema and absent version or numeric `version: 2`. Stop before
+verify the generated proposal uses the V2 schema and either has no version key
+or declares numeric `version: 2`. Stop before
 preview or save if the proposal is V3 or otherwise not V2. Then preview the V2 baseline, save it with approval through the workflow below, and
 re-inspect to confirm V2 before running `config --detailed`. Relay the actual
 prompts and obtain approval for the displayed changes. When the host cannot

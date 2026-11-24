@@ -123,8 +123,8 @@ For V2 path-guidance requests with existing V2 YAML, run
 request with no config yet, verify that the CLI offers a documented V2 creation
 path or returns V2 through its supported fallback. If it only generates V3 for
 this repository, report the capability gap and stop V2 setup. Otherwise generate,
-verify the generated proposal uses the V2 schema and has no version or numeric
-`version: 2`. Stop before preview or save if it is V3 or otherwise not V2.
+verify the generated proposal uses the V2 schema and either has no version key
+or declares numeric `version: 2`. Stop before preview or save if it is V3 or otherwise not V2.
 Then preview and save the approved V2 baseline through the workflow above.
 Re-inspect to confirm V2, then run `<cli> config --detailed`.
 
