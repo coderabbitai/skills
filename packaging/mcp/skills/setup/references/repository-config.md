@@ -4,6 +4,34 @@ Use this when the user wants help configuring CodeRabbit. Reuse the packaged
 launcher resolved by the setup skill for every command below; do not use
 a global CLI, a separate login, or another downloaded executable.
 
+## Check version and hosted support
+
+Before proposing a new V3 configuration for hosted reviews, establish that the
+repository uses GitHub Cloud on CodeRabbit Cloud, using known context or asking
+when it is missing. Central configs, other Git hosts, and self-hosted CodeRabbit
+use V2. Read-only validation can proceed independently of hosted support.
+See the [migration guide](https://docs.coderabbit.ai/guides/migrate-configuration-v3).
+
+Protocol 2 is the agent response format for both settings versions. YAML with
+numeric `version: 3` requires `schema.v3.json`. Unversioned YAML and numeric
+`version: 2` use `schema.v2.json`. Preserve existing declarations and layout.
+If this package's pinned CLI reports V2 for an existing V3 file, report the
+runtime compatibility gap. Update through the package's preparation workflow
+when authorized.
+
+Check each generated proposal's declared version against its returned schema.
+CLI 0.9.6 can generate V2 when eligibility is unknown or the V3 schema is
+unavailable. Explain a new-file V2 fallback and honor the user's choice to
+proceed with V2 or resolve V3 availability before generating again. Existing
+V3 validation must use V3. If a validator rejects an explicit V2 declaration,
+report the compatibility diagnostic and retain the declaration.
+See [agent-guided setup](https://docs.coderabbit.ai/cli#agent-guided-setup).
+
+V3 path instructions and custom checks are Markdown documents under
+`.coderabbit/instructions/` and `.coderabbit/pre-merge-checks/`. The config
+wizard cannot author them. A request limited to those documents should surface
+that capability gap before proposing a review-style change.
+
 ## Discover and recommend
 
 Work in the user's intended Git repository and run:
@@ -59,7 +87,7 @@ Without a profile, this proposes a Balanced baseline for a new file or preserves
 an existing file. If the user chooses a style, add `--profile chill` (Balanced),
 `--profile quiet` (Focused), or `--profile assertive` (Thorough).
 
-For tailored settings, read the live schema at the inspected URL and change only
+For tailored settings, read the live schema returned for the generated proposal and change only
 fields it supports. Start from the generated `after` or inspected YAML; keep it
 sparse and preserve comments. Match proposed path instructions against real
 files, explaining the concrete review concern each rule addresses. Avoid copying
