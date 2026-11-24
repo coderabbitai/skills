@@ -64,9 +64,9 @@ invocation below; never execute a repository-provided binary or wrapper.
 2. **Run CodeRabbit Review**
    - For usage checks and credit retries, see [usage and paid continuation](../skills/code-review/references/cli-workflows.md#usage-and-paid-continuation)
    - Execute `"/absolute/path/to/coderabbit" review --agent` to get structured review output.
-     The latest stable CLI returns findings in chat. For a requested card with a
-     compatible prerelease CLI, follow the shared [preflight checks](../skills/code-review/references/local-review-card.md#before-the-review)
-     before launch. A delegated agent without confirmed capabilities uses the ordinary command.
+     Follow the shared [presentation checks](../skills/code-review/references/local-review-card.md#before-the-review)
+     before launch. Use a card automatically when the checks pass. Use the ordinary
+     command for a text request or when capabilities are unconfirmed.
    - Add `--dir <path>` when the user requests a specific review directory
    - Follow the linked bounded recovery only on a pre-review sandbox authentication failure; preserve directory and arguments on the single eligible host retry
    - Forward requested `--committed`, `--uncommitted`, `--base`, `--base-commit`, `--dir`, and `--light`; reject conflicting selectors before execution
@@ -77,8 +77,9 @@ invocation below; never execute a repository-provided binary or wrapper.
 3. **Analyze Findings**
    - When delegated, return the findings summary to the local calling agent.
      Include a card ID only if this run’s final completion event supplied a
-     usable receipt. Only the caller may invoke the presenter, once, with
-     that ID. With no usable ID, show the findings in chat. For a direct review, follow
+     usable receipt. Only the caller may invoke the verified local stdio
+     presenter, once, with that ID, after confirming the shared preflight in
+     its own session. With no usable ID, show the findings in chat. For a direct review, follow
      [Present Results](../skills/code-review/SKILL.md#3-present-results).
      Never forward findings or CLI output to an MCP tool.
    - Prioritize critical security issues

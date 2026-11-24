@@ -12,4 +12,4 @@ Run `/coderabbit:setup` to check the hosted CodeRabbit MCP connection and local 
 
 For a local review, ask “Review my uncommitted changes.” To work through feedback on a pull request, use `/coderabbit:autofix`.
 
-This is the Claude Directory package for version 1.3.4. Its manifest, skills, agents, setup command, and icons come from [the source release](https://github.com/coderabbitai/skills/tree/983db9d387ec0e76ec06f5c58acfb8470fce8edd). See the [MCP setup guide](https://github.com/coderabbitai/skills/blob/983db9d387ec0e76ec06f5c58acfb8470fce8edd/docs/mcp.md) and the [MIT license](LICENSE).
+This is the Claude Directory package for version 1.3.5. Its local review and setup guidance comes from [the source release](https://github.com/coderabbitai/skills/tree/13c46c8f30948feb4e4f48dbdc5c7b0ae5ff8408). See the [MCP setup guide](https://github.com/coderabbitai/skills/blob/13c46c8f30948feb4e4f48dbdc5c7b0ae5ff8408/docs/mcp.md) and the [MIT license](LICENSE).
