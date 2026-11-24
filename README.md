@@ -296,8 +296,10 @@ or “Validate .coderabbit.yaml”. Where supported, invoke `$coderabbit-config`
 The distinct name leaves the host's `/config` command available.
 
 The skill checks which settings schema the installed CLI supports. With a
-V3-capable CLI, the skill expects V3 for new GitHub Cloud repository configs
-on CodeRabbit Cloud. Other
+V3-capable CLI, eligible GitHub Cloud repositories on CodeRabbit Cloud can
+receive V3 proposals. CLI 0.9.6 can fall back to V2 when eligibility is unknown
+or the V3 schema is unavailable. The skill explains that fallback before the
+user chooses V2 or resolves V3 availability. Other
 environments require V2 and can use a documented CLI V2 creation workflow when
 available. Existing unversioned V2
 files keep their layout. Both use agent protocol 2. The skill previews

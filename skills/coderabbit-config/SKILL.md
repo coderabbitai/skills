@@ -67,19 +67,23 @@ without establishing hosted support.
 ## Select the settings schema
 
 Agent protocol 2 is the JSON response format for both V2 and V3 settings.
-For YAML with a numeric top-level `version: 3`, or a new config for an eligible
-GitHub Cloud repository on CodeRabbit Cloud, expect the CLI's `schema` field to be
-`https://www.coderabbit.ai/integrations/schema.v3.json`. A V3-capable CLI
-generates new configs in V3 by default for that eligible hosted environment.
-Existing unversioned YAML keeps its
-V2 schema and layout during ordinary edits. The YAML editor comment alone
-does not select the settings version.
+For YAML with numeric top-level `version: 3`, expect the CLI's `schema`
+field to be `https://www.coderabbit.ai/integrations/schema.v3.json`.
+Existing unversioned YAML keeps its V2 schema and layout during ordinary edits.
+The YAML editor comment alone does not select the settings version.
 
-If the CLI reports the V2 schema for a V3 document or a new config in that
-eligible hosted environment, report that this installation lacks the expected
-V3 workflow. Stop before proposing a change or interpreting V2 validation errors
-as defects in V3 YAML. A documented V2 creation workflow for an environment
-requiring V2 should return the V2 schema and can continue.
+CLI 0.9.6 generates a new V3 proposal when the repository and signed-in
+organization are eligible. Unknown eligibility or an unavailable V3 schema
+can produce a V2 proposal. Check the generated proposal's declared version and
+returned schema. If a new proposal uses V2, explain the fallback and let the
+user choose that V2 proposal or resolve V3 eligibility/schema availability
+before regenerating. Use any settled preference from the session. A V2 result
+for a new file alone does not establish that the CLI lacks V3 support.
+See [agent-guided setup](https://docs.coderabbit.ai/cli#agent-guided-setup).
+
+If the CLI reports the V2 schema for an existing V3 document, stop before
+proposing a change or interpreting V2 validation errors as defects in V3 YAML.
+A documented V2 creation workflow for an environment requiring V2 can continue.
 
 ## Validate only
 
@@ -108,7 +112,9 @@ Do not generate or apply changes for a validation-only request.
    file and preserves an existing file. Do not infer a style change from a
    general request to check configuration.
 3. Require a successful protocol-v2 `operation: generate` response with the
-   inspected target, schema, and base hash. Copy its exact `after` string into a temporary
+   inspected target and base hash. Verify the returned schema against the
+   proposal's declared version, handling a new-file V2 fallback as above.
+   Copy its exact `after` string into a temporary
    proposal file outside the repository; do not rewrite or extend that YAML.
 4. Preview with `<cli> config apply <proposal> --agent --dry-run --base <baseHash>`.
    Require exit zero and a successful protocol-v2 `operation: apply` result.
