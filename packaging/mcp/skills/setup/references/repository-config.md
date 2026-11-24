@@ -40,7 +40,7 @@ documents. GitHub Enterprise Server, other Git hosts and self-hosted CodeRabbit
 do not read them. For unsupported hosting, explain the limitation and stop
 document setup. See [availability](https://docs.coderabbit.ai/configuration/documents#availability).
 
-Path instructions and custom checks are Markdown documents under
+Directory instructions and directory custom checks are Markdown documents under
 `.coderabbit/instructions/` and `.coderabbit/pre-merge-checks/`. The config
 wizard cannot author them. A request limited to those documents should surface
 that capability gap and stop before starting the wizard.
