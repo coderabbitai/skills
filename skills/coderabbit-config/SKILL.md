@@ -106,18 +106,23 @@ inspect the file before retrying or reporting success.
 
 ## Guided path settings
 
-Inspect the repository with `<cli> config --agent` first. For existing V2 YAML,
-run `<cli> config --detailed` in an interactive terminal to edit path guidance.
-For a new configuration, verify that the CLI offers a documented V2 creation
+Inspect the repository with `<cli> config --agent` first.
+
+For a request limited to V3 instructions or checks, including a repository with
+no config yet, explain the relevant location and CLI limitation, then stop this
+wizard workflow. Path instructions are Markdown files under
+`.coderabbit/instructions/` and custom checks live under
+`.coderabbit/pre-merge-checks/`. The CLI wizard can edit review style but
+cannot author those documents.
+
+For V2 path-guidance requests with existing V2 YAML, run
+`<cli> config --detailed` in an interactive terminal. For a V2 path-guidance
+request with no config yet, verify that the CLI offers a documented V2 creation
 path or returns V2 through its supported fallback. If it only generates V3 for
-this repository, report the capability gap and stop V2 setup. Otherwise generate, preview,
-and save the approved V2 baseline through the workflow above. Re-inspect to
-confirm V2, then run `<cli> config --detailed` for the requested path guidance.
-For V3, path instructions are Markdown files under `.coderabbit/instructions/`
-and custom checks live under `.coderabbit/pre-merge-checks/`. The CLI wizard
-can edit review style but cannot author those documents. For a request limited
-to V3 instructions or checks, explain the relevant location and CLI limitation
-without starting the wizard or proposing a review-style change.
+this repository, report the capability gap and stop V2 setup. Otherwise generate,
+preview, and save the approved V2 baseline through the workflow above.
+Re-inspect to confirm V2, then run `<cli> config --detailed`.
+
 For general interactive setup, check the hosting environment before creating
 a new V3 configuration, then use `<cli> config` or `<cli> config --generate`.
 Relay the CLI's actual prompts and preview, using settled user preferences and
