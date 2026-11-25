@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.coderabbitai/coderabbit",
+  "title": "CodeRabbit",
+  "description": "Governance and control for agentic software development. Trust AI written code.",
+  "repository": {
+    "url": "https://github.com/coderabbitai/skills",
+    "source": "github"
+  },
+  "version": "1.3.5",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.coderabbit.ai/"
+    },
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.eu.coderabbit.ai/"
+    }
+  ]
+}
