@@ -77,6 +77,18 @@ Installation options for the skills installer:
 | `-s, --skill`  | Install particular skills by name                |
 | `--all`        | Install all skills to all agents without prompts |
 
+#### Kiro hosted MCP
+
+Add CodeRabbit's hosted connection to Kiro, then complete its browser sign-in:
+
+[Add CodeRabbit to Kiro (US)](https://kiro.dev/launch/mcp/add?name=CodeRabbit&config=%7B%22url%22%3A%22https%3A%2F%2Fmcp.coderabbit.ai%2F%22%2C%22disabled%22%3Afalse%2C%22autoApprove%22%3A%5B%5D%7D) · [Add CodeRabbit to Kiro (EU)](https://kiro.dev/launch/mcp/add?name=CodeRabbit%20EU&config=%7B%22url%22%3A%22https%3A%2F%2Fmcp.eu.coderabbit.ai%2F%22%2C%22disabled%22%3Afalse%2C%22autoApprove%22%3A%5B%5D%7D)
+
+The hosted connection uses your connected repository data. Install the shared
+skills using the skills installer above; local CLI reviews require separate CLI
+installation and authentication. See the [MCP guide](docs/mcp.md),
+[Privacy Policy](https://www.coderabbit.ai/privacy-policy), and
+[support](mailto:support@coderabbit.ai).
+
 #### Claude Plugin
 
 In Claude Code, install the plugin from the official marketplace:
