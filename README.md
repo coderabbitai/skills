@@ -81,7 +81,14 @@ Installation options for the skills installer:
 
 Add CodeRabbit's hosted connection to Kiro, then complete its browser sign-in:
 
-[Add CodeRabbit to Kiro (US)](https://kiro.dev/launch/mcp/add?name=CodeRabbit&config=%7B%22url%22%3A%22https%3A%2F%2Fmcp.coderabbit.ai%2F%22%2C%22disabled%22%3Afalse%2C%22autoApprove%22%3A%5B%5D%7D) · [Add CodeRabbit to Kiro (EU)](https://kiro.dev/launch/mcp/add?name=CodeRabbit%20EU&config=%7B%22url%22%3A%22https%3A%2F%2Fmcp.eu.coderabbit.ai%2F%22%2C%22disabled%22%3Afalse%2C%22autoApprove%22%3A%5B%5D%7D)
+[![Add CodeRabbit to Kiro (US)](https://kiro.dev/images/add-to-kiro.svg)](https://kiro.dev/launch/mcp/add?name=CodeRabbit&config=%7B%22url%22%3A%22https%3A%2F%2Fmcp.coderabbit.ai%2F%22%2C%22oauthScopes%22%3A%5B%22connection%22%2C%22account%3Aread%22%2C%22usage%3Aread%22%2C%22pull_requests%3Aread%22%2C%22review%22%2C%22repositories%3Aread%22%2C%22security%3Aread%22%2C%22security%3Awrite%22%2C%22automations%3Awrite%22%2C%22knowledge%3Awrite%22%5D%2C%22disabled%22%3Afalse%2C%22autoApprove%22%3A%5B%5D%7D) · [![Add CodeRabbit to Kiro (EU)](https://kiro.dev/images/add-to-kiro.svg)](https://kiro.dev/launch/mcp/add?name=CodeRabbit%20EU&config=%7B%22url%22%3A%22https%3A%2F%2Fmcp.eu.coderabbit.ai%2F%22%2C%22oauthScopes%22%3A%5B%22connection%22%2C%22account%3Aread%22%2C%22usage%3Aread%22%2C%22pull_requests%3Aread%22%2C%22review%22%2C%22repositories%3Aread%22%2C%22security%3Aread%22%2C%22security%3Awrite%22%2C%22automations%3Awrite%22%2C%22knowledge%3Awrite%22%5D%2C%22disabled%22%3Afalse%2C%22autoApprove%22%3A%5B%5D%7D)
+
+These links request the same OAuth scopes as the canonical Claude plugin,
+including the required `connection` scope. Choose the US or EU endpoint for
+your organization and review the requested permissions before connecting.
+The scopes permit actions that may consume usage; no tools are auto-approved.
+This setup targets Kiro IDE and CLI; Web, Mobile, Crew and MCP Apps rendering
+are not qualified by this configuration.
 
 The hosted connection uses your connected repository data. Install the shared
 skills using the skills installer above; local CLI reviews require separate CLI
