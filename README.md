@@ -12,7 +12,7 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-**Antigravity 1.3.4 candidate:** [install the local source candidate](#antigravity-cli-plugin),
+**Antigravity 1.3.6 candidate:** [install the local source candidate](#antigravity-cli-plugin),
 then ask **“Set up CodeRabbit”** to connect remote tools and
 check local review readiness with the native `coderabbit-setup` skill.
 Authenticate the hosted connection through Antigravity's CodeRabbit account
@@ -76,6 +76,14 @@ Installation options for the skills installer:
 | `-a, --agent`  | Target specific agents (for example `claude-code`) |
 | `-s, --skill`  | Install particular skills by name                |
 | `--all`        | Install all skills to all agents without prompts |
+
+#### OpenCode V2 skills and MCP
+
+The [OpenCode source candidate](docs/opencode.md) loads the five shared skills
+directly from this repository's HTTP catalog and connects the hosted MCP through
+OpenCode's native OAuth. Choose the US or EU configuration in that guide.
+The `main` catalog URL becomes available after the source change is merged;
+this is not an OpenCode marketplace listing.
 
 #### Kiro hosted MCP
 

@@ -1,0 +1,48 @@
+{
+  "skills": [
+    {
+      "name": "autofix",
+      "version": "sha256-3240670a67cb95f3f7c6547a36154cc18fa395ab850422bbab3bb34b7d697a12",
+      "files": [
+        "SKILL.md",
+        "github.md"
+      ]
+    },
+    {
+      "name": "code-review",
+      "version": "sha256-5b5c0a0dbe7020c2874a175af8b272feb85e569436caa2b891750bc61853544f",
+      "files": [
+        "SKILL.md",
+        "references/antigravity-sandbox.md",
+        "references/auth-recovery.md",
+        "references/cli-workflows.md",
+        "references/local-review-card.md"
+      ]
+    },
+    {
+      "name": "coderabbit-config",
+      "version": "sha256-93966eb38d6438c3b1cd12b384b99999cc15bddc0e34557307cb403d9dded475",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "coderabbit-secure",
+      "version": "sha256-9bece2a1dec399fcdf37751c8ddacf91d80ea0fe0bd3c89b255def55889732a8",
+      "files": [
+        "SKILL.md",
+        "references/capabilities.md",
+        "references/findings.md",
+        "references/scans.md"
+      ]
+    },
+    {
+      "name": "coderabbit-setup",
+      "version": "sha256-aa4c35d5801887df429cb7127e5c939e502fd6da88764f292d31cf13ec8ca8f6",
+      "files": [
+        "SKILL.md",
+        "references/local-review-card.md"
+      ]
+    }
+  ]
+}
