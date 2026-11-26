@@ -12,7 +12,7 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-**Antigravity 1.3.4 candidate:** [install the local source candidate](#antigravity-cli-plugin),
+**Antigravity 1.3.5 candidate:** [install the local source candidate](#antigravity-cli-plugin),
 then ask **“Set up CodeRabbit”** to connect remote tools and
 check local review readiness with the native `coderabbit-setup` skill.
 Authenticate the hosted connection through Antigravity's CodeRabbit account
@@ -314,16 +314,25 @@ or “Validate .coderabbit.yaml”. Where supported, invoke `$coderabbit-config`
 `/coderabbit-config`; the Claude plugin uses `/coderabbit:coderabbit-config`.
 The distinct name leaves the host's `/config` command available.
 
-Requires an official CLI supporting config protocol v2 (verified with 0.9.3).
-The CLI owns defaults, schema checks, previews, and writes. The skill supports
-review-style changes and the CLI's guided path settings; unsupported settings
-remain a CLI capability gap. Missing commands require an upgrade, never an
-agent-side YAML editor. Validation alone does not change files; saves require
-approval of the preview. Configuration does not require login or run a review.
+The skill checks which settings schema the installed CLI supports. With a
+V3-capable CLI, eligible GitHub Cloud repositories on CodeRabbit Cloud can
+receive V3 proposals. CLI 0.9.6 can fall back to V2 when eligibility is unknown
+or the V3 schema is unavailable. The skill explains that fallback before the
+user chooses V2 or resolves V3 availability. Other
+environments require V2 and can use a documented CLI V2 creation workflow when
+available. Existing V2 files, including those declaring numeric
+`version: 2`, keep their layout. Both use agent protocol 2. The skill previews
+review-style changes before saving. The interactive wizard can edit V2 path
+guidance. V3 path instructions live in Markdown files under
+`.coderabbit/instructions/`, outside the wizard. Validation is read-only.
+Saving requires approval of the preview. Configuration runs locally without
+login or a review.
 
-This skill is included in the source package and the published
-[standalone `v1.2.2` archive](https://github.com/coderabbitai/skills/releases/tag/v1.2.2).
-Marketplace caches require their normal publication update to deliver it.
+The source package includes this schema-selection behavior. The published
+[standalone `v1.2.2` archive](https://github.com/coderabbitai/skills/releases/tag/v1.2.2)
+contains the earlier 0.1.0 configuration skill. Archive users receive the new
+behavior when a release includes it. Marketplace delivery follows each
+channel's publication process.
 
 ### [CodeRabbit Secure](skills/coderabbit-secure/SKILL.md)
 

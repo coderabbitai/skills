@@ -2,7 +2,7 @@
 name: coderabbit-config
 description: Create, update, or validate CodeRabbit repository configuration through the official CLI. Use for .coderabbit.yaml or .coderabbit.yml setup, review-style changes, path guidance, and configuration validation requests.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # CodeRabbit Configuration
@@ -34,7 +34,7 @@ workflow before looking for a standalone CLI:
 The `<cli>` examples below mean that verified executable, not a literal command.
 
 Check `<cli> --version`, `<cli> config --help`, and support for the needed
-subcommands. CLI 0.9.3 supports this workflow. Missing commands or an unsupported
+subcommands. Missing commands or an unsupported
 protocol require an upgrade. For a standalone CLI, follow the
 [official installation instructions](https://docs.coderabbit.ai/cli) for its
 actual installation method (for example, `brew upgrade coderabbit` for Homebrew).
@@ -46,18 +46,35 @@ After any upgrade, repeat trusted executable discovery and verification, then
 recheck version and command support. Do not reuse the old canonical path: an
 upgrade can replace a versioned installation directory or managed launcher.
 
+## Choose the configuration workflow
+
+Read [settings schema and hosted support](references/settings-schema.md) before
+configuration work. It covers hosted V3 support, CLI 0.9.6 V2 fallback,
+explicit V2 declarations, and schema checks. Establish the hosting environment
+before proposing a new V3 configuration for hosted reviews. Explicit-file
+validation can proceed independently of hosted support.
+
 ## Validate only
 
 Run `<cli> config validate --agent` for the repository configuration, or
 `<cli> config validate <file> --agent` for the user's explicitly selected YAML
-file. Require exit zero and `ok: true`; report the CLI's validation diagnostics
-otherwise. Do not generate or apply changes for a validation-only request.
+file. Check the returned `schema` against that file's settings version, even
+when it differs from the repository's active config. Require exit zero,
+`ok: true`, and `operation: validate` for success. Report a schema fetch
+failure separately from YAML validation errors. Numeric `version: 2` is a
+supported V2 declaration. If the installed CLI rejects that declaration, report
+a CLI compatibility diagnostic and require a compatible validator before
+claiming success. Preserve the declaration in the user's file. This validates the YAML file;
+directory documents and hosted review activation are outside that check.
+Do not generate or apply changes for a validation-only request.
 
 ## Create or change review style
 
 1. Run `<cli> config --agent`. Require exit zero, `ok: true`,
    `protocolVersion: 2`, `operation: inspect`, and `writable: true`. Preserve
-   the returned repository root, target, and `baseHash` (`none` for a new file).
+   the returned repository root, target, `schema`, and `baseHash` (`none` for a
+   new file). Check the settings schema and, for new V3 hosted configuration,
+   the hosting environment before generating.
    Respect authority warnings, including TypeScript, remote configuration,
    symlinks, and multiple YAML files; do not delete or bypass them.
 2. Run `<cli> config --agent --generate`. For a requested style, add
@@ -67,7 +84,9 @@ otherwise. Do not generate or apply changes for a validation-only request.
    file and preserves an existing file. Do not infer a style change from a
    general request to check configuration.
 3. Require a successful protocol-v2 `operation: generate` response with the
-   inspected target and base hash. Copy its exact `after` string into a temporary
+   inspected target and base hash. Verify the returned schema against the
+   proposal's declared version, handling a new-file V2 fallback as above.
+   Copy its exact `after` string into a temporary
    proposal file outside the repository; do not rewrite or extend that YAML.
 4. Preview with `<cli> config apply <proposal> --agent --dry-run --base <baseHash>`.
    Require exit zero and a successful protocol-v2 `operation: apply` result.
@@ -87,9 +106,30 @@ inspect the file before retrying or reporting success.
 
 ## Guided path settings
 
-For path-guidance requests, run `<cli> config --detailed` in an interactive
-terminal to enter the manual review-style and path-guidance flow directly.
-For general interactive setup, use `<cli> config` or `<cli> config --generate`.
+Inspect the repository with `<cli> config --agent` first.
+
+For a request limited to V3 instructions or checks, including a repository with
+no config yet, first check directory-document availability in the settings
+reference. For unsupported hosting, explain the limitation and stop without
+recommending document creation. For supported hosting, explain the relevant
+location and CLI limitation, then stop this
+wizard workflow. Path instructions are Markdown files under
+`.coderabbit/instructions/` and custom checks live under
+`.coderabbit/pre-merge-checks/`. The CLI wizard can edit review style but
+cannot author those documents.
+
+For V2 path-guidance requests with existing V2 YAML, run
+`<cli> config --detailed` in an interactive terminal. For a V2 path-guidance
+request with no config yet, verify that the CLI offers a documented V2 creation
+path or returns V2 through its supported fallback. If it only generates V3 for
+this repository, report the capability gap and stop V2 setup. Otherwise generate,
+verify the generated proposal uses the V2 schema and either has no version key
+or declares numeric `version: 2`. Stop before preview or save if it is V3 or otherwise not V2.
+Then preview and save the approved V2 baseline through the workflow above.
+Re-inspect to confirm V2, then run `<cli> config --detailed`.
+
+For general interactive setup, check the hosting environment before creating
+a new V3 configuration, then use `<cli> config` or `<cli> config --generate`.
 Relay the CLI's actual prompts and preview, using settled user preferences and
 asking for missing choices. Confirm the displayed changes only after approval.
 If the host cannot interact with a terminal, give the user the exact command to

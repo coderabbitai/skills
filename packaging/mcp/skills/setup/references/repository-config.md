@@ -4,6 +4,70 @@ Use this when the user wants help configuring CodeRabbit. Reuse the packaged
 launcher resolved by the setup skill for every command below; do not use
 a global CLI, a separate login, or another downloaded executable.
 
+## Check version and hosted support
+
+Before proposing a new V3 configuration for hosted reviews, establish that the
+repository uses GitHub Cloud on CodeRabbit Cloud, using known context or asking
+when it is missing. Central configs, other Git hosts, and self-hosted CodeRabbit
+use V2. Read-only validation can proceed independently of hosted support.
+See the [migration guide](https://docs.coderabbit.ai/guides/migrate-configuration-v3).
+
+The historical native package in `packaging/releases/claude-1.3.1.json` pins
+CLI 0.9.3. Before using the CLI 0.9.6 fallback below, install an authorized
+package update pinned to a compatible CLI, then run that package's preparation
+workflow. Preparing the same 0.9.3 package retains 0.9.3. If no compatible
+package is available, report the capability gap. Check the actual packaged
+CLI version and preserve version-gap diagnostics.
+
+Protocol 2 is the agent response format for both settings versions. YAML with
+numeric `version: 3` requires `schema.v3.json`. Unversioned YAML and numeric
+`version: 2` use `schema.v2.json`. Preserve existing declarations and layout.
+If this package's pinned CLI reports V2 for an existing V3 file, report the
+runtime compatibility gap. When authorized, update to a package pinned to a
+compatible CLI and follow its preparation workflow.
+
+Check each generated proposal's declared version against its returned schema.
+CLI 0.9.6 can generate V2 when eligibility is unknown or the V3 schema is
+unavailable. Explain a new-file V2 fallback and honor the user's choice to
+proceed with V2 or resolve V3 availability before generating again. Existing
+V3 validation must use V3. If a validator rejects an explicit V2 declaration,
+report the compatibility diagnostic and retain the declaration.
+See [agent-guided setup](https://docs.coderabbit.ai/cli#agent-guided-setup).
+
+Directory instructions and checks work on GitHub Cloud with CodeRabbit Cloud
+for both V2 and V3 settings. Establish that environment before recommending
+documents. GitHub Enterprise Server, other Git hosts and self-hosted CodeRabbit
+do not read them. For unsupported hosting, explain the limitation and stop
+document setup. See [availability](https://docs.coderabbit.ai/configuration/documents#availability).
+
+Directory instructions and directory custom checks are Markdown documents under
+`.coderabbit/instructions/` and `.coderabbit/pre-merge-checks/`. The config
+wizard cannot author them. A request limited to those documents should surface
+that capability gap and stop before starting the wizard.
+
+## Validate only
+
+For a validation-only request, run `<packaged-cli> config validate --agent`,
+or `<packaged-cli> config validate <file> --agent` for an explicitly selected
+file. Require exit zero, `ok: true`, `operation: validate`, and a schema
+matching that file's version. Report schema-download and compatibility errors.
+This route performs no generation or apply step.
+
+## V2 path guidance
+
+For existing V2 YAML, run `<packaged-cli> config --detailed` in an interactive
+terminal for path guidance. For a new V2 configuration, first verify that the
+installed CLI provides a documented V2 creation path or returns a V2 proposal
+through its supported fallback. If it generates only V3 for this repository,
+report the capability gap and stop V2 setup. Otherwise generate a proposal and
+verify the generated proposal uses the V2 schema and either has no version key
+or declares numeric `version: 2`. Stop before
+preview or save if the proposal is V3 or otherwise not V2. Then preview the V2 baseline, save it with approval through the workflow below, and
+re-inspect to confirm V2 before running `config --detailed`. Relay the actual
+prompts and obtain approval for the displayed changes. When the host cannot
+interact with a terminal, provide the command for the selected repository and
+resume after the user finishes.
+
 ## Discover and recommend
 
 Work in the user's intended Git repository and run:
@@ -59,7 +123,7 @@ Without a profile, this proposes a Balanced baseline for a new file or preserves
 an existing file. If the user chooses a style, add `--profile chill` (Balanced),
 `--profile quiet` (Focused), or `--profile assertive` (Thorough).
 
-For tailored settings, read the live schema at the inspected URL and change only
+For tailored settings, read the live schema returned for the generated proposal and change only
 fields it supports. Start from the generated `after` or inspected YAML; keep it
 sparse and preserve comments. Match proposed path instructions against real
 files, explaining the concrete review concern each rule addresses. Avoid copying
