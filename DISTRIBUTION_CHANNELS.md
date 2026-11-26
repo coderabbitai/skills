@@ -22,6 +22,16 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 | VS Code / Cursor / Windsurf IDE extension | Live, separate distribution | CodeRabbit IDE extension docs | Complements skills; not a replacement for `SKILL.md` installs. |
 | GitHub Marketplace app (PR reviews) | Live, separate product channel | CodeRabbit GitHub Marketplace listing | Product distribution, not a skills install path. |
 
+## Additional hosted clients
+
+The [hosted client guide](docs/hosted-mcp-clients.md) and
+[configuration snippets](packaging/hosted-clients/) provide direct setup paths
+for Amp, Augment, Warp, Copilot CLI, LibreChat, and LM Studio. LM Studio also has
+region-specific install links in the README. These are source configuration
+recipes; they do not establish a public marketplace listing, completed OAuth,
+or MCP Apps qualification. Copilot cloud, Emergent, and Zed discovery have the
+separate limitations recorded in the guide.
+
 ## CodeRabbit Secure availability
 
 The source package includes `skills/coderabbit-secure/`. Claude and Antigravity

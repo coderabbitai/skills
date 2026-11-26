@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "coderabbit-eu": {
+      "type": "http",
+      "url": "https://mcp.eu.coderabbit.ai/"
+    }
+  }
+}
