@@ -1,0 +1,69 @@
+name: MCP Registry metadata
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Validate metadata or publish the reviewed version
+        type: choice
+        options: [validate, publish]
+        default: validate
+        required: true
+      version_confirmation:
+        description: For publication, enter the exact version in server.json
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coderabbit-mcp-registry
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: github.repository == 'coderabbitai/skills' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      - name: Install pinned and verified publisher
+        run: bash .github/scripts/install-mcp-publisher.sh
+      - name: Validate metadata without authenticating
+        run: mcp-publisher validate packaging/mcp-registry/server.json
+
+  publish:
+    needs: validate
+    if: inputs.mode == 'publish' && github.repository == 'coderabbitai/skills' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Confirm the intended metadata version
+        env:
+          VERSION_CONFIRMATION: ${{ inputs.version_confirmation }}
+        run: |
+          set -euo pipefail
+          expected_version="$(jq -r .version packaging/mcp-registry/server.json)"
+          if [[ "$VERSION_CONFIRMATION" != "$expected_version" ]]; then
+            echo 'Version confirmation must match packaging/mcp-registry/server.json.' >&2
+            exit 1
+          fi
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      - name: Install pinned and verified publisher
+        run: bash .github/scripts/install-mcp-publisher.sh
+      - name: Authenticate with the repository identity
+        working-directory: packaging/mcp-registry
+        run: mcp-publisher login github-oidc
+      - name: Publish reviewed metadata
+        working-directory: packaging/mcp-registry
+        run: mcp-publisher publish
