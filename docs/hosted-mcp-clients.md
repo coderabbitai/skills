@@ -8,6 +8,10 @@ the [portable skills](../README.md#skills-installer) and the standalone CLI
 separately when your agent needs local code review. MCP sign-in and CLI sign-in
 are separate.
 
+Repository tools require a GitHub Cloud organization. On other Git platforms,
+only the account tools `connection_status`, `get_me`, and `get_usage` are
+available, subject to the granted scopes.
+
 Choose the endpoint for your organization:
 
 | Region | URL |
@@ -166,10 +170,25 @@ Sources: [Custom Agents](https://help.emergent.sh/custom-agents),
 
 ## LM Studio
 
-Use the region-specific buttons in the [README](../README.md#lm-studio-hosted-mcp)
-to add the endpoint, or merge the [US](../packaging/hosted-clients/lmstudio.us.json)
+Copy the URI for your region into your browser's address bar with LM Studio
+installed, then approve opening LM Studio. GitHub strips this custom protocol
+from Markdown link targets, so the installation URIs are provided as text.
+
+US:
+
+```text
+lmstudio://add_mcp?name=coderabbit&config=eyJ1cmwiOiJodHRwczovL21jcC5jb2RlcmFiYml0LmFpLyJ9
+```
+
+EU:
+
+```text
+lmstudio://add_mcp?name=coderabbit-eu&config=eyJ1cmwiOiJodHRwczovL21jcC5ldS5jb2RlcmFiYml0LmFpLyJ9
+```
+
+Alternatively, merge the [US](../packaging/hosted-clients/lmstudio.us.json)
 or [EU](../packaging/hosted-clients/lmstudio.eu.json) snippet through
-**Program > Install > Edit mcp.json**. The links contain only the server URL.
+**Program > Install > Edit mcp.json**. Each URI contains only the server URL.
 
 Adding the entry is separate from authentication. CodeRabbit requires native
 OAuth with PKCE and the permissions for your workflow. If your LM Studio

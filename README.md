@@ -96,23 +96,6 @@ installation and authentication. See the [MCP guide](docs/mcp.md),
 [Privacy Policy](https://www.coderabbit.ai/privacy-policy), and
 [support](mailto:support@coderabbit.ai).
 
-#### LM Studio hosted MCP
-
-[Add CodeRabbit US to LM Studio](lmstudio://add_mcp?name=coderabbit&config=eyJ1cmwiOiJodHRwczovL21jcC5jb2RlcmFiYml0LmFpLyJ9) ·
-[Add CodeRabbit EU to LM Studio](lmstudio://add_mcp?name=coderabbit-eu&config=eyJ1cmwiOiJodHRwczovL21jcC5ldS5jb2RlcmFiYml0LmFpLyJ9)
-
-These links add the hosted endpoint to LM Studio's MCP configuration. Connecting
-requires OAuth with PKCE and the scopes needed by your workflow; an installed
-entry alone does not establish authentication or tool access. See the
-[LM Studio setup notes](docs/hosted-mcp-clients.md#lm-studio).
-
-#### Other hosted MCP clients
-
-See the [hosted client guide](docs/hosted-mcp-clients.md) for Amp, Augment, Warp,
-GitHub Copilot CLI, LibreChat, and the current Emergent and Zed limitations.
-Each recipe uses the same US/EU endpoints and canonical skills. Marketplace
-publication and MCP Apps qualification remain separate from configuration.
-
 #### Claude Plugin
 
 In Claude Code, install the plugin from the official marketplace:

@@ -27,7 +27,7 @@ This file is the repository's operating inventory for where CodeRabbit skills an
 The [hosted client guide](docs/hosted-mcp-clients.md) and
 [configuration snippets](packaging/hosted-clients/) provide direct setup paths
 for Amp, Augment, Warp, Copilot CLI, LibreChat, and LM Studio. LM Studio also has
-region-specific install links in the README. These are source configuration
+region-specific installation URIs in the client guide. These are source configuration
 recipes; they do not establish a public marketplace listing, completed OAuth,
 or MCP Apps qualification. Copilot cloud, Emergent, and Zed discovery have the
 separate limitations recorded in the guide.
