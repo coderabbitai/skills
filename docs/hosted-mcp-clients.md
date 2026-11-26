@@ -8,9 +8,17 @@ the [portable skills](../README.md#skills-installer) and the standalone CLI
 separately when your agent needs local code review. MCP sign-in and CLI sign-in
 are separate.
 
-Repository tools require a GitHub Cloud organization. On other Git platforms,
+Organizations on self-hosted CodeRabbit or a self-hosted Git provider, such as
+GitHub Enterprise Server, cannot connect to this hosted service.
+
+Repository tools require a GitHub Cloud organization. On other cloud Git platforms,
 only the account tools `connection_status`, `get_me`, and `get_usage` are
 available, subject to the granted scopes.
+
+Retrieving pull requests also requires a GitHub account linked to your
+CodeRabbit user. GitHub sign-in links it already; Enterprise SSO users may
+need to link it in CodeRabbit or ask an administrator. See
+[MCP availability](https://docs.coderabbit.ai/api/mcp#availability).
 
 Choose the endpoint for your organization:
 
