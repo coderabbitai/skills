@@ -1,0 +1,9 @@
+# Merge into librechat.yaml; preserve existing servers.
+mcpServers:
+  coderabbit:
+    type: streamable-http
+    url: https://mcp.coderabbit.ai/
+    startup: false
+    requiresOAuth: true
+    oauth:
+      scope: "connection account:read usage:read pull_requests:read review repositories:read security:read security:write automations:write knowledge:write"
