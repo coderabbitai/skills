@@ -1,0 +1,14 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "skills": [
+    "https://raw.githubusercontent.com/coderabbitai/skills/main/skills/"
+  ],
+  "mcp": {
+    "servers": {
+      "coderabbit": {
+        "type": "remote",
+        "url": "https://mcp.coderabbit.ai/"
+      }
+    }
+  }
+}
