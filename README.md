@@ -12,7 +12,7 @@ CodeRabbit detects bugs, security issues, and quality risks before you merge.
 
 ## Quickstart
 
-**Antigravity 1.3.4 candidate:** [install the local source candidate](#antigravity-cli-plugin),
+**Antigravity 1.3.6 candidate:** [install the local source candidate](#antigravity-cli-plugin),
 then authenticate the hosted connection through Antigravity's CodeRabbit account
 settings, then ask **“Check my CodeRabbit connection and selected organization.”**
 See the [Antigravity setup guide](.antigravity-plugin/README.md).
