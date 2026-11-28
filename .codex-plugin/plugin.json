@@ -1,7 +1,7 @@
 {
   "name": "coderabbit",
-  "version": "1.2.2",
-  "description": "AI-powered code review, review-comment autofix, and repository configuration, powered by CodeRabbit.",
+  "version": "1.2.3",
+  "description": "AI-powered code review, review-comment autofix, repository configuration, and Secure findings triage, powered by CodeRabbit.",
   "author": {
     "name": "CodeRabbit AI",
     "email": "support@coderabbit.ai",
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "CodeRabbit",
     "shortDescription": "Run AI-powered code review for your current changes",
-    "longDescription": "Review code changes, work through unresolved GitHub PR feedback, and configure CodeRabbit repository settings with the CLI.",
+    "longDescription": "Review code changes, work through unresolved GitHub PR feedback, configure CodeRabbit repository settings with the CLI, and triage CodeRabbit Secure Deep Scan findings through a connected CodeRabbit MCP server.",
     "developerName": "CodeRabbit",
     "category": "Developer Tools",
     "capabilities": [

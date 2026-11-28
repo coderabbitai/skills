@@ -11,8 +11,6 @@ is declared in `mcp_config.json` and uses Antigravity's native OAuth discovery.
 
 ## Set up
 
-Run `/coderabbit:setup` in the installed Claude plugin.
-
 1. Connect CodeRabbit through Claude's native browser sign-in and select your
    organization. In Claude Code, use `/mcp` to inspect the connection.
 2. For local reviews, install the official [CodeRabbit CLI](https://docs.coderabbit.ai/cli)
@@ -29,15 +27,14 @@ can still be used but local review cannot run.
 ## Remote tools and local reviews
 
 Antigravity, Claude and Codex show local CLI findings directly in chat.
-To enable cards with the [latest stable CLI](https://cli.coderabbit.ai/releases/latest/VERSION)
-on a local host, ask “Set up inline CodeRabbit review cards.” The shared setup
-skill uses the native host's MCP settings to register a compatible installed
-CLI as a local stdio server. When that connection confirms Apps support, the
+Cards need the [latest stable CLI](https://cli.coderabbit.ai/releases/latest/VERSION)
+registered in the host's MCP settings as a local stdio server running
+`<absolute CLI path> review-card-mcp`. When that connection confirms Apps support, the
 agent can request a receipt during the review and present the exact ID locally
 after completion. Selected fixes continue in the local checkout. Missing
 support or receipt leaves the findings in chat. The hosted connector receives
 neither CLI findings nor the card ID. Hosted-only clients continue using their
-existing account tools. See [local presenter setup](../skills/coderabbit-setup/references/local-review-card.md).
+existing account tools. See the [review card checks](../skills/code-review/references/local-review-card.md).
 
 The declared remote connection provides tools within the granted scopes and
 your account's permissions. Use it for account, usage and accessible pull-request

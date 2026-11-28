@@ -28,9 +28,8 @@ be explained with the available CLI-only option, which the user must explicitly
 select. Never switch routes automatically after an MCP denial, failed launch,
 started review or uncertain result. Preserve the original review ID and recovery.
 
-For the root Claude plugin, setup is `/coderabbit:setup`, backed by the
-[setup guide](../setup/SKILL.md). Independently assembled packages expose the same
-setup guide as their `setup` skill.
+Independently assembled packages expose the [setup guide](../setup/SKILL.md)
+as their `setup` skill. The root Claude plugin has no setup skill.
 
 ## MCP review
 

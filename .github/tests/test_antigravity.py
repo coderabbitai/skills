@@ -270,9 +270,6 @@ class PackageManifestTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        setup = self.root / "skills/coderabbit-setup/SKILL.md"
-        setup.parent.mkdir(parents=True)
-        setup.write_text("---\nname: coderabbit-setup\ndescription: Set up CodeRabbit\n---\n")
         (self.root / ".antigravity-plugin").mkdir()
         (self.root / ".antigravity-plugin/README.md").write_text("Setup guide")
         (self.root / "mcp_config.json").write_text(json.dumps({
@@ -291,14 +288,6 @@ class PackageManifestTests(unittest.TestCase):
             with self.subTest(prompts=prompts):
                 self.check_prompts(prompts)
 
-    def test_setup_available_only_in_hidden_source_directory(self):
-        hidden = self.root / ".antigravity-plugin/skills/coderabbit-setup/SKILL.md"
-        hidden.parent.mkdir(parents=True)
-        (self.root / "skills/coderabbit-setup/SKILL.md").rename(hidden)
-        self.manifest["skills"] = [".antigravity-plugin/skills"]
-        with self.assertRaisesRegex(ValueError, "portable setup skill"):
-            self.check_prompts(["Connect"])
-
     def test_invalid_prompt_values_report_validation_error(self):
         invalid = [None, True, 1, "Review", {"Review": True}, [], ["a"] * 4, [None], [" "]]
         for prompts in invalid:
@@ -311,7 +300,7 @@ class NativeReportTests(unittest.TestCase):
     def setUp(self):
         self.report = {
             "manifest": "plugin.json", "name": "coderabbit",
-            "components": {"skills": 5, "agents": 2, "mcpServers": 1, "hooks": 0, "rules": 0, "sidecars": 0},
+            "components": {"skills": 4, "agents": 2, "mcpServers": 1, "hooks": 0, "rules": 0, "sidecars": 0},
             "findings": [{"severity": "warning", "file": "commands", "message": "never loaded: plugins have no commands. Make each one a skill"}],
         }
 
@@ -329,7 +318,7 @@ class NativeReportTests(unittest.TestCase):
             checks.check_report(self.report)
 
     def test_missing_mcp_and_extra_hooks_fail(self):
-        for field, value in (("mcpServers", 0), ("hooks", 1), ("skills", 4)):
+        for field, value in (("mcpServers", 0), ("hooks", 1), ("skills", 3)):
             with self.subTest(field=field):
                 report = copy.deepcopy(self.report)
                 report["components"][field] = value

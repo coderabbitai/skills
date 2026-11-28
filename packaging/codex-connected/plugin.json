@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "coderabbit",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "CodeRabbit is the governance and control layer for agentic software development helping developers trust AI written code.",
   "author": {
     "name": "CodeRabbit",
@@ -14,11 +14,10 @@
   "keywords": ["code-review", "autofix", "ai", "coderabbit", "mcp", "pull-requests"],
   "extensions": {
     "com.openai": {
-      "onboardingSkill": "./skills/coderabbit-setup/SKILL.md",
       "interface": {
         "displayName": "CodeRabbit",
         "shortDescription": "Trust AI-written code",
-        "longDescription": "CodeRabbit is the governance and control layer for agentic software development helping developers trust AI written code.\n\nConnect your CodeRabbit account in ChatGPT or Codex to check your connection, inspect usage, and explore accessible pull requests through MCP.\n\nIn an execution-capable host such as Codex, use the included skills to review local code changes with the CodeRabbit CLI, review and apply CodeRabbit pull-request feedback with per-change approval, and configure CodeRabbit for your repository. Local workflows require the separately installed tools and authentication described in each skill.\n\nRemote MCP sign-in and local CLI sign-in are separate. The remote connection cannot read files on your laptop. Available tools depend on your organization, plan, permissions, and granted scopes.",
+        "longDescription": "CodeRabbit is the governance and control layer for agentic software development helping developers trust AI written code.\n\nConnect your CodeRabbit account in ChatGPT or Codex to check your connection, inspect usage, and explore accessible pull requests through MCP.\n\nIn an execution-capable host such as Codex, use the included skills to review local code changes with the CodeRabbit CLI, review and apply CodeRabbit pull-request feedback with per-change approval, configure CodeRabbit for your repository, and triage CodeRabbit Secure Deep Scan findings. Local workflows require the separately installed tools and authentication described in each skill.\n\nRemote MCP sign-in and local CLI sign-in are separate. The remote connection cannot read files on your laptop. Available tools depend on your organization, plan, permissions, and granted scopes.",
         "developerName": "CodeRabbit",
         "category": "Developer Tools",
         "capabilities": ["Read", "Write"],
@@ -89,7 +88,7 @@
         }
       },
       "publication": {
-        "release_notes": "Version 1.3.0 brings the production CodeRabbit MCP connection and standalone review, autofix, and configuration skills to ChatGPT and Codex. MCP and CLI authentication are separate. Local workflows require a compatible execution-capable host."
+        "release_notes": "Version 1.3.1 brings the production CodeRabbit MCP connection and standalone review, autofix, configuration, and Secure findings triage skills to ChatGPT and Codex. MCP and CLI authentication are separate. Local workflows require a compatible execution-capable host."
       }
     }
   }

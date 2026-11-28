@@ -2,6 +2,20 @@
 
 All notable changes to this repository are documented in this file.
 
+## Remove setup command and setup skill
+
+- Claude 1.3.6, Antigravity 1.3.6, root Codex 1.2.3 and connected Codex 1.3.1 drop
+  `/coderabbit:setup` (`commands/setup.md`) and the `coderabbit-setup` skill.
+  Connect MCP through each host's native sign-in and install the CLI from its
+  official docs. Codex no longer declares an onboarding skill.
+- Guided registration of the local review-card presenter is removed.
+  `code-review` still renders cards when the host already runs a compatible
+  CLI as a local stdio server; otherwise findings stay in chat.
+- Claude, Antigravity and both Codex packages now ship the same four skills:
+  `code-review`, `autofix`, `coderabbit-config` and `coderabbit-secure`.
+  Claude and root Codex gain `coderabbit-secure` with this release; root Codex
+  needs a connected CodeRabbit MCP server for it.
+
 ## Local stdio review card setup
 
 - Antigravity 1.3.3 and Claude 1.3.5 can register the installed CodeRabbit CLI

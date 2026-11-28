@@ -9,18 +9,17 @@
 
 ## Native Claude package on main
 
-The repository root on `main` is the complete Claude MCP 1.3.1 candidate.
-`.claude-plugin/plugin.json` declares its hosted connection and plugin-qualified
-post-tool hook. `cli.json` and `runtime/` pin the existing readable
-`scripts/coderabbit-runtime` launcher to CLI 0.9.3. Explicit setup prepares the
-runtime; hooks never download it. No generated distribution branch is needed.
+The repository root on `main` is the complete Claude MCP 1.3.6 candidate.
+`.claude-plugin/plugin.json` declares its hosted connection and no hooks. Local
+reviews use the separately installed and authenticated CodeRabbit CLI; the
+package bundles no runtime or launcher. No generated distribution branch is needed.
 
 The shared review skill and review agent select MCP only when Claude loads them
 as native `coderabbit` plugin components and substitutes their plugin root.
 Portable skill installs and other hosts retain the standalone CLI instructions.
 Explicit CLI-only review is chosen before MCP reservation; failed MCP setup never
-switches automatically. `/coderabbit:setup` is a default Markdown command that
-reads the canonical MCP setup guide. No second broad review skill is registered.
+switches automatically. The root Claude plugin has no setup skill or command.
+No second broad review skill is registered.
 
 MCP and hooks are inline in the Claude manifest rather than root `.mcp.json` or
 `hooks/hooks.json`, which other host loaders can auto-discover. Native Codex,
