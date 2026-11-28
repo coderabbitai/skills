@@ -19,8 +19,8 @@ The shared review skill and review agent select MCP only when Claude loads them
 as native `coderabbit` plugin components and substitutes their plugin root.
 Portable skill installs and other hosts retain the standalone CLI instructions.
 Explicit CLI-only review is chosen before MCP reservation; failed MCP setup never
-switches automatically. `/coderabbit:setup` is a default Markdown command that
-reads the canonical MCP setup guide. No second broad review skill is registered.
+switches automatically. The root Claude plugin has no setup skill or command.
+No second broad review skill is registered.
 
 MCP and hooks are inline in the Claude manifest rather than root `.mcp.json` or
 `hooks/hooks.json`, which other host loaders can auto-discover. Native Codex,

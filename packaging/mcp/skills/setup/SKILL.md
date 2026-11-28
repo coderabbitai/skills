@@ -22,8 +22,7 @@ optional configuration.
 
 1. Read this plugin's `cli.json`. Resolve its `launcher` relative to the plugin
    root, keep it inside that root, and quote its absolute path. For the native
-   Claude package, use the installed root already supplied by `/coderabbit:setup`
-   or the invoking plugin skill; do not read an unresolved placeholder from a
+   Claude package, use the installed root already supplied by the invoking plugin skill; do not read an unresolved placeholder from a
    shell environment. A directly loaded Claude plugin skill substitutes
    `${CLAUDE_PLUGIN_ROOT}`; in Codex the root is two directories above the
    loaded setup skill. For `delivery: download`, follow

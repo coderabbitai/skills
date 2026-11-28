@@ -18,7 +18,7 @@ def main():
     subprocess.run([sys.executable, str(root / '.github/release.py'), 'check'], check=True)
     manifest = json.loads((source / "plugin.json").read_text())
     mcp = json.loads((source / "mcp.json").read_text())
-    skills = ("code-review", "autofix", "coderabbit-config", "coderabbit-setup", "coderabbit-secure")
+    skills = ("code-review", "autofix", "coderabbit-config", "coderabbit-secure")
     tracked = subprocess.check_output(
         ["git", "ls-files", "-z", "--", *(f"skills/{name}/" for name in skills)],
         cwd=root,
@@ -35,7 +35,6 @@ def main():
             del manifest["$schema"]
             openai = manifest.pop("extensions")["com.openai"]
             manifest["interface"] = openai["interface"]
-            manifest["onboardingSkill"] = openai["onboardingSkill"]
             manifest.update(skills="./skills/", mcpServers="./.mcp.json")
             hosted = mcp["mcpServers"]["coderabbit"]
             auth = hosted["extensions"]["com.openai"]["auth"]

@@ -28,8 +28,8 @@ not identical host behavior or permissions.
   no automatic review hook, bundled CLI, or MCP-to-CLI credential transfer.
 - `commands/` remains for Claude and Gemini. Native `agy plugin validate`
   reports its expected warning. With 1.5.11, installation reported conversion
-  but exposed none of those commands as installed skills. Google setup uses
-  `coderabbit-setup` explicitly; review uses `code-review`. Do not depend on
+  but exposed none of those commands as installed skills. Google connection
+  uses the plugin's Accounts tab; review uses `code-review`. Do not depend on
   command conversion or remove other hosts' commands to silence the warning.
 
 Google's [plugin guide](https://antigravity.google/docs/build-plugins) and
@@ -43,7 +43,7 @@ Rechecked on 2026-11-18 for the agent-guidance review:
 
 | Contract | Public source and verification |
 | --- | --- |
-| Skill discovery | Google's [manifest field reference](https://antigravity.google/docs/build-plugins#field-reference) specifies the default `skills/` directory. The native validator discovers all five shared skills there. |
+| Skill discovery | Google's [manifest field reference](https://antigravity.google/docs/build-plugins#field-reference) specifies the default `skills/` directory. The native validator discovers all four shared skills there. |
 | Server identity | Google's [MCP plugin layout](https://antigravity.google/docs/build-plugins#mcp-servers) namespaces a server with its plugin name. Both names here are `coderabbit`, producing `coderabbit_coderabbit`. |
 | Native OAuth | Google's [OAuth guide](https://antigravity.google/docs/mcp#oauth) documents automatic CIMD/DCR discovery with PKCE for a remote `serverUrl`. |
 | App sign-in | Google's [authentication steps](https://antigravity.google/docs/mcp#authenticate-a-server) use Customizations > Installed > MCP Servers. The plugin's Accounts tab and successful code entry were separately observed in the App smoke test. |
@@ -75,7 +75,7 @@ distinct package, not evidence of MCP in the standalone Codex distribution.
    isolated checkout for this reason.
 3. Test installation and connection in a dedicated Antigravity test profile.
    Run `agy plugin install /absolute/path/to/skills`, then `agy plugin list --json`.
-   Verify version, all five skills, agents and the single
+   Verify version, all four skills, agents and the single
    `coderabbit_coderabbit` MCP server. Inspect the marketplace overview too.
 4. Merge the reviewed change into `coderabbitai/skills` **main**. Google
    confirmed on 2026-11-17 that its weekly crawler reads that branch and
@@ -92,7 +92,7 @@ distinct package, not evidence of MCP in the standalone Codex distribution.
 
 | Check | Expected result |
 | --- | --- |
-| Fresh install | Correct branding, three starter prompts, Google overview, five skills and two agents; exactly one hosted MCP server. |
+| Fresh install | Correct branding, three starter prompts, Google overview, four skills and two agents; exactly one hosted MCP server. |
 | OAuth | Native consent succeeds; cancellation stays disconnected; reconnect works. No secrets or codes are pasted into chat. |
 | Account and organization | `connection_status` or `get_me` reports the selected organization. A browser success page is insufficient. |
 | Scope parity | Inspect actual consent and granted capabilities. The Claude source manifest requests repository and Security access, plus automation and knowledge writes for schedule and learning changes. Google relies on discovery. Check a scoped findings read after sign-in. |

@@ -6,9 +6,6 @@ usage and accessible pull-request workflows.
 
 ## Get connected
 
-Ask **“Set up CodeRabbit”** to use the included `coderabbit-setup` skill, or
-follow the steps below.
-
 Install CodeRabbit from **Customizations > Marketplace**, or run
 `agy plugin install coderabbit` in your terminal. Marketplace updates follow
 the published version; source on GitHub may be newer.
@@ -55,13 +52,13 @@ For CodeRabbit Secure, ask **“Which findings from the latest Deep Scan of
 owner/repo should I fix first?”** Follow up with “Draft a ticket for the
 first one” or “How much would a new full scan cost?”
 
-Five skills: `coderabbit-setup`, `code-review`, `autofix`, `coderabbit-config`
-and `coderabbit-secure`. Two agents:
+Four skills: `code-review`, `autofix`, `coderabbit-config` and
+`coderabbit-secure`. Two agents:
 `code-reviewer` and `autofix`. The autofix agent proposes a plan; the autofix
 skill applies independently checked fixes with your approval. After a local
-review, the agent shows findings in chat. Ask **“Set up inline CodeRabbit
-review cards”** to register a compatible local CLI. When the session confirms
-Apps for this local connection, the agent sends only the card ID to it. With no usable
+review, the agent shows findings in chat. If a compatible local CLI is already
+registered as a stdio server and the session confirms Apps for it, the agent
+sends only the card ID to it. With no usable
 ID the agent shows the findings in chat and sends nothing to MCP.
 
 ## Data and support
